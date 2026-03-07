@@ -1,0 +1,79 @@
+# Phase Retrieval with Diffusion Models (SITCOM + Noise Picking)
+
+This repo is a small, HPC-friendly codebase for phase retrieval experiments using a pretrained DDPM denoiser
+(e.g. `google/ddpm-celebahq-256`) and magnitude-only Fourier measurements.
+
+It includes:
+- **SITCOM** reconstruction (paper-faithful: gradients flow through the denoiser during the inner optimization).
+- **Noise picking** (candidate-noise selection baseline/idea).
+- Scripts for **learning-rate sweeps**, **noise ablation** (`eta_scale × init_scale`), and **method comparison / score-radius ablation**.
+
+## Folder layout
+
+```
+prdiffusion/                 # reusable library code
+  algorithms/
+    sitcom.py
+    noise_picking.py
+  diffusion.py
+  fft_ops.py
+  io.py
+  metrics.py
+  seed.py
+
+scripts/
+  sitcom_lr_sweep.py
+  sitcom_noise_ablation.py
+  compare_methods.py
+```
+
+## Install
+
+Create an env (Python 3.10+ recommended):
+
+```bash
+pip install torch torchvision diffusers pillow numpy
+# Optional, only if you want to download CelebA-HQ from Kaggle in-script:
+pip install kagglehub
+```
+
+## Data
+
+The scripts can work with either:
+1) a local CelebA-HQ 256 folder (recommended for HPC), or
+2) `kagglehub` download (may not work on clusters with blocked outbound internet).
+
+### Local data folder layout
+Point `--data_root` at a directory containing the `.jpg` files (can be nested subfolders).
+The scripts search by basename.
+
+## Quick runs
+
+### SITCOM learning-rate sweep
+```bash
+python scripts/sitcom_lr_sweep.py --image 09375.jpg --data_root /path/to/celeba_hq_256 \
+  --outdir out_lr --lr_list 0.01,0.02,0.05,0.1 --eta_scale 1.0 --init_scale 1.0
+```
+
+### SITCOM noise ablation
+```bash
+python scripts/sitcom_noise_ablation.py --image 09375.jpg --data_root /path/to/celeba_hq_256 \
+  --outdir out_noise --eta_list 0.0,0.25,0.5,1.0 --init_list 0.75,1.0,1.25 --lr 0.05
+```
+
+### Compare methods + score-radius ablation
+```bash
+python scripts/compare_methods.py --image 09375.jpg --data_root /path/to/celeba_hq_256 \
+  --outdir out_compare --score_radii 0.005,0.01,0.02,0.03,0.04,0.05
+```
+
+## Reproducibility notes
+- Each run uses a `base_seed`. All randomness (torch/numpy/python) is seeded.
+- `eta_scale` controls re-noise in the resampling step (0 = deterministic; 1 = DDPM-like).
+- `init_scale` scales the initial latent noise.
+
+## Outputs
+Scripts write a timestamped CSV with one row per run including:
+`image_basename`, `seed`, hyperparameters, PSNR, mag error, runtime.
+
+Optionally, scripts can save reconstructed images as PNG.
