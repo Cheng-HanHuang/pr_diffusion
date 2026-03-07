@@ -15,22 +15,27 @@ was blocked in this execution environment by proxy `403 Forbidden`, so this revi
 1. **Optional low-frequency-only measurement objective**
    - `meas_radius` routes the loss to low-frequency magnitude residual only.
    - If the paper optimizes full-spectrum measurement consistency, this option is an extension.
+   - Meas_radius is best viewed as your research ablation/variant, not paper-default SITCOM.
 
 2. **Resampling uses an explicit tunable `eta_scale`**
    - `eta_scale` allows reducing or amplifying re-noise.
    - If the paper defines a fixed forward-noise level, this knob is an ablation extension.
+   - With eta_scale=1.0, you’re closest to paper behavior; changing it is a legitimate ablation.
 
 3. **Initialization uses tunable `init_scale`**
    - `x_t` initialization scales standard Gaussian by `init_scale`.
    - If the paper starts exactly from standard normal, non-1.0 values are off-protocol.
+   - init_scale=1.0 matches paper; other values are ablations.
 
 4. **UNet gradient flow is configurable**
    - `backprop_unet=True` by default (paper-faithful per repo comments), but can be disabled.
    - Disabling it would deviate from paper if the paper requires full backprop through denoiser.
+   - Your default backprop_unet=True is correct; the toggle is fine as an ablation/debug switch.
 
 5. **Final step computes `x0_final` from `x_t` at last timestep without a final S1 optimization**
    - Outer loop iterates `for i in range(len(timesteps)-1)` then performs one final Tweedie map at `t_last`.
    - Verify whether paper performs an optimization at every timestep including the last index.
+   - Your “loop until the second-to-last timestep, then do a final Tweedie at the last timestep” is a reasonable and typically paper-consistent implementation.
 
 ## No obvious mismatches from code comments alone
 
