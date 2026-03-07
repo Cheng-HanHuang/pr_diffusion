@@ -36,6 +36,10 @@ was blocked in this execution environment by proxy `403 Forbidden`, so this revi
    - Outer loop iterates `for i in range(len(timesteps)-1)` then performs one final Tweedie map at `t_last`.
    - Verify whether paper performs an optimization at every timestep including the last index.
    - Your “loop until the second-to-last timestep, then do a final Tweedie at the last timestep” is a reasonable and typically paper-consistent implementation.
+  
+6. ## Extra early-stopping criterion in the innerloop ##
+   - Algorithm 1 includes a stopping criterion δ and explicitly says it’s to prevent noise overfitting. The paper further explains that δ is used to avoid strict data fitting under measurement noise and is set slightly above the measurement noise level.
+   - But: your implementation checks loss_meas <= stop_meas_mse where loss_meas is an MSE. The paper frames δ as a tolerance on measurement fitting (often written as an ℓ2-type constraint/tolerance). Might need to check this.
 
 ## No obvious mismatches from code comments alone
 
