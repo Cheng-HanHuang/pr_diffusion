@@ -7,7 +7,7 @@ import torch
 from diffusers import UNet2DModel, DDPMScheduler
 
 from ..diffusion import tweedie_x0_from_v, resample_x_t
-from ..metrics import mag_mse, lowfreq_mag_l2
+from ..metrics import mag_mse, mag_l2, lowfreq_mag_l2
 from ..seed import seed_everything
 
 
@@ -27,6 +27,10 @@ class SitcomConfig:
     # If set, early-stop inner loop when measurement MSE falls below this threshold.
     # Useful when measurement noise is nonzero (prevents overfitting).
     stop_meas_mse: Optional[float] = None
+
+    # Paper-faithful early-stop threshold on L2 measurement residual.
+    # When set, this takes precedence over stop_meas_mse.
+    stop_meas_l2: Optional[float] = None
 
     # If True, flow gradients through the denoiser (paper-faithful SITCOM).
     backprop_unet: bool = True
@@ -89,17 +93,24 @@ def sitcom_reconstruct(
             # measurement loss
             if cfg.meas_radius is None:
                 loss_meas = mag_mse(x0_v, mag_target)
+                meas_l2 = mag_l2(x0_v, mag_target)
             else:
                 # squared lowfreq l2 (matches your notebook pattern)
-                loss_meas = lowfreq_mag_l2(x0_v, mag_target, cfg.meas_radius).pow(2)
+                meas_l2 = lowfreq_mag_l2(x0_v, mag_target, cfg.meas_radius)
+                loss_meas = meas_l2.pow(2)
 
             loss_reg = cfg.lam * torch.mean((v - x_t) ** 2)
             loss = loss_meas + loss_reg
             loss.backward()
             opt.step()
 
+            # Paper-faithful stop criterion uses L2 residual threshold.
+            if cfg.stop_meas_l2 is not None:
+                if float(meas_l2.detach().cpu()) <= float(cfg.stop_meas_l2):
+                    break
+
+            # Backward-compatible variant using MSE threshold.
             if cfg.stop_meas_mse is not None:
-                # stop if measurement loss is already small enough
                 if float(loss_meas.detach().cpu()) <= float(cfg.stop_meas_mse):
                     break
 

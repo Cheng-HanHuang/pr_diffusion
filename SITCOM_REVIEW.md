@@ -100,3 +100,19 @@ This is typically acceptable in practice and often equivalent when the last step
 - Core SITCOM mechanism in `sitcom.py` is correctly implemented.
 - Most differences are intentional ablation knobs.
 - The **main paper-vs-code semantic mismatch** worth addressing is the stopping criterion quantity (`L2 δ` in paper vs `MSE` threshold in code).
+
+
+---
+
+## Resolution applied in code (this branch)
+
+I confirmed the main concern is valid: the paper’s early stopping uses an **L2 residual threshold** (`\|\|...\|\|_2 < \delta`), while the previous code checked an **MSE threshold**.
+
+Implemented the paper-faithful fix (option 2):
+- Added `stop_meas_l2` to `SitcomConfig`.
+- Compute measurement residual L2 in the same measurement space used by the loss:
+  - full-spectrum branch: `mag_l2(...)`
+  - low-frequency branch: `lowfreq_mag_l2(...)`
+- Inner-loop early stopping now prefers `stop_meas_l2` (paper-faithful), while retaining `stop_meas_mse` as backward-compatible behavior.
+
+This makes SITCOM early stopping semantics paper-faithful when `stop_meas_l2` is provided.
