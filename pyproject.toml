@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prdiffusion"
+version = "0.0.1"
+description = "Phase retrieval experiments with diffusion models (SITCOM + noise picking)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "torch",
+  "torchvision",
+  "diffusers",
+  "pillow",
+  "numpy",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prdiffusion*"]
