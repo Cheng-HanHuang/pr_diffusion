@@ -7,7 +7,7 @@ import torch
 from diffusers import UNet2DModel, DDPMScheduler
 
 from ..fft_ops import fft2c, ifft2c, lowfreq_mask
-from ..metrics import lowfreq_mag_l2
+from ..metrics import lowfreq_mag_l2, mag_l2
 from ..seed import seed_everything
 
 
@@ -20,6 +20,8 @@ class NoisePickingConfig:
     num_candidates_soft: int = 5
     num_candidates_hard: int = 2
     log_every: int = 100
+    use_lowfreq_score: bool = True
+    use_lowfreq_projection: bool = True
 
 
 def enforce_magnitude_lowfreq(
@@ -54,7 +56,7 @@ def pick_noise(
     eps_prev: Optional[torch.Tensor],
     mag_target: torch.Tensor,
     num_candidates: int,
-    score_radius: float,
+    score_radius: Optional[float],
     unet: UNet2DModel,
     scheduler: DDPMScheduler,
 ) -> tuple[torch.Tensor, torch.Tensor]:
@@ -78,7 +80,10 @@ def pick_noise(
         eps_pred = unet(x_t, t_tensor).sample
         x0_hat = (x_t - sqrt_1mat * eps_pred) / sqrt_at
 
-        score = lowfreq_mag_l2(x0_hat, mag_target, radius=score_radius)
+        if score_radius is not None:
+            score = lowfreq_mag_l2(x0_hat, mag_target, radius=score_radius)
+        else:
+            score = mag_l2(x0_hat, mag_target)
 
         if best_score is None or float(score) < float(best_score):
             best_score = score
@@ -125,7 +130,7 @@ def noise_picking_reconstruct(
             x0_hat = x_prev
 
         # late projection
-        if i >= cfg.proj_start:
+        if cfg.use_lowfreq_projection and i >= cfg.proj_start:
             x0_hat = enforce_magnitude_lowfreq(x0_hat, mag_target, cfg.proj_radius)
 
         k = cfg.num_candidates_soft if i < cfg.proj_start else cfg.num_candidates_hard
@@ -136,7 +141,7 @@ def noise_picking_reconstruct(
             eps_prev=eps_prev,
             mag_target=mag_target,
             num_candidates=k,
-            score_radius=cfg.score_radius,
+            score_radius=cfg.score_radius if cfg.use_lowfreq_score else None,
             unet=unet,
             scheduler=scheduler,
         )
