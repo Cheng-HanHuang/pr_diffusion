@@ -15,12 +15,10 @@ cd "${SLURM_SUBMIT_DIR}"
 # Make sure logs folder exists
 mkdir -p logs
 
-# ---- User settings (edit per job) ----
 CONDA_ENV="dip"
 DATA_ROOT="$HOME/data/prdiff_subset5"
 OUT_ROOT="$HOME/out_prdiff_runs"
 MODEL_ID="google/ddpm-celebahq-256"
-# -------------------------------------
 
 # Optional: HF cache dirs (recommended on HPC)
 export HF_HOME=$HOME/.cache/huggingface
