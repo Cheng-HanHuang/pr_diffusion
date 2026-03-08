@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import torch
 
-from prdiffusion.io import find_image_by_basename, load_image, maybe_download_celeba_hq_256
+from prdiffusion.io import find_image_by_basename, load_image
 from prdiffusion.fft_ops import magnitude
 from prdiffusion.metrics import psnr, mag_l2
 from prdiffusion.diffusion import load_model
@@ -31,7 +31,7 @@ def maybe_select(values: list, idxs: Optional[str]) -> list:
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--image", type=str, required=True)
-    p.add_argument("--data_root", type=str, default=None)
+    p.add_argument("--data_root", type=str, required=True)
     p.add_argument("--outdir", type=str, default="out_sitcom_noise_ablation")
     p.add_argument("--model_id", type=str, default="google/ddpm-celebahq-256")
 
@@ -57,8 +57,6 @@ def main():
     args = p.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
 
-    if args.data_root is None:
-        args.data_root = maybe_download_celeba_hq_256()
 
     img_path = find_image_by_basename(args.data_root, args.image)
     if img_path is None:

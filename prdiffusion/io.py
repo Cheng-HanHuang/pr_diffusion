@@ -27,26 +27,3 @@ def find_image_by_basename(root: str, basename: str) -> Optional[str]:
         if basename in filenames:
             return os.path.join(dirpath, basename)
     return None
-
-
-def maybe_download_celeba_hq_256() -> str:
-    """Optionally download CelebA-HQ resized 256×256 via kagglehub.
-
-    Returns:
-        Path to the folder containing jpg files.
-    Raises:
-        RuntimeError if kagglehub is not installed or download fails.
-
-    NOTE: Many HPC clusters block outbound network access. Prefer using --data_root.
-    """
-    try:
-        import kagglehub  # type: ignore
-    except Exception as e:
-        raise RuntimeError(
-            "kagglehub is required to download CelebA-HQ in-script. "
-            "Install it or point --data_root to a local dataset."
-        ) from e
-
-    path = kagglehub.dataset_download("badasstechie/celebahq-resized-256x256")
-    root = os.path.join(path, "celeba_hq_256")
-    return root
