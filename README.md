@@ -26,13 +26,10 @@ scripts/
   compare_methods_no_lowfreq.py
   sitcom_lr_sweep.py
   sitcom_noise_ablation.py
-  make_celeba_subset5.py
 
   # Slurm scripts
   slurm_diag.sh
   slurm_smoke_compare_no_lowfreq.sh
-  slurm_compare_subset5.sh
-  slurm_compare_subset5_full.sh
   slurm_compare_no_lowfreq.sh
 
 scriptstemplate_h200.sh   # generic institution template for future jobs
@@ -50,16 +47,11 @@ Minimal manual install (if preferred):
 
 ```bash
 pip install torch torchvision diffusers pillow numpy
-# Optional, only for in-script Kaggle download:
-pip install kagglehub
 ```
 
 ## Data
 
-You can use either:
-1. A local `celeba_hq_256`-style folder (recommended for HPC), or
-2. Kaggle download fallback (only if outbound network/auth is available).
-
+Provide a local dataset root via `--data_root` for all experiment scripts.
 Scripts search by image basename (e.g. `09375.jpg`) recursively under `--data_root`.
 
 ## Experiment scripts
@@ -114,22 +106,10 @@ python scripts/compare_methods_no_lowfreq.py \
   --noise_picking_steps 1000
 ```
 
-### 5) Build 5-image subset + generate Slurm array script
-Creates a 5-image subset (always includes `09375.jpg` and `09671.jpg`, plus 3 random images), writes a manifest, and generates `scripts/slurm_compare_subset5.sh`.
-
-```bash
-python scripts/make_celeba_subset5.py \
-  --dataset_root /path/to/celeba_hq_256 \
-  --subset_dir "$HOME/data/prdiff_subset5" \
-  --seed 123 --conda_env dip
-```
-
 ## Slurm scripts
 
 - `scripts/slurm_diag.sh`: environment/data/import sanity checks + tiny run.
 - `scripts/slurm_smoke_compare_no_lowfreq.sh`: quick smoke test configuration.
-- `scripts/slurm_compare_subset5.sh`: array job over 5-image subset (per-image outputs).
-- `scripts/slurm_compare_subset5_full.sh`: full subset run with HF cache environment setup.
 - `scripts/slurm_compare_no_lowfreq.sh`: minimal two-image launcher variant.
 - `scriptstemplate_h200.sh`: generic institution H200 template to copy when writing new jobs.
 

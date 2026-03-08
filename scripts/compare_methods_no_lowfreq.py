@@ -15,7 +15,7 @@ from prdiffusion.algorithms.noise_picking import NoisePickingConfig, noise_picki
 from prdiffusion.algorithms.sitcom import SitcomConfig, sitcom_reconstruct
 from prdiffusion.diffusion import load_model
 from prdiffusion.fft_ops import magnitude
-from prdiffusion.io import find_image_by_basename, load_image, maybe_download_celeba_hq_256
+from prdiffusion.io import find_image_by_basename, load_image
 from prdiffusion.metrics import mag_l2, psnr
 
 
@@ -34,7 +34,7 @@ def main() -> None:
         )
     )
     p.add_argument("--images", type=str, default="09375.jpg,09671.jpg", help="Comma-separated image basenames")
-    p.add_argument("--data_root", type=str, default=None)
+    p.add_argument("--data_root", type=str, required=True)
     p.add_argument("--outdir", type=str, default="out_compare_no_lowfreq")
     p.add_argument("--model_id", type=str, default="google/ddpm-celebahq-256")
 
@@ -59,8 +59,6 @@ def main() -> None:
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    if args.data_root is None:
-        args.data_root = maybe_download_celeba_hq_256()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     bundle = load_model(args.model_id, device=device)
