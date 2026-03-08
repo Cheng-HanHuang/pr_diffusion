@@ -114,8 +114,9 @@ def main() -> None:
             row = {"image": image_name, "method": method_name, **asdict(cfg)}
             cfg_rows.append(row)
 
+        cfg_fieldnames = sorted({k for r in cfg_rows for k in r.keys()})
         with open(os.path.join(image_outdir, "configs.csv"), "w", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=list(cfg_rows[0].keys()))
+            w = csv.DictWriter(f, fieldnames=cfg_fieldnames)
             w.writeheader()
             w.writerows(cfg_rows)
 
