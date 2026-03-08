@@ -1,11 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=prdiff_compare
-#SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
-#SBATCH --time=24:00:00
-#SBATCH --array=0-1
+#SBATCH --job-name=prdiff_compare_no_low_freq
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=16G
+#SBATCH --time=6:00:00
+#SBATCH --gpus=h200:1
 #SBATCH --output=logs/prdiff_compare_%A_%a.out
 #SBATCH --error=logs/prdiff_compare_%A_%a.err
 
@@ -24,7 +23,7 @@ set -euo pipefail
 
 mkdir -p logs
 
-: "${CONDA_ENV:=prdiff}"
+: "${CONDA_ENV:=dip}"
 : "${DATA_ROOT:=/path/to/celeba_hq_256}"
 : "${OUT_ROOT:=out_hpc_compare_no_lowfreq}"
 : "${MODEL_ID:=google/ddpm-celebahq-256}"
@@ -44,5 +43,4 @@ python scripts/compare_methods_no_lowfreq.py \
   --n_runs 10 \
   --base_seed "$BASE_SEED" \
   --sitcom_outer_steps 20 \
-  --sitcom_inner_steps 20 \
-  --noise_picking_steps 1000
+  
