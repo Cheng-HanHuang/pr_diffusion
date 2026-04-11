@@ -1,6 +1,6 @@
 # prdiffusion NeurIPS Experiment Plan
 
-This document is a concrete one-month execution plan for the current **prdiffusion** project.
+This document is a concrete execution plan for the current **prdiffusion** project.
 It is written to be followed directly as a working checklist.
 
 The current codebase is built around:
