@@ -27,7 +27,7 @@ is a **secondary ablation**, not the main baseline.
 
 ## 1. Main goals
 
-The goal is to have:
+The goal, by the end of the month, is to have:
 
 1. a frozen evaluation protocol
 2. a canonical comparison script matching the paper story
