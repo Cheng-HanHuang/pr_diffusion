@@ -108,6 +108,7 @@ Rules:
 - tune only on dev/validation
 - never tune on the test set
 - keep the split files in the repo or experiment folder
+- for all images used here, in addition to the five images being used in exisiting experiemtns, use only images 00000.jpg to 05401.jpg because the dataset we have is only partial.
 
 ### 4.3 Seeds
 Use the same seed list everywhere:
