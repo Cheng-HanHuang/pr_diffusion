@@ -272,9 +272,6 @@ Use the **25-image validation set**.
 - seeds: 10
 - radii: `{0.1, 0.2, 0.5}`
 
-Optional larger sweep if time allows:
-- `{0.05, 0.1, 0.2, 0.3, 0.5}`
-
 ### Reconstruction count
 For the 3-radius version:
 - Noise Picking: `25 × 10 × 3 = 750`
@@ -405,7 +402,7 @@ Count:
 
 ### 10.3 Projection start / stage-switch timing
 Test:
-- `proj_start ∈ {300, 400, 500}`
+- `proj_start ∈ {200, 400, 600}`
 
 Keep fixed:
 - best soft/hard counts
