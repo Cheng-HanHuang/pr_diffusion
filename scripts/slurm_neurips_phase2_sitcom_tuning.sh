@@ -1,0 +1,18 @@
+#!/bin/bash --login
+#SBATCH --job-name=prdiff_neurips_p2
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --mem=16G
+#SBATCH --time=12:00:00
+#SBATCH --gpus=h200:1
+#SBATCH --output=logs/%x_%j.out
+#SBATCH --error=logs/%x_%j.err
+set -euo pipefail
+cd "${SLURM_SUBMIT_DIR}"; mkdir -p logs
+CONDA_ENV="${CONDA_ENV:-dip}"
+DATA_ROOT="${DATA_ROOT:-$HOME/data/prdiffusion_images}"
+OUT_ROOT="${OUT_ROOT:-$HOME/out_prdiff_neurips}"
+SPLIT_DIR="${SPLIT_DIR:-docs/neurips_splits}"
+source "$(conda info --base)/etc/profile.d/conda.sh"; conda activate "$CONDA_ENV"
+python scripts/neurips_grid_experiments.py --mode sitcom_lr --data_root "$DATA_ROOT" --image_list_file "$SPLIT_DIR/dev_10.txt" --outdir "$OUT_ROOT/phase2" --seeds "100,101,102,103,104"
+python scripts/neurips_grid_experiments.py --mode sitcom_noise --data_root "$DATA_ROOT" --image_list_file "$SPLIT_DIR/dev_10.txt" --outdir "$OUT_ROOT/phase2" --seeds "100,101,102,103,104"
