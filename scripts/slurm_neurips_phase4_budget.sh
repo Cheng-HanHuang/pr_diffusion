@@ -3,7 +3,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --mem=16G
-#SBATCH --time=20:00:00
+#SBATCH --time=10:00:00
 #SBATCH --gpus=h200:1
 #SBATCH --output=logs/%x_%j.out
 #SBATCH --error=logs/%x_%j.err
