@@ -377,7 +377,7 @@ Use **10 validation images**.
 ### Fixed inputs
 Use:
 - the chosen validation radius from Phase 1
-- 10 seeds
+- 5 seeds (`100,101,102,103,104`) to match grid-runner defaults
 
 ### 10.1 Soft candidate count
 Test:
@@ -388,7 +388,7 @@ Keep fixed:
 - `proj_start = 400`
 
 Count:
-- `10 × 10 × 3 = 300`
+- `10 × 5 × 3 = 150`
 
 ### 10.2 Hard candidate count
 Test:
@@ -398,7 +398,7 @@ Keep fixed:
 - best soft count from 10.1
 
 Count:
-- `10 × 10 × 3 = 300`
+- `10 × 5 × 3 = 150`
 
 ### 10.3 Projection start / stage-switch timing
 Test:
@@ -408,10 +408,10 @@ Keep fixed:
 - best soft/hard counts
 
 Count:
-- `10 × 10 × 3 = 300`
+- `10 × 5 × 3 = 150`
 
 ### Total count
-- `900`
+- `450`
 
 ### Deliverable
 Choose one default candidate schedule.
@@ -434,10 +434,10 @@ Test:
 Use:
 - tuned radius
 - tuned candidate schedule
-- 10 seeds
+- 5 seeds (`100,101,102,103,104`)
 
 Count:
-- `10 × 10 × 4 = 400`
+- `10 × 5 × 4 = 200`
 
 ### 11.2 SITCOM budget curve
 Test three SITCOM compute settings, for example:
@@ -447,13 +447,13 @@ Test three SITCOM compute settings, for example:
 
 Use:
 - frozen SITCOM settings otherwise
-- 10 seeds
+- 5 seeds (`100,101,102,103,104`)
 
 Count:
-- `10 × 10 × 3 = 300`
+- `10 × 5 × 3 = 150`
 
 ### Total count
-- `700`
+- `350`
 
 ### Deliverables
 Produce:
@@ -471,10 +471,10 @@ This is one of the most important practical experiments in the paper.
 Show that the masked score / masked projection structure matters.
 
 ### Images
-Use **15 validation images**.
+Use **10 validation images**.
 
 ### Seeds
-- 10
+- 5 (`100,101,102,103,104`) to match grid-runner defaults
 
 ### Variants
 Run these four Noise Picking variants:
@@ -496,7 +496,7 @@ Run these four Noise Picking variants:
    - masked projection off
 
 ### Count
-- `15 × 10 × 4 = 600`
+- `10 × 5 × 4 = 200`
 
 ### Deliverable
 **Mechanism ablation table**
@@ -597,13 +597,13 @@ Approximate total if all phases are run:
 - Phase 0: 200
 - Phase 1: 1000
 - Phase 2: 450
-- Phase 3: 900
-- Phase 4: 700
-- Phase 5: 600
+- Phase 3: 450
+- Phase 4: 350
+- Phase 5: 200
 - Phase 6: 1000
 - Phase 7: 600
 
-**Total: 5450 reconstructions**
+**Total: 4150 reconstructions**
 
 This is large but manageable for a month-scale HPC effort if the workflow is organized well.
 

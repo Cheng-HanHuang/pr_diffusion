@@ -37,6 +37,9 @@ def main() -> None:
     p.add_argument("--dev_count", type=int, default=10)
     p.add_argument("--val_count", type=int, default=25)
     p.add_argument("--test_count", type=int, default=50)
+    p.add_argument("--val_small_count", type=int, default=10)
+    p.add_argument("--val_medium_count", type=int, default=20)
+    p.add_argument("--test_small_count", type=int, default=20)
     args = p.parse_args()
 
     imgs = list_candidate_images(args.data_root, args.max_image_id)
@@ -53,7 +56,10 @@ def main() -> None:
 
     write_list(os.path.join(args.outdir, "dev_10.txt"), dev)
     write_list(os.path.join(args.outdir, "validation_25.txt"), val)
+    write_list(os.path.join(args.outdir, "validation_10.txt"), val[: args.val_small_count])
+    write_list(os.path.join(args.outdir, "validation_20.txt"), val[: args.val_medium_count])
     write_list(os.path.join(args.outdir, "test_50.txt"), test)
+    write_list(os.path.join(args.outdir, "test_20.txt"), test[: args.test_small_count])
     write_list(
         os.path.join(args.outdir, "seed_list_10.txt"),
         ["100", "101", "102", "103", "104", "105", "106", "107", "108", "109"],

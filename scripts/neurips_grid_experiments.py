@@ -6,7 +6,7 @@ import csv
 import itertools
 import os
 import time
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable, List, Tuple
 
 import torch
 
@@ -28,6 +28,8 @@ def read_list(path: str) -> List[str]:
 
 
 def write_csv(path: str, rows: List[Dict[str, object]]) -> None:
+    if not rows:
+        raise ValueError(f"No rows to write for {path}")
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         w.writeheader()
@@ -40,6 +42,14 @@ def grid(params: Dict[str, Iterable[object]]) -> List[Dict[str, object]]:
     return [dict(zip(keys, combo)) for combo in itertools.product(*vals)]
 
 
+def default_methods_for_mode(mode: str) -> Tuple[bool, bool]:
+    if mode in {"sitcom_lr", "sitcom_noise"}:
+        return True, False
+    if mode in {"np_schedule", "mechanism"}:
+        return False, True
+    return True, True
+
+
 def main() -> None:
     p = argparse.ArgumentParser(description="Grid runner for NeurIPS phase 2-5 sweeps.")
     p.add_argument("--mode", choices=["sitcom_lr", "sitcom_noise", "np_schedule", "budget", "mechanism"], required=True)
@@ -49,6 +59,12 @@ def main() -> None:
     p.add_argument("--model_id", default="google/ddpm-celebahq-256")
     p.add_argument("--seeds", default="100,101,102,103,104")
     p.add_argument("--radius", type=float, default=0.2)
+    p.add_argument(
+        "--methods",
+        choices=["auto", "both", "sitcom", "noise_picking"],
+        default="auto",
+        help="Which methods to run. auto picks compute-efficient defaults per mode.",
+    )
 
     p.add_argument("--sitcom_steps", type=int, default=20)
     p.add_argument("--sitcom_inner_steps", type=int, default=20)
@@ -69,6 +85,18 @@ def main() -> None:
     stamp = time.strftime("%Y%m%d_%H%M%S")
     run_root = os.path.join(args.outdir, f"{args.mode}_{stamp}")
     os.makedirs(run_root, exist_ok=True)
+
+    if args.methods == "auto":
+        run_sitcom, run_np = default_methods_for_mode(args.mode)
+    elif args.methods == "both":
+        run_sitcom, run_np = True, True
+    elif args.methods == "sitcom":
+        run_sitcom, run_np = True, False
+    else:
+        run_sitcom, run_np = False, True
+
+    if not (run_sitcom or run_np):
+        raise ValueError("At least one method must be selected.")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     bundle = load_model(args.model_id, device=device)
@@ -114,58 +142,77 @@ def main() -> None:
             mag_target = magnitude(x_gt)
 
             for seed in seeds:
-                sitcom_cfg = SitcomConfig(
-                    num_steps=int(s.get("sitcom_steps", args.sitcom_steps)),
-                    K=int(s.get("sitcom_inner", args.sitcom_inner_steps)),
-                    lr_inner=float(s.get("sitcom_lr", 0.05)),
-                    lam=0.1,
-                    eta_scale=float(s.get("sitcom_eta", 1.0)),
-                    init_scale=float(s.get("sitcom_init", 1.0)),
-                    meas_radius=None,
-                )
-                np_cfg = NoisePickingConfig(
-                    num_steps=int(s.get("np_steps", args.np_steps)),
-                    score_radius=args.radius,
-                    proj_radius=args.radius,
-                    proj_start=int(s.get("np_proj_start", 400)),
-                    num_candidates_soft=int(s.get("np_soft", 5)),
-                    num_candidates_hard=int(s.get("np_hard", 2)),
-                    use_lowfreq_score=bool(s.get("np_mask_score", True)),
-                    use_lowfreq_projection=bool(s.get("np_mask_proj", True)),
-                )
-
-                t0 = time.perf_counter()
-                x_sit = sitcom_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=sitcom_cfg)
-                if torch.cuda.is_available():
-                    torch.cuda.synchronize()
-                sit_t = time.perf_counter() - t0
-
-                t0 = time.perf_counter()
-                x_np = noise_picking_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=np_cfg)
-                if torch.cuda.is_available():
-                    torch.cuda.synchronize()
-                np_t = time.perf_counter() - t0
-
-                with torch.no_grad():
-                    rows.append(
-                        {
-                            "timestamp": stamp,
-                            "mode": args.mode,
-                            "setting": str(s),
-                            "image_basename": image_name,
-                            "seed": seed,
-                            "radius": args.radius,
-                            "sitcom_psnr": float(psnr(x_sit, x_gt).cpu().item()),
-                            "np_psnr": float(psnr(x_np, x_gt).cpu().item()),
-                            "sitcom_mag_l2": float(mag_l2(x_sit, mag_target).cpu().item()),
-                            "np_mag_l2": float(mag_l2(x_np, mag_target).cpu().item()),
-                            "sitcom_lowfreq_mag_l2": float(lowfreq_mag_l2(x_sit, mag_target, args.radius).cpu().item()),
-                            "np_lowfreq_mag_l2": float(lowfreq_mag_l2(x_np, mag_target, args.radius).cpu().item()),
-                            "sitcom_runtime_s": sit_t,
-                            "np_runtime_s": np_t,
-                        }
+                if run_sitcom:
+                    sitcom_cfg = SitcomConfig(
+                        num_steps=int(s.get("sitcom_steps", args.sitcom_steps)),
+                        K=int(s.get("sitcom_inner", args.sitcom_inner_steps)),
+                        lr_inner=float(s.get("sitcom_lr", 0.05)),
+                        lam=0.1,
+                        eta_scale=float(s.get("sitcom_eta", 1.0)),
+                        init_scale=float(s.get("sitcom_init", 1.0)),
+                        meas_radius=None,
                     )
-                print(f"[{args.mode}] {image_name} seed={seed} setting={s}")
+                    t0 = time.perf_counter()
+                    x_sit = sitcom_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=sitcom_cfg)
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    sit_t = time.perf_counter() - t0
+
+                    with torch.no_grad():
+                        rows.append(
+                            {
+                                "timestamp": stamp,
+                                "mode": args.mode,
+                                "setting": str(s),
+                                "image_basename": image_name,
+                                "seed": seed,
+                                "radius": args.radius,
+                                "method": "sitcom",
+                                "psnr": float(psnr(x_sit, x_gt).cpu().item()),
+                                "mag_l2": float(mag_l2(x_sit, mag_target).cpu().item()),
+                                "lowfreq_mag_l2": float(lowfreq_mag_l2(x_sit, mag_target, args.radius).cpu().item()),
+                                "runtime_s": sit_t,
+                            }
+                        )
+
+                if run_np:
+                    np_cfg = NoisePickingConfig(
+                        num_steps=int(s.get("np_steps", args.np_steps)),
+                        score_radius=args.radius,
+                        proj_radius=args.radius,
+                        proj_start=int(s.get("np_proj_start", 400)),
+                        num_candidates_soft=int(s.get("np_soft", 5)),
+                        num_candidates_hard=int(s.get("np_hard", 2)),
+                        use_lowfreq_score=bool(s.get("np_mask_score", True)),
+                        use_lowfreq_projection=bool(s.get("np_mask_proj", True)),
+                    )
+                    t0 = time.perf_counter()
+                    x_np = noise_picking_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=np_cfg)
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    np_t = time.perf_counter() - t0
+
+                    with torch.no_grad():
+                        rows.append(
+                            {
+                                "timestamp": stamp,
+                                "mode": args.mode,
+                                "setting": str(s),
+                                "image_basename": image_name,
+                                "seed": seed,
+                                "radius": args.radius,
+                                "method": "noise_picking",
+                                "psnr": float(psnr(x_np, x_gt).cpu().item()),
+                                "mag_l2": float(mag_l2(x_np, mag_target).cpu().item()),
+                                "lowfreq_mag_l2": float(lowfreq_mag_l2(x_np, mag_target, args.radius).cpu().item()),
+                                "runtime_s": np_t,
+                            }
+                        )
+
+                print(
+                    f"[{args.mode}] {image_name} seed={seed} setting={s} "
+                    f"methods={'+'.join(m for m, enabled in [('sitcom', run_sitcom), ('noise_picking', run_np)] if enabled)}"
+                )
 
     write_csv(os.path.join(run_root, "run_level.csv"), rows)
     print(f"Saved: {run_root}")
