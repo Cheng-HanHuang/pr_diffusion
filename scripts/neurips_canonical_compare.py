@@ -7,7 +7,7 @@ import os
 import statistics
 import time
 from dataclasses import asdict
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import torch
 
@@ -133,6 +133,35 @@ def main() -> None:
         x_gt = load_image(img_path, size=256, device=device)
         mag_target = magnitude(x_gt)
 
+        sitcom_cache: Dict[int, Dict[str, object]] = {}
+        if args.sitcom_variant == "unmasked":
+            shared_sitcom_cfg = SitcomConfig(
+                num_steps=args.sitcom_steps,
+                K=args.sitcom_inner_steps,
+                lr_inner=args.sitcom_lr,
+                lam=args.sitcom_lam,
+                eta_scale=args.sitcom_eta_scale,
+                init_scale=args.sitcom_init_scale,
+                meas_radius=None,
+                backprop_unet=True,
+                inner_optim="adam",
+            )
+            for seed in seeds:
+                t0 = time.perf_counter()
+                x_sit = sitcom_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=shared_sitcom_cfg)
+                if torch.cuda.is_available():
+                    torch.cuda.synchronize()
+                sit_t = time.perf_counter() - t0
+                with torch.no_grad():
+                    sit_psnr = float(psnr(x_sit, x_gt).cpu().item())
+                    sit_full = float(mag_l2(x_sit, mag_target).cpu().item())
+                sitcom_cache[seed] = {
+                    "recon": x_sit,
+                    "runtime_s": sit_t,
+                    "psnr": sit_psnr,
+                    "full_mag_l2": sit_full,
+                }
+
         for radius in radii:
             sitcom_cfg = SitcomConfig(
                 num_steps=args.sitcom_steps,
@@ -163,11 +192,21 @@ def main() -> None:
             write_csv(os.path.join(run_root, f"configs_{os.path.splitext(image_name)[0]}_r{radius:g}.csv"), cfg_rows)
 
             for seed in seeds:
-                t0 = time.perf_counter()
-                x_sit = sitcom_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=sitcom_cfg)
-                if torch.cuda.is_available():
-                    torch.cuda.synchronize()
-                sit_t = time.perf_counter() - t0
+                if args.sitcom_variant == "masked":
+                    t0 = time.perf_counter()
+                    x_sit = sitcom_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=sitcom_cfg)
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    sit_t = time.perf_counter() - t0
+                    with torch.no_grad():
+                        sit_psnr = float(psnr(x_sit, x_gt).cpu().item())
+                        sit_full = float(mag_l2(x_sit, mag_target).cpu().item())
+                else:
+                    cached = sitcom_cache[seed]
+                    x_sit = cached["recon"]
+                    sit_t = float(cached["runtime_s"])
+                    sit_psnr = float(cached["psnr"])
+                    sit_full = float(cached["full_mag_l2"])
 
                 t0 = time.perf_counter()
                 x_np = noise_picking_reconstruct(mag_target, seed=seed, unet=bundle.unet, scheduler=bundle.scheduler, device=device, cfg=np_cfg)
@@ -176,9 +215,7 @@ def main() -> None:
                 np_t = time.perf_counter() - t0
 
                 with torch.no_grad():
-                    sit_psnr = float(psnr(x_sit, x_gt).cpu().item())
                     np_psnr = float(psnr(x_np, x_gt).cpu().item())
-                    sit_full = float(mag_l2(x_sit, mag_target).cpu().item())
                     np_full = float(mag_l2(x_np, mag_target).cpu().item())
                     sit_low = float(lowfreq_mag_l2(x_sit, mag_target, radius).cpu().item())
                     np_low = float(lowfreq_mag_l2(x_np, mag_target, radius).cpu().item())
