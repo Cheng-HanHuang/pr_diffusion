@@ -72,12 +72,12 @@ def aggregate_by_image(rows: List[Dict[str, object]]) -> List[Dict[str, object]]
     out.sort(key=lambda x: (x["image_basename"], x["method"], x["radius"]))
     return out
 
-
 def write_csv(path: str, rows: List[Dict[str, object]]) -> None:
     if not rows:
         raise ValueError("No rows to write.")
+    fieldnames = sorted({k for row in rows for k in row.keys()})
     with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 
