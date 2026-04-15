@@ -1,0 +1,15 @@
+name: dip
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - matplotlib
+  - numpy
+  - pillow
+  - scikit-image
+  - ipykernel
+  - pytorch
+  - pytorch-cuda=12.1
+  - torchaudio
+  - torchvision
+prefix: /mnt/home/huang248/.conda/envs/dip
