@@ -8,6 +8,8 @@ It includes:
 - **NeurIPS experiment runners** for canonical comparison, phase sweeps, and split generation.
 - Slurm templates for multi-phase HPC execution.
 
+### Notice: Many information here are outdated, please check docs/progress_report.md for up to date progress.
+
 ## Repository layout
 
 ```text
