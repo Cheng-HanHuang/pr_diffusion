@@ -120,7 +120,7 @@ Because the H200 queue became too slow, PAC was adopted as the active developmen
 
 **Small probe data**
 
-- `/egr/research-pac/huang248/data/celeba_hq_256_probe`
+- `/egr/research-pac/huang248/data/celeba_hq_256_stage` (canonical lab data root; probe was transitional)
 
 **Main PAC output root**
 

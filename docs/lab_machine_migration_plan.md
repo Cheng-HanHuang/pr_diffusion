@@ -105,3 +105,13 @@ If differences are mostly paths/env names/script wrappers, keep one repo.
 4. Run one pilot (`test_20`) from the lab profile and verify identical output schema.
 5. Tag that run as the first official lab-machine baseline.
 
+---
+
+## Results/env push policy
+
+For repo tidiness, avoid pushing local machine runtime state into Git.
+
+- **Do not commit**: conda env exports as active lockfiles unless intentionally versioned, raw run directories, tarballs, checkpoints, or image dumps.
+- **Do commit**: lightweight run manifests, commands, and compact summary CSV/markdown reports needed for reproducibility.
+- Keep heavy results in storage paths under `RUN_ROOT`, and reference them from docs with paths and timestamps.
+
