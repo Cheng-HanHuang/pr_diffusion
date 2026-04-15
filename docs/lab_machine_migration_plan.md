@@ -114,5 +114,4 @@ For repo tidiness, avoid pushing local machine runtime state into Git.
 - **Do not commit**: conda env exports as active lockfiles unless intentionally versioned, raw run directories, tarballs, checkpoints, or image dumps.
 - **Do commit**: lightweight run manifests, commands, and compact summary CSV/markdown reports needed for reproducibility.
 - Keep heavy results in storage paths under `RUN_ROOT`, and reference them from docs with paths and timestamps.
-- If a PAC push diverges, follow `docs/pac_git_push_recovery.md` and move local uploads to a feature branch before cleanup.
 
