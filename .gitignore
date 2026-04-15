@@ -26,3 +26,8 @@ datasets/
 # envs
 .venv/
 env/
+
+# allow checked-in env templates
+!env/
+!env/README.md
+!env/*.env.example
