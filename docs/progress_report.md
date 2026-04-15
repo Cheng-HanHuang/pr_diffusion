@@ -465,3 +465,18 @@ That tuning branch is sufficiently settled.
 ## 15. One-paragraph summary
 
 The project has successfully moved from fragile setup/debugging into a real PAC-based experiment workflow. Early institution-cluster runs revealed a canonical-comparison CSV-writing bug and then severe queueing delays, which made PAC the active machine. On PAC, the repo, environment, model loading, subset-data transfer, neutral naming, and tmux-based workflow were all made to work. A 10-image validation probe established `r = 0.5` as the main working radius, and schedule tuning plus a direct three-setting confirmation established the balanced Noise Picking schedule `(soft=5, hard=1, proj_start=400)` as the best overall PAC setting. Mechanism ablation is now running on PAC, larger split files and staged subsets are being transferred, and the project is ready to move into the next PAC main-comparison phase while the queued full cluster validation remains only as a confirmation experiment.
+
+---
+
+## 16. Repository strategy after moving to the lab machine
+
+Because the core method pipeline is unchanged and the differences are mainly machine-local details (paths, env names, and launch naming), the clean default is:
+
+- **keep one repository**, and
+- migrate machine differences into a small per-machine config layer.
+
+A concrete migration blueprint is documented in:
+
+- `docs/lab_machine_migration_plan.md`
+
+In short: treat this as a **configuration migration**, not a codebase fork.
