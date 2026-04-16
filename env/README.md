@@ -24,7 +24,9 @@ cp env/machine.lab.env.example env/machine.lab.env
 source env/machine.lab.env
 ```
 
-4. Submit jobs using exported variables:
+4. Run experiments according to machine mode:
+
+**Institution machine (SLURM examples):**
 
 ```bash
 CONDA_ENV=$CONDA_ENV \
@@ -33,6 +35,10 @@ OUT_ROOT=$RUN_ROOT \
 SPLIT_DIR=$SPLIT_DIR \
 sbatch scripts/slurm_neurips_phase6_main.sh
 ```
+
+**PAC / lab machine (direct Python, no SLURM):**
+
+Use `docs/pac_direct_python_workflow.md` as the canonical run guide.
 
 ## Variables
 
