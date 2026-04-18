@@ -22,7 +22,7 @@ OUT_ROOT="${OUT_ROOT:-/egr/research-pac/huang248/outputs/pr_diffusion/phase_retr
 MODEL_ID="${MODEL_ID:-google/ddpm-celebahq-256}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 
-# Frozen defaults from docs/phase8_plus_experiment_plan.md + docs/progress_report.md
+# Frozen defaults from docs/archive/phase8_plus_experiment_plan_initial.md + docs/progress_report.md
 SEEDS_PILOT="${SEEDS_PILOT:-100,101,102,103,104}"
 SEEDS_FULL="${SEEDS_FULL:-100,101,102,103,104,105,106,107,108,109}"
 R_PRIMARY="${R_PRIMARY:-0.5}"
@@ -187,7 +187,7 @@ setup_hosts() {
   mkdir -p "${host_root}"
   cd "${host_root}"
 
-  # Primary second host (per docs/phase10_second_host_literature_review.md)
+  # Primary second host (per docs/archive/phase10_second_host_literature_review_initial.md)
   [[ -d DiffFPR ]] || git clone https://github.com/Chilie/DiffFPR.git
 
   # Practical comparison host from the addendum.
