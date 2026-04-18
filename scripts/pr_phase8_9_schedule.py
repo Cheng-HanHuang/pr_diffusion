@@ -89,6 +89,8 @@ def effective_meas_radius(mask_mode: str, timestep: int, mask_radius: float, mas
         return None
     if mask_mode == "masked":
         return mask_radius
+    if mask_mode == "weighted":
+        return None
     # late mode: activate low-frequency masking for late diffusion timesteps.
     return mask_radius if timestep <= mask_start else None
 
@@ -104,6 +106,8 @@ def sitcom_reconstruct_scheduled(
     mask_mode: str,
     mask_radius: float,
     mask_start: int,
+    early_meas_weight: float,
+    late_meas_weight: float,
 ) -> torch.Tensor:
     seed_everything(seed)
     scheduler.set_timesteps(cfg.num_steps, device=device)
@@ -119,6 +123,7 @@ def sitcom_reconstruct_scheduled(
         t_next_int = int(timesteps[i + 1])
 
         meas_radius = effective_meas_radius(mask_mode, t_int, mask_radius, mask_start)
+        meas_weight = late_meas_weight if t_int <= mask_start else early_meas_weight
 
         v = torch.nn.Parameter(x_t.detach().clone())
         if cfg.inner_optim.lower() == "adam":
@@ -140,7 +145,7 @@ def sitcom_reconstruct_scheduled(
                 loss_meas = meas_l2.pow(2)
 
             loss_reg = cfg.lam * torch.mean((v - x_t) ** 2)
-            loss = loss_meas + loss_reg
+            loss = meas_weight * loss_meas + loss_reg
             loss.backward()
             opt.step()
 
@@ -154,7 +159,10 @@ def sitcom_reconstruct_scheduled(
         x_t = resample_x_t(x0_hat, t_next_int, scheduler=scheduler, eta_scale=cfg.eta_scale, generator=gen)
 
         if cfg.log_every > 0 and (i + 1) % cfg.log_every == 0:
-            print(f"[SITCOM-Scheduled] step {i+1}/{len(timesteps)-1} | t={t_int} | mode={mask_mode}")
+            print(
+                f"[SITCOM-Scheduled] step {i+1}/{len(timesteps)-1} | t={t_int} "
+                f"| mode={mask_mode} | meas_weight={meas_weight:.3g}"
+            )
 
     t_last = int(timesteps[-1])
     return tweedie_x0_from_v(x_t, t_last, unet=unet, scheduler=scheduler, backprop_unet=False).detach()
@@ -179,15 +187,29 @@ def main() -> None:
     p.add_argument("--sitcom_eta_scale", type=float, default=1.0)
     p.add_argument("--sitcom_init_scale", type=float, default=1.0)
 
-    p.add_argument("--mask_mode", choices=["unmasked", "masked", "late"], default="late")
+    p.add_argument("--mask_mode", choices=["unmasked", "masked", "late", "weighted"], default="late")
     p.add_argument("--mask_radius", type=float, default=0.5)
     p.add_argument("--mask_start", type=int, default=400, help="Late-mask activation threshold in diffusion timestep index.")
     p.add_argument("--metrics_radius", type=float, default=None, help="Radius for low-frequency metric reporting. Defaults to mask_radius.")
+    p.add_argument(
+        "--early_meas_weight",
+        type=float,
+        default=1.0,
+        help="Measurement loss weight before mask_start (for weighted schedule mode).",
+    )
+    p.add_argument(
+        "--late_meas_weight",
+        type=float,
+        default=1.0,
+        help="Measurement loss weight at/after mask_start (for weighted schedule mode).",
+    )
 
     args = p.parse_args()
 
     if args.mask_mode in {"masked", "late"} and not (0.0 < args.mask_radius <= 1.0):
         raise ValueError("--mask_radius must be in (0, 1] for masked/late modes.")
+    if args.early_meas_weight <= 0 or args.late_meas_weight <= 0:
+        raise ValueError("--early_meas_weight and --late_meas_weight must be positive.")
 
     images = parse_csv_list(args.images) if args.images else read_image_list(args.image_list_file)
     seeds = [int(x) for x in parse_csv_list(args.seeds)]
@@ -220,6 +242,8 @@ def main() -> None:
             "mask_radius": args.mask_radius,
             "mask_start": args.mask_start,
             "metrics_radius": metrics_radius,
+            "early_meas_weight": args.early_meas_weight,
+            "late_meas_weight": args.late_meas_weight,
             **asdict(cfg),
         }
     ]
@@ -245,6 +269,8 @@ def main() -> None:
                 mask_mode=args.mask_mode,
                 mask_radius=args.mask_radius,
                 mask_start=args.mask_start,
+                early_meas_weight=args.early_meas_weight,
+                late_meas_weight=args.late_meas_weight,
             )
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
@@ -265,6 +291,8 @@ def main() -> None:
                     "mask_radius": args.mask_radius,
                     "mask_start": args.mask_start,
                     "metrics_radius": metrics_radius,
+                    "early_meas_weight": args.early_meas_weight,
+                    "late_meas_weight": args.late_meas_weight,
                     "psnr": val_psnr,
                     "full_mag_l2": val_full,
                     "lowfreq_mag_l2": val_low,
@@ -272,7 +300,8 @@ def main() -> None:
                 }
             )
             print(
-                f"[{image_name} seed={seed}] SITCOM({args.mask_mode}, r={args.mask_radius:g}, start={args.mask_start}) "
+                f"[{image_name} seed={seed}] SITCOM({args.mask_mode}, r={args.mask_radius:g}, start={args.mask_start}, "
+                f"w={args.early_meas_weight:g}->{args.late_meas_weight:g}) "
                 f"= {val_psnr:.2f} dB ({runtime_s:.1f}s)"
             )
 
