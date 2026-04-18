@@ -8,7 +8,13 @@ It includes:
 - **NeurIPS experiment runners** for canonical comparison, phase sweeps, and split generation.
 - Slurm templates for multi-phase HPC execution.
 
-### Notice: Many information here are outdated, please check docs/progress_report.md for up to date progress.
+### Current planning pointers
+
+- Historical baseline (Phases 0–7): `docs/neurips_prdiffusion_experiment_plan.md`
+- Frozen defaults and milestone status: `docs/progress_report.md`
+- Active continuation plan (soft-early / hard-late pivot): `docs/continuation_experiment_plan.md`
+
+Archived Phase 8+ / early second-host planning notes are now under `docs/archive/`.
 
 ## Repository layout
 
