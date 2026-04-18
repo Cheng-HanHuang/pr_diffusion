@@ -267,13 +267,15 @@ Run this on **GPU 3** during Wave B if Phase 8 pilot already points to late mask
 
 ---
 
-## 5. Phase 10: second-host insertion study
+## 5. Phase 10: second-host insertion study: Search for source code of a good one (not DPS and not ReSample because SITCOM already uses them!)
 
 ### Purpose
 
 Test whether the masked projection idea can improve a second reconstruction host that is **not SITCOM**.
 
 To keep implementation burden reasonable, use a host derived from the current diffusion pipeline rather than importing a completely separate solver family first.
+
+Use source code from existing repo for robustness. Do not try to handcraft one!
 
 ### Recommended second host
 
