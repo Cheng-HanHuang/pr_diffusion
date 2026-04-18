@@ -279,14 +279,15 @@ Use source code from existing repo for robustness. Do not try to handcraft one!
 
 ### Recommended second host
 
-Use a **single-candidate diffusion host**:
+Use a **DiffFPR-style host** (diffusion prior + iterative Fourier PR engine), implemented with the current UNet + scheduler stack.
 
-- same diffusion prior
-- same denoise / resample backbone as the NP pipeline
-- but no candidate competition
-- effectively `num_candidates_soft = 1` and `num_candidates_hard = 1`
+- keep one trajectory (single-candidate style) for the base variant
+- keep an explicit data-fidelity / projection substep so low-frequency masked projection can be inserted cleanly
+- do **not** use DPS/ReSample as the second host family
 
-This host is useful because it removes the candidate-selection advantage and lets you test the measurement-enforcement idea more directly.
+Rationale and literature review are recorded in `docs/phase10_second_host_literature_review.md`.
+
+This host choice keeps Phase 10 focused on mechanism transfer (late low-frequency enforcement) on a phase-retrieval-native second host rather than candidate-competition effects.
 
 ### Methods to compare
 
@@ -314,6 +315,10 @@ This host is useful because it removes the candidate-selection advantage and let
    - current main NP reference
    - `soft = 5, hard = 1, proj_start = 400, r = 0.5`
 
+6. **RED-diff phase retrieval (external comparison, optional but recommended)**
+   - run NVlabs RED-diff using `deg=phase_retrieval`
+   - report with the same split/seed protocol for comparability
+
 ### Images
 
 Use `validation_25`.
@@ -324,7 +329,8 @@ Use 10.
 
 ### Count
 
-- `25 × 10 × 5 = 1250`
+- without RED-diff: `25 × 10 × 5 = 1250`
+- with RED-diff baseline: `25 × 10 × 6 = 1500`
 
 ### Metrics
 
@@ -398,7 +404,8 @@ For 4 methods:
 
 For 5 methods:
 
-- `25 × 10 × 5 = 1250`
+- without RED-diff: `25 × 10 × 5 = 1250`
+- with RED-diff baseline: `25 × 10 × 6 = 1500`
 
 ### Decision rule
 
