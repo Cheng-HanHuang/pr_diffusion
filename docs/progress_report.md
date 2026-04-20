@@ -1,482 +1,346 @@
 # prdiffusion progress report
 
-This note records the current experimental status of the **prdiffusion** project, including the early institution-cluster runs, the migration to PAC, the setup/debugging steps that were required, the main experimental findings so far, and the current recommended next steps.
+This note records the current experimental status of the **prdiffusion** project and is intended to be the main up-to-date progress summary in the repo.
+
+It supersedes older summaries that were written before the current mechanism reinterpretation, full Phase 10/11 runs, and the NP→SITCOM hybrid direction.
 
 ---
 
 ## 1. Current objective
 
-The current goal is to build a reliable and scalable experimental pipeline for the phase-retrieval diffusion project using:
+The project is still focused on phase retrieval with:
 
 - the face-prior setup,
 - `google/ddpm-celebahq-256`,
 - magnitude-only Fourier measurements, and
-- two main reconstruction methods:
+- the two in-repo reconstruction families:
   - **SITCOM**
-  - **Noise Picking**
+  - **Noise Picking (NP)**
 
-The current overall strategy is:
+PAC remains the active experiment machine.
 
-- use **PAC** as the active experiment machine,
-- use the institution cluster as **background confirmation** when available,
-- avoid unnecessary delays from long queue times, and
-- keep PAC naming neutral and non-venue-specific.
+The current objective is no longer just to compare masked NP against unmasked SITCOM. The main objective now is to determine the strongest correct scientific framing among:
 
----
-
-## 2. Early institution-cluster experiment status
-
-### Initial submission order
-
-The first wave of institution-cluster experiments was submitted in the following order:
-
-1. **Phase 0** — sanity check
-2. **Phase 2** — SITCOM tuning
-3. **Phase 1** — radius validation
-
-### What happened
-
-- **Phase 0** failed early.
-- **Phase 2** completed successfully.
-- **Phase 1** failed once due to a bug, then later timed out, and later remained in a long queue.
-
-### Interpretation of these outcomes
-
-#### Phase 0
-
-This was only a sanity check and is not scientifically important. It can be safely ignored.
-
-#### Phase 1 initial failure
-
-This was traced to a bug in `neurips_canonical_compare.py`, not to data paths, memory, or environment problems.
-
-The cause was:
-
-- config rows from both SITCOM and Noise Picking were being written into one CSV,
-- only the first row's fieldnames were used,
-- Noise Picking rows had additional fields,
-- which caused Python to raise:
-
-```text
-ValueError: dict contains fields not in fieldnames
-```
-
-This was fixed by changing the CSV-writing logic to use the **union of all row keys**.
-
-#### Phase 1 timeout
-
-A later rerun with a 16-hour walltime timed out. This suggested that the job itself was valid but 16 hours was too short.
-
-#### Phase 1 queueing delay
-
-A later rerun with a 24-hour walltime remained in queue for a long time with:
-
-```text
-ReqNodeNotAvail, May be reserved for other job
-```
-
-This indicated that the bottleneck was **H200 long-GPU scheduling**, not correctness of the experiment code.
+1. **transferable mechanism**: soft early measurement use, hard consistency later,
+2. **hybrid method**: NP-style early dynamics with a later SITCOM suffix,
+3. **new solver direction**: Noise Picking itself as the primary solver family.
 
 ---
 
-## 3. Phase 2 SITCOM tuning results
+## 2. Stable earlier findings that still hold
 
-Phase 2 completed successfully on the institution cluster.
+### 2.1 SITCOM tuning
+
+Earlier SITCOM tuning established:
+
+- `lr_inner = 0.02` is the best current default,
+- `lr_inner = 0.1` is clearly too large,
+- and `eta_scale = 0.5` can help PSNR but worsens measurement consistency.
+
+The practical frozen SITCOM default remains:
+
+- `num_steps = 20`
+- `K = 20`
+- `lr_inner = 0.02`
+- `lam = 0.1`
+- `eta_scale = 1.0`
+- `init_scale = 1.0`
+- `backprop_unet = True`
+- `inner_optim = adam`
+
+### 2.2 Radius and early NP schedule
+
+Earlier validation and schedule studies established:
+
+- primary radius: `r = 0.5`
+- secondary radius: `r = 0.2`
+- canonical NP schedule:
+  - `num_candidates_soft = 5`
+  - `num_candidates_hard = 1`
+  - `proj_start = 400`
+
+These are still the current reference defaults.
+
+---
+
+## 3. Shift in interpretation after mechanism studies
+
+The project has moved beyond the earlier simple story of “late masked projection helps.”
+
+The stronger current interpretation is:
+
+> **hard consistency should be deferred**.
+>
+> Early in the diffusion trajectory, measurement information is better used softly; later, harder consistency becomes important.
+
+This reinterpretation came from the combination of:
+
+- earlier mechanism ablations,
+- the full Phase 10 decoupling run,
+- the full Phase 11 hard-early / hard-late run,
+- and the Phase 12 SITCOM-side confirmation runs.
+
+---
+
+## 4. Full Phase 10 results: NP mechanism decoupling
+
+Phase 10 tested:
+
+- `np_canonical`
+- `np_fixedk_lateproj`
+- `np_fixedk_alwaysproj`
+- `np_fixedk_noproj`
+- `np_candidate_switch_only`
+- `np_projection_only_switch`
 
 ### Main findings
 
-#### Learning-rate sweep
+#### 4.1 Deferred hard consistency is real
 
-- `lr_inner = 0.02` was the best overall choice.
-- `lr_inner = 0.1` was clearly too large.
+`np_fixedk_lateproj` is the best-quality variant on the validation run.
 
-#### `eta_scale × init_scale` sweep
+It outperforms canonical NP on average quality and measurement consistency, while keeping the same basic mechanism family.
 
-- `eta = 0.5` improved PSNR,
-- but worsened measurement error substantially,
-- producing a clear quality / consistency tradeoff.
+#### 4.2 Hard-from-start projection is harmful
 
-### Practical takeaway
+`np_fixedk_alwaysproj` is much worse than `np_fixedk_lateproj`.
 
-For SITCOM:
+This is strong evidence that **hard projection from the beginning is too aggressive**.
 
-- move away from the earlier `lr_inner = 0.05`,
-- use **`lr_inner = 0.02`** as the current best choice,
-- keep both a quality-oriented and a more balanced `(eta, init)` combination in mind.
+#### 4.3 No projection is bad
 
-This tuning was useful, but SITCOM tuning is no longer the main bottleneck in the project.
+`np_fixedk_noproj` performs poorly and has very large measurement error.
 
----
+So **hard projection later is not optional**.
 
-## 4. Migration to PAC
+#### 4.4 Candidate switching alone is not enough
 
-Because the H200 queue became too slow, PAC was adopted as the active development machine.
+`np_candidate_switch_only` performs very poorly.
 
-### PAC path choices
+So the current evidence does **not** support the story that the success of NP mainly comes from switching from many candidates early to one candidate late.
 
-**Repo**
+#### 4.5 One Phase 10 branch is a duplicate
 
-- `/egr/research-pac/huang248/pr_diffusion_repo`
+`np_projection_only_switch` is effectively identical to `np_fixedk_lateproj` in the current implementation and should not be treated as a distinct active method in future tables.
 
-**Small probe data**
+### Phase 10 interpretation
 
-- `/egr/research-pac/huang248/data/celeba_hq_256_stage` (canonical lab data root; probe was transitional)
+The strongest interpretation after the full run is:
 
-**Main PAC output root**
-
-- `/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411`
-
-### PAC setup issues that were solved
-
-#### 1. Repo access
-
-The private GitHub repo could not be cloned directly on PAC via HTTPS because password authentication is not supported for private Git operations.
-
-**Fix:**
-- copy the repo from the institution machine to PAC.
-
-#### 2. Dataset availability
-
-PAC initially had no phase-retrieval dataset prepared.
-
-**Fix:**
-- copy only the required image subset first,
-- rather than trying to move or download the full dataset immediately.
-
-#### 3. Hugging Face model loading
-
-Model loading on PAC eventually worked directly.
-
-The following messages were observed but were only warnings, not failures:
-
-- missing `safetensors`,
-- unauthenticated HF access warning,
-- deprecated symlink argument warning.
-
-#### 4. Python module import
-
-Direct script execution initially failed with:
-
-```text
-ModuleNotFoundError: No module named 'prdiffusion'
-```
-
-**Fix:**
-- set:
-
-```bash
-export PYTHONPATH=$REPO_ROOT:$PYTHONPATH
-```
-
-#### 5. Naming concerns
-
-Because words like `neurips` were visible in process names and output paths, PAC-local neutral copies were made, such as:
-
-- `pr_canonical_compare.py`
-
-and neutral output roots were used, such as:
-
-- `phase_retrieval_20260411`
-
-### tmux usage
-
-PAC experiments were moved into `tmux`, which is the correct practice and should remain standard for all longer PAC runs.
+- the critical ingredient is **deferred hard consistency**,
+- not the candidate-count switch by itself.
 
 ---
 
-## 5. PAC 10-image Phase-1 probe
+## 5. Full Phase 11 results: hard-early vs hard-late
 
-A smaller PAC-based probe replaced waiting for the full cluster validation.
+Phase 11 tested:
 
-### Probe configuration
-
-- split: `validation_10`
-- seeds: `100,101,102,103,104`
-- radii: `0.1, 0.2, 0.5`
-- comparison:
-  - Noise Picking masked
-  - SITCOM unmasked
-
-### Main outcome
-
-The PAC probe completed successfully and clearly validated the PAC setup.
-
-### Main conclusion from the probe
-
-The 10-image probe showed:
-
-- `r = 0.5` is the best **working default**,
-- `r = 0.2` is the best **secondary / conservative check**,
-- `r = 0.1` is no longer needed as a main candidate.
-
-This was a stronger signal than the earlier 5-image study, where `0.2` looked best by mean and `0.5` mainly by best-of-R.
-
-### Working interpretation
-
-The current rule became:
-
-- **primary radius = 0.5**
-- **secondary check radius = 0.2**
-
-This was enough to move beyond tiny-data radius studies.
-
----
-
-## 6. PAC schedule tuning at radius 0.5
-
-After the working radius was frozen at `0.5`, schedule tuning was run on PAC.
-
-### Sweep dimensions
-
-At `r = 0.5`, the following were swept:
-
-- `num_candidates_soft ∈ {3, 5, 7}`
-- `num_candidates_hard ∈ {1, 2, 3}`
-- `proj_start ∈ {200, 400, 600}`
-
-The sweep was postprocessed into:
-
-- `run_level.csv`
-- `image_level.csv`
-- `split_summary.csv`
+- `hard_from_start`
+- `hard_late`
+- `hard_never`
+- `soft_only`
+- `soft_then_hard`
 
 ### Main findings
 
-The strongest signals were:
+As implemented, Phase 11 mostly collapses to three distinct behaviors:
 
-- `num_candidates_hard = 1` is best,
-- `proj_start = 400` is best,
-- `num_candidates_soft` is a tradeoff:
-  - `7` slightly improves some summary values but costs substantially more runtime,
-  - `5` looks like the best practical compromise,
-  - `3` is clearly cheaper but worse in quality.
+- `hard_from_start`
+- `hard_late`
+- `hard_never`
 
-### Provisional schedule after this sweep
+with:
 
-- `soft = 5`
-- `hard = 1`
-- `proj_start = 400`
+- `soft_then_hard` behaving like `hard_late`,
+- `soft_only` behaving like `hard_never`.
 
-A smaller direct confirmation run was then used to validate this choice.
+So Phase 11 does **not** add a truly independent new soft-only mechanism in the current implementation.
 
----
+### What still matters scientifically
 
-## 7. Combined schedule confirmation run
+Even with that implementation limitation, the full run reinforces the same key message as Phase 10:
 
-A direct three-setting confirmation run was performed on PAC at `r = 0.5`.
+- **hard late** is best,
+- **hard from start** is much worse,
+- **hard never** is also bad.
 
-### Compared settings
-
-1. **balanced**  
-   `soft = 5, hard = 1, proj_start = 400`
-
-2. **quality**  
-   `soft = 7, hard = 1, proj_start = 400`
-
-3. **fast**  
-   `soft = 3, hard = 1, proj_start = 400`
-
-### Results
-
-The result was clear:
-
-#### Balanced
-
-Best overall:
-
-- best mean PSNR,
-- best median PSNR,
-- best max PSNR,
-- moderate runtime.
-
-#### Fast
-
-Clearly cheaper, but significantly worse in quality.
-
-#### Quality
-
-More expensive, but did **not** outperform balanced.
-It appeared less stable overall.
-
-### Final schedule conclusion
-
-The main Noise Picking schedule is now frozen as:
-
-- `radius = 0.5`
-- `num_candidates_soft = 5`
-- `num_candidates_hard = 1`
-- `proj_start = 400`
-
-This is now the current **main PAC configuration**.
+This strengthens the “soft early / hard late” interpretation, even if the code-level ladder should be simplified later.
 
 ---
 
-## 8. Why “quality” lost to “balanced”
+## 6. Current best understanding of Noise Picking
 
-This became an important conceptual point.
+The current best-quality NP-side variant is:
 
-### Core explanation
+- `np_fixedk_lateproj`
 
-Using more soft candidates does **not** guarantee a better final reconstruction.
+But there is an important practical caveat:
 
-Why:
+- it is materially slower than canonical NP.
 
-- the same seed values do **not** imply the same reconstruction trajectory once candidate count changes,
-- the method optimizes a **local low-frequency proxy score**, not final PSNR directly,
-- increasing the candidate count can make the policy too greedy toward the proxy,
-- which can hurt later denoising or global image recovery.
+So the project now has two distinct NP-side reference points:
 
-So “quality” losing to “balanced” is scientifically sensible.
+### Best practical reference
 
-### Working interpretation
+- `np_canonical`
 
-The method story is not:
+### Best current quality reference
 
-- “the more soft guidance the better”
+- `np_fixedk_lateproj`
 
-but rather:
+This is important for later paper framing. A future paper may need to distinguish:
 
-- “soft guidance helps, but must be balanced.”
-
-This is actually a stronger and more believable result.
+- best quality,
+- versus best quality/runtime tradeoff.
 
 ---
 
-## 9. Current main PAC configuration
+## 7. Phase 12 SITCOM-side results
 
-At this checkpoint, the main PAC Noise Picking setting is:
+Phase 12 tested four SITCOM-side variants:
 
-- **radius = 0.5**
-- **num_candidates_soft = 5**
-- **num_candidates_hard = 1**
-- **proj_start = 400**
+- `sitcom_unmasked`
+- `sitcom_hard_from_start_masked`
+- `sitcom_late_mask_proxy`
+- `sitcom_weak_then_strong`
 
-Secondary / backup settings:
+### Main findings
 
-- `radius = 0.2` as a secondary check,
-- `soft = 3, hard = 1, proj_start = 400` as a fast / budget point.
+#### 7.1 `sitcom_late_mask_proxy` is the best current SITCOM variant
 
----
+On the fuller Phase 12 run, `sitcom_late_mask_proxy` showed:
 
-## 10. Current PAC data status
+- modest but real PSNR improvements over unmasked SITCOM,
+- stronger improvements in full and low-frequency measurement consistency,
+- and almost no runtime cost increase.
 
-### Already present on PAC
+This is enough to keep SITCOM in the discussion.
 
-- repo copy,
-- working environment,
-- Hugging Face model availability,
-- `validation_10.txt`,
-- the 10 corresponding probe images,
-- working canonical comparison pipeline,
-- working schedule-tuning pipeline.
+#### 7.2 `sitcom_hard_from_start_masked` is too aggressive as a default
 
-### Recently copied or being prepared
+This variant can improve some best-case outcomes and consistency, but it is not the best average SITCOM variant.
 
-On the institution machine, split files and larger staged subsets were being prepared for PAC, including:
+#### 7.3 `sitcom_weak_then_strong` is not the main survivor
 
-- `dev_10.txt`
-- `validation_10.txt`
-- `validation_20.txt`
-- `validation_25.txt`
-- `test_20.txt`
-- `test_50.txt`
-- `seed_list_10.txt`
+This weighted-loss surrogate is not currently the strongest SITCOM-side branch and should not be prioritized further.
 
-The next image subsets planned / copied for PAC were:
+### SITCOM interpretation
 
-- `validation_25`
-- `test_20`
+The current positive SITCOM transfer result is:
 
-The PAC plan remains a **staged migration**, not a full 5400-image migration all at once.
+- `sitcom_late_mask_proxy`
+
+This is still only a **modest** transfer result, not a dramatic one, but it is real enough to keep SITCOM in the active matrix.
 
 ---
 
-## 11. Current experiment state
+## 8. Current hybrid direction
 
-### Active on PAC
+A new hybrid direction is now active.
 
-- **mechanism ablation** has been launched.
+The central hypothesis is:
 
-This is the correct next experiment because it tests whether the method really needs:
+> NP-style soft early dynamics may be preferable to early SITCOM optimization,
+> but a later SITCOM suffix may still help refine the solution.
 
-- masked score,
-- masked projection,
-- or both.
+This hybrid family is currently running via:
 
-### Institution machine
+- `scripts/pr_phase12_hybrid_ladder.py`
 
-- split files and the next image subsets are being copied to PAC.
+Active hybrid variants include:
 
-### Institution cluster
+- `np_to_sitcom_400`
+- `np_to_sitcom_600`
+- `np_to_sitcom_masked_400`
+- `np_to_sitcom_masked_600`
 
-- the full larger Phase-1 validation remains queued,
-- and now functions only as a **confirmation run**, not a blocker.
+So at the moment:
 
----
-
-## 12. What has already been established scientifically
-
-At this checkpoint, the following statements are already supported:
-
-1. **Noise Picking with masking clearly beats unmasked SITCOM** on the current PAC validation slices.
-2. **Masking matters**.
-3. A larger soft candidate count does **not** automatically improve final reconstruction.
-4. The best current PAC working setting is:
-   - `r = 0.5`
-   - `soft = 5`
-   - `hard = 1`
-   - `proj_start = 400`
-5. PAC is now a viable active experiment machine for this project.
+- **the NP→SITCOM hybrid ladder is still running**
+- and its results are a key pending input for the next project decision
 
 ---
 
-## 13. Recommended next steps
+## 9. Active method matrix
 
-### Immediate
+### Keep active
 
-1. let **mechanism ablation** finish on PAC,
-2. verify PAC has the larger split files and the next staged image subsets.
+#### Noise Picking side
 
-### Next
+- `np_canonical`
+- `np_fixedk_lateproj`
+- `np_fixedk_alwaysproj` (negative control)
 
-3. run a **PAC main-comparison pilot on `test_20`** using the frozen balanced setting.
+#### SITCOM side
 
-### Later
+- `sitcom_unmasked`
+- `sitcom_late_mask_proxy`
+- `sitcom_hard_from_start_masked` (control only)
 
-4. use the queued full cluster Phase-1 run as larger-split confirmation,
-5. decide whether PAC should absorb more later runs,
-6. only then consider broader subset migration or larger-scale PAC expansion.
+#### Hybrid side
 
----
+- the currently running NP→SITCOM hybrids
 
-## 14. What should not be repeated now
+### Drop or demote from active status
 
-At this point, the following are no longer the priority:
-
-- more 5-image or 10-image radius studies,
-- more schedule sweeps,
-- waiting for the cluster before progressing,
-- copying the full 5400-image dataset to PAC immediately.
-
-That tuning branch is sufficiently settled.
+- `np_projection_only_switch` as a separate method (duplicate)
+- `np_candidate_switch_only`
+- `soft_only` and `soft_then_hard` as distinct Phase 11 methods in their current implementation
+- `sitcom_weak_then_strong`
 
 ---
 
-## 15. One-paragraph summary
+## 10. Current strategic question
 
-The project has successfully moved from fragile setup/debugging into a real PAC-based experiment workflow. Early institution-cluster runs revealed a canonical-comparison CSV-writing bug and then severe queueing delays, which made PAC the active machine. On PAC, the repo, environment, model loading, subset-data transfer, neutral naming, and tmux-based workflow were all made to work. A 10-image validation probe established `r = 0.5` as the main working radius, and schedule tuning plus a direct three-setting confirmation established the balanced Noise Picking schedule `(soft=5, hard=1, proj_start=400)` as the best overall PAC setting. Mechanism ablation is now running on PAC, larger split files and staged subsets are being transferred, and the project is ready to move into the next PAC main-comparison phase while the queued full cluster validation remains only as a confirmation experiment.
+The project is now at a fork, but the fork should not be decided until the hybrid runs finish.
+
+The two serious directions are:
+
+### Direction A: transferable mechanism / hybrid story
+
+Use this direction if:
+
+- the hybrid methods are promising,
+- and the combination of NP + SITCOM gives a coherent story of soft-early / hard-late / optimization-late.
+
+### Direction B: Noise Picking as the main solver direction
+
+Use this direction if:
+
+- NP and its late-hard variants remain clearly strong,
+- but transfer beyond NP remains weak or not convincing enough.
+
+At the moment, it is too early to choose decisively between these two directions.
 
 ---
 
-## 16. Repository strategy after moving to the lab machine
+## 11. Immediate next steps
 
-Because the core method pipeline is unchanged and the differences are mainly machine-local details (paths, env names, and launch naming), the clean default is:
+1. finish the currently running hybrid ladder,
+2. write one combined note for:
+   - full Phase 10,
+   - full Phase 11,
+   - full Phase 12,
+   - hybrid results,
+3. simplify the active experiment matrix,
+4. then decide whether the next external-comparison block should be framed as:
+   - hybrid / transfer continuation,
+   - or NP-centered solver comparison.
 
-- **keep one repository**, and
-- migrate machine differences into a small per-machine config layer.
+---
 
-A concrete migration blueprint is documented in:
+## 12. What should not be repeated now
 
-- `docs/lab_machine_migration_plan.md`
+At this point, the following should not be reopened unless a later result forces it:
 
-In short: treat this as a **configuration migration**, not a codebase fork.
+- broad radius sweeps,
+- broad SITCOM hyperparameter retuning,
+- duplicate Phase 10/11 branches,
+- large second-host expansions before the hybrid story is understood.
+
+---
+
+## 13. One-paragraph current summary
+
+The project has now moved beyond the original interpretation that “late masked projection helps.” Full Phase 10/11 results indicate that the stronger mechanism story is **deferred hard consistency**: hard projection from the beginning is harmful, pure soft guidance without later hard enforcement is insufficient, and a fixed-`k` late-projection variant can outperform canonical NP in validation quality, though at a substantial runtime cost. On the SITCOM side, a late masked-loss proxy now provides a modest but real positive transfer result, while more aggressive or purely weighted alternatives are less convincing. The project is therefore no longer just about masked NP versus unmasked SITCOM. The active question is whether the work is best framed as a **transferable soft-early / hard-late mechanism**, especially through the currently running **NP→SITCOM hybrid ladder**, or as a **new solver direction centered on Noise Picking**.
