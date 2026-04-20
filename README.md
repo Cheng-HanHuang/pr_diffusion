@@ -21,10 +21,26 @@ It includes:
 ## Repository layout
 
 ```text
+README.md
+LATEST_EXPERIMENT_RECORD.md
+pyproject.toml
+requirements.txt
+
+docs/
+  progress_report.md
+  current_experiment_plan.md
+  historical/                       # archived plans, logs, and execution notes
+
+env/
+  README.md
+  machine.lab.env
+  machine.*.env.example
+
 prdiffusion/
   algorithms/
     sitcom.py
     noise_picking.py
+    hybrid_np_sitcom.py
   diffusion.py
   fft_ops.py
   io.py
@@ -32,20 +48,35 @@ prdiffusion/
   seed.py
 
 scripts/
-  neurips_canonical_compare.py      # canonical comparison flow
-  neurips_grid_experiments.py       # phase 2-5 sweeps
-  neurips_postprocess_grid.py       # run_level -> image_level/split_summary
-  neurips_make_splits.py            # fixed split generation
+  # canonical / NeurIPS workflows
+  neurips_canonical_compare.py
+  neurips_grid_experiments.py
+  neurips_postprocess_grid.py
+  neurips_make_splits.py
 
-  pr_phase8_9_schedule.py           # scheduled SITCOM variants
-  pr_phase10_11_np_grid.py          # NP mechanism decoupling / hard-late studies
-  pr_phase12_hybrid_ladder.py       # NP -> SITCOM hybrid ladder
+  # current PRDiffusion workflows
+  pr_canonical_compare.py
+  pr_canonical_compare_v2.py
+  pr_grid_experiments.py
+  pr_postprocess_grid.py
+  pr_mechanism_grid.py
+  pr_phase8_9_schedule.py
+  pr_phase10_11_np_grid.py
+  pr_phase12_hybrid_ladder.py
 
-  # legacy scripts retained for backward compatibility
+  # ablations / legacy-compatible entry points
   compare_methods.py
+  compare_methods_lowfreq_ablation.py
   compare_methods_no_lowfreq.py
+  noise_picking_projstart_ablation.py
   sitcom_lr_sweep.py
   sitcom_noise_ablation.py
+
+  # Slurm / cluster launch helpers
+  pac_*.sh
+  slurm_*.sh
+
+scriptstemplate_h200.sh             # legacy shell template at repo root
 ```
 
 ## Installation
