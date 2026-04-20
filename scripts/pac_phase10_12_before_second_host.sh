@@ -38,6 +38,7 @@ SITCOM_INIT_SCALE="${SITCOM_INIT_SCALE:-1.0}"
 
 PHASE1011_DRIVER="${PHASE1011_DRIVER:-${REPO_ROOT}/scripts/pr_phase10_11_np_grid.py}"
 PHASE12_DRIVER="${PHASE12_DRIVER:-${REPO_ROOT}/scripts/pr_phase8_9_schedule.py}"
+PHASE12_HYBRID_DRIVER="${PHASE12_HYBRID_DRIVER:-${REPO_ROOT}/scripts/pr_phase12_hybrid_ladder.py}"
 
 phase10_run() {
   local split_file="$1"
@@ -177,6 +178,19 @@ phase12_run() {
   phase12_one_method "${split_file}" "${seeds}" "${out_dir}" sitcom_weak_then_strong
   phase12_one_method "${split_file}" "${seeds}" "${out_dir}" sitcom_hard_from_start_masked
   phase12_one_method "${split_file}" "${seeds}" "${out_dir}" sitcom_late_mask_proxy
+
+  ${PYTHON_BIN} "${PHASE12_HYBRID_DRIVER}" \
+    --data_root "${DATA_ROOT}" \
+    --image_list_file "${split_file}" \
+    --outdir "${out_dir}/np_to_sitcom_hybrid" \
+    --model_id "${MODEL_ID}" \
+    --seeds "${seeds}" \
+    --radius "${R_PRIMARY}" \
+    --num_steps "${NP_STEPS}" \
+    --sitcom_inner_steps "${SITCOM_INNER_STEPS}" \
+    --sitcom_lr "${SITCOM_LR}" \
+    --sitcom_lam "${SITCOM_LAM}" \
+    --methods "np_to_sitcom_400,np_to_sitcom_600,np_to_sitcom_masked_400,np_to_sitcom_masked_600"
 }
 
 print_plan() {
@@ -213,6 +227,10 @@ Phase 12 (SITCOM surrogate):
   - sitcom_weak_then_strong (weighted schedule)
   - sitcom_hard_from_start_masked
   - sitcom_late_mask_proxy
+  - np_to_sitcom_400
+  - np_to_sitcom_600
+  - np_to_sitcom_masked_400
+  - np_to_sitcom_masked_600
 PLAN
 }
 
