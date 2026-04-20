@@ -61,9 +61,16 @@ bash scripts/pac_phase10_12_before_second_host.sh phase12_full
 - `sitcom_weak_then_strong` (new weighted schedule mode)
 - `sitcom_hard_from_start_masked`
 - `sitcom_late_mask_proxy`
+- plus NP→SITCOM hybrids from `scripts/pr_phase12_hybrid_ladder.py`:
+  - `np_to_sitcom_400`
+  - `np_to_sitcom_600`
+  - `np_to_sitcom_masked_400`
+  - `np_to_sitcom_masked_600`
 
 ## Notes
 
 - Default split files are read from `${SPLIT_DIR}` (`validation_10.txt`, `validation_25.txt`).
 - Outputs are written under `${OUT_ROOT}` with per-phase subdirectories.
 - The weighted SITCOM surrogate uses `--mask_mode weighted --early_meas_weight 0.25 --late_meas_weight 1.0`.
+- Hybrid runs use Noise Picking first, hand off at the selected switch timestep, then run a SITCOM suffix.
+- Hybrid defaults now keep NP on the dense 1000-step trajectory, while the SITCOM suffix uses a coarse 20-step schedule (`...950,900,...,0`) with configurable inner steps.
