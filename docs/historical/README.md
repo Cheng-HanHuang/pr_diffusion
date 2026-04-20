@@ -1,8 +1,8 @@
 # Historical docs
 
-This folder stores superseded planning and execution notes that are kept only for reference and backup.
+This folder stores superseded planning and execution notes that are kept only for reference and backup, including documents consolidated from the old `docs/archive/` folder.
 
-The active docs that should normally be read first are:
+The only active files that should remain in the `docs/` root are:
 
 - `docs/progress_report.md`
 - `docs/current_experiment_plan.md`
