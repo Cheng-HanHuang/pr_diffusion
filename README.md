@@ -14,6 +14,10 @@ It includes:
 - Active experiment plan: `docs/current_experiment_plan.md`
 - Historical planning / execution notes: `docs/historical/README.md`
 
+### Current major machine settings
+
+- PAC, the lab machine and the major machine now, default to but notice changes can be made: 'env/machine.lab.env'
+
 ## Repository layout
 
 ```text
