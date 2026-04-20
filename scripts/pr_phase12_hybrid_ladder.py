@@ -41,7 +41,15 @@ def write_csv(path: str, rows: List[Dict[str, object]]) -> None:
         writer.writerows(rows)
 
 
-def build_cfg(method: str, radius: float, num_steps: int, sitcom_k: int, sitcom_lr: float, sitcom_lam: float) -> HybridNPSitcomConfig:
+def build_cfg(
+    method: str,
+    radius: float,
+    num_steps: int,
+    sitcom_outer_steps: int,
+    sitcom_k: int,
+    sitcom_lr: float,
+    sitcom_lam: float,
+) -> HybridNPSitcomConfig:
     masked = "masked" in method
     switch = 400 if "400" in method else 600
     return HybridNPSitcomConfig(
@@ -54,6 +62,7 @@ def build_cfg(method: str, radius: float, num_steps: int, sitcom_k: int, sitcom_
         np_num_candidates_hard=1,
         np_use_lowfreq_score=True,
         np_use_lowfreq_projection=True,
+        sitcom_outer_steps=sitcom_outer_steps,
         sitcom_K=sitcom_k,
         sitcom_lr_inner=sitcom_lr,
         sitcom_lam=sitcom_lam,
@@ -76,6 +85,7 @@ def main() -> None:
 
     p.add_argument("--radius", type=float, default=0.5)
     p.add_argument("--num_steps", type=int, default=1000)
+    p.add_argument("--sitcom_outer_steps", type=int, default=20)
     p.add_argument("--sitcom_inner_steps", type=int, default=20)
     p.add_argument("--sitcom_lr", type=float, default=0.02)
     p.add_argument("--sitcom_lam", type=float, default=0.1)
@@ -100,6 +110,7 @@ def main() -> None:
             method=method,
             radius=args.radius,
             num_steps=args.num_steps,
+            sitcom_outer_steps=args.sitcom_outer_steps,
             sitcom_k=args.sitcom_inner_steps,
             sitcom_lr=args.sitcom_lr,
             sitcom_lam=args.sitcom_lam,

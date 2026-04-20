@@ -27,6 +27,7 @@ class HybridNPSitcomConfig:
     np_use_lowfreq_projection: bool = True
 
     # SITCOM (late phase)
+    sitcom_outer_steps: int = 20
     sitcom_K: int = 20
     sitcom_lr_inner: float = 0.02
     sitcom_lam: float = 0.1
@@ -129,22 +130,29 @@ def np_to_sitcom_hybrid_reconstruct(
         cfg=cfg,
     )
 
-    scheduler.set_timesteps(cfg.num_steps, device=device)
+    scheduler.set_timesteps(cfg.sitcom_outer_steps, device=device)
     timesteps = scheduler.timesteps
 
-    start_idx = None
+    start_t_coarse = int(timesteps[-1])
+    start_idx = len(timesteps) - 1
     for i, t in enumerate(timesteps):
         if int(t) <= start_t:
+            start_t_coarse = int(t)
             start_idx = i
             break
-    if start_idx is None:
-        start_idx = len(timesteps) - 1
 
     gen = torch.Generator(device=device)
     gen.manual_seed(seed + 12345)
 
-    # handoff: convert NP x0 estimate into a scheduler-consistent x_t latent at switch timestep.
-    x_t = resample_x_t(x0_switch, start_t, scheduler=scheduler, eta_scale=cfg.sitcom_eta_scale, generator=gen)
+    # handoff: convert NP x0 estimate into a scheduler-consistent x_t latent at
+    # the first available coarse SITCOM timestep at/below the NP handoff.
+    x_t = resample_x_t(
+        x0_switch,
+        start_t_coarse,
+        scheduler=scheduler,
+        eta_scale=cfg.sitcom_eta_scale,
+        generator=gen,
+    )
 
     for i in range(start_idx, len(timesteps) - 1):
         t_int = int(timesteps[i])

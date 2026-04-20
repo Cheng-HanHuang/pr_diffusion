@@ -187,6 +187,7 @@ phase12_run() {
     --seeds "${seeds}" \
     --radius "${R_PRIMARY}" \
     --num_steps "${NP_STEPS}" \
+    --sitcom_outer_steps "${SITCOM_STEPS}" \
     --sitcom_inner_steps "${SITCOM_INNER_STEPS}" \
     --sitcom_lr "${SITCOM_LR}" \
     --sitcom_lam "${SITCOM_LAM}" \
