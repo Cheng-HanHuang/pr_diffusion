@@ -3,7 +3,7 @@
 This repository contains reproducible phase-retrieval experiments built around a pretrained DDPM denoiser (default: `google/ddpm-celebahq-256`) and magnitude-only Fourier measurements.
 
 It includes:
-- **SITCOM** reconstruction.
+- **SITCOM** reconstruction. Paper at SITCOM.pdf in this repo.
 - **Noise Picking** reconstruction.
 - experiment runners for canonical comparison, phase sweeps, and hybrid studies.
 - Slurm / launch templates for multi-phase HPC execution.
