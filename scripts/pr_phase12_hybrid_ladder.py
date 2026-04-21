@@ -27,6 +27,10 @@ def parse_csv_list(s: str) -> List[str]:
     return [x.strip() for x in s.split(",") if x.strip()]
 
 
+def parse_int_list(s: str) -> List[int]:
+    return [int(x.strip()) for x in s.split(",") if x.strip()]
+
+
 def read_image_list(path: str) -> List[str]:
     with open(path, "r", encoding="utf-8") as f:
         return [ln.strip() for ln in f if ln.strip() and not ln.startswith("#")]
@@ -42,22 +46,23 @@ def write_csv(path: str, rows: List[Dict[str, object]]) -> None:
 
 
 def build_cfg(
-    method: str,
+    *,
+    switch_timestep: int,
+    masked: bool,
     radius: float,
     num_steps: int,
+    np_proj_start: int,
     sitcom_outer_steps: int,
     sitcom_k: int,
     sitcom_lr: float,
     sitcom_lam: float,
 ) -> HybridNPSitcomConfig:
-    masked = "masked" in method
-    switch = 400 if "400" in method else 600
     return HybridNPSitcomConfig(
         num_steps=num_steps,
-        switch_timestep=switch,
+        switch_timestep=switch_timestep,
         np_score_radius=radius,
         np_proj_radius=radius,
-        np_proj_start=400,
+        np_proj_start=np_proj_start,
         np_num_candidates_soft=5,
         np_num_candidates_hard=1,
         np_use_lowfreq_score=True,
@@ -85,6 +90,24 @@ def main() -> None:
 
     p.add_argument("--radius", type=float, default=0.5)
     p.add_argument("--num_steps", type=int, default=1000)
+    p.add_argument(
+        "--np_proj_start",
+        type=int,
+        default=400,
+        help="NP prefix projection/candidate switch step index (not diffusion timestep).",
+    )
+    p.add_argument(
+        "--switch_timesteps",
+        type=str,
+        default="400,600",
+        help="Comma-separated diffusion timesteps where NP switches to SITCOM.",
+    )
+    p.add_argument(
+        "--masked_options",
+        type=str,
+        default="0,1",
+        help="Comma-separated 0/1 values: 0=unmasked SITCOM suffix, 1=masked suffix.",
+    )
     p.add_argument("--sitcom_outer_steps", type=int, default=20)
     p.add_argument("--sitcom_inner_steps", type=int, default=20)
     p.add_argument("--sitcom_lr", type=float, default=0.02)
@@ -94,6 +117,51 @@ def main() -> None:
     images = parse_csv_list(args.images) if args.images else read_image_list(args.image_list_file)
     seeds = [int(s) for s in parse_csv_list(args.seeds)]
     methods = parse_csv_list(args.methods)
+    switch_timesteps = parse_int_list(args.switch_timesteps)
+    masked_options = parse_int_list(args.masked_options)
+    if not switch_timesteps:
+        raise ValueError("switch_timesteps must not be empty.")
+    if not masked_options:
+        raise ValueError("masked_options must not be empty.")
+    if any(m not in (0, 1) for m in masked_options):
+        raise ValueError("masked_options must contain only 0 and/or 1.")
+
+    cfg_by_method: Dict[str, HybridNPSitcomConfig] = {}
+    for method in methods:
+        if method.startswith("np_to_sitcom"):
+            masked = "masked" in method
+            switch = 400 if "400" in method else 600
+            cfg_by_method[method] = build_cfg(
+                switch_timestep=switch,
+                masked=masked,
+                radius=args.radius,
+                num_steps=args.num_steps,
+                np_proj_start=args.np_proj_start,
+                sitcom_outer_steps=args.sitcom_outer_steps,
+                sitcom_k=args.sitcom_inner_steps,
+                sitcom_lr=args.sitcom_lr,
+                sitcom_lam=args.sitcom_lam,
+            )
+        elif method == "custom_grid":
+            for switch in switch_timesteps:
+                for masked_int in masked_options:
+                    masked = bool(masked_int)
+                    method_name = f"np_to_sitcom_{'masked_' if masked else ''}{switch}"
+                    cfg_by_method[method_name] = build_cfg(
+                        switch_timestep=switch,
+                        masked=masked,
+                        radius=args.radius,
+                        num_steps=args.num_steps,
+                        np_proj_start=args.np_proj_start,
+                        sitcom_outer_steps=args.sitcom_outer_steps,
+                        sitcom_k=args.sitcom_inner_steps,
+                        sitcom_lr=args.sitcom_lr,
+                        sitcom_lam=args.sitcom_lam,
+                    )
+        else:
+            raise ValueError(
+                f"Unknown method '{method}'. Use default np_to_sitcom_* names or custom_grid."
+            )
 
     stamp = time.strftime("%Y%m%d_%H%M%S")
     run_root = os.path.join(args.outdir, f"phase12_hybrid_ladder_{stamp}")
@@ -105,16 +173,7 @@ def main() -> None:
     run_rows: List[Dict[str, object]] = []
     config_rows: List[Dict[str, object]] = []
 
-    for method in methods:
-        cfg = build_cfg(
-            method=method,
-            radius=args.radius,
-            num_steps=args.num_steps,
-            sitcom_outer_steps=args.sitcom_outer_steps,
-            sitcom_k=args.sitcom_inner_steps,
-            sitcom_lr=args.sitcom_lr,
-            sitcom_lam=args.sitcom_lam,
-        )
+    for method, cfg in cfg_by_method.items():
         config_rows.append({"method": method, **asdict(cfg)})
 
         for image_name in images:
