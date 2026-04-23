@@ -1,43 +1,57 @@
 # prdiffusion progress report
 
-This note records the current experimental status of the **prdiffusion** project and is intended to be the main up-to-date progress summary in the repo.
+This document is the main up-to-date project progress note for **prdiffusion**.
 
-It supersedes older summaries that were written before the current mechanism reinterpretation, full Phase 10/11 runs, and the NP→SITCOM hybrid direction.
+It replaces the earlier main progress report, which has now been moved to:
 
----
+- `docs/historical/progress_report_pre_piecewise_and_runtime_matched.md`
 
-## 1. Current objective
+The current version incorporates:
 
-The project is still focused on phase retrieval with:
-
-- the face-prior setup,
-- `google/ddpm-celebahq-256`,
-- magnitude-only Fourier measurements, and
-- the two in-repo reconstruction families:
-  - **SITCOM**
-  - **Noise Picking (NP)**
-
-PAC remains the active experiment machine.
-
-The current objective is no longer just to compare masked NP against unmasked SITCOM. The main objective now is to determine the strongest correct scientific framing among:
-
-1. **transferable mechanism**: soft early measurement use, hard consistency later,
-2. **hybrid method**: NP-style early dynamics with a later SITCOM suffix,
-3. **new solver direction**: Noise Picking itself as the primary solver family.
+- full Phase 10 / 11 mechanism results,
+- reduced-NP and reduced-hybrid results,
+- runtime-matched NP results,
+- candidate-scaled reduced-NP results,
+- piecewise-schedule NP results,
+- and the resulting project-direction update.
 
 ---
 
-## 2. Stable earlier findings that still hold
+## 1. Current project status in one paragraph
 
-### 2.1 SITCOM tuning
+The project has now moved past the earlier open question of whether the work should be framed mainly as a broad transferable “defer hard consistency” mechanism or as a new solver direction. The current evidence favors the **new-solver direction centered on Noise Picking (NP)**. Within the NP family, the mechanism story is now much clearer: **hard consistency should be deferred, and the late dense refinement regime is critical**. Full Phase 10/11 results show that hard-from-start projection is harmful and that late hard projection is the main driver of good performance. Runtime-matched experiments further show that plain NP at roughly SITCOM-matched runtime already outperforms default SITCOM on average quality, while candidate scaling at only 100 steps does not rescue performance. Reduced hybrids and delayed-handoff studies remain scientifically informative, but no SITCOM-side or hybrid variant currently surpasses the strongest NP variants on the quality views that matter most, especially best-of-10.
 
-Earlier SITCOM tuning established:
+---
 
-- `lr_inner = 0.02` is the best current default,
-- `lr_inner = 0.1` is clearly too large,
-- and `eta_scale = 0.5` can help PSNR but worsens measurement consistency.
+## 2. Frozen reference setup
 
-The practical frozen SITCOM default remains:
+Unless explicitly stated otherwise, the current working defaults remain:
+
+### Global
+
+- model: `google/ddpm-celebahq-256`
+- primary radius: `r = 0.5`
+- standard seeds: `100,101,102,103,104,105,106,107,108,109`
+- primary reporting views:
+  - image-level mean PSNR,
+  - image-level median PSNR,
+  - image-level max / best-of-10 PSNR,
+  - image-level mean full magnitude L2,
+  - image-level mean low-frequency magnitude L2,
+  - image-level mean runtime.
+
+### Canonical Noise Picking reference
+
+- `num_steps = 1000`
+- `score_radius = 0.5`
+- `proj_radius = 0.5`
+- `proj_start = 400`
+- `num_candidates_soft = 5`
+- `num_candidates_hard = 1`
+- `use_lowfreq_score = True`
+- `use_lowfreq_projection = True`
+
+### Canonical SITCOM reference
 
 - `num_steps = 20`
 - `K = 20`
@@ -48,299 +62,340 @@ The practical frozen SITCOM default remains:
 - `backprop_unet = True`
 - `inner_optim = adam`
 
-### 2.2 Radius and early NP schedule
+---
 
-Earlier validation and schedule studies established:
+## 3. Earlier findings that still hold
 
-- primary radius: `r = 0.5`
-- secondary radius: `r = 0.2`
-- canonical NP schedule:
-  - `num_candidates_soft = 5`
-  - `num_candidates_hard = 1`
-  - `proj_start = 400`
+The earlier conclusions from the pre-piecewise stage remain valid:
 
-These are still the current reference defaults.
+1. **masked / projection-based NP strongly beats default unmasked SITCOM** on the canonical held-out comparison.
+2. **late hard projection is the main NP-side mechanism**.
+3. **hard-from-start projection is harmful**.
+4. **candidate switching by itself is not enough**.
+5. **SITCOM-side delayed masked variants can help modestly**, but these improvements are not strong enough to overturn the main NP-side story.
+
+These points are now reinforced by the new runtime-aware and piecewise experiments.
 
 ---
 
-## 3. Shift in interpretation after mechanism studies
+## 4. Full Phase 10 / 11 mechanism results
 
-The project has moved beyond the earlier simple story of “late masked projection helps.”
+### 4.1 Main NP mechanism result
 
-The stronger current interpretation is:
+The full Phase 10 / 11 block now supports a much cleaner interpretation of Noise Picking:
 
-> **hard consistency should be deferred**.
+> The main source of gain is **deferred hard consistency**, not the candidate-count switch alone.
+
+The best-quality mechanism-side NP variant on validation is:
+
+- `np_fixedk_lateproj`
+
+Main Phase 10 / 11 takeaways:
+
+- `np_fixedk_lateproj` is stronger than canonical NP in validation quality.
+- `np_fixedk_alwaysproj` is much worse, showing that **hard-from-start projection is too aggressive**.
+- `np_fixedk_noproj` is bad, showing that **late hard projection is essential**.
+- `np_candidate_switch_only` is bad, showing that **candidate switching alone is not the main reason NP works**.
+- several Phase 10 / 11 branches collapse into duplicates in the current implementation and should not be treated as independent active methods.
+
+### 4.2 Practical caveat
+
+`np_fixedk_lateproj` is materially slower than canonical NP.
+
+So there are now two distinct NP-side references:
+
+- **best practical reference**: `np_canonical`
+- **best current quality reference**: `np_fixedk_lateproj`
+
+This distinction remains important for future paper tables.
+
+---
+
+## 5. Reduced-NP results
+
+Reduced NP at very coarse step counts was run to ask whether plain NP remains competitive when heavily compressed.
+
+### Main result
+
+- reduced NP at `20 / 50 / 100` steps improves steadily with more steps,
+- but all three variants are still well below canonical NP,
+- and all three are below default SITCOM on quality, even though they are much faster.
+
+### Important interpretation
+
+This means the early reduced-NP failure was **not** just a matter of measurement mismatch or too few candidates. It suggested that NP needs more of the diffusion trajectory than the 20/50/100-step schedules preserved.
+
+This conclusion later became much sharper once runtime-matched and piecewise runs were added.
+
+---
+
+## 6. Reduced-hybrid results
+
+Reduced hybrids were run to test whether a SITCOM suffix could rescue an over-compressed NP prefix.
+
+### Main result
+
+- the best reduced-hybrid variant is typically a **masked earlier-handoff** variant,
+- reduced hybrid consistently improves over reduced NP at the same compressed schedule,
+- but reduced hybrid still does **not** outperform the strongest plain NP baselines,
+- and it does **not** provide a convincing best-of-10 improvement over the strongest NP-side methods.
+
+### Interpretation
+
+Reduced hybrid is scientifically useful because it shows:
+
+- a SITCOM suffix can partially rescue a too-coarse NP prefix,
+- but this rescue is not strong enough to replace the main NP solver story,
+- and the hybrid story becomes more of a secondary supporting observation than the main project direction.
+
+---
+
+## 7. Runtime-matched NP results
+
+This is one of the most important new blocks.
+
+### Main result
+
+Plain NP at roughly SITCOM-matched runtime is already strong.
+
+The most important points are:
+
+- **NP420** is the cleanest runtime-matched comparison to default SITCOM.
+- **NP500** is the strongest modest-over-budget NP point.
+
+### What the results show
+
+At about the same runtime as default SITCOM:
+
+- NP420 is clearly better than SITCOM on **image-level mean** and **median** quality.
+- NP420 is roughly tied or slightly behind SITCOM on **best-of-10**, depending on the exact slice.
+
+At a slightly larger runtime budget:
+
+- NP500 beats SITCOM on **mean**, **median**, and **best-of-10**.
+
+### Interpretation
+
+This is a major update in the project understanding:
+
+> NP is not only good because it is given a much longer trajectory.
 >
-> Early in the diffusion trajectory, measurement information is better used softly; later, harder consistency becomes important.
+> Even at a runtime close to default SITCOM, plain NP is already a strong solver.
 
-This reinterpretation came from the combination of:
-
-- earlier mechanism ablations,
-- the full Phase 10 decoupling run,
-- the full Phase 11 hard-early / hard-late run,
-- and the Phase 12 SITCOM-side confirmation runs.
+This strongly supports the **new solver** direction.
 
 ---
 
-## 4. Full Phase 10 results: NP mechanism decoupling
+## 8. Candidate-scaled reduced-NP results
 
-Phase 10 tested:
+The candidate-scaled reduced-NP block asked whether a very short NP schedule could be rescued by adding many more candidates.
 
-- `np_canonical`
-- `np_fixedk_lateproj`
-- `np_fixedk_alwaysproj`
-- `np_fixedk_noproj`
-- `np_candidate_switch_only`
-- `np_projection_only_switch`
+### Main result
 
-### Main findings
+It could not.
 
-#### 4.1 Deferred hard consistency is real
+In particular:
 
-`np_fixedk_lateproj` is the best-quality variant on the validation run.
+- 100-step NP with many more soft or hard candidates did **not** recover the quality of 400–500 step NP,
+- and candidate inflation at 100 steps did not provide a strong best-of-10 rescue.
 
-It outperforms canonical NP on average quality and measurement consistency, while keeping the same basic mechanism family.
+### Interpretation
 
-#### 4.2 Hard-from-start projection is harmful
+This is one of the clearest mechanistic findings in the project:
 
-`np_fixedk_alwaysproj` is much worse than `np_fixedk_lateproj`.
+> Missing trajectory resolution cannot be replaced by simply exploring more candidate branches at a too-coarse set of timesteps.
 
-This is strong evidence that **hard projection from the beginning is too aggressive**.
+This sharply separates:
 
-#### 4.3 No projection is bad
+- **time-grid / trajectory resolution**, and
+- **candidate breadth**.
 
-`np_fixedk_noproj` performs poorly and has very large measurement error.
-
-So **hard projection later is not optional**.
-
-#### 4.4 Candidate switching alone is not enough
-
-`np_candidate_switch_only` performs very poorly.
-
-So the current evidence does **not** support the story that the success of NP mainly comes from switching from many candidates early to one candidate late.
-
-#### 4.5 One Phase 10 branch is a duplicate
-
-`np_projection_only_switch` is effectively identical to `np_fixedk_lateproj` in the current implementation and should not be treated as a distinct active method in future tables.
-
-### Phase 10 interpretation
-
-The strongest interpretation after the full run is:
-
-- the critical ingredient is **deferred hard consistency**,
-- not the candidate-count switch by itself.
+The evidence now strongly suggests that the former matters more.
 
 ---
 
-## 5. Full Phase 11 results: hard-early vs hard-late
+## 9. Piecewise-schedule NP results
 
-Phase 11 tested:
+The piecewise experiments are the strongest new mathematical / mechanistic clarification block.
 
-- `hard_from_start`
-- `hard_late`
-- `hard_never`
-- `soft_only`
-- `soft_then_hard`
+Two main families were tested:
 
-### Main findings
+- **full-early / reduced-late**
+- **reduced-early / full-late**
 
-As implemented, Phase 11 mostly collapses to three distinct behaviors:
+with the `t599` split treated as the fair analogue of the earlier `proj_start = 400` semantics, and `t400` treated as a secondary later-deferral study.
 
-- `hard_from_start`
-- `hard_late`
-- `hard_never`
+### Main result
 
-with:
+The decisive finding is:
 
-- `soft_then_hard` behaving like `hard_late`,
-- `soft_only` behaving like `hard_never`.
+> **A dense late stage matters more than a dense early stage.**
 
-So Phase 11 does **not** add a truly independent new soft-only mechanism in the current implementation.
+### What survives best
 
-### What still matters scientifically
+The best fair piecewise runs are the **reduced-early / full-late (REFL)** variants, especially:
 
-Even with that implementation limitation, the full run reinforces the same key message as Phase 10:
+- `REFL red500 t599`
+- `REFL red400 t599`
 
-- **hard late** is best,
-- **hard from start** is much worse,
-- **hard never** is also bad.
+These significantly outperform their plain reduced-NP counterparts and remain quite close to canonical NP.
 
-This strengthens the “soft early / hard late” interpretation, even if the code-level ladder should be simplified later.
+### What does not survive as well
+
+The **full-early / reduced-late (FERL)** variants are much weaker relative to their cost.
+
+This shows that what full NP really needs is not just “many total steps,” but specifically:
+
+- **many repeated late branch-and-project refinement opportunities on a dense grid**.
+
+### Secondary t400 result
+
+The `t400` piecewise runs are consistently worse than the corresponding `t599` runs.
+So delaying the hard-projection regime even further does **not** help here.
+
+### Interpretation
+
+This is currently the strongest mechanistic refinement of the NP story:
+
+> Deferred hard consistency is important, but the **late dense refinement regime** is the truly critical part.
 
 ---
 
-## 6. Current best understanding of Noise Picking
+## 10. Zero-measurement SITCOM sanity check
 
-The current best-quality NP-side variant is:
+A small sanity check was performed for the zero-measurement SITCOM question.
 
-- `np_fixedk_lateproj`
+### Result
 
-But there is an important practical caveat:
+With measurement weight effectively removed, SITCOM reduces to plain diffusion-like behavior rather than a meaningful measurement-guided solver.
 
-- it is materially slower than canonical NP.
+### Why this matters
 
-So the project now has two distinct NP-side reference points:
+This clarifies a conceptual difference between:
 
-### Best practical reference
+- **noise selection / branch choice**, and
+- **optimization with a measurement objective**.
+
+It also motivates a future delayed-measurement SITCOM experiment as a possible mechanistic comparison, though this is not currently the top-priority project branch.
+
+---
+
+## 11. Current best method picture
+
+### Best practical NP-side reference
 
 - `np_canonical`
 
-### Best current quality reference
+### Best current quality NP-side reference
 
 - `np_fixedk_lateproj`
 
-This is important for later paper framing. A future paper may need to distinguish:
+### Strong practical runtime-aware NP point
 
-- best quality,
-- versus best quality/runtime tradeoff.
+- `NP420`
 
----
+### Strong modest-over-budget NP point
 
-## 7. Phase 12 SITCOM-side results
+- `NP500`
 
-Phase 12 tested four SITCOM-side variants:
+### Strongest piecewise mechanism point
 
-- `sitcom_unmasked`
-- `sitcom_hard_from_start_masked`
-- `sitcom_late_mask_proxy`
-- `sitcom_weak_then_strong`
+- `REFL red500 t599`
 
-### Main findings
+### SITCOM status
 
-#### 7.1 `sitcom_late_mask_proxy` is the best current SITCOM variant
+- default SITCOM remains the main in-repo optimization baseline,
+- but no SITCOM-side or hybrid-side result currently overturns the strongest NP-side story.
 
-On the fuller Phase 12 run, `sitcom_late_mask_proxy` showed:
+### Hybrid status
 
-- modest but real PSNR improvements over unmasked SITCOM,
-- stronger improvements in full and low-frequency measurement consistency,
-- and almost no runtime cost increase.
-
-This is enough to keep SITCOM in the discussion.
-
-#### 7.2 `sitcom_hard_from_start_masked` is too aggressive as a default
-
-This variant can improve some best-case outcomes and consistency, but it is not the best average SITCOM variant.
-
-#### 7.3 `sitcom_weak_then_strong` is not the main survivor
-
-This weighted-loss surrogate is not currently the strongest SITCOM-side branch and should not be prioritized further.
-
-### SITCOM interpretation
-
-The current positive SITCOM transfer result is:
-
-- `sitcom_late_mask_proxy`
-
-This is still only a **modest** transfer result, not a dramatic one, but it is real enough to keep SITCOM in the active matrix.
+- hybrids remain scientifically useful,
+- some are close in runtime and reasonably close in quality,
+- but they do **not** currently outperform the strongest NP variants on best-of-10.
 
 ---
 
-## 8. Current hybrid direction
+## 12. Project-direction decision
 
-A new hybrid direction is now active.
+The project should now be treated as following the **new-solver direction**.
 
-The central hypothesis is:
+### Why
 
-> NP-style soft early dynamics may be preferable to early SITCOM optimization,
-> but a later SITCOM suffix may still help refine the solution.
+This direction is justified because:
 
-This hybrid family is currently running via:
+1. NP and its late-hard variants remain clearly strong.
+2. Runtime-matched NP already competes well against SITCOM.
+3. Candidate-scaled reduced-NP does not rescue overly short trajectories.
+4. Piecewise results show a clear NP-specific mechanism story centered on the late dense refinement regime.
+5. Hybrid and SITCOM-side transfer results are informative but **not** strong enough to become the main project claim.
+6. Most importantly, no hybrid or SITCOM-related variant currently beats the strongest NP variants on the quality views that matter most, especially **best-of-10**.
 
-- `scripts/pr_phase12_hybrid_ladder.py`
+### What this means
 
-Active hybrid variants include:
+The paper should now be framed primarily as:
 
-- `np_to_sitcom_400`
-- `np_to_sitcom_600`
-- `np_to_sitcom_masked_400`
-- `np_to_sitcom_masked_600`
+> **Noise Picking as a new solver family for diffusion-based phase retrieval**,
+>
+> with delayed hard consistency and dense late refinement as the core mechanism explanation.
 
-So at the moment:
+The broader “transferable mechanism” story should remain in the paper as:
 
-- **the NP→SITCOM hybrid ladder is still running**
-- and its results are a key pending input for the next project decision
+- supporting mechanism insight,
+- secondary transfer evidence,
+- and possible future work,
+
+but not as the main project claim.
 
 ---
 
-## 9. Active method matrix
+## 13. What should now be active vs inactive
 
 ### Keep active
 
-#### Noise Picking side
+#### Main NP family
 
 - `np_canonical`
 - `np_fixedk_lateproj`
-- `np_fixedk_alwaysproj` (negative control)
+- `NP420`
+- `NP500`
+- selected piecewise references, especially:
+  - `REFL red400 t599`
+  - `REFL red500 t599`
 
-#### SITCOM side
+#### Controls
 
-- `sitcom_unmasked`
+- `np_fixedk_alwaysproj`
+- default `sitcom_unmasked`
+
+### Secondary / interpretive only
+
+- reduced hybrid best variants
 - `sitcom_late_mask_proxy`
-- `sitcom_hard_from_start_masked` (control only)
+- zero-measurement SITCOM sanity findings
 
-#### Hybrid side
+### Drop from active future comparison tables
 
-- the currently running NP→SITCOM hybrids
-
-### Drop or demote from active status
-
-- `np_projection_only_switch` as a separate method (duplicate)
-- `np_candidate_switch_only`
-- `soft_only` and `soft_then_hard` as distinct Phase 11 methods in their current implementation
-- `sitcom_weak_then_strong`
+- duplicate Phase 10 / 11 branches
+- broad reduced-NP candidate-scaling families beyond the already completed evidence
+- broad reduced-hybrid ladders as a main optimization direction
+- `t400` piecewise variants as anything more than secondary mechanism evidence
 
 ---
 
-## 10. Current strategic question
+## 14. Immediate next steps
 
-The project is now at a fork, but the fork should not be decided until the hybrid runs finish.
-
-The two serious directions are:
-
-### Direction A: transferable mechanism / hybrid story
-
-Use this direction if:
-
-- the hybrid methods are promising,
-- and the combination of NP + SITCOM gives a coherent story of soft-early / hard-late / optimization-late.
-
-### Direction B: Noise Picking as the main solver direction
-
-Use this direction if:
-
-- NP and its late-hard variants remain clearly strong,
-- but transfer beyond NP remains weak or not convincing enough.
-
-At the moment, it is too early to choose decisively between these two directions.
+1. Update the repo docs and freeze the new project direction.
+2. Build the next experiment plan around the **new-solver direction**.
+3. Focus the next major comparison block on:
+   - best NP variants,
+   - runtime-aware best NP variants,
+   - selected external baselines,
+   - and reporting that emphasizes **best-of-k / best-of-10**.
+4. Keep the delayed-consistency mechanism story as a supporting explanation.
+5. Optionally run a small delayed-measurement SITCOM ablation later if it helps explain the mechanism, but do not let it redirect the main paper claim.
 
 ---
 
-## 11. Immediate next steps
+## 15. One-paragraph current summary
 
-1. finish the currently running hybrid ladder,
-2. write one combined note for:
-   - full Phase 10,
-   - full Phase 11,
-   - full Phase 12,
-   - hybrid results,
-3. simplify the active experiment matrix,
-4. then decide whether the next external-comparison block should be framed as:
-   - hybrid / transfer continuation,
-   - or NP-centered solver comparison.
-
----
-
-## 12. What should not be repeated now
-
-At this point, the following should not be reopened unless a later result forces it:
-
-- broad radius sweeps,
-- broad SITCOM hyperparameter retuning,
-- duplicate Phase 10/11 branches,
-- large second-host expansions before the hybrid story is understood.
-
----
-
-## 13. One-paragraph current summary
-
-The project has now moved beyond the original interpretation that “late masked projection helps.” Full Phase 10/11 results indicate that the stronger mechanism story is **deferred hard consistency**: hard projection from the beginning is harmful, pure soft guidance without later hard enforcement is insufficient, and a fixed-`k` late-projection variant can outperform canonical NP in validation quality, though at a substantial runtime cost. On the SITCOM side, a late masked-loss proxy now provides a modest but real positive transfer result, while more aggressive or purely weighted alternatives are less convincing. The project is therefore no longer just about masked NP versus unmasked SITCOM. The active question is whether the work is best framed as a **transferable soft-early / hard-late mechanism**, especially through the currently running **NP→SITCOM hybrid ladder**, or as a **new solver direction centered on Noise Picking**.
+The current project evidence supports a shift to the **new-solver direction centered on Noise Picking**. Full NP-side mechanism studies show that the key gain comes from **deferred hard consistency**, especially a strong **late dense refinement regime**, rather than candidate switching alone. Runtime-matched NP already performs strongly against default SITCOM, while candidate scaling at very short schedules fails to recover the same quality. Piecewise experiments further show that preserving the dense late stage matters more than preserving the dense early stage. Hybrid and SITCOM-side delayed-consistency ideas remain scientifically informative, but they are not currently strong enough to replace the main NP solver story, especially on the most important quality views such as best-of-10. The project should therefore now be developed primarily as a **new NP solver paper with a strong mechanism explanation**, rather than as a broad plug-and-play transfer claim.
