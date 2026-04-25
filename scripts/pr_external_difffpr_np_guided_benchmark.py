@@ -1,41 +1,25 @@
 #!/usr/bin/env python3
 """Run NP variants with a guided-diffusion FFHQ checkpoint.
 
-This is the guided-diffusion backend counterpart to
-``scripts/pr_external_difffpr_np_benchmark.py``.  It reuses that script's
-DiffFPR-style oversampled Fourier measurement, scoring, projection, alignment,
-and CSV summary code, but swaps the prior backend from Hugging Face diffusers to
-OpenAI guided-diffusion checkpoint format.
-
-Primary intended use:
-
-    ffhq_10m.pt + guided_diffusion package from DiffFPR/DiffPIR/DPS/OpenAI.
-
-Example:
-
-    CUDA_VISIBLE_DEVICES=0 python scripts/pr_external_difffpr_np_guided_benchmark.py \
-      --guided_diffusion_dir /egr/research-pac/huang248/external/DiffFPR \
-      --guided_model_path /egr/research-pac/huang248/models/ffhq_10m.pt \
-      --data_root /egr/research-pac/huang248/data/ffhq/ffhq-dataset \
-      --image_list_file /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/splits/ffhq_available25.txt \
-      --outdir /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/external_ffhq25_np_canonical_ffhq10m_sigma005 \
-      --variants np_canonical --seeds 100,101
+This guided backend benchmark is designed for FFHQ pilot/full runs that compare
+NP settings in a DiffFPR-style oversampled Fourier magnitude setting.
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import importlib.util
+import math
 import os
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import torch
+import torch.nn.functional as F
 
-# Import helper functions from the existing diffusers benchmark script by path.
-# This keeps the measurement operator and reporting exactly aligned.
+# Reuse measurement/reconstruction utilities from the diffusers benchmark script.
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 _BASE_SCRIPT = _REPO_ROOT / "scripts" / "pr_external_difffpr_np_benchmark.py"
 _spec = importlib.util.spec_from_file_location("pr_external_difffpr_np_benchmark", _BASE_SCRIPT)
@@ -59,31 +43,179 @@ def write_csv(path: str, rows: List[Dict[str, object]]) -> None:
         writer.writerows(rows)
 
 
+def ssim01(x: torch.Tensor, y: torch.Tensor) -> float:
+    """Differentiation-free SSIM estimate for images in model range [-1,1]."""
+    x01 = base.to01(x)
+    y01 = base.to01(y)
+    c1 = 0.01 ** 2
+    c2 = 0.03 ** 2
+    mu_x = F.avg_pool2d(x01, kernel_size=11, stride=1, padding=5)
+    mu_y = F.avg_pool2d(y01, kernel_size=11, stride=1, padding=5)
+    sigma_x = F.avg_pool2d(x01 * x01, kernel_size=11, stride=1, padding=5) - mu_x * mu_x
+    sigma_y = F.avg_pool2d(y01 * y01, kernel_size=11, stride=1, padding=5) - mu_y * mu_y
+    sigma_xy = F.avg_pool2d(x01 * y01, kernel_size=11, stride=1, padding=5) - mu_x * mu_y
+    num = (2 * mu_x * mu_y + c1) * (2 * sigma_xy + c2)
+    den = (mu_x * mu_x + mu_y * mu_y + c1) * (sigma_x + sigma_y + c2)
+    return float((num / den.clamp_min(1e-12)).mean().cpu().item())
+
+
+def _estimate_roll_by_phase_correlation(x: torch.Tensor, ref: torch.Tensor) -> Tuple[int, int]:
+    """Estimate integer spatial shift (dy, dx) for x -> ref using phase correlation."""
+    xg = base.to01(x).mean(dim=1, keepdim=False)
+    rg = base.to01(ref).mean(dim=1, keepdim=False)
+    X = torch.fft.fftn(xg, dim=(-2, -1))
+    R = torch.fft.fftn(rg, dim=(-2, -1))
+    cps = X * torch.conj(R)
+    cps = cps / cps.abs().clamp_min(1e-8)
+    corr = torch.fft.ifftn(cps, dim=(-2, -1)).real
+    h, w = corr.shape[-2:]
+    idx = int(torch.argmax(corr.reshape(-1)).item())
+    dy = idx // w
+    dx = idx % w
+    if dy > h // 2:
+        dy -= h
+    if dx > w // 2:
+        dx -= w
+    return int(dy), int(dx)
+
+
+def _best_channel_rot180(x: torch.Tensor, ref: torch.Tensor) -> torch.Tensor:
+    return base.best_rot180_channel_alignment(x, ref)
+
+
+def _resolve_shift_conjflip(x: torch.Tensor, ref: torch.Tensor) -> torch.Tensor:
+    """Resolve common PR ambiguities: per-channel 180°, axis flips, and cyclic shifts."""
+    rot = _best_channel_rot180(x, ref)
+    spatial_variants = [
+        rot,
+        torch.flip(rot, dims=(-2,)),
+        torch.flip(rot, dims=(-1,)),
+        torch.flip(rot, dims=(-2, -1)),
+    ]
+    best = None
+    best_mse = None
+    for cand in spatial_variants:
+        dy, dx = _estimate_roll_by_phase_correlation(cand, ref)
+        aligned = torch.roll(cand, shifts=(dy, dx), dims=(-2, -1))
+        mse = torch.mean((base.to01(aligned) - base.to01(ref)) ** 2)
+        if best is None or float(mse) < float(best_mse):
+            best = aligned
+            best_mse = mse
+    assert best is not None
+    return best
+
+
+def maybe_lpips_metric(x: torch.Tensor, y: torch.Tensor, lpips_model) -> float:
+    if lpips_model is None:
+        return math.nan
+    with torch.no_grad():
+        return float(lpips_model(x, y).mean().cpu().item())
+
+
+def make_alignment(alignment: str, x_rec: torch.Tensor, x_gt: torch.Tensor) -> torch.Tensor:
+    if alignment == "raw":
+        return x_rec
+    if alignment == "rot180":
+        return _best_channel_rot180(x_rec, x_gt)
+    if alignment == "resolve":
+        return _resolve_shift_conjflip(x_rec, x_gt)
+    raise ValueError(f"Unknown alignment: {alignment}")
+
+
+
+
+def summarize_image_level(run_rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
+    grouped: Dict[tuple, List[Dict[str, object]]] = {}
+    for row in run_rows:
+        key = (str(row["variant"]), str(row["alignment_mode"]), str(row["image_basename"]))
+        grouped.setdefault(key, []).append(row)
+
+    out: List[Dict[str, object]] = []
+    for (variant, alignment, image), rows in sorted(grouped.items()):
+        psnr = torch.tensor([float(r["psnr"]) for r in rows], dtype=torch.float32)
+        ssim = torch.tensor([float(r["ssim"]) for r in rows], dtype=torch.float32)
+        runtime = torch.tensor([float(r["runtime_s"]) for r in rows], dtype=torch.float32)
+        out.append(
+            {
+                "variant": variant,
+                "alignment_mode": alignment,
+                "image_basename": image,
+                "n_runs": len(rows),
+                "psnr_mean": float(psnr.mean().item()),
+                "psnr_median": float(psnr.median().item()),
+                "psnr_best": float(psnr.max().item()),
+                "ssim_mean": float(ssim.mean().item()),
+                "ssim_median": float(ssim.median().item()),
+                "runtime_s_mean": float(runtime.mean().item()),
+            }
+        )
+    return out
+
+def summarize_condition_level(run_rows: List[Dict[str, object]], psnr_threshold: float) -> List[Dict[str, object]]:
+    grouped: Dict[tuple, List[Dict[str, object]]] = {}
+    for row in run_rows:
+        key = (
+            str(row["variant"]),
+            str(row["alignment_mode"]),
+            float(row["oversample"]),
+            float(row["measurement_noise_std"]),
+        )
+        grouped.setdefault(key, []).append(row)
+
+    out: List[Dict[str, object]] = []
+    for (variant, alignment, oversample, noise_std), rows in sorted(grouped.items()):
+        psnr = torch.tensor([float(r["psnr"]) for r in rows], dtype=torch.float32)
+        ssim = torch.tensor([float(r["ssim"]) for r in rows], dtype=torch.float32)
+        lpips_vals = torch.tensor([float(r["lpips"]) for r in rows], dtype=torch.float32)
+        runtime = torch.tensor([float(r["runtime_s"]) for r in rows], dtype=torch.float32)
+        nfe = torch.tensor([float(r["nfe_calls"]) for r in rows], dtype=torch.float32)
+        out.append(
+            {
+                "variant": variant,
+                "alignment_mode": alignment,
+                "oversample": oversample,
+                "measurement_noise_std": noise_std,
+                "n_runs": len(rows),
+                "psnr_best": float(psnr.max().item()),
+                "psnr_mean": float(psnr.mean().item()),
+                "psnr_median": float(psnr.median().item()),
+                "psnr_below_threshold_count": int((psnr < psnr_threshold).sum().item()),
+                "psnr_threshold": float(psnr_threshold),
+                "ssim_best": float(ssim.max().item()),
+                "ssim_mean": float(ssim.mean().item()),
+                "ssim_median": float(ssim.median().item()),
+                "lpips_best": float(lpips_vals.min().item()) if not torch.isnan(lpips_vals).all() else math.nan,
+                "lpips_mean": float(lpips_vals.nanmean().item()) if not torch.isnan(lpips_vals).all() else math.nan,
+                "lpips_median": float(lpips_vals.nanmedian().item()) if not torch.isnan(lpips_vals).all() else math.nan,
+                "runtime_s_mean": float(runtime.mean().item()),
+                "runtime_s_median": float(runtime.median().item()),
+                "nfe_calls_mean": float(nfe.mean().item()),
+            }
+        )
+    return out
+
+
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run np_canonical / np_fixedk_lateproj with guided-diffusion ffhq_10m.pt."
-    )
+    parser = argparse.ArgumentParser(description="Guided-diffusion FFHQ NP benchmark/pilot runner.")
     parser.add_argument("--data_root", required=True)
     parser.add_argument("--image_list_file", required=True)
     parser.add_argument("--outdir", required=True)
     parser.add_argument("--guided_model_path", required=True)
-    parser.add_argument(
-        "--guided_diffusion_dir",
-        default=None,
-        help="Repo root containing guided_diffusion/. Can be DiffFPR, DPS, or OpenAI guided-diffusion.",
-    )
+    parser.add_argument("--guided_diffusion_dir", default=None)
     parser.add_argument("--guided_preset", default="difffpr_ffhq_10m")
-    parser.add_argument("--guided_strict", action="store_true", help="Use strict checkpoint loading.")
-    parser.add_argument("--variants", default="np_canonical,np_fixedk_lateproj")
-    parser.add_argument("--seeds", default="100,101,102,103,104,105,106,107,108,109")
+    parser.add_argument("--guided_strict", action="store_true")
+    parser.add_argument("--variants", default="np_canonical")
+    parser.add_argument("--seeds", default="100,101,102,103")
     parser.add_argument("--np_steps", type=int, default=1000)
     parser.add_argument("--late_start", type=int, default=400)
     parser.add_argument("--fixed_k", type=int, default=5)
     parser.add_argument("--radius", type=float, default=0.5)
-    parser.add_argument("--oversample", type=float, default=4.0)
-    parser.add_argument("--measurement_noise_std", type=float, default=0.05)
+    parser.add_argument("--oversample_values", default="4")
+    parser.add_argument("--measurement_noise_values", default="0,0.01,0.05")
     parser.add_argument("--measurement_noise_seed", type=int, default=20260423)
     parser.add_argument("--clip_noisy_magnitude", action="store_true")
+    parser.add_argument("--alignments", default="raw,rot180,resolve")
+    parser.add_argument("--psnr_threshold", type=float, default=20.0)
     parser.add_argument("--log_every", type=int, default=100)
     args = parser.parse_args()
 
@@ -91,6 +223,10 @@ def main() -> None:
     if not image_names:
         raise ValueError(f"No images found in split {args.image_list_file}")
     seeds = base.parse_int_list(args.seeds)
+    oversample_values = [float(x.strip()) for x in args.oversample_values.split(",") if x.strip()]
+    noise_values = [float(x.strip()) for x in args.measurement_noise_values.split(",") if x.strip()]
+    alignment_modes = [x.strip() for x in args.alignments.split(",") if x.strip()]
+
     variant_names = [tok.strip() for tok in args.variants.split(",") if tok.strip()]
     variants = base.make_variants(variant_names, late_start=args.late_start, fixed_k=args.fixed_k)
 
@@ -108,108 +244,152 @@ def main() -> None:
         strict=bool(args.guided_strict),
     )
     image_size = int(bundle.unet.config.sample_size)
-    pad = base.oversample_pad(image_size, args.oversample)
+
+    lpips_model = None
+    lpips_status = "not_available"
+    try:
+        import lpips  # type: ignore
+
+        lpips_model = lpips.LPIPS(net="alex").to(device)
+        lpips_model.eval()
+        lpips_status = "lpips_alex"
+    except Exception:
+        lpips_model = None
 
     config_rows: List[Dict[str, object]] = []
     run_rows: List[Dict[str, object]] = []
 
     for variant in variants:
-        config_rows.append(
-            {
-                "variant": variant.name,
-                "backend": "guided_diffusion",
-                "guided_preset": args.guided_preset,
-                "guided_model_path": str(Path(args.guided_model_path).expanduser()),
-                "guided_diffusion_dir": args.guided_diffusion_dir or "PYTHONPATH/default",
-                "num_steps": args.np_steps,
-                "score_radius": args.radius,
-                "proj_radius": args.radius,
-                "proj_start": variant.proj_start,
-                "num_candidates_soft": variant.soft,
-                "num_candidates_hard": variant.hard,
-                "use_lowfreq_score": variant.use_lowfreq_score,
-                "use_lowfreq_projection": variant.use_lowfreq_projection,
-                "measurement_operator": "DiffFPR-style centered FFT magnitude after symmetric zero padding",
-                "oversample_arg": args.oversample,
-                "pad_pixels_each_side": pad,
-                "measurement_noise_std": args.measurement_noise_std,
-                "clip_noisy_magnitude": bool(args.clip_noisy_magnitude),
-                "seeds": ",".join(map(str, seeds)),
-                "guided_model_config": repr(bundle.model_config),
-            }
-        )
-
-    for image_index, image_name in enumerate(image_names):
-        img_path = base.resolve_image_path(args.data_root, image_name)
-        x_gt = load_image(img_path, size=image_size, device=device)
-        mag_clean = base.oversampled_magnitude(x_gt, pad)
-
-        mag_target = mag_clean
-        if args.measurement_noise_std > 0:
-            gen = torch.Generator(device=device).manual_seed(args.measurement_noise_seed + image_index)
-            noise = torch.randn(mag_clean.shape, device=device, dtype=mag_clean.dtype, generator=gen)
-            mag_target = mag_clean + float(args.measurement_noise_std) * noise
-            if args.clip_noisy_magnitude:
-                mag_target = mag_target.clamp_min(0.0)
-
-        for variant in variants:
-            for seed in seeds:
-                t0 = time.perf_counter()
-                x_rec = base.noise_picking_reconstruct_oversampled(
-                    mag_target,
-                    pad=pad,
-                    seed=seed,
-                    unet=bundle.unet,
-                    scheduler=bundle.scheduler,
-                    device=device,
-                    variant=variant,
-                    num_steps=args.np_steps,
-                    radius=args.radius,
-                    log_every=args.log_every,
-                )
-                if torch.cuda.is_available():
-                    torch.cuda.synchronize()
-                runtime_s = time.perf_counter() - t0
-
-                x_aligned = base.best_rot180_channel_alignment(x_rec, x_gt)
-                row = {
-                    "timestamp": stamp,
-                    "variant": variant.name,
-                    "backend": "guided_diffusion",
-                    "guided_preset": args.guided_preset,
-                    "image_basename": image_name,
-                    "seed": seed,
-                    "raw_psnr": base.psnr01_from_model_range(x_rec, x_gt),
-                    "aligned_psnr": base.psnr01_from_model_range(x_aligned, x_gt),
-                    "clean_mag_l2": float(base.oversampled_mag_l2(x_aligned, mag_clean, pad).cpu().item()),
-                    "noisy_mag_l2": float(base.oversampled_mag_l2(x_aligned, mag_target, pad).cpu().item()),
-                    "clean_lowfreq_mag_l2": float(
-                        base.oversampled_lowfreq_mag_l2(x_aligned, mag_clean, pad, args.radius).cpu().item()
-                    ),
-                    "noisy_lowfreq_mag_l2": float(
-                        base.oversampled_lowfreq_mag_l2(x_aligned, mag_target, pad, args.radius).cpu().item()
-                    ),
-                    "runtime_s": runtime_s,
-                    "num_steps": args.np_steps,
-                    "proj_start": variant.proj_start,
-                    "num_candidates_soft": variant.soft,
-                    "num_candidates_hard": variant.hard,
-                    "radius": args.radius,
-                    "oversample": args.oversample,
-                    "pad_pixels_each_side": pad,
-                    "measurement_noise_std": args.measurement_noise_std,
-                }
-                run_rows.append(row)
-                print(
-                    f"[Guided-FFHQ-NP] {variant.name} | {image_name} seed={seed} "
-                    f"aligned_psnr={row['aligned_psnr']:.2f} raw_psnr={row['raw_psnr']:.2f} "
-                    f"({runtime_s:.1f}s)"
+        for oversample in oversample_values:
+            pad = base.oversample_pad(image_size, oversample)
+            for noise_std in noise_values:
+                config_rows.append(
+                    {
+                        "variant": variant.name,
+                        "backend": "guided_diffusion",
+                        "guided_preset": args.guided_preset,
+                        "guided_model_path": str(Path(args.guided_model_path).expanduser()),
+                        "guided_diffusion_dir": args.guided_diffusion_dir or "PYTHONPATH/default",
+                        "num_steps": args.np_steps,
+                        "score_radius": args.radius,
+                        "proj_radius": args.radius,
+                        "proj_start": variant.proj_start,
+                        "num_candidates_soft": variant.soft,
+                        "num_candidates_hard": variant.hard,
+                        "measurement_operator": "DiffFPR-style centered FFT magnitude after symmetric zero padding",
+                        "oversample_arg": oversample,
+                        "pad_pixels_each_side": pad,
+                        "measurement_noise_std": noise_std,
+                        "clip_noisy_magnitude": bool(args.clip_noisy_magnitude),
+                        "seeds": ",".join(map(str, seeds)),
+                        "alignments": ",".join(alignment_modes),
+                        "psnr_threshold": args.psnr_threshold,
+                        "lpips_backend": lpips_status,
+                        "guided_model_config": repr(bundle.model_config),
+                    }
                 )
 
+                for image_index, image_name in enumerate(image_names):
+                    img_path = base.resolve_image_path(args.data_root, image_name)
+                    x_gt = load_image(img_path, size=image_size, device=device)
+                    mag_clean = base.oversampled_magnitude(x_gt, pad)
+
+                    mag_target = mag_clean
+                    if noise_std > 0:
+                        gen = torch.Generator(device=device).manual_seed(args.measurement_noise_seed + image_index)
+                        noise = torch.randn(mag_clean.shape, device=device, dtype=mag_clean.dtype, generator=gen)
+                        mag_target = mag_clean + float(noise_std) * noise
+                        if args.clip_noisy_magnitude:
+                            mag_target = mag_target.clamp_min(0.0)
+
+                    for seed in seeds:
+                        t0 = time.perf_counter()
+                        x_rec = base.noise_picking_reconstruct_oversampled(
+                            mag_target,
+                            pad=pad,
+                            seed=seed,
+                            unet=bundle.unet,
+                            scheduler=bundle.scheduler,
+                            device=device,
+                            variant=variant,
+                            num_steps=args.np_steps,
+                            radius=args.radius,
+                            log_every=args.log_every,
+                        )
+                        if torch.cuda.is_available():
+                            torch.cuda.synchronize()
+                        runtime_s = time.perf_counter() - t0
+
+                        for alignment in alignment_modes:
+                            x_eval = make_alignment(alignment, x_rec, x_gt)
+                            row = {
+                                "timestamp": stamp,
+                                "variant": variant.name,
+                                "backend": "guided_diffusion",
+                                "guided_preset": args.guided_preset,
+                                "alignment_mode": alignment,
+                                "image_basename": image_name,
+                                "seed": seed,
+                                "psnr": base.psnr01_from_model_range(x_eval, x_gt),
+                                "ssim": ssim01(x_eval, x_gt),
+                                "lpips": maybe_lpips_metric(x_eval, x_gt, lpips_model),
+                                "clean_mag_l2": float(base.oversampled_mag_l2(x_eval, mag_clean, pad).cpu().item()),
+                                "noisy_mag_l2": float(base.oversampled_mag_l2(x_eval, mag_target, pad).cpu().item()),
+                                "clean_lowfreq_mag_l2": float(
+                                    base.oversampled_lowfreq_mag_l2(x_eval, mag_clean, pad, args.radius).cpu().item()
+                                ),
+                                "noisy_lowfreq_mag_l2": float(
+                                    base.oversampled_lowfreq_mag_l2(x_eval, mag_target, pad, args.radius).cpu().item()
+                                ),
+                                "runtime_s": runtime_s,
+                                "nfe_calls": args.np_steps - 1,
+                                "num_steps": args.np_steps,
+                                "proj_start": variant.proj_start,
+                                "num_candidates_soft": variant.soft,
+                                "num_candidates_hard": variant.hard,
+                                "radius": args.radius,
+                                "oversample": oversample,
+                                "pad_pixels_each_side": pad,
+                                "measurement_noise_std": noise_std,
+                            }
+                            run_rows.append(row)
+
+                        last_rows = run_rows[-len(alignment_modes):]
+                        best_seen = max(float(r["psnr"]) for r in last_rows)
+                        print(
+                            f"[Guided-FFHQ-NP] {variant.name} | {image_name} seed={seed} "
+                            f"oversample={oversample} sigma={noise_std:.3f} "
+                            f"best_psnr_this_run={best_seen:.2f} ({runtime_s:.1f}s)"
+                        )
+
+    file_prefix = f"difffpr_np_guided_{stamp}"
+    outputs = {
+        "configs": os.path.join(run_root, f"{file_prefix}__configs.csv"),
+        "run_level": os.path.join(run_root, f"{file_prefix}__run_level.csv"),
+        "image_level_summary": os.path.join(run_root, f"{file_prefix}__image_level_summary.csv"),
+        "condition_level_summary": os.path.join(run_root, f"{file_prefix}__condition_level_summary.csv"),
+    }
+
+    write_csv(outputs["configs"], config_rows)
+    write_csv(outputs["run_level"], run_rows)
+    write_csv(outputs["image_level_summary"], summarize_image_level(run_rows))
+    write_csv(
+        outputs["condition_level_summary"],
+        summarize_condition_level(run_rows, psnr_threshold=args.psnr_threshold),
+    )
+
+    # Backward-compatible aliases for existing tooling.
     write_csv(os.path.join(run_root, "configs.csv"), config_rows)
     write_csv(os.path.join(run_root, "run_level.csv"), run_rows)
-    write_csv(os.path.join(run_root, "image_level_summary.csv"), base.summarize_image_level(run_rows))
+    write_csv(os.path.join(run_root, "image_level_summary.csv"), summarize_image_level(run_rows))
+    write_csv(
+        os.path.join(run_root, "condition_level_summary.csv"),
+        summarize_condition_level(run_rows, psnr_threshold=args.psnr_threshold),
+    )
+
     print(f"Saved: {run_root}")
+    for key, path in outputs.items():
+        print(f"  - {key}: {path}")
 
 
 if __name__ == "__main__":
