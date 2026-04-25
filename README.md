@@ -76,8 +76,16 @@ scripts/
   pac_*.sh
   slurm_*.sh
 
+  # external benchmarking (DiffFPR-style setting)
+  pr_external_difffpr_np_benchmark.py
+  pr_external_difffpr_np_paper_matrix.sh
+
 scriptstemplate_h200.sh             # legacy shell template at repo root
 ```
+
+External benchmark setup note:
+
+- `docs/external_np_difffpr_benchmark_setup.md`
 
 ## Installation
 

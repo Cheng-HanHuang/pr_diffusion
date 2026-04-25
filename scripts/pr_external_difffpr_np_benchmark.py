@@ -35,6 +35,39 @@ def parse_int_list(text: str) -> List[int]:
     return [int(tok.strip()) for tok in text.split(",") if tok.strip()]
 
 
+@dataclass(frozen=True)
+class PaperPreset:
+    name: str
+    model_id: str
+    image_size: int
+    oversample: float
+    noise_levels: List[float]
+    note: str
+
+
+PAPER_PRESETS: Dict[str, PaperPreset] = {
+    # DiffFPR Table 2 uses FFHQ/ImageNet at 256x256 with oversampling ratio r^2=4.0
+    # and noise levels sigma_y in {0.00, 0.01, 0.05}.
+    "ffhq": PaperPreset(
+        name="ffhq",
+        model_id="google/ddpm-celebahq-256",
+        image_size=256,
+        oversample=4.0,
+        noise_levels=[0.0, 0.01, 0.05],
+        note="Match DiffFPR FFHQ table setting (oversampling ratio r^2=4.0).",
+    ),
+    # For ImageNet, use an unconditional 256x256 DDPM prior.
+    "imagenet": PaperPreset(
+        name="imagenet",
+        model_id="google/ddpm-ema-256",
+        image_size=256,
+        oversample=4.0,
+        noise_levels=[0.0, 0.01, 0.05],
+        note="Match DiffFPR ImageNet table setting (oversampling ratio r^2=4.0).",
+    ),
+}
+
+
 def read_image_list(path: str) -> List[str]:
     with open(path, "r", encoding="utf-8") as f:
         return [ln.strip() for ln in f if ln.strip() and not ln.startswith("#")]
@@ -356,19 +389,21 @@ def main() -> None:
     parser.add_argument("--data_root", required=True)
     parser.add_argument("--image_list_file", default=None)
     parser.add_argument("--outdir", required=True)
-    parser.add_argument("--model_id", default="google/ddpm-celebahq-256")
+    parser.add_argument("--paper_preset", choices=sorted(PAPER_PRESETS.keys()), default=None)
+    parser.add_argument("--model_id", default=None)
     parser.add_argument("--variants", default="np_canonical,np_fixedk_lateproj")
     parser.add_argument("--seeds", default="100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119")
     parser.add_argument("--np_steps", type=int, default=1000)
     parser.add_argument("--late_start", type=int, default=400)
     parser.add_argument("--fixed_k", type=int, default=5)
     parser.add_argument("--radius", type=float, default=0.5)
-    parser.add_argument("--oversample", type=float, default=4.0)
-    parser.add_argument("--measurement_noise_std", type=float, default=0.05)
+    parser.add_argument("--oversample", type=float, default=None)
+    parser.add_argument("--measurement_noise_std", type=float, default=None)
     parser.add_argument("--measurement_noise_seed", type=int, default=20260423)
     parser.add_argument("--clip_noisy_magnitude", action="store_true")
     parser.add_argument("--log_every", type=int, default=100)
     args = parser.parse_args()
+    preset = PAPER_PRESETS.get(args.paper_preset) if args.paper_preset else None
 
     image_names = collect_images(args.data_root, args.image_list_file)
     if not image_names:
@@ -377,15 +412,32 @@ def main() -> None:
     variant_names = [tok.strip() for tok in args.variants.split(",") if tok.strip()]
     variants = make_variants(variant_names, late_start=args.late_start, fixed_k=args.fixed_k)
 
+    model_id = args.model_id if args.model_id else (
+        preset.model_id if preset is not None else "google/ddpm-celebahq-256"
+    )
+    oversample = float(args.oversample) if args.oversample is not None else (
+        preset.oversample if preset is not None else 4.0
+    )
+    measurement_noise_std = (
+        float(args.measurement_noise_std)
+        if args.measurement_noise_std is not None
+        else (preset.noise_levels[-1] if preset is not None else 0.05)
+    )
+
     os.makedirs(args.outdir, exist_ok=True)
     stamp = time.strftime("%Y%m%d_%H%M%S")
     run_root = os.path.join(args.outdir, f"difffpr_np_{stamp}")
     os.makedirs(run_root, exist_ok=True)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    bundle = load_model(args.model_id, device=device)
+    bundle = load_model(model_id, device=device)
     image_size = int(bundle.unet.config.sample_size)
-    pad = oversample_pad(image_size, args.oversample)
+    if preset is not None and image_size != preset.image_size:
+        raise ValueError(
+            f"paper preset {preset.name!r} expects {preset.image_size}x{preset.image_size}, "
+            f"but model {model_id!r} has sample_size={image_size}"
+        )
+    pad = oversample_pad(image_size, oversample)
 
     config_rows: List[Dict[str, object]] = []
     run_rows: List[Dict[str, object]] = []
@@ -394,7 +446,8 @@ def main() -> None:
         config_rows.append(
             {
                 "variant": variant.name,
-                "model_id": args.model_id,
+                "paper_preset": preset.name if preset is not None else "",
+                "model_id": model_id,
                 "num_steps": args.np_steps,
                 "score_radius": args.radius,
                 "proj_radius": args.radius,
@@ -404,11 +457,12 @@ def main() -> None:
                 "use_lowfreq_score": variant.use_lowfreq_score,
                 "use_lowfreq_projection": variant.use_lowfreq_projection,
                 "measurement_operator": "DiffFPR-style centered FFT magnitude after symmetric zero padding",
-                "oversample_arg": args.oversample,
+                "oversample_arg": oversample,
                 "pad_pixels_each_side": pad,
-                "measurement_noise_std": args.measurement_noise_std,
+                "measurement_noise_std": measurement_noise_std,
                 "clip_noisy_magnitude": bool(args.clip_noisy_magnitude),
                 "seeds": ",".join(map(str, seeds)),
+                "preset_note": preset.note if preset is not None else "",
             }
         )
 
@@ -418,10 +472,10 @@ def main() -> None:
         mag_clean = oversampled_magnitude(x_gt, pad)
 
         mag_target = mag_clean
-        if args.measurement_noise_std > 0:
+        if measurement_noise_std > 0:
             gen = torch.Generator(device=device).manual_seed(args.measurement_noise_seed + image_index)
             noise = torch.randn(mag_clean.shape, device=device, dtype=mag_clean.dtype, generator=gen)
-            mag_target = mag_clean + float(args.measurement_noise_std) * noise
+            mag_target = mag_clean + measurement_noise_std * noise
             if args.clip_noisy_magnitude:
                 mag_target = mag_target.clamp_min(0.0)
 
@@ -466,9 +520,9 @@ def main() -> None:
                     "num_candidates_soft": variant.soft,
                     "num_candidates_hard": variant.hard,
                     "radius": args.radius,
-                    "oversample": args.oversample,
+                    "oversample": oversample,
                     "pad_pixels_each_side": pad,
-                    "measurement_noise_std": args.measurement_noise_std,
+                    "measurement_noise_std": measurement_noise_std,
                 }
                 run_rows.append(row)
                 print(
