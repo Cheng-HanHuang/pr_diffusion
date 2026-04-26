@@ -3,6 +3,7 @@ pyproject.toml
 prdiffusion/__init__.py
 prdiffusion/diffusion.py
 prdiffusion/fft_ops.py
+prdiffusion/guided_backend.py
 prdiffusion/io.py
 prdiffusion/metrics.py
 prdiffusion/seed.py
@@ -11,5 +12,6 @@ prdiffusion.egg-info/SOURCES.txt
 prdiffusion.egg-info/dependency_links.txt
 prdiffusion.egg-info/requires.txt
 prdiffusion.egg-info/top_level.txt
+prdiffusion/algorithms/hybrid_np_sitcom.py
 prdiffusion/algorithms/noise_picking.py
 prdiffusion/algorithms/sitcom.py

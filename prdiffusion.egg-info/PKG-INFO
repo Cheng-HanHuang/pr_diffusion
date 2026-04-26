@@ -12,21 +12,47 @@ Requires-Dist: numpy
 
 # Phase Retrieval with Diffusion Models (SITCOM + Noise Picking)
 
-This repo is a small, HPC-friendly codebase for phase retrieval experiments using a pretrained DDPM denoiser
-(e.g. `google/ddpm-celebahq-256`) and magnitude-only Fourier measurements.
+This repository contains reproducible phase-retrieval experiments built around a pretrained DDPM denoiser (default: `google/ddpm-celebahq-256`) and magnitude-only Fourier measurements.
 
 It includes:
-- **SITCOM** reconstruction (paper-faithful: gradients flow through the denoiser during the inner optimization).
-- **Noise picking** (candidate-noise selection baseline/idea).
-- Scripts for **learning-rate sweeps**, **noise ablation** (`eta_scale × init_scale`), and **method comparison / score-radius ablation**.
+- **SITCOM** reconstruction. Paper at SITCOM.pdf in this repo.
+- **Noise Picking** reconstruction.
+- experiment runners for canonical comparison, phase sweeps, and hybrid studies.
+- Slurm / launch templates for multi-phase HPC execution.
 
-## Folder layout
+### Current planning pointers
 
-```
-prdiffusion/                 # reusable library code
+- Main progress summary: `docs/progress_report.md`
+- Active experiment plan: `docs/current_experiment_plan.md`
+- Historical planning / execution notes: `docs/historical/README.md`
+
+### Current major machine settings
+
+- PAC, the lab machine and the major machine now, default to but notice changes can be made: 'env/machine.lab.env'
+
+## Repository layout
+
+```text
+README.md
+LATEST_EXPERIMENT_RECORD.md
+pyproject.toml
+requirements.txt
+
+docs/
+  progress_report.md
+  current_experiment_plan.md
+  historical/                       # archived plans, logs, and execution notes
+
+env/
+  README.md
+  machine.lab.env
+  machine.*.env.example
+
+prdiffusion/
   algorithms/
     sitcom.py
     noise_picking.py
+    hybrid_np_sitcom.py
   diffusion.py
   fft_ops.py
   io.py
@@ -34,58 +60,61 @@ prdiffusion/                 # reusable library code
   seed.py
 
 scripts/
+  # canonical / NeurIPS workflows
+  neurips_canonical_compare.py
+  neurips_grid_experiments.py
+  neurips_postprocess_grid.py
+  neurips_make_splits.py
+
+  # current PRDiffusion workflows
+  pr_canonical_compare.py
+  pr_canonical_compare_v2.py
+  pr_grid_experiments.py
+  pr_postprocess_grid.py
+  pr_mechanism_grid.py
+  pr_phase8_9_schedule.py
+  pr_phase10_11_np_grid.py
+  pr_phase12_hybrid_ladder.py
+
+  # ablations / legacy-compatible entry points
+  compare_methods.py
+  compare_methods_lowfreq_ablation.py
+  compare_methods_no_lowfreq.py
+  noise_picking_projstart_ablation.py
   sitcom_lr_sweep.py
   sitcom_noise_ablation.py
-  compare_methods.py
+
+  # Slurm / cluster launch helpers
+  pac_*.sh
+  slurm_*.sh
+
+  # external benchmarking (DiffFPR-style setting)
+  pr_external_difffpr_np_benchmark.py
+  pr_external_difffpr_np_paper_matrix.sh
+
+scriptstemplate_h200.sh             # legacy shell template at repo root
 ```
 
-## Install
+External benchmark setup note:
 
-Create an env (Python 3.10+ recommended):
+- `docs/external_np_difffpr_benchmark_setup.md`
+
+## Installation
+
+Python 3.10+ is recommended.
 
 ```bash
-pip install torch torchvision diffusers pillow numpy
-# Optional, only if you want to download CelebA-HQ from Kaggle in-script:
-pip install kagglehub
+pip install -r requirements.txt
 ```
 
 ## Data
 
-The scripts can work with either:
-1) a local CelebA-HQ 256 folder (recommended for HPC), or
-2) `kagglehub` download (may not work on clusters with blocked outbound internet).
-
-### Local data folder layout
-Point `--data_root` at a directory containing the `.jpg` files (can be nested subfolders).
-The scripts search by basename.
-
-## Quick runs
-
-### SITCOM learning-rate sweep
-```bash
-python scripts/sitcom_lr_sweep.py --image 09375.jpg --data_root /path/to/celeba_hq_256 \
-  --outdir out_lr --lr_list 0.01,0.02,0.05,0.1 --eta_scale 1.0 --init_scale 1.0
-```
-
-### SITCOM noise ablation
-```bash
-python scripts/sitcom_noise_ablation.py --image 09375.jpg --data_root /path/to/celeba_hq_256 \
-  --outdir out_noise --eta_list 0.0,0.25,0.5,1.0 --init_list 0.75,1.0,1.25 --lr 0.05
-```
-
-### Compare methods + score-radius ablation
-```bash
-python scripts/compare_methods.py --image 09375.jpg --data_root /path/to/celeba_hq_256 \
-  --outdir out_compare --score_radii 0.005,0.01,0.02,0.03,0.04,0.05
-```
+Provide a local dataset root via `--data_root` for all experiment scripts.
+Scripts search by image basename (e.g. `09375.jpg`) recursively under `--data_root`.
 
 ## Reproducibility notes
-- Each run uses a `base_seed`. All randomness (torch/numpy/python) is seeded.
-- `eta_scale` controls re-noise in the resampling step (0 = deterministic; 1 = DDPM-like).
-- `init_scale` scales the initial latent noise.
 
-## Outputs
-Scripts write a timestamped CSV with one row per run including:
-`image_basename`, `seed`, hyperparameters, PSNR, mag error, runtime.
-
-Optionally, scripts can save reconstructed images as PNG.
+- Seed lists are explicit and configurable.
+- Radius controls masked constraints for Noise Picking and scheduled SITCOM variants.
+- `docs/progress_report.md` is the main source of frozen defaults and current status.
+- `docs/current_experiment_plan.md` is the active planning document.
