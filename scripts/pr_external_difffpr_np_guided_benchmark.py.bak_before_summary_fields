@@ -225,7 +225,6 @@ def main() -> None:
     parser.add_argument("--skip_lpips", action="store_true")
     parser.add_argument("--fast_eval", action="store_true")
     parser.add_argument("--max_images", type=int, default=None)
-    parser.add_argument("--proj_radius_schedule", default=None)
     args = parser.parse_args()
     score_radius = float(args.score_radius) if args.score_radius is not None else float(args.radius)
     proj_radius = float(args.proj_radius) if args.proj_radius is not None else float(args.radius)
@@ -305,7 +304,6 @@ def main() -> None:
                         "num_steps": args.np_steps,
                         "score_radius": score_radius,
                         "proj_radius": proj_radius,
-                        "proj_radius_schedule": args.proj_radius_schedule or f"{variant.proj_start}:{proj_radius}",
                         "proj_start": variant.proj_start,
                         "num_candidates_soft": variant.soft,
                         "num_candidates_hard": variant.hard,
@@ -348,7 +346,6 @@ def main() -> None:
                             num_steps=args.np_steps,
                             score_radius=score_radius,
                             proj_radius=proj_radius,
-                            proj_radius_schedule=args.proj_radius_schedule,
                             log_every=args.log_every,
                         )
                         if torch.cuda.is_available():
@@ -399,7 +396,6 @@ def main() -> None:
                                 "num_candidates_hard": variant.hard,
                                 "score_radius": score_radius,
                                 "proj_radius": proj_radius,
-                                "proj_radius_schedule": args.proj_radius_schedule or f"{variant.proj_start}:{proj_radius}",
                                 "radius": score_radius,  # legacy/backward-compatible field
                                 "oversample": oversample,
                                 "pad_pixels_each_side": pad,

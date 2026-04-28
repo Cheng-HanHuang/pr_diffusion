@@ -15,10 +15,9 @@ def load_image(path: str, size: int = 256, device: Optional[torch.device] = None
     arr = np.asarray(img).astype(np.float32) / 255.0  # [0,1]
     arr = arr.transpose(2, 0, 1)                      # [3,H,W]
     x = torch.from_numpy(arr)[None]                   # [1,3,H,W]
-    x = x * 2.0 - 1.0
-    # x = x.contiguous() 
+    x = (x * 2.0 - 1.0).contiguous()
     if device is not None:
-        x = x.to(device)
+        x = x.to(device, non_blocking=True).contiguous()
     return x
 
 

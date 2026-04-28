@@ -116,17 +116,71 @@ def from01(x01: torch.Tensor) -> torch.Tensor:
     return x01.clamp(0.0, 1.0) * 2.0 - 1.0
 
 
+def complex_abs_safe(z: torch.Tensor) -> torch.Tensor:
+    """CUDA-safe complex magnitude; avoids complex_tensor.abs() kernel issues."""
+    return torch.sqrt(z.real.square() + z.imag.square()).contiguous()
+
+def parse_radius_schedule(text: str | None, default_radius: float) -> list[tuple[int, float]]:
+    """Parse schedules like '500:0.2,800:0.4,900:0.72'.
+
+    The returned list is sorted by start step. The active radius at step i is
+    the radius from the latest pair whose start <= i.
+    """
+    if text is None or str(text).strip() == "":
+        return [(0, float(default_radius))]
+
+    out: list[tuple[int, float]] = []
+    for chunk in str(text).split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if ":" not in chunk:
+            raise ValueError(
+                f"Invalid radius schedule item {chunk!r}; expected 'step:radius'."
+            )
+        step_s, radius_s = chunk.split(":", 1)
+        out.append((int(step_s), float(radius_s)))
+
+    if not out:
+        return [(0, float(default_radius))]
+    out.sort(key=lambda x: x[0])
+
+    # Safety: before the first explicitly scheduled change, use the default
+    # projection radius. This prevents a schedule like "800:0.4" from applying
+    # 0.4 immediately at proj_start.
+    if out[0][0] > 0:
+        out.insert(0, (0, float(default_radius)))
+
+    return out
+
+
+def radius_at_step(schedule: list[tuple[int, float]], step_index: int) -> float:
+    radius = float(schedule[0][1])
+    for start, r in schedule:
+        if step_index >= int(start):
+            radius = float(r)
+        else:
+            break
+    return radius
+
+
+def schedule_to_string(schedule: list[tuple[int, float]]) -> str:
+    return ",".join(f"{int(s)}:{float(r):g}" for s, r in schedule)
+
+
 def centered_fft2(x: torch.Tensor) -> torch.Tensor:
     # Match the centered FFT convention used by DiffFPR / fastMRI utilities.
-    x_shift = torch.fft.ifftshift(x, dim=(-2, -1))
+    # Force contiguous buffers because some CUDA/cuFFT builds fail on shifted
+    # or image-derived non-standard strides.
+    x_shift = torch.fft.ifftshift(x.contiguous(), dim=(-2, -1)).contiguous()
     X = torch.fft.fftn(x_shift, dim=(-2, -1), norm="ortho")
-    return torch.fft.fftshift(X, dim=(-2, -1))
+    return torch.fft.fftshift(X, dim=(-2, -1)).contiguous()
 
 
 def centered_ifft2(X: torch.Tensor) -> torch.Tensor:
-    X_shift = torch.fft.ifftshift(X, dim=(-2, -1))
+    X_shift = torch.fft.ifftshift(X.contiguous(), dim=(-2, -1)).contiguous()
     x = torch.fft.ifftn(X_shift, dim=(-2, -1), norm="ortho")
-    return torch.fft.fftshift(x, dim=(-2, -1)).real
+    return torch.fft.fftshift(x, dim=(-2, -1)).real.contiguous()
 
 
 def oversample_pad(image_size: int, oversample: float) -> int:
@@ -147,7 +201,7 @@ def crop01(xpad01: torch.Tensor, pad: int) -> torch.Tensor:
 
 
 def oversampled_magnitude(x: torch.Tensor, pad: int) -> torch.Tensor:
-    return centered_fft2(pad01(to01(x), pad)).abs()
+    return complex_abs_safe(centered_fft2(pad01(to01(x), pad)))
 
 
 def centered_lowfreq_mask(h: int, w: int, radius: float, device: torch.device) -> torch.Tensor:
@@ -185,7 +239,7 @@ def enforce_oversampled_lowfreq(
     """One Gerchberg-Saxton-style magnitude replacement on the padded grid."""
     xpad01 = pad01(to01(x), pad)
     X = centered_fft2(xpad01)
-    mag = X.abs()
+    mag = complex_abs_safe(X)
     phase = X / (mag + eps)
     _, _, h, w = X.shape
     mask_hw = centered_lowfreq_mask(h, w, radius, X.device)
@@ -276,12 +330,15 @@ def noise_picking_reconstruct_oversampled(
     device: torch.device,
     variant: NPVariant,
     num_steps: int,
-    radius: float,
+    score_radius: float,
+    proj_radius: float,
     log_every: int,
+    proj_radius_schedule: str | None = None,
 ) -> torch.Tensor:
     seed_everything(seed)
     scheduler.set_timesteps(num_steps, device=device)
     timesteps = scheduler.timesteps
+    proj_schedule = parse_radius_schedule(proj_radius_schedule, proj_radius)
 
     x_t = torch.randn((1, 3, unet.config.sample_size, unet.config.sample_size), device=device)
     x_prev = None
@@ -303,7 +360,10 @@ def noise_picking_reconstruct_oversampled(
             x0_hat = x_prev
 
         if variant.use_lowfreq_projection and i >= variant.proj_start:
-            x0_hat = enforce_oversampled_lowfreq(x0_hat, mag_target, pad, radius)
+            current_proj_radius = radius_at_step(proj_schedule, i)
+            x0_hat = enforce_oversampled_lowfreq(
+                x0_hat, mag_target, pad, current_proj_radius
+            )
 
         k = variant.soft if i < variant.proj_start else variant.hard
         x_prev, eps_prev = pick_noise_oversampled(
@@ -313,7 +373,7 @@ def noise_picking_reconstruct_oversampled(
             mag_target=mag_target,
             pad=pad,
             num_candidates=k,
-            score_radius=radius if variant.use_lowfreq_score else None,
+            score_radius=score_radius if variant.use_lowfreq_score else None,
             unet=unet,
             scheduler=scheduler,
         )
@@ -491,7 +551,8 @@ def main() -> None:
                     device=device,
                     variant=variant,
                     num_steps=args.np_steps,
-                    radius=args.radius,
+                    score_radius=args.radius,
+                    proj_radius=args.radius,
                     log_every=args.log_every,
                 )
                 if torch.cuda.is_available():

@@ -128,11 +128,33 @@ def make_alignment(alignment: str, x_rec: torch.Tensor, x_gt: torch.Tensor) -> t
 def summarize_image_level(run_rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
     grouped: Dict[tuple, List[Dict[str, object]]] = {}
     for row in run_rows:
-        key = (str(row["variant"]), str(row["alignment_mode"]), str(row["image_basename"]))
+        key = (
+            str(row["variant"]),
+            str(row["alignment_mode"]),
+            str(row["image_basename"]),
+            float(row["score_radius"]),
+            float(row["proj_radius"]),
+            int(row["proj_start"]),
+            int(row["num_candidates_soft"]),
+            int(row["num_candidates_hard"]),
+            float(row["oversample"]),
+            float(row["measurement_noise_std"]),
+        )
         grouped.setdefault(key, []).append(row)
 
     out: List[Dict[str, object]] = []
-    for (variant, alignment, image), rows in sorted(grouped.items()):
+    for (
+        variant,
+        alignment,
+        image,
+        score_radius,
+        proj_radius,
+        proj_start,
+        soft_k,
+        hard_k,
+        oversample,
+        noise_std,
+    ), rows in sorted(grouped.items()):
         psnr = torch.tensor([float(r["psnr"]) for r in rows], dtype=torch.float32)
         ssim = torch.tensor([float(r["ssim"]) for r in rows], dtype=torch.float32)
         runtime = torch.tensor([float(r["runtime_s"]) for r in rows], dtype=torch.float32)
@@ -141,6 +163,13 @@ def summarize_image_level(run_rows: List[Dict[str, object]]) -> List[Dict[str, o
                 "variant": variant,
                 "alignment_mode": alignment,
                 "image_basename": image,
+                "score_radius": score_radius,
+                "proj_radius": proj_radius,
+                "proj_start": proj_start,
+                "num_candidates_soft": soft_k,
+                "num_candidates_hard": hard_k,
+                "oversample": oversample,
+                "measurement_noise_std": noise_std,
                 "n_runs": len(rows),
                 "psnr_mean": float(psnr.mean().item()),
                 "psnr_median": float(psnr.median().item()),
@@ -152,19 +181,35 @@ def summarize_image_level(run_rows: List[Dict[str, object]]) -> List[Dict[str, o
         )
     return out
 
+
 def summarize_condition_level(run_rows: List[Dict[str, object]], psnr_threshold: float) -> List[Dict[str, object]]:
     grouped: Dict[tuple, List[Dict[str, object]]] = {}
     for row in run_rows:
         key = (
             str(row["variant"]),
             str(row["alignment_mode"]),
+            float(row["score_radius"]),
+            float(row["proj_radius"]),
+            int(row["proj_start"]),
+            int(row["num_candidates_soft"]),
+            int(row["num_candidates_hard"]),
             float(row["oversample"]),
             float(row["measurement_noise_std"]),
         )
         grouped.setdefault(key, []).append(row)
 
     out: List[Dict[str, object]] = []
-    for (variant, alignment, oversample, noise_std), rows in sorted(grouped.items()):
+    for (
+        variant,
+        alignment,
+        score_radius,
+        proj_radius,
+        proj_start,
+        soft_k,
+        hard_k,
+        oversample,
+        noise_std,
+    ), rows in sorted(grouped.items()):
         psnr = torch.tensor([float(r["psnr"]) for r in rows], dtype=torch.float32)
         ssim = torch.tensor([float(r["ssim"]) for r in rows], dtype=torch.float32)
         lpips_vals = torch.tensor([float(r["lpips"]) for r in rows], dtype=torch.float32)
@@ -174,6 +219,11 @@ def summarize_condition_level(run_rows: List[Dict[str, object]], psnr_threshold:
             {
                 "variant": variant,
                 "alignment_mode": alignment,
+                "score_radius": score_radius,
+                "proj_radius": proj_radius,
+                "proj_start": proj_start,
+                "num_candidates_soft": soft_k,
+                "num_candidates_hard": hard_k,
                 "oversample": oversample,
                 "measurement_noise_std": noise_std,
                 "n_runs": len(rows),
@@ -225,7 +275,6 @@ def main() -> None:
     parser.add_argument("--skip_lpips", action="store_true")
     parser.add_argument("--fast_eval", action="store_true")
     parser.add_argument("--max_images", type=int, default=None)
-    parser.add_argument("--proj_radius_schedule", default=None)
     args = parser.parse_args()
     score_radius = float(args.score_radius) if args.score_radius is not None else float(args.radius)
     proj_radius = float(args.proj_radius) if args.proj_radius is not None else float(args.radius)
@@ -305,7 +354,6 @@ def main() -> None:
                         "num_steps": args.np_steps,
                         "score_radius": score_radius,
                         "proj_radius": proj_radius,
-                        "proj_radius_schedule": args.proj_radius_schedule or f"{variant.proj_start}:{proj_radius}",
                         "proj_start": variant.proj_start,
                         "num_candidates_soft": variant.soft,
                         "num_candidates_hard": variant.hard,
@@ -348,7 +396,6 @@ def main() -> None:
                             num_steps=args.np_steps,
                             score_radius=score_radius,
                             proj_radius=proj_radius,
-                            proj_radius_schedule=args.proj_radius_schedule,
                             log_every=args.log_every,
                         )
                         if torch.cuda.is_available():
@@ -399,7 +446,6 @@ def main() -> None:
                                 "num_candidates_hard": variant.hard,
                                 "score_radius": score_radius,
                                 "proj_radius": proj_radius,
-                                "proj_radius_schedule": args.proj_radius_schedule or f"{variant.proj_start}:{proj_radius}",
                                 "radius": score_radius,  # legacy/backward-compatible field
                                 "oversample": oversample,
                                 "pad_pixels_each_side": pad,
