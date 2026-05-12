@@ -126,8 +126,40 @@ def guided_model_config(preset: str) -> Dict[str, Any]:
             use_fp16=False,
             use_new_attention_order=False,
         )
+    if preset == "difffpr_imagenet256":
+        # Matches the ImageNet-256 guided-diffusion checkpoint:
+        # image_size=256, num_channels=256, num_res_blocks=2,
+        # attention_resolutions=32,16,8, learn_sigma=True.
+        #
+        # The diffusion_* fields are also required by
+        # guided_diffusion.script_util.create_model_and_diffusion.
+        return dict(
+            image_size=256,
+            class_cond=False,
+            learn_sigma=True,
+            num_channels=256,
+            num_res_blocks=2,
+            channel_mult="",
+            num_heads=4,
+            num_head_channels=64,
+            num_heads_upsample=-1,
+            attention_resolutions="32,16,8",
+            dropout=0.0,
+            diffusion_steps=1000,
+            noise_schedule="linear",
+            timestep_respacing="",
+            use_kl=False,
+            predict_xstart=False,
+            rescale_timesteps=False,
+            rescale_learned_sigmas=False,
+            use_checkpoint=False,
+            use_scale_shift_norm=True,
+            resblock_updown=True,
+            use_fp16=False,
+            use_new_attention_order=False,
+        )
     raise ValueError(
-        f"Unknown guided model preset {preset!r}. Currently supported: difffpr_ffhq_10m"
+        f"Unknown guided model preset {preset!r}. Currently supported: difffpr_ffhq_10m, difffpr_imagenet256"
     )
 
 

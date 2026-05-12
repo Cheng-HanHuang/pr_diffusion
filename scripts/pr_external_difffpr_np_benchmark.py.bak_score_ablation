@@ -274,40 +274,6 @@ def make_variants(names: Iterable[str], *, late_start: int, fixed_k: int) -> Lis
 
 
 @torch.no_grad()
-def _normalized_candidate_scores(values: list[torch.Tensor]) -> torch.Tensor:
-    """Median-normalize candidate scores so mixed terms have comparable scale."""
-    v = torch.stack([x.float().reshape(()) for x in values])
-    scale = v.detach().median().abs().clamp_min(1e-8)
-    return v / scale
-
-
-@torch.no_grad()
-def oversampled_lowfreq_mag_huber(
-    x: torch.Tensor,
-    mag_target: torch.Tensor,
-    pad: int,
-    radius: float,
-    *,
-    delta: float = 0.05,
-) -> torch.Tensor:
-    """Robust low-frequency magnitude discrepancy.
-
-    This is a candidate-ranking score, not a calibrated likelihood.  It
-    downweights large residual outliers compared with squared/L2 scoring.
-    """
-    mag = oversampled_magnitude(x, pad)
-    _, _, h, w = mag.shape
-    mask_hw = centered_lowfreq_mask(h, w, radius, mag.device)
-    mask = mask_hw[None, None, :, :].expand_as(mag)
-    resid = mag[mask] - mag_target[mask]
-    abs_r = resid.abs()
-    d = torch.as_tensor(float(delta), device=abs_r.device, dtype=abs_r.dtype)
-    quad = torch.minimum(abs_r, d)
-    lin = abs_r - quad
-    return (0.5 * quad.square() + d * lin).mean()
-
-
-@torch.no_grad()
 def pick_noise_oversampled(
     *,
     x0_target: torch.Tensor,
@@ -319,27 +285,14 @@ def pick_noise_oversampled(
     score_radius: Optional[float],
     unet,
     scheduler,
-    score_mode: str = "lf",
-    score_reg_lambda: float = 0.25,
-    score_huber_delta: float = 0.05,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Pick a candidate noise branch.
-
-    score_mode:
-      lf            : original low-frequency magnitude L2 score.
-      prev_l2       : lf score + normalized penalty to stay near x0_target.
-      consensus_l2  : lf score + normalized penalty for candidate outliers.
-      huber_lf      : robust low-frequency Huber/near-L1 magnitude score.
-    """
     alpha_bar_t = scheduler.alphas_cumprod[t_int].to(device=x0_target.device, dtype=x0_target.dtype)
     sqrt_at = torch.sqrt(alpha_bar_t)
     sqrt_1mat = torch.sqrt(1.0 - alpha_bar_t)
 
-    candidate_x0s: list[torch.Tensor] = []
-    candidate_eps: list[torch.Tensor] = []
-    lf_scores: list[torch.Tensor] = []
-    huber_scores: list[torch.Tensor] = []
-    prev_regs: list[torch.Tensor] = []
+    best_x0 = None
+    best_eps = None
+    best_score = None
 
     for j in range(num_candidates):
         if j == 0 and eps_prev is not None and num_candidates > 1:
@@ -353,55 +306,17 @@ def pick_noise_oversampled(
         x0_hat = (x_t - sqrt_1mat * eps_pred) / sqrt_at
 
         if score_radius is None:
-            lf_score = oversampled_mag_l2(x0_hat, mag_target, pad)
-            huber_score = lf_score
+            score = oversampled_mag_l2(x0_hat, mag_target, pad)
         else:
-            lf_score = oversampled_lowfreq_mag_l2(x0_hat, mag_target, pad, score_radius)
-            huber_score = oversampled_lowfreq_mag_huber(
-                x0_hat, mag_target, pad, score_radius, delta=score_huber_delta
-            )
+            score = oversampled_lowfreq_mag_l2(x0_hat, mag_target, pad, score_radius)
 
-        # Normalized image-space distance from previous/current target x0.
-        prev_reg = torch.sqrt(torch.mean((to01(x0_hat) - to01(x0_target)) ** 2).clamp_min(1e-12))
+        if best_score is None or float(score) < float(best_score):
+            best_score = score
+            best_x0 = x0_hat
+            best_eps = eps.clone()
 
-        candidate_x0s.append(x0_hat)
-        candidate_eps.append(eps.clone())
-        lf_scores.append(lf_score)
-        huber_scores.append(huber_score)
-        prev_regs.append(prev_reg)
-
-    mode = str(score_mode).lower()
-
-    if mode in {"lf", "s1"}:
-        final_scores = torch.stack([x.float().reshape(()) for x in lf_scores])
-
-    elif mode in {"prev_l2", "s2"}:
-        final_scores = (
-            _normalized_candidate_scores(lf_scores)
-            + float(score_reg_lambda) * _normalized_candidate_scores(prev_regs)
-        )
-
-    elif mode in {"consensus_l2", "s3"}:
-        mean_x0 = torch.stack(candidate_x0s, dim=0).mean(dim=0)
-        consensus_regs = [
-            torch.sqrt(torch.mean((to01(x0_hat) - to01(mean_x0)) ** 2).clamp_min(1e-12))
-            for x0_hat in candidate_x0s
-        ]
-        final_scores = (
-            _normalized_candidate_scores(lf_scores)
-            + float(score_reg_lambda) * _normalized_candidate_scores(consensus_regs)
-        )
-
-    elif mode in {"huber_lf", "s4"}:
-        final_scores = torch.stack([x.float().reshape(()) for x in huber_scores])
-
-    else:
-        raise ValueError(
-            f"Unknown score_mode={score_mode!r}; expected lf, prev_l2, consensus_l2, huber_lf."
-        )
-
-    idx = int(torch.argmin(final_scores).item())
-    return candidate_x0s[idx], candidate_eps[idx]
+    assert best_x0 is not None and best_eps is not None
+    return best_x0, best_eps
 
 
 @torch.no_grad()
@@ -419,9 +334,6 @@ def noise_picking_reconstruct_oversampled(
     proj_radius: float,
     log_every: int,
     proj_radius_schedule: str | None = None,
-    score_mode: str = "lf",
-    score_reg_lambda: float = 0.25,
-    score_huber_delta: float = 0.05,
 ) -> torch.Tensor:
     seed_everything(seed)
     scheduler.set_timesteps(num_steps, device=device)
@@ -464,9 +376,6 @@ def noise_picking_reconstruct_oversampled(
             score_radius=score_radius if variant.use_lowfreq_score else None,
             unet=unet,
             scheduler=scheduler,
-            score_mode=score_mode,
-            score_reg_lambda=score_reg_lambda,
-            score_huber_delta=score_huber_delta,
         )
 
         if log_every > 0 and (i + 1) % log_every == 0:

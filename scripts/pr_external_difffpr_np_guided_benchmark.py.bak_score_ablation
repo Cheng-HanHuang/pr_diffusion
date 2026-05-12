@@ -226,13 +226,6 @@ def main() -> None:
     parser.add_argument("--fast_eval", action="store_true")
     parser.add_argument("--max_images", type=int, default=None)
     parser.add_argument("--proj_radius_schedule", default=None)
-    parser.add_argument(
-        "--score_mode",
-        default="lf",
-        choices=["lf", "prev_l2", "consensus_l2", "huber_lf", "s1", "s2", "s3", "s4"],
-    )
-    parser.add_argument("--score_reg_lambda", type=float, default=0.25)
-    parser.add_argument("--score_huber_delta", type=float, default=0.05)
     args = parser.parse_args()
     score_radius = float(args.score_radius) if args.score_radius is not None else float(args.radius)
     proj_radius = float(args.proj_radius) if args.proj_radius is not None else float(args.radius)
@@ -313,9 +306,6 @@ def main() -> None:
                         "score_radius": score_radius,
                         "proj_radius": proj_radius,
                         "proj_radius_schedule": args.proj_radius_schedule or f"{variant.proj_start}:{proj_radius}",
-                        "score_mode": args.score_mode,
-                        "score_reg_lambda": args.score_reg_lambda,
-                        "score_huber_delta": args.score_huber_delta,
                         "proj_start": variant.proj_start,
                         "num_candidates_soft": variant.soft,
                         "num_candidates_hard": variant.hard,
@@ -359,9 +349,6 @@ def main() -> None:
                             score_radius=score_radius,
                             proj_radius=proj_radius,
                             proj_radius_schedule=args.proj_radius_schedule,
-                            score_mode=args.score_mode,
-                            score_reg_lambda=args.score_reg_lambda,
-                            score_huber_delta=args.score_huber_delta,
                             log_every=args.log_every,
                         )
                         if torch.cuda.is_available():
@@ -413,9 +400,6 @@ def main() -> None:
                                 "score_radius": score_radius,
                                 "proj_radius": proj_radius,
                                 "proj_radius_schedule": args.proj_radius_schedule or f"{variant.proj_start}:{proj_radius}",
-                                "score_mode": args.score_mode,
-                                "score_reg_lambda": args.score_reg_lambda,
-                                "score_huber_delta": args.score_huber_delta,
                                 "radius": score_radius,  # legacy/backward-compatible field
                                 "oversample": oversample,
                                 "pad_pixels_each_side": pad,
