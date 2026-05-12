@@ -1,108 +1,46 @@
-# Phase Retrieval with Diffusion Models (SITCOM + Noise Picking)
+# PR Diffusion: diffusion-prior phase retrieval experiments
 
-This repository contains reproducible phase-retrieval experiments built around a pretrained DDPM denoiser (default: `google/ddpm-celebahq-256`) and magnitude-only Fourier measurements.
+This repository studies diffusion-prior solvers for phase retrieval. The current active direction is **FFHQ 256×256 phase retrieval** under DiffFPR/SITCOM-style oversampled Fourier magnitude measurements.
 
-It includes:
-- **SITCOM** reconstruction. Paper at SITCOM.pdf in this repo.
-- **Noise Picking** reconstruction.
-- experiment runners for canonical comparison, phase sweeps, and hybrid studies.
-- Slurm / launch templates for multi-phase HPC execution.
+The project goal is not only to maximize one best-of-k benchmark number. The goal is to develop a **reliable phase retrieval method** that produces good reconstructions per run, has controlled failure modes, and can be justified as one coherent solver rather than a post-hoc oracle over many methods.
 
-### Current planning pointers
+## Current active benchmark
 
-- Main progress summary: `docs/progress_report.md`
-- Active experiment plan: `docs/current_experiment_plan.md`
-- Historical planning / execution notes: `docs/historical/README.md`
-
-### Current major machine settings
-
-- PAC, the lab machine and the major machine now, default to but notice changes can be made: 'env/machine.lab.env'
-
-## Repository layout
+The active benchmark is FFHQ-25.
 
 ```text
-README.md
-LATEST_EXPERIMENT_RECORD.md
-pyproject.toml
-requirements.txt
+data root:
+  /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
 
-docs/
-  progress_report.md
-  current_experiment_plan.md
-  historical/                       # archived plans, logs, and execution notes
+split:
+  /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/splits/ffhq_available25.txt
 
-env/
-  README.md
-  machine.lab.env
-  machine.*.env.example
-
-prdiffusion/
-  algorithms/
-    sitcom.py
-    noise_picking.py
-    hybrid_np_sitcom.py
-  diffusion.py
-  fft_ops.py
-  io.py
-  metrics.py
-  seed.py
-
-scripts/
-  # canonical / NeurIPS workflows
-  neurips_canonical_compare.py
-  neurips_grid_experiments.py
-  neurips_postprocess_grid.py
-  neurips_make_splits.py
-
-  # current PRDiffusion workflows
-  pr_canonical_compare.py
-  pr_canonical_compare_v2.py
-  pr_grid_experiments.py
-  pr_postprocess_grid.py
-  pr_mechanism_grid.py
-  pr_phase8_9_schedule.py
-  pr_phase10_11_np_grid.py
-  pr_phase12_hybrid_ladder.py
-
-  # ablations / legacy-compatible entry points
-  compare_methods.py
-  compare_methods_lowfreq_ablation.py
-  compare_methods_no_lowfreq.py
-  noise_picking_projstart_ablation.py
-  sitcom_lr_sweep.py
-  sitcom_noise_ablation.py
-
-  # Slurm / cluster launch helpers
-  pac_*.sh
-  slurm_*.sh
-
-  # external benchmarking (DiffFPR-style setting)
-  pr_external_difffpr_np_benchmark.py
-  pr_external_difffpr_np_paper_matrix.sh
-
-scriptstemplate_h200.sh             # legacy shell template at repo root
+guided diffusion FFHQ checkpoint:
+  /egr/research-pac/huang248/models/ffhq_10m.pt
 ```
 
-External benchmark setup note:
+CelebA-HQ experiments are now historical/development experiments.
 
-- `docs/external_np_difffpr_benchmark_setup.md`
+## Current practical Noise Picking setting
 
-## Installation
-
-Python 3.10+ is recommended.
-
-```bash
-pip install -r requirements.txt
+```text
+score_radius = 0.6
+proj_radius  = 0.2
+proj_start   = 300
+soft_k       = 5
+hard_k       = 1
+oversample   = 2
 ```
 
-## Data
+## Main scripts
 
-Provide a local dataset root via `--data_root` for all experiment scripts.
-Scripts search by image basename (e.g. `09375.jpg`) recursively under `--data_root`.
+- `scripts/pr_external_difffpr_np_guided_benchmark.py`
+- `scripts/pr_external_difffpr_np_benchmark.py`
 
-## Reproducibility notes
+## Current docs
 
-- Seed lists are explicit and configurable.
-- Radius controls masked constraints for Noise Picking and scheduled SITCOM variants.
-- `docs/progress_report.md` is the main source of frozen defaults and current status.
-- `docs/current_experiment_plan.md` is the active planning document.
+- `docs/progress_report.md`
+- `docs/current_experiment_plan.md`
+- `docs/runbooks/tmp_runner_record.md`
+- `docs/repo_audit_notes.md`
+- `docs/README.md`

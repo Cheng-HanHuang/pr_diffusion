@@ -1,0 +1,30 @@
+# FFHQ NP/SITCOM runner record
+
+Updated: 2026-05-12
+
+Temporary shell scripts were originally under `/tmp`; many are now in `scripts/` for tracking.
+
+## Local runner/script inventory
+
+```text
+scripts/analyze_ffhq_np_bestof2_candidate_ablation_nopandas.py
+scripts/analyze_ffhq_np_confirm_top8_nopandas.py
+scripts/analyze_ffhq_np_s2_lambda_sweep_nopandas.py
+scripts/analyze_ffhq_np_schedule_screen_nopandas.py
+scripts/analyze_ffhq_np_score_mode_s1_s4_nopandas.py
+scripts/analyze_ffhq_np_stepA_full_nopandas.py
+scripts/analyze_ffhq_np_tuning_triage.py
+scripts/analyze_ffhq_np_tuning_triage_nopandas.py
+scripts/compare_np_sitcom_all_metrics_pac_nopandas.py
+scripts/noise_picking_projstart_ablation.py
+scripts/pr_external_difffpr_np_benchmark.py.bak_score_ablation
+scripts/pr_external_difffpr_np_guided_benchmark.py.bak_score_ablation
+scripts/pr_phase8_9_schedule.py
+scripts/pr_zero_meas_sitcom_check.py
+scripts/sitcom_lr_sweep.py
+scripts/sitcom_noise_ablation.py
+scripts/slurm_neurips_phase2_sitcom_tuning.sh
+scripts/slurm_neurips_phase3_np_schedule.sh
+scripts/slurm_neurips_phase7_sitcom_masked_ablation.sh
+scripts/slurm_noise_picking_projstart_ablation_subset5.sh
+```
