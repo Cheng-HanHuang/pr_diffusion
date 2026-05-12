@@ -17,7 +17,3 @@ Use NP-style branch selection in early timesteps and SITCOM-style refinement lat
 ## Direction C: robust measurement weighting
 
 Prefer soft and robust, frequency-dependent measurement weighting over broader hard projection.
-
-## Direction D: evaluation standard
-
-For every method, report all-run mean/median/min, best-of-k curves, failure counts, per-image failures, SSIM/LPIPS, and runtime.
