@@ -1,17 +1,130 @@
 # Repo audit notes after FFHQ tuning phase
 
-## Key checks
+Updated: 2026-05-12
 
-1. Verify score-mode arguments and logic in NP benchmark scripts.
-2. Verify CUDA-safe complex magnitude handling.
-3. Verify projection-radius schedule support.
-4. Remove/archive accidental backup files (`*.bak*`, `*_patched.py`).
-5. Run Python compile checks.
-6. Ensure README/docs make FFHQ the main benchmark and CelebA-HQ historical.
-7. Decide whether local analysis scripts should be committed.
+## Local script inventory
 
-## Conceptual checks
+```text
+scripts/analyze_ffhq_np_bestof2_candidate_ablation_nopandas.py
+scripts/analyze_ffhq_np_confirm_top8_nopandas.py
+scripts/analyze_ffhq_np_s2_lambda_sweep_nopandas.py
+scripts/analyze_ffhq_np_schedule_screen_nopandas.py
+scripts/analyze_ffhq_np_score_mode_s1_s4_nopandas.py
+scripts/analyze_ffhq_np_stepA_full_nopandas.py
+scripts/analyze_ffhq_np_tuning_triage.py
+scripts/analyze_ffhq_np_tuning_triage_nopandas.py
+scripts/compare_methods.py
+scripts/compare_methods_lowfreq_ablation.py
+scripts/compare_methods_no_lowfreq.py
+scripts/compare_np_sitcom_all_metrics_pac_nopandas.py
+scripts/guided_benchmark_summary_fields.patch
+scripts/make_imagenet25_split.py
+scripts/neurips_canonical_compare.py
+scripts/neurips_grid_experiments.py
+scripts/neurips_make_splits.py
+scripts/neurips_postprocess_grid.py
+scripts/noise_picking_projstart_ablation.py
+scripts/pac_launch_phases_4_7_bg.sh
+scripts/pac_phase10_12_before_second_host.sh
+scripts/pac_phase8_9_and_host_setup.sh
+scripts/pac_run_canonical_test20_direct.sh
+scripts/pac_run_mechanism_direct.sh
+scripts/pr_canonical_compare.py
+scripts/pr_canonical_compare_v2.py
+scripts/pr_external_difffpr_np_benchmark.py
+scripts/pr_external_difffpr_np_benchmark.py.bak_score_ablation
+scripts/pr_external_difffpr_np_guided_benchmark.py
+scripts/pr_external_difffpr_np_guided_benchmark.py.bak_before_summary_fields
+scripts/pr_external_difffpr_np_guided_benchmark.py.bak_score_ablation
+scripts/pr_external_difffpr_np_guided_benchmark_patched.py
+scripts/pr_external_difffpr_np_paper_matrix.sh
+scripts/pr_external_ffhq25_np_guided_pilot.sh
+scripts/pr_grid_experiments.py
+scripts/pr_mechanism_grid.py
+scripts/pr_phase10_11_np_grid.py
+scripts/pr_phase12_hybrid_ladder.py
+scripts/pr_phase8_9_schedule.py
+scripts/pr_piecewise_np_compare.py
+scripts/pr_postprocess_grid.py
+scripts/pr_zero_meas_sitcom_check.py
+scripts/prepare_imagenet256_val.py
+scripts/run_ffhq25_np_tuning_fast.sh
+scripts/sitcom_lr_sweep.py
+scripts/sitcom_noise_ablation.py
+scripts/slurm_compare_no_lowfreq.sh
+scripts/slurm_compare_subset5.sh
+scripts/slurm_compare_subset5_full.sh
+scripts/slurm_compare_subset5_lowfreq_ablation.sh
+scripts/slurm_diag.sh
+scripts/slurm_neurips_make_splits.sh
+scripts/slurm_neurips_phase0_sanity.sh
+scripts/slurm_neurips_phase1_radius.sh
+scripts/slurm_neurips_phase2_sitcom_tuning.sh
+scripts/slurm_neurips_phase3_np_schedule.sh
+scripts/slurm_neurips_phase4_budget.sh
+scripts/slurm_neurips_phase5_mechanism.sh
+scripts/slurm_neurips_phase6_main.sh
+scripts/slurm_neurips_phase7_sitcom_masked_ablation.sh
+scripts/slurm_noise_picking_projstart_ablation_subset5.sh
+scripts/slurm_smoke_compare_no_lowfreq.sh
+```
 
-- Distinguish global best-run vs image-level best-of-k statistics.
-- Keep alignment conventions explicit (raw/rot180/resolve).
-- Avoid over-claiming NP over SITCOM; present regime-dependent strengths.
+## Local docs inventory
+
+```text
+docs/current_experiment_plan.md
+docs/external_np_difffpr_benchmark_setup.md
+docs/historical/Phase4_to_7_analysis_summary.md
+docs/historical/README.md
+docs/historical/README_backup_before_ffhq_full_update_20260512_205317.md
+docs/historical/continuation_experiment_plan.md
+docs/historical/current_experiment_plan_archived_20260512_192952.md
+docs/historical/current_experiment_plan_backup_before_ffhq_full_update_20260512_205317.md
+docs/historical/ffhq25_guided_np_pilot_comparison_plan_archived_20260512_192952.md
+docs/historical/lab_machine_migration_plan.md
+docs/historical/lab_migration_intake.md
+docs/historical/neurips_experiment_log.md
+docs/historical/neurips_experiments/neurips_canonical_compare.md
+docs/historical/neurips_experiments/neurips_grid_experiments.md
+docs/historical/neurips_experiments/neurips_make_splits.md
+docs/historical/neurips_experiments/neurips_postprocess_grid.md
+docs/historical/neurips_experiments/slurm_neurips_make_splits.md
+docs/historical/neurips_experiments/slurm_neurips_phase0_sanity.md
+docs/historical/neurips_experiments/slurm_neurips_phase1_radius.md
+docs/historical/neurips_experiments/slurm_neurips_phase2_sitcom_tuning.md
+docs/historical/neurips_experiments/slurm_neurips_phase3_np_schedule.md
+docs/historical/neurips_experiments/slurm_neurips_phase4_budget.md
+docs/historical/neurips_experiments/slurm_neurips_phase5_mechanism.md
+docs/historical/neurips_experiments/slurm_neurips_phase6_main.md
+docs/historical/neurips_experiments/slurm_neurips_phase7_sitcom_masked_ablation.md
+docs/historical/neurips_prdiffusion_experiment_plan.md
+docs/historical/pac_canonical_test20_run.md
+docs/historical/pac_direct_python_workflow.md
+docs/historical/pac_git_push_recovery.md
+docs/historical/pac_next_steps_after_probe.md
+docs/historical/phase10_12_execution_before_second_host.md
+docs/historical/phase10_second_host_literature_review_initial.md
+docs/historical/phase4_7_analysis_updated.md
+docs/historical/phase8_9_execution_and_second_host_setup_initial.md
+docs/historical/phase8_plus_experiment_plan_initial.md
+docs/historical/prdiffusion_terminal_start_guide.md
+docs/historical/progress_report_archived_20260512_192952.md
+docs/historical/progress_report_backup_before_ffhq_full_update_20260512_205317.md
+docs/historical/progress_report_pre_direction2_2026-04-23.md
+docs/historical/progress_report_pre_piecewise_and_runtime_matched.md
+docs/historical/repo_audit_notes_backup_before_ffhq_full_update_20260512_205317.md
+docs/historical/tmp_runner_record_backup_before_ffhq_full_update_20260512_205317.md
+docs/historical/updated_continuation_plan_soft_early_hard_late.md
+docs/progress_report.md
+docs/repo_audit_notes.md
+docs/runbooks/tmp_runner_record.md
+docs/相位回復新求解器文獻盤點與 NP 對外比較策略.pdf
+```
+
+## High-priority checks
+
+- score_mode wiring
+- projection schedule wiring
+- complex_abs_safe usage
+- backup/patched file cleanup review
+- compile checks

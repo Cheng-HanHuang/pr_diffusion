@@ -2,18 +2,18 @@
 
 ## Guiding principle
 
-Optimize for a single solver that reliably produces good reconstructions; avoid post-hoc oracle selection.
+Optimize one solver for reliability; avoid post-hoc oracle selection.
 
-## Direction A: score improvement as one principled algorithm
+## Priority directions
 
-- Timestep-dependent `prev_l2` regularization.
-- Adaptive regularization based on LF score uncertainty.
-- Candidate-bank/noise-memory strategy: retain winning noise from prior k steps and sample only remaining candidates.
+1. Timestep-dependent/adaptive score regularization.
+2. Candidate-bank/noise-memory NP.
+3. NP-style early branching inside SITCOM-ODE.
+4. Robust measurement weighting over hard broad projection.
 
-## Direction B: NP inside SITCOM-ODE
+## Promotion criteria
 
-Use NP-style branch selection in early timesteps and SITCOM-style refinement late, as one integrated solver.
-
-## Direction C: robust measurement weighting
-
-Prefer soft and robust, frequency-dependent measurement weighting over broader hard projection.
+- mean PSNR > 28.8 (screen)
+- min PSNR > 25
+- no catastrophic failures (<20 dB)
+- report best-of-1/2/4 plus all-run metrics and failures.

@@ -1,30 +1,30 @@
-# Temporary runner record for FFHQ NP/SITCOM experiments
+# FFHQ NP/SITCOM runner record
 
-This file records temporary `/tmp` runners used during FFHQ-25 NP tuning.
+Updated: 2026-05-12
 
-## Main environment variables
+Temporary shell scripts were originally under `/tmp`; many are now in `scripts/` for tracking.
 
-```bash
-ROOT=/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411
-DATA_ROOT=/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
-IMAGE_LIST_FILE=$ROOT/splits/ffhq_available25.txt
-GUIDED_MODEL_PATH=/egr/research-pac/huang248/models/ffhq_10m.pt
-GUIDED_DIFFUSION_DIR=/egr/research-pac/huang248/external/DiffFPR
-REPO=/egr/research-pac/huang248/pr_diffusion_repo
+## Local runner/script inventory
+
+```text
+scripts/analyze_ffhq_np_bestof2_candidate_ablation_nopandas.py
+scripts/analyze_ffhq_np_confirm_top8_nopandas.py
+scripts/analyze_ffhq_np_s2_lambda_sweep_nopandas.py
+scripts/analyze_ffhq_np_schedule_screen_nopandas.py
+scripts/analyze_ffhq_np_score_mode_s1_s4_nopandas.py
+scripts/analyze_ffhq_np_stepA_full_nopandas.py
+scripts/analyze_ffhq_np_tuning_triage.py
+scripts/analyze_ffhq_np_tuning_triage_nopandas.py
+scripts/compare_np_sitcom_all_metrics_pac_nopandas.py
+scripts/noise_picking_projstart_ablation.py
+scripts/pr_external_difffpr_np_benchmark.py.bak_score_ablation
+scripts/pr_external_difffpr_np_guided_benchmark.py.bak_score_ablation
+scripts/pr_phase8_9_schedule.py
+scripts/pr_zero_meas_sitcom_check.py
+scripts/sitcom_lr_sweep.py
+scripts/sitcom_noise_ablation.py
+scripts/slurm_neurips_phase2_sitcom_tuning.sh
+scripts/slurm_neurips_phase3_np_schedule.sh
+scripts/slurm_neurips_phase7_sitcom_masked_ablation.sh
+scripts/slurm_noise_picking_projstart_ablation_subset5.sh
 ```
-
-## Practical NP setting
-
-`score_radius=0.6`, `proj_radius=0.2`, `proj_start=300`, `soft=5`, `hard=1`, `oversample=2`.
-
-## Runners
-
-- `/tmp/run_np_noise_one.sh` for sigma sweep (`0.00, 0.01, 0.05, 0.10, 0.20, 0.50`).
-- `/tmp/run_np_bestof2_candidates_one.sh` for doubled-candidate ablations.
-- `/tmp/run_np_score_mode_one.sh` for score-mode S1-S4.
-- `/tmp/run_np_s2_lambda_one.sh` for `prev_l2` lambda sweep.
-- `/tmp/run_np_schedule_one.sh` for projection-radius schedules.
-
-## Warning
-
-Avoid stale-output reuse; prefer timestamped output directories for reruns.
