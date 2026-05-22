@@ -13,6 +13,9 @@ measurement, metric, and guided-diffusion loading utilities, but adds:
     keep the winning noise directions from previous steps as explicit candidate
     slots.  With noise_memory_k=1 and hard_candidates=1, the hard stage reuses
     the previous winning noise direction instead of sampling a fresh singleton.
+- adaptive_prev_l2 score mode:
+    use the previous-state regularizer only when the normalized low-frequency
+    score margin between the best and second-best candidates is small.
 """
 from __future__ import annotations
 
@@ -107,6 +110,7 @@ def pick_noise_oversampled_nearterm(
     score_reg_lambda: float = 0.25,
     score_huber_delta: float = 0.05,
     noise_memory_k: int = 0,
+    adaptive_s2_margin: float = 0.05,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """Pick a noise candidate with optional explicit memory-bank slots.
 
@@ -114,6 +118,10 @@ def pick_noise_oversampled_nearterm(
     multiple candidates, the first candidate reuses eps_prev.  For
     noise_memory_k>0, the first up-to-k slots are filled from the explicit memory
     queue even when num_candidates=1.
+
+    For score_mode=adaptive_prev_l2, the LF scores are median-normalized and the
+    previous-state regularizer is applied only when the gap between the best and
+    second-best normalized LF score is at most adaptive_s2_margin.
     """
     if num_candidates <= 0:
         raise ValueError(f"num_candidates must be positive, got {num_candidates}")
@@ -184,6 +192,18 @@ def pick_noise_oversampled_nearterm(
             base._normalized_candidate_scores(lf_scores)
             + float(score_reg_lambda) * base._normalized_candidate_scores(prev_regs)
         )
+    elif mode in {"adaptive_prev_l2", "adaptive_s2", "s2_adaptive"}:
+        lf_norm = base._normalized_candidate_scores(lf_scores)
+        prev_norm = base._normalized_candidate_scores(prev_regs)
+        if int(num_candidates) >= 2:
+            lf_sorted, _ = torch.sort(lf_norm)
+            lf_margin = lf_sorted[1] - lf_sorted[0]
+        else:
+            lf_margin = torch.tensor(float("inf"), device=lf_norm.device, dtype=lf_norm.dtype)
+        if float(lf_margin.detach().cpu().item()) <= float(adaptive_s2_margin):
+            final_scores = lf_norm + float(score_reg_lambda) * prev_norm
+        else:
+            final_scores = lf_norm
     elif mode in {"consensus_l2", "s3"}:
         mean_x0 = torch.stack(candidate_x0s, dim=0).mean(dim=0)
         consensus_regs = [
@@ -200,7 +220,7 @@ def pick_noise_oversampled_nearterm(
         final_scores = torch.stack([x.float().reshape(()) for x in huber_scores])
     else:
         raise ValueError(
-            f"Unknown score_mode={score_mode!r}; expected lf, prev_l2, "
+            f"Unknown score_mode={score_mode!r}; expected lf, prev_l2, adaptive_prev_l2, "
             "consensus_l2, or huber_lf."
         )
 
@@ -228,6 +248,7 @@ def noise_picking_reconstruct_oversampled_nearterm(
     score_reg_lambda_schedule: str = "constant",
     score_huber_delta: float = 0.05,
     noise_memory_k: int = 0,
+    adaptive_s2_margin: float = 0.05,
 ) -> torch.Tensor:
     seed_everything(seed)
     scheduler.set_timesteps(num_steps, device=device)
@@ -283,6 +304,7 @@ def noise_picking_reconstruct_oversampled_nearterm(
             score_reg_lambda=lambda_eff,
             score_huber_delta=score_huber_delta,
             noise_memory_k=noise_memory_k,
+            adaptive_s2_margin=adaptive_s2_margin,
         )
 
         if noise_memory_k > 0:
@@ -293,7 +315,8 @@ def noise_picking_reconstruct_oversampled_nearterm(
         if log_every > 0 and (i + 1) % log_every == 0:
             print(
                 f"[{variant.name}] step {i+1}/{len(timesteps)-1} "
-                f"lambda_eff={lambda_eff:.6g} memory_k={int(noise_memory_k)}"
+                f"lambda_eff={lambda_eff:.6g} memory_k={int(noise_memory_k)} "
+                f"adaptive_margin={adaptive_s2_margin:g}"
             )
 
     assert x_prev is not None
@@ -335,7 +358,10 @@ def main() -> None:
     parser.add_argument(
         "--score_mode",
         default="lf",
-        choices=["lf", "prev_l2", "consensus_l2", "huber_lf", "s1", "s2", "s3", "s4"],
+        choices=[
+            "lf", "prev_l2", "adaptive_prev_l2", "consensus_l2", "huber_lf",
+            "s1", "s2", "adaptive_s2", "s2_adaptive", "s3", "s4",
+        ],
     )
     parser.add_argument("--score_reg_lambda", type=float, default=0.25)
     parser.add_argument(
@@ -345,6 +371,7 @@ def main() -> None:
     )
     parser.add_argument("--score_huber_delta", type=float, default=0.05)
     parser.add_argument("--noise_memory_k", type=int, default=0)
+    parser.add_argument("--adaptive_s2_margin", type=float, default=0.05)
     args = parser.parse_args()
 
     score_radius = float(args.score_radius) if args.score_radius is not None else float(args.radius)
@@ -429,6 +456,7 @@ def main() -> None:
                         "score_mode": args.score_mode,
                         "score_reg_lambda": args.score_reg_lambda,
                         "score_reg_lambda_schedule": args.score_reg_lambda_schedule,
+                        "adaptive_s2_margin": args.adaptive_s2_margin,
                         "score_huber_delta": args.score_huber_delta,
                         "noise_memory_k": int(args.noise_memory_k),
                         "proj_start": variant.proj_start,
@@ -486,6 +514,7 @@ def main() -> None:
                             score_reg_lambda_schedule=args.score_reg_lambda_schedule,
                             score_huber_delta=args.score_huber_delta,
                             noise_memory_k=int(args.noise_memory_k),
+                            adaptive_s2_margin=args.adaptive_s2_margin,
                             log_every=args.log_every,
                         )
                         if torch.cuda.is_available():
@@ -543,6 +572,7 @@ def main() -> None:
                                 "score_mode": args.score_mode,
                                 "score_reg_lambda": args.score_reg_lambda,
                                 "score_reg_lambda_schedule": args.score_reg_lambda_schedule,
+                                "adaptive_s2_margin": args.adaptive_s2_margin,
                                 "score_huber_delta": args.score_huber_delta,
                                 "noise_memory_k": int(args.noise_memory_k),
                                 "radius": score_radius,
@@ -558,7 +588,8 @@ def main() -> None:
                             f"[Guided-FFHQ-NP-nearterm] {variant.name} | {image_name} "
                             f"seed={seed} oversample={oversample} sigma={noise_std:.3f} "
                             f"score={args.score_mode} lambda={args.score_reg_lambda} "
-                            f"lambda_sched={args.score_reg_lambda_schedule} memory_k={int(args.noise_memory_k)} "
+                            f"lambda_sched={args.score_reg_lambda_schedule} margin={args.adaptive_s2_margin:g} "
+                            f"memory_k={int(args.noise_memory_k)} "
                             f"best_psnr_this_run={best_seen:.2f} ({runtime_s:.1f}s)"
                         )
 
