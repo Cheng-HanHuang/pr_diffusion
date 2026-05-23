@@ -1,38 +1,36 @@
-# Progress report: FFHQ phase retrieval, tuned Noise Picking, and SITCOM-ODE comparison
+# Progress report: FFHQ phase retrieval, LF/S2 selector, and failure analysis
 
-Updated: 2026-05-12
+Updated: 2026-05-23
 
-This document records the current project state after the FFHQ-25 guided NP benchmarking, parameter tuning, radius ablations, score-mode experiments, candidate-count experiments, and SITCOM-ODE comparisons.
+This report replaces the May 12 progress report after the follow-up LF/S2 selector, tie-break, and validation experiments.  The older report is archived in `docs/historical/progress_report_archived_20260523_before_selector_update.md` and remains available through Git history.
 
 ## Current project objective
 
-The project goal is not merely to beat SITCOM-ODE on one averaged table. The goal is to develop a reliable phase retrieval solver that:
+The objective is to develop a reliable diffusion-prior phase retrieval solver for FFHQ-25 that avoids catastrophic failures, rather than only improving an averaged best-of-k number.  The current evidence suggests that the core problem is not simply choosing one fixed score or one fixed hyperparameter.  Different scoring rules fail on different images, so the project now focuses on reliable selection, fallback, and failure recovery using non-ground-truth diagnostics.
 
-1. produces good reconstructions per run, not only after heavy post-hoc selection;
-2. has controlled failure modes;
-3. uses a single well-defined algorithmic rule, not an oracle selector between multiple methods unless complementarity can be justified mathematically;
-4. is evaluated on FFHQ as the main benchmark, with CelebA-HQ treated as historical/development-only.
+Important evaluation rules:
 
-## Current main benchmark
+- Use raw alignment as the primary conservative metric when comparing to methods that do not perform ambiguity resolution.
+- Always report mean, median, minimum PSNR, and counts below 20 dB and 25 dB.
+- Treat best-of-k numbers as seed-budget results, not as per-run reliability.
+- Distinguish between ground-truth oracle selection and executable selection using only computed metrics.
 
-Main data/model setting:
+## Benchmark setting
 
-- Dataset: FFHQ 25-image split.
-- Image resolution: 256.
-- Guided diffusion FFHQ checkpoint: `/egr/research-pac/huang248/models/ffhq_10m.pt`.
-- Image root: `/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024`.
-- Split file: `/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/splits/ffhq_available25.txt`.
-- Measurement: DiffFPR-style centered FFT magnitude after symmetric zero padding.
-- Oversampling: 2.
-- Main noise level for method tuning: `sigma_y = 0.05`.
-- Main NP evaluation convention:
-  - report image-level best-of-k only when k is explicitly stated;
-  - also track all-run mean, median, failure counts, and per-image worst cases;
-  - use raw metrics whenever comparing against methods that do not ambiguity-align.
+Active benchmark:
 
-## Best current NP setting
+```text
+Dataset: FFHQ 25-image split
+Resolution: 256
+Noise level: sigma_y = 0.05
+Measurement: DiffFPR-style centered FFT magnitude after symmetric zero padding
+Oversample: 2
+Split: /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/splits/ffhq_available25.txt
+Image root: /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
+Guided diffusion checkpoint: /egr/research-pac/huang248/models/ffhq_10m.pt
+```
 
-The best practical NP setting found so far is:
+Core NP baseline parameters inherited from the earlier FFHQ tuning phase:
 
 ```text
 score_radius = 0.6
@@ -43,356 +41,273 @@ hard_k       = 1
 oversample   = 2
 ```
 
-A tiny numeric winner in one top-8 confirmation was:
+The previous tuning phase established that `proj_radius=0.2` is important, broad projection is harmful, late broadening is harmful, and simple LF scoring is fragile.
+
+## What was tried after the May 12 plan
+
+The May 12 plan proposed several directions: timestep-dependent S2, adaptive S2, candidate memory, NP-in-SITCOM, and robust measurement weighting.  We did not execute every direction.  The executed path was:
+
+1. Scheduled/static S2 and memory-bank near-term experiments.
+2. Diagnostic selector tracing on a focused subset and then on all FFHQ-25.
+3. Lightweight LF/S2 selector using a trajectory statistic.
+4. Seed tie-break postprocessor.
+5. Validation on a different seed pair.
+
+The unexecuted directions are still useful but should be reprioritized in light of the new evidence.  In particular, the validation failure suggests that the next question is not merely `2 seeds vs 4 seeds`; it is whether failures such as `00005` and `00014` require better tuning, better scoring, a complementary metric, or a fundamentally different recovery strategy.
+
+## Clarification: the LF/S2 selector is not a PSNR oracle
+
+The LF/S2 selector does not choose the reconstruction using ground-truth PSNR.  It runs two algorithmic configurations, LF and S2, and chooses between them using computed trajectory/measurement statistics.
+
+Current selector logic:
 
 ```text
-score_radius = 0.2
-proj_radius  = 0.2
-proj_start   = 500
-soft_k       = 8
-hard_k       = 1
+For each image:
+  run LF for the selected seed budget;
+  run pre-projection S2 for the same seed budget;
+
+For config selection:
+  compute mean post-projection winner low-frequency MSE vs the noisy observation;
+  choose the config, LF or S2, with the lower mean statistic across seeds.
+
+For seed selection with tie-break:
+  inside the chosen config, compare each seed's post-projection winner LF-MSE statistic;
+  if the best two seeds differ by more than threshold 5e-5:
+      choose the lower-statistic seed;
+  otherwise:
+      treat the statistic as tied and choose the seed with lower final noisy low-frequency magnitude residual.
 ```
 
-but it was only about `0.016 dB` better than the cheaper practical setting, so the practical setting is preferred for ongoing development.
+The ground-truth PSNR is used only afterward for evaluation.
 
-## NP parameter tuning and top-8 confirmation
+This is different from a two-reconstruction oracle.  It is still a multi-run selector, but the selection criterion is non-ground-truth and executable.
 
-A broad FFHQ tuning screen tested:
+## Near-term four-GPU experiments: scheduled S2 and memory
 
-- score radius values including `0.2`, `0.4`, `0.6`, and fuller radii;
-- projection radius values including `0.2`, `0.4`, `0.6`, and fuller radii;
-- projection starts including `300`, `500`, `700`;
-- candidate schedules including soft/hard settings such as `5/1` and `8/1`.
-
-The clear finding was:
+The first near-term batch tested:
 
 ```text
-proj_radius = 0.2 is essential.
-proj_radius = 0.4 or larger is much worse.
+A1 decay S2, lambda0=0.005
+A1 decay S2, lambda0=0.01
+A1 pre-projection-only S2, lambda0=0.01
+A3 memory_k=1 with LF score
 ```
 
-Top-8 confirmation, using 25 images and 4 seeds at `sigma_y=0.05`, found:
+Raw best-of-2 results:
 
-| Config | Best-of-4 PSNR | SSIM | LPIPS | Worst best-of-4 PSNR |
-|---|---:|---:|---:|---:|
-| score=0.2, proj=0.2, start=500, soft=8, hard=1 | 29.440 | 0.8320 | 0.2242 | 27.243 |
-| score=0.6, proj=0.2, start=300, soft=5, hard=1 | 29.424 | 0.8319 | 0.2241 | 27.185 |
+| Config | Mean PSNR | Median | Min | SSIM | LPIPS | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| decay S2 lambda=0.01 | 28.502 | 29.581 | 10.693 | 0.810 | 0.242 | 1 | 1 |
+| preproj S2 lambda=0.01 | 27.629 | 29.582 | 7.961 | 0.774 | 0.269 | 2 | 2 |
+| decay S2 lambda=0.005 | 27.080 | 29.280 | 10.539 | 0.756 | 0.283 | 3 | 3 |
+| memory_k=1, hard=1 | 9.034 | 9.019 | 7.632 | 0.065 | 1.381 | 25 | 25 |
 
-These two settings are effectively tied. The second one is much cheaper and became the main practical setting.
+Conclusions:
 
-Important interpretation:
+- Scheduled S2 did not solve reliability.
+- S2 still rescued some LF failures but created different catastrophic failures.
+- Memory with `memory_k=1, hard=1` collapsed because the hard stage reused memory as the only candidate and had no fresh escape candidate.
 
-- The best-of-4 average is respectable but not enough to beat low-noise SITCOM-ODE.
-- The all-run mean is much lower because NP has seed-level failures.
-- Therefore, method development should reduce per-run failure probability rather than only increasing best-of-k.
+## Second near-term batch: adaptive S2 and safer memory
 
-## Projection-radius and radius-schedule ablations
-
-A two-stage projection-radius schedule was tested, motivated by the idea that NP may need small low-frequency projection early but might benefit from broader projection late.
-
-Schedules included:
+Next, we tested:
 
 ```text
-500:0.2,700:0.4
-500:0.2,800:0.4
-500:0.2,900:0.4
-500:0.2,900:0.72
-300:0.2,700:0.4
-300:0.2,800:0.4
-300:0.2,900:0.4
-300:0.2,900:0.72
+LF baseline in the same runner
+adaptive S2 margin=0.03
+adaptive S2 margin=0.10
+memory_k=1, hard=2 with LF score
 ```
 
-Best schedule result:
+Raw best-of-2 results:
+
+| Config | Mean PSNR | Median | Min | SSIM | LPIPS | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| adaptive S2 margin=0.03 | 27.629 | 29.582 | 7.961 | 0.774 | 0.269 | 2 | 2 |
+| adaptive S2 margin=0.10 | 27.629 | 29.582 | 7.961 | 0.774 | 0.269 | 2 | 2 |
+| LF baseline | 27.352 | 29.280 | 11.917 | 0.768 | 0.273 | 3 | 3 |
+| memory_k=1, hard=2 | 26.775 | 26.866 | 24.892 | 0.790 | 0.197 | 0 | 1 |
+
+Conclusions:
+
+- Adaptive margins 0.03 and 0.10 produced identical final results, so the gate was not selective enough.
+- S2 moved failures: it rescued `00018`, `00028`, `00034`, but failed on `00007`, `00009`.
+- Memory hard2 avoided below-20 failures but capped quality near 26--27 dB, so it is a stabilizer/fallback candidate rather than a main method.
+
+Important complementarity examples:
+
+| Image | LF best-of-2 | S2 best-of-2 | Memory hard2 | Best source |
+|---|---:|---:|---:|---|
+| `00007` | 28.783 | 10.307 | 26.242 | LF |
+| `00009` | 29.662 | 7.961 | 26.838 | LF |
+| `00018` | 17.528 | 28.963 | 26.503 | S2 |
+| `00028` | 12.063 | 29.996 | 27.582 | S2 |
+| `00034` | 11.917 | 29.690 | 28.534 | S2 |
+| `00027` | 25.102 | 25.077 | 25.932 | Memory |
+
+The oracle over the four configs gave roughly:
 
 ```text
-score=0.2, start=500, soft=8, hard=1, schedule=500:0.2,900:0.4
-best-of-2 PSNR ≈ 26.71
-```
-
-Matching constant-radius baseline on the same 10 images and same seeds:
-
-```text
-score=0.2, proj=0.2, start=500, soft=8, hard=1
-best-of-2 PSNR ≈ 29.13
-```
-
-Conclusion:
-
-```text
-Late broadening of the hard projection radius is decisively harmful in the tested form.
-```
-
-Even broadening only at step 900 from radius `0.2` to `0.4` lost roughly `2.4 dB`. Full-ish projection at `0.72` was worse.
-
-Mechanistic conclusion:
-
-```text
-The diffusion prior tolerates a small low-frequency measurement correction.
-Broader hard measurement replacement conflicts with the learned prior, even late.
-```
-
-## SITCOM-ODE comparison at sigma_y = 0.05
-
-A same-split SITCOM-ODE run gave:
-
-```text
-SITCOM-ODE PSNR ≈ 29.690
-SITCOM-ODE SSIM ≈ 0.733
-SITCOM-ODE LPIPS ≈ 0.185
-```
-
-Current practical NP setting at `sigma_y=0.05`:
-
-```text
-NP best-of-4 PSNR ≈ 29.424
-NP SSIM ≈ 0.832
-NP LPIPS ≈ 0.224
-```
-
-Conclusion:
-
-- NP does not beat SITCOM-ODE in PSNR or LPIPS at `sigma_y=0.05`.
-- NP is much stronger in SSIM.
-- NP is close enough that failure-mode analysis matters.
-
-Per-image comparison at `sigma_y=0.05`:
-
-- SITCOM-ODE had a major weak/failure image around PSNR `21.643`.
-- NP reconstructed the same image around PSNR `30.141`.
-- On the remaining non-failure images, SITCOM-ODE was typically stronger.
-
-Interpretation:
-
-```text
-NP is not uniformly stronger, but it has complementary failure behavior.
-It can avoid some SITCOM-ODE failure cases.
-```
-
-This supports failure-recovery or hybrid directions, but does not by itself justify an oracle selector.
-
-## Noise-level comparison against SITCOM-ODE
-
-A noise sweep used NP practical setting:
-
-```text
-score_radius=0.6, proj_radius=0.2, start=300, soft=5, hard=1
-oversample=2
-best-of-4 over 4 seeds
-```
-
-Noise levels:
-
-```text
-sigma_y in {0.00, 0.01, 0.05, 0.10, 0.20, 0.50}
-```
-
-NP raw best-of-4 vs SITCOM-ODE:
-
-| sigma_y | NP raw PSNR | SITCOM-ODE PSNR | NP - SITCOM | NP SSIM | SITCOM SSIM | NP LPIPS | SITCOM LPIPS |
-|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0.00 | 32.372 | 35.852 | -3.480 | 0.924 | 0.935 | 0.125 | 0.067 |
-| 0.01 | 33.444 | 35.736 | -2.292 | 0.947 | 0.933 | 0.100 | 0.067 |
-| 0.05 | 29.424 | 29.690 | -0.266 | 0.832 | 0.733 | 0.224 | 0.185 |
-| 0.10 | 24.203 | 23.302 | +0.901 | 0.626 | 0.411 | 0.491 | 0.395 |
-| 0.20 | 19.606 | 17.429 | +2.177 | 0.400 | 0.168 | 0.731 | 0.629 |
-| 0.50 | 13.034 | 11.121 | +1.913 | 0.143 | 0.036 | 0.834 | 0.777 |
-
-Conclusion:
-
-- SITCOM-ODE dominates low noise.
-- NP becomes better in PSNR/SSIM at `sigma_y >= 0.10`.
-- SITCOM-ODE retains better LPIPS at all tested noise levels.
-- This supports a noise-robustness story for NP, not a clean-setting SOTA story.
-
-Per-image pattern:
-
-- At `sigma_y=0.05`, NP wins only a small number of images in PSNR but rescues a major SITCOM failure.
-- At `sigma_y=0.10`, NP wins PSNR on most images.
-- At `sigma_y=0.20`, NP wins PSNR on all images, though absolute quality is low.
-
-## Candidate count ablation
-
-Goal:
-
-```text
-Test whether doubled candidates per reconstruction can replace independent restarts.
-```
-
-Old setting:
-
-```text
-soft=5, hard=1, best-of-4
-```
-
-New settings:
-
-```text
-soft=10, hard=1, best-of-2
-soft=10, hard=2, best-of-2
-```
-
-Results at `sigma_y=0.05`:
-
-| Setting | Best-of-k | PSNR mean | Median | Min | SSIM | LPIPS | Images <20 | Images <25 |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
-| old soft=5, hard=1 | best-of-2 | 28.531 | 29.280 | 17.528 | 0.808 | 0.249 | 1 | 1 |
-| old soft=5, hard=1 | best-of-4 | 29.424 | 29.723 | 27.185 | 0.832 | 0.224 | 0 | 0 |
-| new soft=10, hard=1 | best-of-2 | 27.656 | 29.356 | 13.727 | 0.777 | 0.278 | 3 | 3 |
-| new soft=10, hard=2 | best-of-2 | 26.855 | 26.824 | 24.902 | 0.790 | 0.194 | 0 | 1 |
-
-Interpretation:
-
-- Doubling candidates did not replace independent restarts.
-- `soft=10, hard=1` rescued some previous failures but created new catastrophic failures.
-- `soft=10, hard=2` reduced catastrophic failures but substantially lowered reconstruction quality.
-- More candidates can amplify a flawed selection criterion.
-
-Per-image findings for `soft=10, hard=1`:
-
-Major rescues vs old best-of-2:
-
-```text
-00018: +11.47 dB
-00028: +4.15 dB
-00034: +3.02 dB
-00027: +2.88 dB
-```
-
-New failures:
-
-```text
-00005: -16.30 dB
-00000: -16.02 dB
-00007: -11.34 dB
-```
-
-Conclusion:
-
-```text
-More candidates change which images fail, but do not reliably lower failure probability.
-Independent restarts remain more reliable than simply increasing candidates.
-```
-
-## Score-mode experiments
-
-Motivation:
-
-If more candidates make the result worse, the candidate-selection score is likely not well aligned with final reconstruction quality.
-
-Four score modes were tested:
-
-```text
-S1: lf
-    original low-frequency magnitude score.
-
-S2: prev_l2
-    low-frequency score plus penalty for moving too far from previous x0.
-
-S3: consensus_l2
-    low-frequency score plus candidate outlier penalty.
-
-S4: huber_lf
-    robust Huber low-frequency score.
-```
-
-Setup:
-
-```text
-sigma_y=0.05
-25 images
-2 seeds
-score_radius=0.6
-proj_radius=0.2
-proj_start=300
-soft=5
-hard=1
-```
-
-Results:
-
-| Setting | Best-of-2 PSNR | Median | Min | SSIM | Images <20 | Images <25 |
-|---|---:|---:|---:|---:|---:|---:|
-| S1 original LF | 28.531 | 29.280 | 17.528 | 0.808 | 1 | 1 |
-| S2 prev_l2 lambda=0.25 | 28.560 | 29.280 | 13.828 | 0.810 | 1 | 1 |
-| S3 consensus_l2 | 27.176 | 29.280 | 11.898 | 0.768 | 3 | 3 |
-| S4 Huber LF | 27.438 | 29.209 | 13.832 | 0.767 | 3 | 3 |
-| old S1 best-of-4 | 29.424 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-
-Conclusion:
-
-- S2 had slight positive signal, but was not robust.
-- S3 and S4 were clearly worse in this form.
-- Score changes can rescue some images but create other failures.
-
-## Focused S2 lambda sweep
-
-Lambdas tested:
-
-```text
-0.005, 0.01, 0.02, 0.03, 0.05, 0.075, 0.10, 0.15
-```
-
-Best static lambda:
-
-```text
-lambda = 0.01
-```
-
-Results:
-
-| Setting | Mean PSNR | Median | Min | SSIM | Below 20 | Below 25 |
-|---|---:|---:|---:|---:|---:|---:|
-| S1 LF best-of-2 | 28.531 | 29.280 | 17.528 | 0.808 | 1 | 1 |
-| S2 lambda=0.005 | 28.460 | 29.582 | 17.739 | 0.801 | 1 | 2 |
-| S2 lambda=0.01 | 28.818 | 29.582 | 19.269 | 0.813 | 1 | 1 |
-| S2 lambda=0.02 | 28.706 | 29.280 | 19.624 | 0.809 | 1 | 1 |
-| S2 lambda=0.05 | 28.544 | 29.280 | 13.836 | 0.809 | 1 | 1 |
-| S1 LF best-of-4 | 29.424 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-
-S2 `lambda=0.01` rescues:
-
-```text
-00018: 17.528 -> 28.963
-00028: 25.877 -> 29.996
-00034: 27.596 -> 29.690
-```
-
-but creates a new failure:
-
-```text
-00007: 28.783 -> 19.269
-```
-
-Oracle over lambdas:
-
-```text
-mean PSNR ≈ 29.294
+mean PSNR ≈ 29.271
 median ≈ 29.631
-min ≈ 25.103
+min ≈ 25.932
 below20 = 0
 below25 = 0
 ```
 
-Conclusion:
+This motivated selector diagnostics.
+
+## Diagnostic selector experiments
+
+A diagnostic runner was added to trace candidate scores and winners at every reconstruction step.  It records candidate-level LF/full residuals, previous-state distance, selection score, chosen winner, LF score gaps, adaptive activation, and final metrics.
+
+First, a focused six-image diagnostic was run on:
 
 ```text
-S2 contains useful signal, but a fixed global lambda is not robust enough.
-The direction is worth exploring only as part of a single principled adaptive score, not as an oracle over lambdas.
+00007, 00009, 00018, 00027, 00028, 00034
 ```
 
-## Current methodological conclusion
+This was useful for feature inspection, but it used filtered image order and therefore changed the measurement-noise indexing.  The full FFHQ-25 diagnostic was then run to match the benchmark setting.
 
-The evidence supports this view:
+The full-25 diagnostic found the strongest selector signal so far:
 
 ```text
-Noise Picking is useful as a conservative branch-selection / measurement-guidance principle.
-The current simple greedy low-frequency score is fragile.
-Small low-frequency projection is crucial.
-Broad projection is harmful.
-Increasing candidate count amplifies score errors.
-Score regularization can rescue some failures but may move failures elsewhere.
-NP is more robust than SITCOM-ODE under higher measurement noise in PSNR/SSIM.
+Choose LF vs S2 by mean post-projection winner LF-MSE vs noisy observation.
 ```
 
-The project should now prioritize one well-defined, reliable solver rather than chasing an averaged best-of-k table.
+For LF vs S2 only, this config selector nearly matched the ground-truth oracle:
+
+```text
+LF/S2 oracle: mean ≈ 29.237, min ≈ 25.102, below25 = 0
+Selector:     mean ≈ 29.236, min ≈ 25.077, below25 = 0
+```
+
+It correctly handled the main catastrophic cases:
+
+```text
+00007: choose LF, avoid S2 failure
+00009: choose LF, avoid S2 failure
+00018: choose S2, rescue LF failure
+00028: choose S2, rescue LF failure
+00034: choose S2, rescue LF failure
+```
+
+## Lightweight LF/S2 selector and tie-break
+
+A lightweight runner was implemented to avoid saving full candidate traces.  It accumulates the post-projection winner LF-MSE statistic during reconstruction and writes:
+
+```text
+run_level.csv
+selected_image_level.csv
+selected_summary.csv
+selected_tiebreak_* files
+```
+
+For seeds `100,101`, the selector results were:
+
+| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|
+| LF best-of-2 | 27.352 | 29.280 | 11.917 | 0.768 | 3 | 3 |
+| S2 best-of-2 | 27.629 | 29.582 | 7.961 | 0.774 | 2 | 2 |
+| selected config best-of-2 | 29.236 | 29.631 | 25.077 | 0.830 | 0 | 0 |
+| seed by selector only | 28.981 | 29.631 | 19.617 | 0.820 | 1 | 1 |
+| seed tie-break selector | 29.220 | 29.631 | 25.077 | 0.830 | 0 | 0 |
+
+The seed-only selector failed on `00027`, where the bad seed had a slightly lower trajectory statistic.  A tie-break rule fixed this:
+
+```text
+if seed selector-stat gap <= 5e-5:
+    choose the seed with lower final noisy_lowfreq_mag_l2
+else:
+    choose the seed with lower post-projection winner LF-MSE statistic
+```
+
+A threshold sweep on `100,101` showed a stable useful region around `3e-5` to `1e-4`; `5e-5` was selected as the default.
+
+## Validation on seeds 102,103
+
+The same LF/S2 tie-break selector was validated on a different seed pair, `102,103`.
+
+Raw results:
+
+| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|
+| LF best-of-2 | 26.396 | 29.232 | 9.130 | 0.739 | 4 | 4 |
+| S2 best-of-2 | 27.280 | 29.232 | 9.130 | 0.763 | 3 | 3 |
+| selected config best-of-2 | 27.934 | 29.593 | 9.130 | 0.783 | 2 | 2 |
+| seed by selector only | 27.836 | 29.375 | 9.130 | 0.782 | 2 | 2 |
+| seed tie-break selector | 27.921 | 29.585 | 9.117 | 0.783 | 2 | 2 |
+
+This validation did not pass the reliability target.
+
+However, the failure was not mainly a selector error.  The ground-truth oracle over all available LF/S2 candidates with seeds `102,103` was also bad:
+
+```text
+oracle over LF/S2 × seeds 102,103:
+mean ≈ 27.934
+min ≈ 9.130
+below20 = 2
+below25 = 2
+```
+
+The unavoidable failure images were:
+
+| Image | Best LF | Best S2 | Best available |
+|---|---:|---:|---:|
+| `00005` | 9.130 | 9.130 | 9.130 |
+| `00014` | 13.706 | 13.706 | 13.706 |
+
+For these images, both LF and S2 failed for both validation seeds.  This means the seed pair did not contain a good candidate.  The selector cannot recover a good reconstruction that is absent from the candidate pool.
+
+## Current interpretation
+
+The evidence now supports a more precise conclusion:
+
+```text
+The LF/S2 config selector is strong and nearly oracle-level when good candidates exist.
+The seed tie-break makes the method executable and worked on seeds 100,101.
+The validation failure on seeds 102,103 is a seed-budget / candidate-availability failure, not primarily a config-selector failure.
+```
+
+Therefore, the next stage should not be only a larger seed-budget run, although that is one important control.  The more important scientific question is whether the remaining failures can be fixed by:
+
+1. better tuning of the same NP/S2 family;
+2. a better complementary metric or selector;
+3. a failure-recovery fallback;
+4. a fundamentally different scoring/selection strategy.
+
+## Current best candidate method
+
+The best current candidate method is:
+
+```text
+LF/S2 trajectory selector with seed tie-break
+```
+
+Algorithm:
+
+```text
+Run LF and pre-projection S2 with the chosen seed budget.
+For each config, compute mean post-projection winner LF-MSE vs noisy observation.
+Choose the config with the lower mean statistic.
+Inside the chosen config, choose the seed by post-projection winner LF-MSE unless the seed-stat gap is <= 5e-5.
+If tied, choose lower final noisy low-frequency magnitude residual.
+```
+
+Status:
+
+- Passes FFHQ-25 for seed pair `100,101`.
+- Fails validation seed pair `102,103` because two images have no good LF/S2 candidate.
+- Should be treated as promising but not final.
+
+## Open questions after validation
+
+The main open questions are:
+
+1. Do `00005` and `00014` fail under `102,103` because of unlucky seeds, or because the LF/S2 family has a structural blind spot for those images?
+2. Would a 4-seed LF/S2 candidate pool fix the failures without changing the algorithm?
+3. Can tuning `proj_start`, `score_radius`, `proj_radius`, or S2 lambda rescue `00005` and `00014` specifically?
+4. Can a complementary selector metric identify when LF/S2 has no good candidate and trigger memory hard2, SITCOM-ODE, or another fallback?
+5. Can a better scoring rule produce good candidates directly, rather than selecting among fragile candidates afterward?
+
+These questions drive the updated experiment plan.
