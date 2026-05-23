@@ -4,6 +4,8 @@ Updated: 2026-05-23
 
 This report records the current state after the focused and full-25 multi-lambda selector experiments, plus the later seed-pair validation runs.  The previous four-GPU LF/S2 selector and lambda diagnostic report is archived in `docs/historical/progress_report_archived_20260523_before_full25_multilambda_validation.md`.
 
+A separate empirical candidate-generation table is maintained in `docs/empirical_success_probability_multilambda_ffhq25.md`.  That file aggregates all full-25 multi-lambda traces across seeds `100`--`109` and should be updated whenever new seed/config validation traces are added.
+
 ## Executive summary
 
 The current best method remains a **multi-lambda LF/S2 selector**:
@@ -69,6 +71,16 @@ selected_config_seed_by_selector, raw:
   below25 = 0
 ```
 
+The empirical success-probability table over all seeds `100`--`109` gives:
+
+```text
+1000 total candidates = 25 images × 10 seeds × 4 configs
+729 successful raw candidates above 25 dB
+candidate success rate = 72.9%
+hardest image: 00028, with 6/40 successful candidates
+recurring hard set: 00028, 00005, 00034, 00013, 00007, 00027, 00000
+```
+
 The current conclusion is precise:
 
 ```text
@@ -111,6 +123,7 @@ selector regret vs oracle
 selected config counts
 worst images
 all-run reliability
+candidate-generation success rate when enough traces are available
 ```
 
 Promotion target remains:
@@ -350,7 +363,7 @@ The math direction is worth a short study phase, because pure phase retrieval is
 
 ## Recommended next actions
 
-1. Build an empirical success-probability table per image across all completed seeds/configs.
+1. Use `docs/empirical_success_probability_multilambda_ffhq25.md` as the active candidate-generation table and update it as new seeds/configs arrive.
 2. Simulate adaptive-compute policies using existing traces.
 3. Add an adaptive-compute selector:
 
