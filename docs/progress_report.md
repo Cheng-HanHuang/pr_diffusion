@@ -45,6 +45,13 @@ seeds 104,105:
   failure: 00005
   oracle also fails, so this is candidate availability failure
 
+seeds 106,107:
+  selected mean ≈ 28.615
+  min ≈ 11.997
+  below25 = 1
+  failure: 00028
+  oracle also fails, so this is candidate availability failure
+
 seeds 108,109:
   selected mean ≈ 29.227
   min ≈ 24.442
@@ -155,18 +162,6 @@ The focused target was passed comfortably.  No single config is reliable, but th
 
 ## Full FFHQ-25 multi-lambda selector: seeds 102,103
 
-### Setup
-
-```text
-images = full FFHQ-25
-seeds = 102,103
-configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
-score_radius = 0.6
-proj_start = 300
-selector statistic = post_winner_lf_mse_mean
-LPIPS skipped
-```
-
 ### Raw results
 
 | Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
@@ -178,7 +173,7 @@ LPIPS skipped
 
 This run showed that multi-lambda selection fixes the exact seed pair where fixed LF/S2 failed.
 
-Key per-image examples:
+Key examples:
 
 | Image | LF | S2 λ=0.005 | S2 λ=0.02 | S2 λ=0.05 | Selected behavior |
 |---|---:|---:|---:|---:|---|
@@ -231,8 +226,6 @@ Random seed diversity remains essential for the current method.
 
 ## Full FFHQ-25 multi-lambda selector: seeds 104,105
 
-### Raw results
-
 | Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 | Worst |
 |---|---:|---:|---:|---:|---:|---:|---|
 | selected_config_seed_by_selector | 28.496 | 29.556 | 9.126 | 0.804 | 1 | 1 | 00005 |
@@ -240,25 +233,36 @@ Random seed diversity remains essential for the current method.
 | selected_config_bestofk | 28.541 | 29.556 | 9.126 | 0.805 | 1 | 1 | 00005 |
 | oracle_all_candidates | 28.618 | 29.556 | 10.819 | 0.811 | 1 | 1 | 00005 |
 
-The oracle fails, so this is not primarily a selector failure.  The best available `00005` candidate across all four configs and both seeds is only about 10.8 dB:
+The oracle fails, so this is candidate availability failure.  The best available `00005` candidate is only about 10.8 dB.
 
-| Config | Best PSNR on 00005 |
+## Full FFHQ-25 multi-lambda selector: seeds 106,107
+
+| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 | Worst |
+|---|---:|---:|---:|---:|---:|---:|---|
+| selected_config_seed_by_selector | 28.615 | 29.500 | 11.997 | 0.809 | 1 | 1 | 00028 |
+| global_run_by_selector | 28.615 | 29.500 | 11.997 | 0.809 | 1 | 1 | 00028 |
+| selected_config_bestofk | 28.723 | 29.550 | 13.699 | 0.811 | 1 | 1 | 00028 |
+| oracle_all_candidates | 28.856 | 29.551 | 16.691 | 0.819 | 1 | 1 | 00028 |
+
+This pair fails because no config/seed produces a good raw `00028` reconstruction.  Best raw candidates for `00028` are:
+
+| Config / seed | Raw PSNR |
 |---|---:|
-| LF | 10.778 |
-| S2 λ=0.005 | 9.126 |
-| S2 λ=0.02 | 9.126 |
-| S2 λ=0.05 | 10.819 |
+| S2 λ=0.02, seed 107 | 16.691 |
+| LF, seed 106 | 13.699 |
+| S2 λ=0.005, seed 106 | 13.699 |
+| LF, seed 107 | 11.997 |
 
-Conclusion:
+Even resolve alignment remains below 25 dB for this image, so this is not only a raw-orientation issue.
 
-```text
-Two-seed multi-lambda remains seed-pair sensitive.
-For seeds 104,105, the candidate pool lacks a good 00005 reconstruction.
-```
+Single-seed simulations again fail:
+
+| Seed | Selected mean | Min | Images <20 | Images <25 | Oracle min | Oracle <25 |
+|---:|---:|---:|---:|---:|---:|---:|
+| 106 | 27.899 | 13.345 | 2 | 3 | 13.622 | 3 |
+| 107 | 24.313 | 5.685 | 7 | 8 | 5.685 | 8 |
 
 ## Full FFHQ-25 multi-lambda selector: seeds 108,109
-
-### Raw results
 
 | Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 | Worst |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -267,7 +271,7 @@ For seeds 104,105, the candidate pool lacks a good 00005 reconstruction.
 | selected_config_bestofk | 29.255 | 29.752 | 24.442 | 0.827 | 0 | 1 | 00013 |
 | oracle_all_candidates | 29.255 | 29.753 | 24.442 | 0.827 | 0 | 1 | 00013 |
 
-This run is much better than `104,105`, but still misses the promotion target because `00013` is below 25 dB.  Again the oracle also fails; the issue is candidate availability.
+This run is much better than `104,105` and `106,107`, but still misses the promotion target because `00013` is below 25 dB.  Again the oracle also fails; the issue is candidate availability.
 
 For `00013`, best-of-2 by config is:
 
@@ -279,20 +283,6 @@ For `00013`, best-of-2 by config is:
 | S2 λ=0.05 | 11.603 |
 
 Thus `λ=0.02` nearly rescues `00013`, but the best available candidate remains just below the 25 dB threshold.
-
-Single-seed simulations again fail.  For example, with all configs allowed:
-
-| Seed | Selected mean | Min | Images <20 | Images <25 | Worst |
-|---:|---:|---:|---:|---:|---|
-| 108 | about 27.91 | 10.443 | 2 | 2 | 00000 |
-| 109 | about 26.84--27.55 depending config pool | 7.823--11.911 | 2--4 | 4--5 | 00009 / 00013 / 00034 |
-
-Conclusion:
-
-```text
-The 108,109 pair is close to passing but still shows that two seeds are not guaranteed.
-The failure image changes from 00005 to 00013.
-```
 
 ## Negative ablations
 
@@ -334,7 +324,7 @@ The project is now in a clearer state:
 
 1. **Selection across scoring rules works.**  The trajectory statistic chooses configurations nearly at oracle level when good candidates exist.
 2. **Multi-lambda is better than fixed LF/S2.**  It fixes the `102,103` failure case that fixed LF/S2 could not fix.
-3. **Two seeds are not enough for an always-successful method.**  Seeds `104,105` fail on `00005`; seeds `108,109` fail just below threshold on `00013`.
+3. **Two seeds are not enough for an always-successful method.**  Seed pairs `104,105`, `106,107`, and `108,109` each have an oracle failure on different images.
 4. **Single-seed selection is far from enough.**  Single-seed oracles fail, so this is not only a selector-statistic problem.
 5. **The remaining bottleneck is candidate generation / adaptive compute.**  The algorithm needs either more seed diversity, better in-loop adaptation, or a recovery mechanism for detected high-risk images.
 
@@ -360,8 +350,8 @@ The math direction is worth a short study phase, because pure phase retrieval is
 
 ## Recommended next actions
 
-1. Analyze the remaining `106,107` folder if available; it will help estimate two-seed reliability.
-2. Build an empirical success-probability table per image across all completed seeds/configs.
+1. Build an empirical success-probability table per image across all completed seeds/configs.
+2. Simulate adaptive-compute policies using existing traces.
 3. Add an adaptive-compute selector:
 
    ```text
@@ -375,7 +365,8 @@ The math direction is worth a short study phase, because pure phase retrieval is
    ```text
    00005
    00013
-   00027 / 00028 / 00032 / 00034 as guard/failure-moving images
+   00028
+   00027 / 00032 / 00034 as guard/failure-moving images
    ```
 
 5. Start a short theory note on probabilistic reconstruction reliability:
