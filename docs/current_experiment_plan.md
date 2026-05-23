@@ -1,249 +1,359 @@
-# Current experiment plan: reliable phase retrieval solver after FFHQ NP/SITCOM study
+# Current experiment plan: LF/S2 selector validation and failure recovery
 
-Updated: 2026-05-12
+Updated: 2026-05-23
 
-## Guiding principle
+## Current state
 
-The next phase should optimize for a single solver that reliably produces good reconstructions. Avoid post-hoc two-way oracle selection unless there is a mathematically justified selector or complementarity theorem.
+The project has moved beyond the original May 12 near-term plan.  We tested scheduled S2, adaptive S2, memory-bank variants, diagnostic selector traces, a lightweight LF/S2 trajectory selector, a seed tie-break, and validation on a different seed pair.
 
-Primary evaluation should include:
-
-1. all-run mean and median;
-2. seed-level failure counts;
-3. image-level best-of-1 / best-of-2 / best-of-4 curves;
-4. per-image variance across seeds;
-5. failure cases and not only averages;
-6. raw metrics whenever comparing to methods that do not ambiguity-align.
-
-## Direction A: improve candidate score as one algorithm
-
-Current finding:
-
-- S1 low-frequency score is fragile.
-- S2 `prev_l2` has useful signal, especially lambda around `0.01`, but moves failure cases.
-- A fixed global lambda is not reliable enough.
-
-### A1. Timestep-dependent S2
-
-Try:
+The central result is:
 
 ```text
-score_i = LF_score + lambda(i) * previous_state_penalty
+The LF/S2 config selector is strong when good candidates exist.
+The 2-seed validation failure is caused by missing good candidates for some images, not mainly by a wrong LF-vs-S2 config decision.
 ```
 
-where lambda decays over the trajectory:
+Therefore, the next experiments should answer whether the remaining failures can be fixed by parameter tuning, better scoring/selection metrics, or a fallback/recovery mechanism.  A 4-seed run is useful, but it should not be the only next step.
+
+## Evaluation standard
+
+For every experiment, report raw alignment first:
 
 ```text
-lambda(i) = lambda0 * max(0, 1 - i / proj_start)
+mean PSNR
+median PSNR
+minimum PSNR
+number of images below 20 dB
+number of images below 25 dB
+SSIM mean
+LPIPS mean when available
+worst-image identities
 ```
 
-or only applies before projection:
+For selector experiments, also report:
 
 ```text
-lambda(i) = lambda0 for i < proj_start
-lambda(i) = 0 after proj_start
+oracle over available candidates
+selected result
+selector regret vs oracle
+selected config counts
+selected seed rule counts
+failure images where oracle itself fails
+```
+
+Promotion target remains:
+
+```text
+raw mean PSNR > 28.8
+raw min PSNR > 25
+raw below20 = 0
+raw below25 = 0
+```
+
+## Current candidate method
+
+Current candidate method:
+
+```text
+LF/S2 trajectory selector with seed tie-break
+```
+
+Algorithm:
+
+```text
+Run LF and pre-projection S2 with the chosen seed budget.
+For each config, compute mean post-projection winner LF-MSE vs noisy observation.
+Choose the config with the lower mean statistic.
+Inside the chosen config, choose the seed by post-projection winner LF-MSE unless the seed-stat gap is <= 5e-5.
+If tied, choose the seed with lower final noisy low-frequency magnitude residual.
+```
+
+This is not a ground-truth PSNR oracle.  It chooses using computed trajectory/measurement statistics only.
+
+Known results:
+
+```text
+Seeds 100,101:
+  tie-break selector mean ≈ 29.220
+  min ≈ 25.077
+  below25 = 0
+
+Seeds 102,103:
+  tie-break selector mean ≈ 27.921
+  min ≈ 9.117
+  below25 = 2
+  unavoidable LF/S2 candidate failures: 00005, 00014
+```
+
+The selector is promising but not final.
+
+## Priority 1: seed-budget/candidate-availability control
+
+### Experiment 1A: LF/S2 selector with four seeds
+
+Run the same LF/S2 tie-break selector with:
+
+```text
+seeds = 100,101,102,103
 ```
 
 Motivation:
 
-- Early branch choices affect global basin.
-- Late regularization can over-constrain details.
-- Previous fixed lambda sometimes created late/trajectory failures.
+- The config selector is nearly oracle-level over the available LF/S2 candidates.
+- The `102,103` validation failed because `00005` and `00014` had no good LF/S2 candidate.
+- The immediate control is to ask whether a larger seed budget supplies good candidates.
 
-Suggested first grid:
-
-```text
-lambda0 in {0.005, 0.01, 0.02}
-schedule in {pre_projection_only, linear_decay_to_proj_start}
-sigma_y = 0.05
-25 FFHQ images
-2 seeds first
-```
-
-Promote only if:
+Expected interpretations:
 
 ```text
-mean PSNR > 28.8
-min PSNR > 25
-below20 = 0
-below25 = 0
+If four seeds pass:
+  The current selector is viable under a larger seed budget, but per-run robustness remains unsolved.
+
+If four seeds still fail:
+  LF/S2 candidate generation has a structural blind spot and needs better scoring/tuning/fallback.
 ```
 
-### A2. Adaptive lambda from score uncertainty
+Do not stop at this experiment even if it passes; it answers candidate availability, not algorithmic robustness.
 
-Idea:
+## Priority 2: failure-focused tuning for 00005 and 00014
 
-Use `prev_l2` penalty only when the LF scores are close or unreliable.
-
-Example:
+The validation failures identify two concrete hard cases under seeds `102,103`:
 
 ```text
-if (best_lf - second_best_lf) / median_lf is small:
-    use prev_l2 regularization
-else:
-    trust LF score
+00005
+00014
 ```
 
-This is a single rule, not ground-truth selection.
+These should be used for cheap focused tuning before spending full FFHQ-25 budgets.
 
-Rationale:
+### Experiment 2A: projection-start and S2-lambda microgrid on failure images
 
-- When one candidate clearly wins in measurement score, regularization may be unnecessary.
-- When candidates are close, the LF score is noisy and stability should matter.
-
-### A3. Candidate-bank / noise-memory selection
-
-User-proposed direction:
-
-At each timestep, keep the winning noise directions from the previous `k` steps and sample only:
+Run LF/S2-style configs on only `00005,00014` with seeds `102,103`:
 
 ```text
-new_candidates = candidate_num - k
+proj_start in {200, 300, 400, 500}
+s2_lambda in {0.005, 0.01, 0.02, 0.05}
+score_radius in {0.4, 0.6}
+proj_radius fixed at 0.2 initially
+soft/hard fixed at 5/1 initially
 ```
-
-fresh candidates. The old noise directions must be rescaled appropriately to the current timestep.
 
 Motivation:
 
-- Some timesteps may contain no good fresh candidate.
-- A previously successful noise direction may remain useful locally.
-- This may reduce catastrophic branch switches.
+- S2 can rescue some LF failures but also moves failures.
+- The failed images may need a different timing or regularization strength.
+- This tests whether failures can be fixed by local tuning within the existing algorithm family.
 
-First version:
-
-```text
-soft=5, hard=1
-memory_k in {1,2}
-reuse previous winning eps and maybe previous second-best eps
-remaining candidates sampled fresh
-score mode = LF or LF + weak prev_l2
-```
-
-Key implementation concern:
-
-- `eps_prev` is currently kept as one candidate when `num_candidates > 1`.
-- Extend this to a small `eps_memory` queue.
-- At each step, include memory candidates first, then fill fresh candidates.
-- Keep memory only if candidate is not stale or if it remains competitive.
-
-Evaluation:
+Promotion from focused tuning:
 
 ```text
-sigma_y = 0.05
-25 images
-2 seeds
-compare all-run and best-of-2 failure counts
+At least one setting gives >25 dB on both 00005 and 00014 for seeds 102,103
+without obviously collapsing on known LF-good/S2-bad guard images 00007 and 00009.
 ```
 
-## Direction B: NP inside SITCOM-ODE
+Guard-image check:
+
+```text
+Always include 00007 and 00009 in the focused tuning subset, because S2-like changes can break them.
+```
+
+Recommended focused subset:
+
+```text
+00005,00014,00007,00009,00018,00028,00034
+```
+
+### Experiment 2B: projection radius sanity check on failure images
+
+Only if Experiment 2A suggests timing/lambda helps, test:
+
+```text
+proj_radius in {0.15, 0.2, 0.25}
+score_radius in {0.4, 0.6}
+```
+
+Do not revisit broad projection (`0.4+`) unless there is a new soft/robust projection mechanism, because broad hard projection was already harmful.
+
+## Priority 3: better complementary metrics for executable selection
+
+The current config selector uses:
+
+```text
+mean post-projection winner LF-MSE vs noisy observation
+```
+
+The seed tie-break uses:
+
+```text
+final noisy low-frequency magnitude residual
+```
+
+These worked for `100,101` but could not fix `102,103` because no good candidate existed.  Still, better metrics may identify no-good-candidate cases and trigger a fallback.
+
+### Experiment 3A: selector feature audit on full-25 traces
+
+Use existing diagnostic outputs and/or lightweight trace summaries to study features for images where all LF/S2 candidates fail.
+
+Candidate features:
+
+```text
+post_winner_lf_mse_mean
+post_winner_lf_mse_max
+post_winner_full_mse_mean
+final noisy_lowfreq_mag_l2
+final noisy_mag_l2
+seed disagreement in final residuals
+seed disagreement in selector statistic
+raw-vs-resolve PSNR gap when available for analysis only
+winner_is_lf_best_frac_post
+post_lf_mse_margin_mean
+```
 
 Goal:
 
-Build a single solver, not an oracle between NP and SITCOM.
+```text
+Find a non-ground-truth signal that says: LF/S2 candidate pool likely has no reliable reconstruction.
+```
 
-Proposed algorithm:
+If such a signal exists, use it to trigger a fallback rather than pretending the selector has solved the image.
+
+### Experiment 3B: add a confidence flag to LF/S2 selector
+
+Implement a selector confidence score based on:
 
 ```text
-Early timesteps:
-    use NP-style candidate branch selection with conservative low-frequency score.
-
-Late timesteps:
-    continue with SITCOM-ODE / DAPS-style consistency optimization.
+config-stat margin
+seed-stat margin
+final residual tie-break consistency
+seed disagreement
 ```
+
+The output should not only choose a reconstruction.  It should report:
+
+```text
+selected reconstruction
+confidence/high-risk flag
+reason for high-risk flag
+```
+
+This is useful even before a fallback is implemented.
+
+## Priority 4: fallback and recovery strategies
+
+### Experiment 4A: memory hard2 as fallback only
+
+Memory hard2 was not good as the main solver, but it was stable:
+
+```text
+memory_k=1, hard=2:
+  min around 24.9 in earlier test
+  no below20 failures
+  lower median quality
+```
+
+Test it only as a fallback when LF/S2 selector is low-confidence or when the LF/S2 candidate pool looks bad.
 
 Motivation:
 
-- SITCOM-ODE is stronger in low-noise clean reconstruction.
-- NP avoids some SITCOM failure cases and is more robust at high noise.
-- NP's value may be early robust branch selection, while SITCOM's value is late consistency refinement.
+- Memory hard2 is too conservative for all images.
+- It may still rescue catastrophic LF/S2 failures or provide a non-catastrophic fallback.
 
-Staged implementation:
-
-1. NP warm start:
-   - run partial or final NP;
-   - save x0 estimate;
-   - initialize SITCOM-ODE from this estimate if the SITCOM state parameterization allows it.
-2. Partial NP to SITCOM continuation:
-   - run NP to an intermediate timestep;
-   - map x0 estimate into SITCOM's current ODE/noisy state;
-   - continue SITCOM from corresponding step.
-3. True NP-in-SITCOM:
-   - add candidate branch selection inside SITCOM's early sampler loop;
-   - score candidates with low-frequency measurement consistency;
-   - use SITCOM's normal optimization later.
-
-Success criterion:
+Focused test:
 
 ```text
-Improve per-run reliability and failure rate, not just best-of-k.
-Preserve SITCOM's strong low-noise quality while reducing catastrophic failures.
+Run LF, S2, and memory hard2 on 00005,00014 plus guard images.
+Check whether memory hard2 beats the catastrophic LF/S2 candidates.
 ```
 
-## Direction C: robust measurement weighting
+Full test only if focused test helps.
 
-Finding:
+### Experiment 4B: SITCOM-ODE fallback on high-risk cases
 
-- Hard projection beyond radius `0.2` is harmful.
-- Late broadening to `0.4` or full is also harmful.
-- SITCOM-ODE degrades sharply as measurement noise increases.
+If LF/S2 confidence flags can identify likely failures, test running SITCOM-ODE only on high-risk images.
 
-Hypothesis:
+Motivation:
 
-The solver should not hard-enforce noisy or high-frequency measurement components. Instead, use soft, robust, frequency-dependent weights.
+- SITCOM-ODE is stronger on many low-noise FFHQ images.
+- NP/LF-S2 has complementary failures.
+- A fallback strategy may be cheaper and cleaner than forcing NP to solve every case.
 
-Possible forms:
+This should be treated as a hybrid solver/fallback pipeline, not as an oracle.
 
-```text
-measurement_weight(r, t, sigma_y)
-```
+## Priority 5: algorithmic scoring improvements
 
-with:
+If focused tuning and fallback do not explain `00005/00014`, return to scoring/selection within the reconstruction loop.
 
-- higher weight at low frequency;
-- lower weight at high frequency;
-- lower overall measurement weight as `sigma_y` increases;
-- robust residual loss such as Huber/Charbonnier instead of squared magnitude error.
+Promising directions:
 
-First experiment:
+1. **Soft projection instead of hard projection**
 
-```text
-Replace hard low-frequency projection with a soft projection step:
-x_new = (1 - eta) * x_prior + eta * projected_x
-eta in {0.1, 0.25, 0.5}
-radius = 0.2
-```
+   ```text
+   x_new = (1 - eta) * x_prior + eta * projected_x
+   eta in {0.1, 0.25, 0.5}
+   radius = 0.2
+   ```
 
-or modify score:
+   Motivation: hard projection is useful at small radius but broad or overly rigid projection is harmful.
 
-```text
-score = weighted robust magnitude residual
-```
+2. **Frequency-weighted robust score**
 
-rather than hard projection.
+   Replace simple LF score with a weighted residual:
 
-## Direction D: evaluation standard going forward
+   ```text
+   weighted residual = low-frequency emphasis + robust loss
+   ```
 
-For every new method, record:
+   Test only after defining clear logging and failure criteria.
 
-```text
-all-run PSNR mean/median/min
-image-level best-of-1, best-of-2, best-of-4
-number of runs <20 dB
-number of images whose best-of-k <25 dB
-per-image worst and failure identities
-SSIM and LPIPS for final serious runs
-runtime and effective candidate-call count
-```
+3. **Two-stage score schedule**
 
-A method should be promoted only if it improves reliability without simply moving failures between images.
+   Use LF for early global basin selection and S2 only in a controlled window, not throughout all pre-projection steps.  Previous adaptive margins were too blunt; use diagnostics to define a time window rather than a scalar LF-margin gate.
 
-## Near-term four-GPU launch order
+## Recommended immediate launch order
 
-Recommended first batch, matching the available four-GPU workflow:
+Given current evidence, the next four practical experiments should be:
 
-1. A1 static-to-decay S2 with `lambda0=0.005`.
-2. A1 static-to-decay S2 with `lambda0=0.01`.
-3. A1 pre-projection-only S2 with `lambda0=0.01`.
-4. A3 memory bank with `memory_k=1` and original LF score.
+1. **Four-seed LF/S2 tie-break selector**
 
-If none of these reduces failures, prioritize NP-in-SITCOM rather than further widening the NP candidate count.
+   ```text
+   seeds = 100,101,102,103
+   full FFHQ-25
+   goal: candidate-availability control
+   ```
+
+2. **Focused failure microgrid: proj_start × S2 lambda**
+
+   ```text
+   images = 00005,00014,00007,00009,00018,00028,00034
+   seeds = 102,103
+   goal: see whether failures are fixable by timing/lambda tuning
+   ```
+
+3. **Focused memory fallback check**
+
+   ```text
+   images = same focused subset
+   configs = LF, S2, memory_k=1 hard=2
+   seeds = 102,103
+   goal: test whether memory helps failure images without being main method
+   ```
+
+4. **Selector confidence-feature audit**
+
+   ```text
+   use existing run_level/diagnostic summaries
+   goal: identify no-good-candidate flags before adding more solver complexity
+   ```
+
+Only after these should we spend on a larger full-25 grid.
+
+## What not to prioritize immediately
+
+Do not prioritize these unless the above experiments fail to clarify the issue:
+
+- More fixed global S2 lambda sweeps on all 25 images.
+- More adaptive LF-margin thresholds without new diagnostics.
+- Broad hard projection radii (`0.4+`).
+- Memory as the main solver with no fresh candidate.
+
+These have already shown failure modes or low payoff.
