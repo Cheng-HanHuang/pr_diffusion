@@ -1,38 +1,47 @@
-# Progress report: four-GPU LF/S2 selector, lambda selection, and memory fallback study
+# Progress report: full-25 multi-lambda selector validation and next robustness goals
 
 Updated: 2026-05-23
 
-This report replaces the selector-validation report after the four-GPU next-batch experiments.  The previous active report is archived in `docs/historical/progress_report_archived_20260523_before_four_gpu_batch.md`.
+This report replaces the four-GPU LF/S2 selector and lambda diagnostic report after the focused and full-25 multi-lambda selector experiments.  The previous active report is archived in `docs/historical/progress_report_archived_20260523_before_full25_multilambda_validation.md`.
 
 ## Executive summary
 
-The four-GPU batch clarified the current state of the project:
+The current best method is now a **multi-lambda LF/S2 selector**:
 
 ```text
-1. Four-seed LF/S2 selection solves candidate availability on FFHQ-25.
-2. The old 5e-5 seed tie-break is unsafe for four seeds.
-3. Projection-start tuning shows strong timing brittleness but does not fix 00005.
-4. S2 lambda selection is the strongest new direction: high lambda fixes 00005/00014, low lambda preserves 00028.
-5. Memory hard2 LF is complementary but weaker; memory hard2 S2 should be dropped for now.
-```
-
-The next best direction is no longer plain LF/S2 with one fixed S2 lambda.  The next candidate method should be a **multi-lambda selector** using computed trajectory/measurement statistics:
-
-```text
-Candidate configs:
+score_radius = 0.6
+proj_radius  = 0.2
+proj_start   = 300
+configs:
   LF
   S2 lambda = 0.005
-  S2 lambda = 0.02 or 0.05
-
-Selection statistic:
+  S2 lambda = 0.02
+  S2 lambda = 0.05
+selection statistic:
   mean post-projection winner low-frequency MSE vs noisy observation
+seed choice:
+  selector statistic directly; do not use the old 5e-5 tie-break for multi-seed/four-seed runs
 ```
 
-This is motivated by the GPU2 focused lambda diagnostic, where a lambda selector nearly matched the lambda oracle on the focused subset.
+Main full-25 result with validation seed pair `102,103`:
 
-## Benchmark and evaluation conventions
+```text
+selected_config_seed_by_selector, raw:
+  mean PSNR ≈ 29.305
+  median    ≈ 29.584
+  min       ≈ 26.230
+  SSIM      ≈ 0.830
+  below20   = 0
+  below25   = 0
+```
 
-Main benchmark:
+This is a major improvement over the fixed LF/S2 selector with the same seed pair, which failed on `00005` and `00014`.
+
+The method is still a multi-run selector, not a per-run always-successful solver.  Individual runs remain fragile.  The next stage should therefore answer how much of the success comes from multiple scoring branches versus multiple random seeds, and whether we can move the selection into the reconstruction loop.
+
+## Evaluation convention
+
+Primary benchmark:
 
 ```text
 Dataset: FFHQ 25-image split
@@ -45,448 +54,363 @@ Image root: /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
 Guided diffusion checkpoint: /egr/research-pac/huang248/models/ffhq_10m.pt
 ```
 
-Primary reporting convention:
+Always report raw alignment first:
 
 ```text
-Use raw alignment first.
-Report mean, median, min, below20, below25, SSIM, and LPIPS if available.
-Distinguish best-of-k from all-run reliability.
-Distinguish oracle selection from executable non-ground-truth selection.
+mean PSNR
+median PSNR
+minimum PSNR
+number of images below 20 dB
+number of images below 25 dB
+SSIM mean
+LPIPS mean when available
+oracle over available candidates
+selected result
+selector regret vs oracle
+selected config counts
+worst images
 ```
 
-Core NP parameters unless otherwise stated:
+Promotion target remains:
 
 ```text
-score_radius = 0.6
-proj_radius  = 0.2
-proj_start   = 300
-soft_k       = 5
-hard_k       = 1
-oversample   = 2
+raw mean PSNR > 28.8
+raw min PSNR > 25
+raw below20 = 0
+raw below25 = 0
 ```
 
-## Background before this four-GPU batch
+## Background before the latest multi-lambda runs
 
-The previous selector-validation stage established:
+Earlier experiments established:
 
-- LF and S2 with `lambda=0.01` have complementary failures.
-- A non-ground-truth trajectory statistic, mean post-projection winner LF-MSE vs noisy observation, can choose LF vs S2 nearly at oracle level when good candidates exist.
-- With seeds `100,101`, the LF/S2 seed tie-break selector passed FFHQ-25:
+1. Fixed LF/S2 selection with `lambda=0.01` is complementary but insufficient with some two-seed pairs.
+2. The selector statistic, mean post-projection winner LF-MSE vs noisy observation, chooses LF vs S2 almost at oracle level when good candidates exist.
+3. Fixed LF/S2 with seeds `100,101` passed, but seeds `102,103` failed because no good LF/S2 candidate existed for `00005` and `00014`.
+4. Four-seed fixed LF/S2 fixed candidate availability but did not improve per-run reliability.
+5. Focused lambda diagnostics showed that high S2 lambda fixes `00005` and `00014`, while low lambda or LF preserves `00028`.
+6. Projection-start and memory fallback were useful diagnostics, but weaker than lambda selection.
 
-  ```text
-  mean ≈ 29.220
-  min ≈ 25.077
-  below25 = 0
-  ```
+This motivated the multi-lambda selector.
 
-- With seeds `102,103`, the same method failed because LF/S2 had no good candidates for `00005` and `00014`:
+## Focused multi-lambda selector: score_radius=0.6, proj_start=300
 
-  ```text
-  mean ≈ 27.921
-  min ≈ 9.117
-  below25 = 2
-  ```
-
-- The ground-truth oracle over LF/S2 candidates for `102,103` also failed, so the issue was candidate availability, not mainly selector error.
-
-This motivated a four-GPU batch:
-
-```text
-GPU0: full FFHQ-25 four-seed LF/S2 selector control.
-GPU1: focused projection-start diagnostic.
-GPU2: focused S2 lambda diagnostic.
-GPU3: focused memory fallback diagnostic.
-```
-
-The focused diagnostics used:
+### Setup
 
 ```text
 images = 00005,00014,00007,00009,00018,00028,00034
-seeds  = 102,103
+seeds = 102,103
+configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
+score_radius = 0.6
+proj_start = 300
+selector statistic = post_winner_lf_mse_mean
+LPIPS skipped
 ```
 
-These are mechanism diagnostics.  Because they use `--select_images`, measurement-noise indexing follows the filtered subset order rather than the full FFHQ-25 order, so they should not be treated as exact full-25 reproductions.  They are still highly useful for comparing failure patterns and complementarity.
+### Raw results
 
-## GPU0: full FFHQ-25 four-seed LF/S2 selector control
+| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|
+| selected_config_seed_by_selector | 29.613 | 29.999 | 28.722 | 0.821 | 0 | 0 |
+| selected_config_bestofk | 29.613 | 29.999 | 28.722 | 0.821 | 0 | 0 |
+| global_run_by_selector | 29.628 | 29.999 | 28.722 | 0.821 | 0 | 0 |
+| oracle_all_candidates | 29.629 | 29.999 | 28.722 | 0.821 | 0 | 0 |
+
+The focused target was passed comfortably:
+
+```text
+00005 > 25
+00014 > 25
+00028 > 25
+00007 and 00009 not broken
+focused-subset min > 25
+```
+
+### Per-config single-method results
+
+| Config | Mean PSNR | Median | Min | Images <20 | Images <25 | Worst |
+|---|---:|---:|---:|---:|---:|---|
+| LF | 27.373 | 29.999 | 13.662 | 1 | 1 | 00014 |
+| S2 lambda=0.005 | 21.751 | 28.913 | 9.127 | 3 | 3 | 00005 |
+| S2 lambda=0.02 | 27.313 | 29.340 | 13.791 | 1 | 1 | 00028 |
+| S2 lambda=0.05 | 27.312 | 29.340 | 13.791 | 1 | 1 | 00028 |
+
+No single config is reliable, but the selector avoids their complementary failures.
+
+### Selected configs
+
+```text
+LF:             3 images
+S2 lambda=0.005: 1 image
+S2 lambda=0.02:  2 images
+S2 lambda=0.05:  1 image
+```
+
+The only meaningful regret was on `00005`, where the selector chose LF at about 30.05 dB while the oracle chose S2 lambda=0.05 at about 30.16 dB.  Both are excellent, so this regret is harmless.
+
+## Full FFHQ-25 multi-lambda selector: score_radius=0.6, proj_start=300
 
 ### Setup
 
 ```text
 images = full FFHQ-25
-seeds = 100,101,102,103
-configs = LF and pre-projection S2 lambda=0.01
-sigma_y = 0.05
-np_steps = 1000
+seeds = 102,103
+configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
+score_radius = 0.6
+proj_start = 300
+selector statistic = post_winner_lf_mse_mean
 LPIPS skipped
 ```
 
-### Results
-
-Raw best-of-4 / selector summaries:
+### Raw results
 
 | Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
 |---|---:|---:|---:|---:|---:|---:|
-| LF best-of-4 | 29.424 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-| S2 best-of-4 | 29.429 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-| LF/S2 oracle over all 8 candidates | 29.434 | 29.723 | 27.185 | n/a | 0 | 0 |
-| selected config best-of-4 | 29.430 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-| selected config seed by selector | 29.360 | 29.585 | 27.081 | 0.831 | 0 | 0 |
-| global run by selector | 29.374 | 29.585 | 27.081 | 0.831 | 0 | 0 |
-| old 5e-5 tie-break selector | 28.575 | 29.690 | 9.378 | 0.809 | 1 | 1 |
+| selected_config_seed_by_selector | 29.305 | 29.584 | 26.230 | 0.830 | 0 | 0 |
+| global_run_by_selector | 29.288 | 29.584 | 26.230 | 0.830 | 0 | 0 |
+| selected_config_bestofk | 29.416 | 29.723 | 27.182 | 0.832 | 0 | 0 |
+| oracle_all_candidates | 29.417 | 29.723 | 27.182 | 0.832 | 0 | 0 |
 
-### Interpretation
+This is the main result.  It passes the FFHQ-25 reliability target with the validation seed pair `102,103`.
 
-The four-seed candidate pool fixes the candidate-availability failure:
+### Comparison to fixed LF/S2 validation
+
+Fixed LF/S2 with the same seeds had failed:
 
 ```text
-With seeds 100,101,102,103, LF/S2 contains good candidates for every FFHQ-25 image.
+fixed LF/S2 tie-break, seeds 102,103:
+  mean ≈ 27.921
+  min ≈ 9.117
+  below25 = 2
+  failure images: 00005, 00014
 ```
 
-The config selector remains strong.  However, the old 5e-5 seed tie-break is unsafe with four seeds.  It caused a failure on `00032`, selecting a bad S2 seed despite good S2/LF candidates being available.
-
-Threshold sweep from the GPU0 run:
-
-| Tie threshold | Mean PSNR | Min | Images <20 | Images <25 |
-|---:|---:|---:|---:|---:|
-| 0 | 29.360 | 27.081 | 0 | 0 |
-| 1e-5 | 29.374 | 27.081 | 0 | 0 |
-| 2e-5 | 28.592 | 9.378 | 1 | 1 |
-| 3e-5 | 28.598 | 9.378 | 1 | 1 |
-| 5e-5 | 28.575 | 9.378 | 1 | 1 |
-
-Conclusion:
+The multi-lambda selector fixes the same setting:
 
 ```text
-For four-seed LF/S2, use selector-stat seed choice directly or a much smaller tie threshold around 1e-5.
-Do not use the old 5e-5 threshold.
-```
-
-Important caveat: per-run reliability remains poor even though best-of-4 is good.
-
-All-run raw statistics:
-
-| Config | All-run mean | All-run median | Min | Runs <20 | Runs <25 |
-|---|---:|---:|---:|---:|---:|
-| LF | 23.441 | 28.808 | 5.076 | 32 / 100 | 32 / 100 |
-| S2 | 25.157 | 29.109 | 5.687 | 23 / 100 | 23 / 100 |
-
-Thus, the four-seed selector solves candidate selection under a larger budget, but not per-run robustness.
-
-## GPU1: focused S2 projection-start diagnostic
-
-### Setup
-
-```text
-images = 00005,00014,00007,00009,00018,00028,00034
-seeds = 102,103
-score_mode = prev_l2
-lambda = 0.01
-schedule = pre_projection_only
-proj_start in {200,300,400,500}
-```
-
-### Results
-
-| proj_start | Mean PSNR | Median | Min | Images <20 | Images <25 | Worst |
-|---:|---:|---:|---:|---:|---:|---|
-| 200 | 23.836 | 29.006 | 9.025 | 2 | 2 | 00009 |
-| 400 | 21.737 | 28.925 | 9.745 | 3 | 3 | 00005 |
-| 500 | 20.005 | 17.598 | 9.130 | 4 | 4 | 00005 |
-| 300 | 19.450 | 13.790 | 9.127 | 4 | 4 | 00005 |
-
-Per-image pattern:
-
-| Image | start=200 | start=300 | start=400 | start=500 | Best |
-|---|---:|---:|---:|---:|---:|
-| 00005 | 10.614 | 9.127 | 9.745 | 9.130 | 10.614 |
-| 00007 | 28.610 | 10.402 | 10.569 | 10.396 | 28.610 |
-| 00009 | 9.025 | 30.045 | 30.065 | 30.142 | 30.142 |
-| 00014 | 29.293 | 13.662 | 29.332 | 29.260 | 29.332 |
-| 00018 | 29.006 | 28.913 | 28.925 | 17.598 | 29.006 |
-| 00028 | 29.968 | 13.790 | 13.477 | 13.118 | 29.968 |
-| 00034 | 30.334 | 30.213 | 30.046 | 30.390 | 30.390 |
-
-Oracle over projection starts:
-
-```text
-mean ≈ 26.866
-median ≈ 29.332
-min ≈ 10.614
-below20 = 1
-below25 = 1
-```
-
-### Interpretation
-
-Projection timing matters a lot, but it is not the strongest fix:
-
-- `proj_start=200` is the best single timing in this subset.
-- `00014` is fixable by timing.
-- `00005` remains unresolved across all tested starts.
-- Timing can also move failures: `00007`, `00009`, and `00028` prefer different timings.
-
-Conclusion:
-
-```text
-Projection-start tuning confirms timing brittleness, but it does not provide a reliable replacement or fix 00005.
-```
-
-## GPU2: focused S2 lambda diagnostic
-
-### Setup
-
-```text
-images = 00005,00014,00007,00009,00018,00028,00034
-seeds = 102,103
-proj_start = 300
-score_mode = prev_l2
-schedule = pre_projection_only
-lambda in {0.005,0.01,0.02,0.05}
-```
-
-### Results
-
-| lambda | Mean PSNR | Median | Min | Images <20 | Images <25 | Worst |
-|---:|---:|---:|---:|---:|---:|---|
-| 0.005 | 21.751 | 28.913 | 9.127 | 3 | 3 | 00005 |
-| 0.01 | 19.450 | 13.790 | 9.127 | 4 | 4 | 00005 |
-| 0.02 | 27.313 | 29.340 | 13.791 | 1 | 1 | 00028 |
-| 0.05 | 27.312 | 29.340 | 13.791 | 1 | 1 | 00028 |
-
-Per-image pattern:
-
-| Image | λ=0.005 | λ=0.01 | λ=0.02 | λ=0.05 | Best |
-|---|---:|---:|---:|---:|---:|
-| 00005 | 9.127 | 9.127 | 30.161 | 30.161 | 30.161 |
-| 00007 | 10.293 | 10.402 | 28.722 | 28.722 | 28.722 |
-| 00009 | 30.052 | 30.045 | 30.052 | 30.045 | 30.052 |
-| 00014 | 13.662 | 13.662 | 29.340 | 29.340 | 29.340 |
-| 00018 | 28.913 | 28.913 | 28.913 | 28.912 | 28.913 |
-| 00028 | 29.999 | 13.790 | 13.791 | 13.791 | 29.999 |
-| 00034 | 30.213 | 30.213 | 30.213 | 30.212 | 30.213 |
-
-Lambda oracle on this focused subset:
-
-```text
-mean ≈ 29.629
-median ≈ 29.999
-min ≈ 28.722
-below20 = 0
-below25 = 0
-```
-
-The best lambda varies by image:
-
-```text
-00005: lambda 0.05
-00007: lambda 0.05
-00009: lambda 0.005
-00014: lambda 0.02
-00018: lambda 0.01
-00028: lambda 0.005
-00034: lambda 0.02
-```
-
-A key observation from the analysis: selecting lambda by lower mean post-projection winner LF-MSE, or by final noisy low-frequency residual, nearly matched the lambda oracle on this focused subset:
-
-```text
-selected-by-stat mean ≈ 29.628
-selected-by-stat min ≈ 28.722
-below25 = 0
-```
-
-### Interpretation
-
-This is the strongest result of the four-GPU batch.
-
-S2 lambda tuning fixes the hard validation cases:
-
-```text
-00005: fixed by lambda 0.02/0.05
-00014: fixed by lambda 0.02/0.05
-```
-
-but again moves failure elsewhere:
-
-```text
-00028: good at lambda 0.005, bad at lambda >= 0.01
-```
-
-Therefore, no single fixed lambda is enough, but a multi-lambda selector is promising and may be executable because the same trajectory statistic appears to select the right lambda on the focused subset.
-
-Conclusion:
-
-```text
-The next main method should test LF + multiple S2 lambdas, selected by trajectory statistics.
-```
-
-## GPU3: focused memory fallback diagnostic
-
-### Setup
-
-```text
-images = 00005,00014,00007,00009,00018,00028,00034
-seeds = 102,103
-configs:
-  memory_k=1, hard=2, LF score
-  memory_k=1, hard=2, S2 lambda=0.01
-```
-
-### Results
-
-| Config | Mean PSNR | Median | Min | Images <20 | Images <25 | Worst |
-|---|---:|---:|---:|---:|---:|---|
-| memory_k1_hard2_lf | 24.963 | 26.492 | 14.691 | 1 | 1 | 00028 |
-| memory_k1_hard2_s2_lam001 | 22.028 | 26.162 | 9.105 | 2 | 3 | 00005 |
-
-Per-image pattern:
-
-| Image | Memory LF | Memory S2 | Better |
-|---|---:|---:|---|
-| 00005 | 27.399 | 9.105 | Memory LF |
-| 00007 | 26.269 | 26.162 | Memory LF |
-| 00009 | 27.031 | 27.030 | Memory LF |
-| 00014 | 25.147 | 24.935 | Memory LF |
-| 00018 | 26.492 | 26.363 | Memory LF |
-| 00028 | 14.691 | 12.551 | Memory LF |
-| 00034 | 27.711 | 28.051 | Memory S2 |
-
-### Interpretation
-
-Memory hard2 LF is genuinely complementary:
-
-- It fixes `00005` moderately (`27.399`).
-- It gives non-catastrophic results on several images.
-- It is much better than memory hard1 collapse.
-
-However, it is too conservative and fails on `00028`:
-
-```text
-00028: memory LF = 14.691
-```
-
-Memory S2 is worse and should be dropped for now.
-
-Conclusion:
-
-```text
-Memory hard2 LF may be a fallback candidate, but it is not the next main path.
-The next main path should be multi-lambda S2 selection, not memory selection.
-```
-
-## Combined interpretation after GPU0--GPU3
-
-The four experiments answer the main questions from the previous plan:
-
-### Candidate availability
-
-Four seeds fix the LF/S2 candidate-availability problem on FFHQ-25:
-
-```text
-selected_config_seed_by_selector with 4 seeds:
-mean ≈ 29.360
-min ≈ 27.081
-below25 = 0
-```
-
-But all-run reliability remains poor; the solver still relies heavily on seed budget.
-
-### Tie-break behavior
-
-The old seed tie-break threshold `5e-5` was useful for two seeds but unsafe for four seeds.  It allowed final noisy low-frequency residual to dominate and selected a bad `00032` run.
-
-Use:
-
-```text
-four seeds: selector-stat seed choice or tie threshold ≈ 1e-5
-not 5e-5
-```
-
-### Projection timing
-
-Projection-start tuning reveals strong brittleness but does not solve the hardest failure `00005`.  It is not the next main axis.
-
-### Lambda strength
-
-Lambda selection is the strongest new evidence.  High lambda fixes `00005` and `00014`; low lambda preserves `00028`.  The complementarity appears selectable by the same trajectory statistic.
-
-### Memory fallback
-
-Memory hard2 LF is complementary and can rescue `00005`, but it is weaker than lambda selection and fails on `00028`.  Keep it as fallback research, not as the main solver.
-
-## Current best direction
-
-The next method to implement is:
-
-```text
-Multi-lambda LF/S2 selector
-```
-
-Candidate configs:
-
-```text
-LF
-S2 lambda = 0.005
-S2 lambda = 0.02
-```
-
-Optionally include:
-
-```text
-S2 lambda = 0.05
-```
-
-Selection:
-
-```text
-choose config by mean post-projection winner LF-MSE vs noisy observation;
-choose seed by the same selector statistic;
-for four seeds, avoid the old 5e-5 tie-break.
-```
-
-Expected target:
-
-```text
-With seeds 102,103 on the focused subset:
-  recover 00005/00014 while preserving 00028.
-
-With four seeds on FFHQ-25:
-  mean around or above 29.4
-  min above 27
+multi-lambda selector, seeds 102,103:
+  mean ≈ 29.305
+  min ≈ 26.230
   below25 = 0
 ```
 
+This demonstrates that the failure was not only a seed-budget problem; the configuration pool mattered.
+
+### Single-config results in the full-25 run
+
+| Config | Mean PSNR | Median | Min | Images <20 | Images <25 | Worst |
+|---|---:|---:|---:|---:|---:|---|
+| LF | 26.396 | 29.232 | 9.130 | 4 | 4 | 00005 |
+| S2 lambda=0.005 | 26.486 | 29.232 | 9.130 | 4 | 4 | 00005 |
+| S2 lambda=0.02 | 25.722 | 29.232 | 9.130 | 5 | 5 | 00005 |
+| S2 lambda=0.05 | 28.753 | 29.593 | 13.792 | 1 | 1 | 00028 |
+
+Each single config still fails.  The selector succeeds by combining complementary branches.
+
+### Key per-image examples
+
+| Image | LF | S2 λ=0.005 | S2 λ=0.02 | S2 λ=0.05 | Selected behavior |
+|---|---:|---:|---:|---:|---|
+| 00005 | 9.130 | 9.130 | 9.130 | 30.260 | selected high-lambda branch |
+| 00014 | 13.706 | 13.706 | 29.312 | 29.312 | selected high-lambda branch |
+| 00028 | 30.141 | 13.792 | 13.792 | 13.792 | selected LF branch |
+| 00032 | 9.864 | 9.864 | 29.109 | 29.109 | selected high-lambda branch |
+
+These are exactly the failure-moving patterns that motivated multi-lambda selection.
+
+### Selector quality
+
+The config selector is nearly oracle-level:
+
+```text
+selected_config_bestofk mean = 29.416462
+oracle_all_candidates mean   = 29.416575
+```
+
+The remaining gap is mostly seed selection:
+
+```text
+selected_config_seed_by_selector mean = 29.305
+selected_config_bestofk mean          = 29.416
+gap ≈ 0.111 dB
+```
+
+Worst seed-selection regrets were moderate but non-catastrophic:
+
+| Image | Selected PSNR | Oracle PSNR | Regret |
+|---|---:|---:|---:|
+| 00010 | 26.230 | 27.530 | 1.300 |
+| 00013 | 27.474 | 27.977 | 0.503 |
+| 00020 | 29.375 | 29.723 | 0.348 |
+
+All selected images remained above 25 dB.
+
+Selected config counts:
+
+```text
+S2 lambda=0.05: 9 images
+S2 lambda=0.02: 6 images
+S2 lambda=0.005: 6 images
+LF: 4 images
+```
+
+Oracle config counts were similar:
+
+```text
+S2 lambda=0.05: 8 images
+S2 lambda=0.005: 7 images
+S2 lambda=0.02: 6 images
+LF: 4 images
+```
+
+### Per-run fragility remains
+
+All-run raw stats remain fragile:
+
+| Config | All-run mean | Median | Min | Runs <20 | Runs <25 |
+|---|---:|---:|---:|---:|---:|
+| LF | 22.94 | 28.43 | 5.68 | 17 / 50 | 17 / 50 |
+| S2 lambda=0.005 | 23.91 | 28.89 | 7.94 | 15 / 50 | 15 / 50 |
+| S2 lambda=0.02 | 24.33 | 29.13 | 8.60 | 14 / 50 | 14 / 50 |
+| S2 lambda=0.05 | 25.76 | 29.18 | 7.94 | 10 / 50 | 10 / 50 |
+
+The method is therefore still a multi-run selector.  The project should now distinguish robust selection from genuinely always-successful single-run reconstruction.
+
+## Score-radius ablation: focused score_radius=0.4, proj_start=300
+
+### Setup
+
+```text
+images = focused seven-image subset
+seeds = 102,103
+configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
+score_radius = 0.4
+proj_start = 300
+```
+
+### Raw results
+
+| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|
+| selected_config_seed_by_selector | 27.384 | 29.999 | 13.662 | 0.741 | 1 | 1 |
+| selected_config_bestofk | 27.408 | 29.999 | 13.662 | 0.741 | 1 | 1 |
+| global_run_by_selector | 27.365 | 29.999 | 13.662 | 0.741 | 1 | 1 |
+| oracle_all_candidates | 27.409 | 29.999 | 13.662 | 0.741 | 1 | 1 |
+
+Even the oracle fails, so this is a candidate-pool problem, not a selector problem.  The failure is `00014`, whose best available PSNR is only about 13.66 dB.
+
+Conclusion:
+
+```text
+score_radius=0.4 is too narrow and should not replace score_radius=0.6.
+```
+
+## Projection-start ablation: focused score_radius=0.6, proj_start=200
+
+### Setup
+
+```text
+images = focused seven-image subset
+seeds = 102,103
+configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
+score_radius = 0.6
+proj_start = 200
+```
+
+### Raw results
+
+| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
+|---|---:|---:|---:|---:|---:|---:|
+| selected_config_seed_by_selector | 26.827 | 29.293 | 10.584 | 0.742 | 1 | 1 |
+| selected_config_bestofk | 26.852 | 29.293 | 10.644 | 0.745 | 1 | 1 |
+| global_run_by_selector | 26.827 | 29.293 | 10.584 | 0.742 | 1 | 1 |
+| oracle_all_candidates | 26.852 | 29.293 | 10.644 | 0.745 | 1 | 1 |
+
+Even the oracle fails, due to `00005`:
+
+```text
+00005 best available at proj_start=200 ≈ 10.64 dB
+```
+
+Conclusion:
+
+```text
+proj_start=200 is too early for the multi-lambda setting and should not replace proj_start=300.
+```
+
+## Current best setting
+
+The current best validated setting is:
+
+```text
+Multi-lambda selector
+score_radius = 0.6
+proj_radius = 0.2
+proj_start = 300
+configs:
+  LF
+  S2 lambda = 0.005
+  S2 lambda = 0.02
+  S2 lambda = 0.05
+selection:
+  choose config by mean post-projection winner LF-MSE vs noisy observation
+  choose seed by the same statistic
+```
+
+Status:
+
+- Focused hard/guard subset passes.
+- Full FFHQ-25 with seeds `102,103` passes.
+- `score_radius=0.4` fails.
+- `proj_start=200` fails.
+- LPIPS is still skipped in these runs and should be added once the configuration is stable.
+
+## What this means for the ultimate goal
+
+The current method is not a single-run always-successful algorithm.  It is a non-ground-truth multi-run selector.  This is still a useful and legitimate direction because the selector is not using PSNR; it uses computed trajectory/measurement statistics.  However, it does not yet solve per-run fragility.
+
+The key question for the next stage is:
+
+```text
+Does success require multiple random seeds, or are multiple scoring/lambda branches enough?
+```
+
+If single-seed multi-lambda selection succeeds, then branch/scoring complementarity is the main mechanism.  If it fails, then seed diversity remains essential and we need either adaptive compute or in-loop adaptive scoring.
+
 ## Recommended next experiments
 
-1. **Focused multi-lambda selector**
-
-   ```text
-   images = 00005,00014,00007,00009,00018,00028,00034
-   seeds = 102,103
-   configs = LF, S2 lambda=0.005, S2 lambda=0.02, optionally S2 lambda=0.05
-   selection = post-projection winner LF-MSE statistic
-   goal = confirm executable lambda selection, not just oracle complementarity
-   ```
-
-2. **Full FFHQ-25 multi-lambda selector, two seeds**
-
-   Only if the focused selector works:
-
-   ```text
-   seeds = 102,103 first
-   then seeds = 100,101 as a comparison
-   goal = see whether multi-lambda selection reduces required seed budget
-   ```
-
-3. **Full FFHQ-25 multi-lambda selector, four seeds**
-
-   If two-seed multi-lambda still fails:
+1. **Full-25 multi-lambda with four seeds**
 
    ```text
    seeds = 100,101,102,103
-   goal = test whether the richer config pool improves over four-seed LF/S2
+   configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
+   score_radius=0.6, proj_start=300
+   goal: best current multi-run selector baseline
    ```
 
-4. **Memory fallback only after multi-lambda tests**
+2. **Full-25 multi-lambda with a new two-seed validation pair**
 
-   Test memory hard2 LF only as a fallback triggered by selector confidence.  Do not add memory to the main pool before proving a selector can avoid its `00028` failure.
+   ```text
+   seeds = 104,105
+   same configs/settings
+   goal: determine whether two-seed success generalizes beyond 102,103
+   ```
+
+3. **Single-seed multi-lambda simulation from existing traces**
+
+   Use the existing full-25 `102,103` trace summaries to simulate:
+
+   ```text
+   seed 102 only
+   seed 103 only
+   ```
+
+   This is CPU-only and does not require new reconstructions.
+
+4. **If needed, run more single-seed validations**
+
+   Use the `104,105` run to simulate seed 104 only and seed 105 only.  This directly tests whether multiple scoring branches can succeed without multiple random seeds.
+
+5. **Algorithmic next step: in-loop adaptive multi-lambda scoring**
+
+   Instead of running separate LF/S2 lambda branches and selecting afterward, implement a solver that chooses among lambda scores inside each reconstruction step.  This is the most direct path toward an always-successful method rather than a post-hoc multi-run selector.
