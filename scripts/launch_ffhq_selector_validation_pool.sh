@@ -19,6 +19,9 @@ set -euo pipefail
 #
 # Optional smoke test:
 #   HARD_IMAGES="00013,00027,00028" SEEDS=132,133 bash scripts/launch_ffhq_selector_validation_pool.sh
+#
+# Full split / all images in SPLIT:
+#   HARD_IMAGES="" bash scripts/launch_ffhq_selector_validation_pool.sh
 
 REPO=${REPO:-/egr/research-pac/huang248/pr_diffusion_repo}
 ROOT=${ROOT:-/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411}
@@ -32,9 +35,9 @@ GUIDED_DIFFUSION_DIR=${GUIDED_DIFFUSION_DIR:-/egr/research-pac/huang248/external
 STAMP=${STAMP:-$(date +%Y%m%d_%H%M%S)}
 OUTROOT=${OUTROOT:-$ROOT/np_ffhq_selector_validation_pool_$STAMP}
 
-# Use the full hard set by default.  The 00013/00027/00028 subset can be passed
-# explicitly for a quick smoke test.
-HARD_IMAGES=${HARD_IMAGES:-00000,00005,00007,00013,00027,00028,00034}
+# Use the full hard set by default.  Pass HARD_IMAGES="" to use every image in
+# SPLIT, e.g. the full FFHQ-25 split.
+HARD_IMAGES=${HARD_IMAGES-00000,00005,00007,00013,00027,00028,00034}
 SEEDS=${SEEDS:-132,133,134,135}
 GPU_LIST=${GPU_LIST:-0,1,2,3}
 MAX_PARALLEL=${MAX_PARALLEL:-4}
@@ -75,13 +78,19 @@ launch_cfg() {
   fi
   echo "[launch] gpu=$gpu tag=$tag log=$log_file"
   acquire_slot
+
+  select_args=()
+  if [[ -n "$HARD_IMAGES" ]]; then
+    select_args=(--select_images "$HARD_IMAGES")
+  fi
+
   (
     set -euo pipefail
     mkdir -p "$outdir"
     CUDA_VISIBLE_DEVICES="$gpu" python scripts/pr_external_difffpr_np_guided_diagnostic_trace.py \
       --data_root "$DATA_ROOT" \
       --image_list_file "$SPLIT" \
-      --select_images "$HARD_IMAGES" \
+      "${select_args[@]}" \
       --outdir "$outdir" \
       --tag "$tag" \
       --guided_model_path "$GUIDED_MODEL" \
@@ -105,7 +114,8 @@ launch_cfg() {
 cat <<EOF
 [selector-validation-pool]
   OUTROOT     = $OUTROOT
-  HARD_IMAGES = $HARD_IMAGES
+  SPLIT       = $SPLIT
+  HARD_IMAGES = ${HARD_IMAGES:-<all images in split>}
   SEEDS       = $SEEDS
   GPU_LIST    = $GPU_LIST
 EOF
@@ -172,12 +182,19 @@ python scripts/analyze_reliability_from_traces.py \
   --psnr_key raw_psnr \
   --thresholds 25,28,30 \
   --primary_threshold 28 \
-  --hard_images "$HARD_IMAGES" \
+  --hard_images "${HARD_IMAGES:-ALL_SPLIT_IMAGES}" \
   --n_seed_orders 200 \
   --adaptive_start_k 2 \
   --adaptive_add_k 2 \
   --adaptive_max_k 4 \
   --dedupe
+
+python scripts/analyze_reliability_failure_taxonomy.py \
+  --roots_or_traces "$OUTROOT/selector_validation_diag_run_trace_summary.csv" \
+  --outdir "$OUTROOT/reliability_failure_taxonomy" \
+  --thresholds 25,28,30 \
+  --selector_stat "$SELECTOR_STAT" \
+  --psnr_key raw_psnr
 
 cat <<EOF
 
@@ -195,4 +212,6 @@ Main files:
   $OUTROOT/extended_selector_policy_sweep/extended_selector_risk_diagnostics.csv
   $OUTROOT/reliability_analysis/hard_image_candidate_availability.csv
   $OUTROOT/reliability_analysis/adaptive_policy_summary.csv
+  $OUTROOT/reliability_failure_taxonomy/reliability_failure_taxonomy_by_image.csv
+  $OUTROOT/reliability_failure_taxonomy/reliability_failure_taxonomy_counts.csv
 EOF
