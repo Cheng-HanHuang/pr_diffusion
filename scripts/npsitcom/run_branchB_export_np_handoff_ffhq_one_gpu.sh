@@ -13,7 +13,7 @@ GUIDED_DIFFUSION_DIR=${GUIDED_DIFFUSION_DIR:-/egr/research-pac/huang248/external
 SEEDS=${SEEDS:-100,101,102,103}
 NOISES=${NOISES:-0.05}
 MAX_IMAGES=${MAX_IMAGES:-5}
-HANDOFF_TIMESTEPS=${HANDOFF_TIMESTEPS:-700,500,300,100}
+HANDOFF_SIGMAS=${HANDOFF_SIGMAS:-50,20,10,5,2,1,0.5}
 
 RUN_OUT=$OUT/branchB_handoff/$TAG
 mkdir -p "$RUN_OUT"
@@ -28,5 +28,5 @@ CUDA_VISIBLE_DEVICES=$GPU_ID python scripts/npsitcom/export_np_handoff_states.py
   --seeds "$SEEDS" \
   --noise_values "$NOISES" \
   --max_images "$MAX_IMAGES" \
-  --handoff_timesteps "$HANDOFF_TIMESTEPS" \
+  --handoff_sigmas "$HANDOFF_SIGMAS" \
   --clip_noisy_magnitude
