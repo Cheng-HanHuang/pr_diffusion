@@ -10,7 +10,7 @@ from __future__ import annotations
 import argparse, csv, math, os
 from collections import defaultdict
 from statistics import mean, median, stdev
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 
 def read_csv(path: str) -> List[Dict[str, str]]:
@@ -39,13 +39,22 @@ def as_float(x, default=math.nan):
         return default
 
 
+def image_id_from_name(name: object) -> str:
+    s=str(name)
+    base=os.path.basename(s)
+    stem=os.path.splitext(base)[0]
+    return stem or s
+
+
 def fmean(xs):
     xs=[x for x in xs if math.isfinite(x)]
     return mean(xs) if xs else math.nan
 
+
 def fmedian(xs):
     xs=[x for x in xs if math.isfinite(x)]
     return median(xs) if xs else math.nan
+
 
 def fstd(xs):
     xs=[x for x in xs if math.isfinite(x)]
@@ -62,6 +71,7 @@ def canonicalize_row(row: Dict[str,str], source: str, idx: int) -> Dict[str, obj
         out['alignment_mode']='resolve'
     if 'image_basename' not in out and 'image' in out:
         out['image_basename']=out['image']
+    out['normalized_image_id']=image_id_from_name(out.get('image_basename',''))
     if 'config_tag' not in out:
         out['config_tag']=source
     if 'seed' not in out:
@@ -87,7 +97,7 @@ def load_candidates(specs: List[str]) -> List[Dict[str, object]]:
 
 
 def group_key(r):
-    return (str(r.get('image_basename','')), str(r.get('measurement_noise_std','')), str(r.get('alignment_mode','')))
+    return (str(r.get('normalized_image_id','')), str(r.get('measurement_noise_std','')), str(r.get('alignment_mode','')))
 
 
 def choose(rows: List[Dict[str,object]], method: str) -> Dict[str,object]:
@@ -114,7 +124,7 @@ def summarize(rows: List[Dict[str,object]], group_cols: List[str]) -> List[Dict[
         ps=[as_float(r.get('psnr')) for r in rs]
         worst=min(rs, key=lambda r: as_float(r.get('psnr')))
         row={c:v for c,v in zip(group_cols,key)}
-        row.update(n=len(rs), psnr_mean=fmean(ps), psnr_median=fmedian(ps), psnr_min=min(ps), psnr_max=max(ps), psnr_std=fstd(ps), n_below25=sum(p<25 for p in ps), worst_image=worst.get('image_basename',''), worst_psnr=as_float(worst.get('psnr')))
+        row.update(n=len(rs), psnr_mean=fmean(ps), psnr_median=fmedian(ps), psnr_min=min(ps), psnr_max=max(ps), psnr_std=fstd(ps), n_below25=sum(p<25 for p in ps), worst_image=worst.get('normalized_image_id', worst.get('image_basename','')), worst_psnr=as_float(worst.get('psnr')))
         out.append(row)
     return out
 
