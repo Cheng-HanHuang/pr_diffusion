@@ -39,11 +39,21 @@ def as_float(x, default=math.nan):
         return default
 
 
+def norm_float_label(x: object) -> str:
+    v=as_float(x)
+    if not math.isfinite(v):
+        return str(x)
+    return f'{v:.12g}'
+
+
 def image_id_from_name(name: object) -> str:
     s=str(name)
     base=os.path.basename(s)
     stem=os.path.splitext(base)[0]
-    return stem or s
+    try:
+        return f'{int(stem):05d}'
+    except Exception:
+        return stem or s
 
 
 def fmean(xs):
@@ -67,6 +77,7 @@ def canonicalize_row(row: Dict[str,str], source: str, idx: int) -> Dict[str, obj
     out['candidate_id']=f'{source}:{idx}'
     if 'measurement_noise_std' not in out and 'noise' in out:
         out['measurement_noise_std']=out['noise']
+    out['normalized_noise']=norm_float_label(out.get('measurement_noise_std',''))
     if 'alignment_mode' not in out:
         out['alignment_mode']='resolve'
     if 'image_basename' not in out and 'image' in out:
@@ -97,7 +108,7 @@ def load_candidates(specs: List[str]) -> List[Dict[str, object]]:
 
 
 def group_key(r):
-    return (str(r.get('normalized_image_id','')), str(r.get('measurement_noise_std','')), str(r.get('alignment_mode','')))
+    return (str(r.get('normalized_image_id','')), str(r.get('normalized_noise','')), str(r.get('alignment_mode','')))
 
 
 def choose(rows: List[Dict[str,object]], method: str) -> Dict[str,object]:
@@ -139,7 +150,7 @@ def main():
     if args.alignment != 'all':
         candidates=[r for r in candidates if str(r.get('alignment_mode','')) == args.alignment]
     write_csv(os.path.join(args.outdir,'candidate_level.csv'), candidates)
-    write_csv(os.path.join(args.outdir,'source_summary.csv'), summarize(candidates, ['candidate_source','measurement_noise_std','alignment_mode']))
+    write_csv(os.path.join(args.outdir,'source_summary.csv'), summarize(candidates, ['candidate_source','normalized_noise','alignment_mode']))
 
     methods=['oracle_best_psnr_diagnostic','min_selector_post_lf_mse','min_noisy_lowfreq_mag_l2','min_noisy_mag_l2']
     selected=[]
@@ -149,7 +160,7 @@ def main():
         for m in methods:
             ch=dict(choose(rs,m)); ch['selection_method']=m; selected.append(ch)
     write_csv(os.path.join(args.outdir,'selected_image_level.csv'), selected)
-    write_csv(os.path.join(args.outdir,'selected_summary.csv'), summarize(selected, ['selection_method','measurement_noise_std','alignment_mode']))
+    write_csv(os.path.join(args.outdir,'selected_summary.csv'), summarize(selected, ['selection_method','normalized_noise','alignment_mode']))
     print('wrote', args.outdir)
 
 if __name__ == '__main__':
