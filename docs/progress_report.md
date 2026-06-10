@@ -1,394 +1,279 @@
-# Progress report: multi-lambda selector validation and next robustness goals
+# Progress report: NP-SITCOM two-branch phase-retrieval update
 
-Updated: 2026-05-23
+Updated: 2026-06-10
 
-This report records the current state after the focused and full-25 multi-lambda selector experiments, plus the later seed-pair validation runs.  The previous four-GPU LF/S2 selector and lambda diagnostic report is archived in `docs/historical/progress_report_archived_20260523_before_full25_multilambda_validation.md`.
-
-A separate empirical candidate-generation table is maintained in `docs/empirical_success_probability_multilambda_ffhq25.md`.  That file aggregates all full-25 multi-lambda traces across seeds `100`--`109` and should be updated whenever new seed/config validation traces are added.
+This report records the current project state after the June 2026 NP-SITCOM experiments.  The previous active progress report, centered on May 23 multi-lambda NP selector validation, is archived as `docs/historical/progress_report_archived_20260610_before_npsitcom_two_branch_update.md`.
 
 ## Executive summary
 
-The current best method remains a **multi-lambda LF/S2 selector**:
+The project has moved from pure Noise Picking (NP) tuning toward a hybrid reliability question:
 
 ```text
-score_radius = 0.6
-proj_radius  = 0.2
-proj_start   = 300
-configs:
-  LF
-  S2 lambda = 0.005
-  S2 lambda = 0.02
-  S2 lambda = 0.05
-selection statistic:
-  mean post-projection winner low-frequency MSE vs noisy observation
-seed choice:
-  selector statistic directly; do not use the old 5e-5 tie-break for multi-seed/four-seed runs
+Can we combine NP's conservative failure-avoidance behavior with SITCOM-ODE's higher successful-reconstruction ceiling to obtain a more reliable phase-retrieval solver?
 ```
 
-The strongest positive validation is still the full FFHQ-25 run with seeds `102,103`:
+Two branches were created:
 
-```text
-selected_config_seed_by_selector, raw:
-  mean PSNR ≈ 29.305
-  median    ≈ 29.584
-  min       ≈ 26.230
-  SSIM      ≈ 0.830
-  below20   = 0
-  below25   = 0
-```
+1. **Branch A: engineering-light NP-SITCOM candidate selection.**
+   Run NP and SITCOM separately, standardize their run-level candidates, and study whether a no-ground-truth selector can choose the reliable candidate.  The current result is strongly positive at the oracle/complementarity level, but executable selection is not solved yet because SITCOM candidates still lack comparable measurement-side residual features.
 
-However, later two-seed validation pairs show that this is **not yet an always-successful two-seed method**:
+2. **Branch B: true solver hybrid via sigma-space NP-to-SITCOM handoff.**
+   Export NP reconstructions as SITCOM/DAPS-compatible sigma states and continue them with a patched SITCOM-ODE runner.  The smoke and 25-image runs execute successfully, but the current naive handoff is not competitive in quality.  This branch is useful diagnostically but is currently lower priority than Branch A/per-step controller design.
 
-```text
-seeds 104,105:
-  selected mean ≈ 28.496
-  min ≈ 9.126
-  below25 = 1
-  failure: 00005
-  oracle also fails, so this is candidate availability failure
+The main conceptual update is that a final-output fallback is probably too coarse.  The stronger hypothesis is that NP should act as a **per-step reliability/manifold controller** inside or alongside the SITCOM trajectory: detect when the reconstruction is drifting into a low-training-density or unstable region, then intervene before the defect becomes irreversible.
 
-seeds 106,107:
-  selected mean ≈ 28.615
-  min ≈ 11.997
-  below25 = 1
-  failure: 00028
-  oracle also fails, so this is candidate availability failure
-
-seeds 108,109:
-  selected mean ≈ 29.227
-  min ≈ 24.442
-  below25 = 1
-  failure: 00013
-  oracle also fails, so this is candidate availability failure
-```
-
-Four seeds `100,101,102,103` pass strongly:
-
-```text
-selected_config_seed_by_selector, raw:
-  mean ≈ 29.361
-  min ≈ 27.081
-  below25 = 0
-```
-
-The empirical success-probability table over all seeds `100`--`109` gives:
-
-```text
-1000 total candidates = 25 images × 10 seeds × 4 configs
-729 successful raw candidates above 25 dB
-candidate success rate = 72.9%
-hardest image: 00028, with 6/40 successful candidates
-recurring hard set: 00028, 00005, 00034, 00013, 00007, 00027, 00000
-```
-
-The current conclusion is precise:
-
-```text
-Multi-lambda score/config selection is a real improvement over fixed LF/S2.
-The selector is usually near-oracle over the available candidate pool.
-But two random seeds still do not always provide a good candidate.
-Therefore the remaining problem is candidate generation / seed diversity, not primarily post-hoc selection.
-```
-
-This is meaningful progress, but it is still a multi-run selector.  It is not yet a single-run always-successful algorithm.
-
-## Evaluation convention
+## Active benchmark and paths
 
 Primary benchmark:
 
 ```text
 Dataset: FFHQ 25-image split
 Resolution: 256
-Noise level: sigma_y = 0.05
-Measurement: DiffFPR-style centered FFT magnitude after symmetric zero padding
-Oversample: 2
-Split: /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/splits/ffhq_available25.txt
-Image root: /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
-Guided diffusion checkpoint: /egr/research-pac/huang248/models/ffhq_10m.pt
+Measurement: oversampled Fourier magnitude / phase retrieval
+Default measurement noise: sigma_y = 0.05
+
+PAC repo:
+  /egr/research-pac/huang248/pr_diffusion_repo
+
+FFHQ image root:
+  /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
+
+Current NP-SITCOM output root:
+  /egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610
+
+Original external SITCOM-ODE checkout:
+  /egr/research-pac/huang248/external/SITCOM_ODE
+
+Patched SITCOM handoff checkout:
+  /egr/research-pac/huang248/external/SITCOM_ODE_npsitcom
+
+External DiffFPR / guided diffusion utilities:
+  /egr/research-pac/huang248/external/DiffFPR
+
+FFHQ guided diffusion checkpoint:
+  /egr/research-pac/huang248/models/ffhq_10m.pt
 ```
 
-Always report raw alignment first:
+Environment convention:
 
 ```text
-mean PSNR
-median PSNR
-minimum PSNR
-number of images below 20 dB
-number of images below 25 dB
-SSIM mean
-LPIPS mean when available
-oracle over available candidates
-selected result
-selector regret vs oracle
-selected config counts
-worst images
-all-run reliability
-candidate-generation success rate when enough traces are available
+prdiff_ffhq:
+  use for pr_diffusion_repo, NP, DiffFPR/guided-model code, and NP handoff export.
+
+sitcom_ode_bw:
+  use for SITCOM_ODE, SITCOM_ODE_npsitcom, official SITCOM baselines, and patched SITCOM continuation.
 ```
 
-Promotion target remains:
+## Background: why we moved beyond pure NP tuning
+
+The May 2026 NP campaign established a practical NP baseline:
 
 ```text
-raw mean PSNR > 28.8
-raw min PSNR > 25
-raw below20 = 0
-raw below25 = 0
-```
-
-## Background before multi-lambda validation
-
-Earlier experiments established:
-
-1. Fixed LF/S2 selection with `lambda=0.01` is complementary but insufficient with some two-seed pairs.
-2. The selector statistic, mean post-projection winner LF-MSE vs noisy observation, chooses LF vs S2 almost at oracle level when good candidates exist.
-3. Fixed LF/S2 with seeds `100,101` passed, but seeds `102,103` failed because no good LF/S2 candidate existed for `00005` and `00014`.
-4. Four-seed fixed LF/S2 fixed candidate availability but did not improve per-run reliability.
-5. Focused lambda diagnostics showed that high S2 lambda fixes `00005` and `00014`, while low lambda or LF preserves `00028`.
-6. Projection-start and memory fallback were useful diagnostics, but weaker than lambda selection.
-
-This motivated the multi-lambda selector.
-
-## Focused multi-lambda selector: score_radius=0.6, proj_start=300
-
-### Setup
-
-```text
-images = 00005,00014,00007,00009,00018,00028,00034
-seeds = 102,103
-configs = LF, S2 lambda=0.005, S2 lambda=0.02, S2 lambda=0.05
 score_radius = 0.6
-proj_start = 300
-selector statistic = post_winner_lf_mse_mean
-LPIPS skipped
+proj_radius  = 0.2
+proj_start   = 300
+soft_k       = 5
+hard_k       = 1
+oversample   = 2
 ```
 
-### Raw results
+Multi-lambda LF/S2 selection improved over fixed settings and the selector was often near-oracle over the available NP candidate pool.  However, later validation showed that some seed pairs still had candidate-availability failures: even an oracle over the available NP candidates could fail on recurring hard images such as `00005`, `00013`, or `00028`.
 
-| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
-|---|---:|---:|---:|---:|---:|---:|
-| selected_config_seed_by_selector | 29.613 | 29.999 | 28.722 | 0.821 | 0 | 0 |
-| selected_config_bestofk | 29.613 | 29.999 | 28.722 | 0.821 | 0 | 0 |
-| global_run_by_selector | 29.628 | 29.999 | 28.722 | 0.821 | 0 | 0 |
-| oracle_all_candidates | 29.629 | 29.999 | 28.722 | 0.821 | 0 | 0 |
+This motivated the current hybrid direction.  SITCOM-ODE often has higher reconstruction quality when it succeeds, while NP has complementary failure behavior and can rescue some SITCOM failures.  The goal is no longer only to tune a best-of-k NP selector; the goal is to understand how to combine the two solvers into a reliable method with controlled failure modes.
 
-The focused target was passed comfortably.  No single config is reliable, but the selector avoids their complementary failures.
+## Branch A: NP-SITCOM candidate selection
 
-## Full FFHQ-25 multi-lambda selector: seeds 102,103
+### Implementation
 
-### Raw results
-
-| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
-|---|---:|---:|---:|---:|---:|---:|
-| selected_config_seed_by_selector | 29.305 | 29.584 | 26.230 | 0.830 | 0 | 0 |
-| global_run_by_selector | 29.288 | 29.584 | 26.230 | 0.830 | 0 | 0 |
-| selected_config_bestofk | 29.416 | 29.723 | 27.182 | 0.832 | 0 | 0 |
-| oracle_all_candidates | 29.417 | 29.723 | 27.182 | 0.832 | 0 | 0 |
-
-This run showed that multi-lambda selection fixes the exact seed pair where fixed LF/S2 failed.
-
-Key examples:
-
-| Image | LF | S2 λ=0.005 | S2 λ=0.02 | S2 λ=0.05 | Selected behavior |
-|---|---:|---:|---:|---:|---|
-| 00005 | 9.130 | 9.130 | 9.130 | 30.260 | selected high-lambda branch |
-| 00014 | 13.706 | 13.706 | 29.312 | 29.312 | selected high-lambda branch |
-| 00028 | 30.141 | 13.792 | 13.792 | 13.792 | selected LF branch |
-| 00032 | 9.864 | 9.864 | 29.109 | 29.109 | selected high-lambda branch |
-
-Config selection is nearly oracle-level:
+Branch A lives under:
 
 ```text
-selected_config_bestofk mean = 29.416462
-oracle_all_candidates mean   = 29.416575
+scripts/npsitcom/
 ```
 
-The remaining gap is mostly seed selection:
+Important scripts:
 
 ```text
-selected_config_seed_by_selector mean = 29.305
-selected_config_bestofk mean          = 29.416
-gap ≈ 0.111 dB
+scripts/npsitcom/run_sitcom_official_ffhq_one_gpu.sh
+  Runs official SITCOM-ODE on the FFHQ split using Hydra overrides.
+
+scripts/npsitcom/make_sitcom_image_folder.py
+  Creates a SITCOM-compatible image folder from the FFHQ split.
+
+scripts/npsitcom/parse_sitcom_metrics.py
+  Converts SITCOM metrics.json into run-level candidate CSV format.
+
+scripts/npsitcom/mix_select_candidates.py
+  Mixes NP and SITCOM candidate CSVs and computes oracle/executable selection summaries.
 ```
 
-## Full FFHQ-25 multi-lambda selector: four seeds 100,101,102,103
-
-### Raw results
-
-| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 |
-|---|---:|---:|---:|---:|---:|---:|
-| selected_config_seed_by_selector | 29.361 | 29.584 | 27.081 | 0.831 | 0 | 0 |
-| global_run_by_selector | 29.398 | 29.584 | 27.081 | 0.831 | 0 | 0 |
-| selected_config_bestofk | 29.454 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-| oracle_all_candidates | 29.459 | 29.723 | 27.185 | 0.832 | 0 | 0 |
-
-This is a clean pass and is currently the strongest selected multi-run baseline.  However, single-seed simulations from the same traces all fail even when all four configs are allowed:
-
-| Seed | Selected mean | Min | Images <20 | Images <25 | Oracle min | Oracle <25 |
-|---:|---:|---:|---:|---:|---:|---:|
-| 100 | 27.510 | 11.740 | 3 | 3 | 11.917 | 3 |
-| 101 | 26.813 | 9.128 | 3 | 3 | 9.378 | 3 |
-| 102 | 27.250 | 9.117 | 3 | 3 | 9.117 | 3 |
-| 103 | 27.375 | 9.864 | 3 | 3 | 9.865 | 3 |
-
-Conclusion:
+Current Branch A output folders:
 
 ```text
-Multiple scoring/lambda branches alone are not enough.
-Random seed diversity remains essential for the current method.
+/egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610/sitcom_official
+/egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610/branchA_mix
 ```
 
-## Full FFHQ-25 multi-lambda selector: seeds 104,105
+The mixer now normalizes both image IDs and noise labels before grouping.  This is important because NP image names may look like `images1024x1024/00000/00005.png`, while SITCOM rows may use `00005`, and noise labels may differ as `0.05`, `0.050000`, or similar.
 
-| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 | Worst |
-|---|---:|---:|---:|---:|---:|---:|---|
-| selected_config_seed_by_selector | 28.496 | 29.556 | 9.126 | 0.804 | 1 | 1 | 00005 |
-| global_run_by_selector | 28.498 | 29.556 | 9.126 | 0.804 | 1 | 1 | 00005 |
-| selected_config_bestofk | 28.541 | 29.556 | 9.126 | 0.805 | 1 | 1 | 00005 |
-| oracle_all_candidates | 28.618 | 29.556 | 10.819 | 0.811 | 1 | 1 | 00005 |
+### Current all-noise candidate pool
 
-The oracle fails, so this is candidate availability failure.  The best available `00005` candidate is only about 10.8 dB.
-
-## Full FFHQ-25 multi-lambda selector: seeds 106,107
-
-| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 | Worst |
-|---|---:|---:|---:|---:|---:|---:|---|
-| selected_config_seed_by_selector | 28.615 | 29.500 | 11.997 | 0.809 | 1 | 1 | 00028 |
-| global_run_by_selector | 28.615 | 29.500 | 11.997 | 0.809 | 1 | 1 | 00028 |
-| selected_config_bestofk | 28.723 | 29.550 | 13.699 | 0.811 | 1 | 1 | 00028 |
-| oracle_all_candidates | 28.856 | 29.551 | 16.691 | 0.819 | 1 | 1 | 00028 |
-
-This pair fails because no config/seed produces a good raw `00028` reconstruction.  Best raw candidates for `00028` are:
-
-| Config / seed | Raw PSNR |
-|---|---:|
-| S2 λ=0.02, seed 107 | 16.691 |
-| LF, seed 106 | 13.699 |
-| S2 λ=0.005, seed 106 | 13.699 |
-| LF, seed 107 | 11.997 |
-
-Even resolve alignment remains below 25 dB for this image, so this is not only a raw-orientation issue.
-
-Single-seed simulations again fail:
-
-| Seed | Selected mean | Min | Images <20 | Images <25 | Oracle min | Oracle <25 |
-|---:|---:|---:|---:|---:|---:|---:|
-| 106 | 27.899 | 13.345 | 2 | 3 | 13.622 | 3 |
-| 107 | 24.313 | 5.685 | 7 | 8 | 5.685 | 8 |
-
-## Full FFHQ-25 multi-lambda selector: seeds 108,109
-
-| Method | Mean PSNR | Median | Min | SSIM | Images <20 | Images <25 | Worst |
-|---|---:|---:|---:|---:|---:|---:|---|
-| selected_config_seed_by_selector | 29.227 | 29.745 | 24.442 | 0.827 | 0 | 1 | 00013 |
-| global_run_by_selector | 29.226 | 29.729 | 24.442 | 0.827 | 0 | 1 | 00013 |
-| selected_config_bestofk | 29.255 | 29.752 | 24.442 | 0.827 | 0 | 1 | 00013 |
-| oracle_all_candidates | 29.255 | 29.753 | 24.442 | 0.827 | 0 | 1 | 00013 |
-
-This run is much better than `104,105` and `106,107`, but still misses the promotion target because `00013` is below 25 dB.  Again the oracle also fails; the issue is candidate availability.
-
-For `00013`, best-of-2 by config is:
-
-| Config | Best PSNR on 00013 |
-|---|---:|
-| LF | 9.476 |
-| S2 λ=0.005 | 11.627 |
-| S2 λ=0.02 | 24.442 |
-| S2 λ=0.05 | 11.603 |
-
-Thus `λ=0.02` nearly rescues `00013`, but the best available candidate remains just below the 25 dB threshold.
-
-## Negative ablations
-
-### Focused score_radius=0.4, proj_start=300
-
-This failed because even the oracle had no good `00014` candidate:
+The all-noise Branch A pool contains:
 
 ```text
-selected mean ≈ 27.384
-min ≈ 13.662
-below25 = 1
+NP candidates:
+  5 noises × 25 images × 2 configs × 4 seeds = 1000
+
+SITCOM candidates:
+  5 noises × 25 images × 4 runs = 500
+
+Total:
+  1500 candidates
 ```
 
-Conclusion:
+### Main results
+
+After normalizing image IDs and noise values, the oracle result shows strong complementarity:
+
+| Noise | NP best mean | SITCOM best mean | Oracle NP+SITCOM mean | Oracle min | Interpretation |
+|---:|---:|---:|---:|---:|---|
+| 0 | ~33.83 | ~32.91 | **~35.43** | ~31.54 | both sources contribute |
+| 0.01 | ~32.38 | ~32.54 | **~33.43** | ~29.83 | both sources contribute |
+| 0.05 | ~29.43 | ~30.00 | **~30.75** | ~29.38 | SITCOM usually wins; NP rescues failure |
+| 0.08 | ~27.88 | ~29.01 | **~29.46** | ~27.73 | SITCOM usually stronger |
+| 0.10 | ~27.19 | ~28.54 | **~28.84** | ~26.57 | SITCOM usually stronger |
+
+At `sigma_y=0.05`, SITCOM wins most images but has at least one catastrophic failure case (`00005`) where NP remains good.  This confirms that the solvers are not redundant: SITCOM provides a higher ceiling, while NP provides conservative reliability in some failure cases.
+
+### Current limitation
+
+The executable selectors are not solved.  Current non-oracle selectors mostly choose NP because SITCOM rows do not yet have comparable measurement-side diagnostics:
 
 ```text
-score_radius=0.4 is too narrow and should not replace score_radius=0.6.
+selector_post_winner_lf_mse_mean
+noisy_lowfreq_mag_l2
+noisy_mag_l2
 ```
 
-### Focused score_radius=0.6, proj_start=200
+These are available or meaningful for NP but are currently missing or `nan` for SITCOM.  Therefore Branch A currently proves **oracle complementarity**, not yet an executable no-ground-truth hybrid selector.
 
-This failed because even the oracle had no good `00005` candidate:
+### Scientific interpretation
+
+Branch A is now the most promising direction.  It should not stop at final-output fallback.  The stronger direction is a per-step defect/OOD controller:
 
 ```text
-selected mean ≈ 26.827
-min ≈ 10.584
-below25 = 1
+During SITCOM/DAPS trajectory:
+  monitor measurement consistency, x0hat/x0y disagreement, correction norm, step jump, and branch disagreement;
+  if risk becomes high, invoke NP-style correction/resampling/manifold restoration;
+  otherwise continue SITCOM normally.
 ```
 
-Conclusion:
+This better matches the hypothesis that NP should engage when the trajectory is leaving the high-density training-data region, rather than only after the final output is already bad.
+
+## Branch B: NP-to-SITCOM sigma handoff
+
+### Implementation
+
+Branch B uses a patched copy of SITCOM-ODE rather than editing the upstream external checkout in place:
 
 ```text
-proj_start=200 is too early and should not replace proj_start=300.
+/egr/research-pac/huang248/external/SITCOM_ODE
+  original public SITCOM-ODE checkout
+
+/egr/research-pac/huang248/external/SITCOM_ODE_npsitcom
+  patched working copy with npsitcom_handoff_sample.py
 ```
 
-## Current interpretation
-
-The project is now in a clearer state:
-
-1. **Selection across scoring rules works.**  The trajectory statistic chooses configurations nearly at oracle level when good candidates exist.
-2. **Multi-lambda is better than fixed LF/S2.**  It fixes the `102,103` failure case that fixed LF/S2 could not fix.
-3. **Two seeds are not enough for an always-successful method.**  Seed pairs `104,105`, `106,107`, and `108,109` each have an oracle failure on different images.
-4. **Single-seed selection is far from enough.**  Single-seed oracles fail, so this is not only a selector-statistic problem.
-5. **The remaining bottleneck is candidate generation / adaptive compute.**  The algorithm needs either more seed diversity, better in-loop adaptation, or a recovery mechanism for detected high-risk images.
-
-## What this means for the ultimate goal
-
-The current method is a legitimate non-ground-truth selector, not a PSNR oracle.  It is useful because different scoring rules are complementary and the selector can exploit that complementarity.
-
-But the ultimate goal is an always-successful method.  The data now suggests that an always-successful method should probably be framed probabilistically:
+Generated states/results remain under the output root:
 
 ```text
-For an image x, each seed/config branch has some probability p_x of producing a good candidate.
-The selector has an error probability e_x conditional on at least one good candidate existing.
-The total failure probability is roughly:
-  P(no good candidate generated) + P(selector chooses wrong | good candidate exists).
+/egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610/branchB_handoff
+/egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610/branchB_sitcom_handoff
 ```
 
-Empirically, the second term is small; the first term is the current bottleneck.  This suggests two parallel directions:
+Key scripts:
 
-1. **engineering / algorithmic:** adaptive compute and in-loop multi-lambda scoring to increase candidate success probability;
-2. **mathematical / probabilistic:** formalize the guarantee in terms of candidate-generation probability, selector consistency, and diffusion-prior regularity rather than deterministic uniqueness of phase retrieval.
+```text
+scripts/npsitcom/run_branchB_export_np_handoff_with_measurement_ffhq_one_gpu.sh
+  Runs NP and exports handoff states.  Use prdiff_ffhq.
 
-The math direction is worth a short study phase, because pure phase retrieval is ill-posed up to ambiguities, and the diffusion/pretrained prior changes the effective feasible set in a nontrivial way.  A useful near-term theory target is not a full deterministic guarantee, but a probabilistic reliability framework that explains how many seeds/config branches are needed to make failure probability small.
+scripts/npsitcom/export_np_handoff_states_with_measurement.py
+  Saves x_sigma, x0_np, sigma, image identity, and the exact NP noisy measurement.
 
-## Recommended next actions
+scripts/npsitcom/sitcom_patch/npsitcom_handoff_sample.py
+  Patched SITCOM runner copied into SITCOM_ODE_npsitcom.  Use sitcom_ode_bw.
 
-1. Use `docs/empirical_success_probability_multilambda_ffhq25.md` as the active candidate-generation table and update it as new seeds/configs arrive.
-2. Simulate adaptive-compute policies using existing traces.
-3. Add an adaptive-compute selector:
+scripts/npsitcom/run_branchB_sitcom_handoff_one_gpu.sh
+  Wrapper for patched SITCOM continuation when available locally.
+```
 
-   ```text
-   start with two seeds;
-   if selector confidence or candidate pool risk is bad, run more seeds/configs;
-   stop when confidence is high or max budget is reached.
-   ```
+SITCOM-ODE uses EDM/DAPS-style sigma states rather than DDPM alpha-bar timesteps, so the handoff state is:
 
-4. Run targeted recovery diagnostics for recurring hard images:
+```text
+x_sigma = x_NP + sigma * eps
+```
 
-   ```text
-   00005
-   00013
-   00028
-   00027 / 00032 / 00034 as guard/failure-moving images
-   ```
+not a DDPM-style `sqrt(alpha_bar_t) x + sqrt(1-alpha_bar_t) eps` state.
 
-5. Start a short theory note on probabilistic reconstruction reliability:
+### Completed run
 
-   ```text
-   candidate-generation success probability;
-   selector consistency conditional on good candidates;
-   adaptive compute budget needed for high probability of success;
-   role of diffusion/prior manifold in ill-posed phase retrieval.
-   ```
+The first larger Branch B run completed structurally:
 
-6. After the algorithmic direction stabilizes, rerun the best method with LPIPS enabled.
+```text
+handoff_25img_s100_101_sig20_10_5_2
+25 images × 2 seeds × 2 NP configs × 4 handoff sigmas = 400 continuations
+```
+
+The run produced 400 rows, so the patched handoff pipeline is technically working.
+
+### Main result
+
+The current Branch B result is scientifically negative in its naive form.  The best settings are around `handoff_sigma ≈ 2`, and `s2_preproj` is generally better than plain LF handoff, but the average quality remains far below standalone NP, standalone SITCOM, and Branch A oracle selection at `sigma_y=0.05`.
+
+Interpretation:
+
+```text
+The code path works, but naive final-NP-state + sigma noise is not a competitive SITCOM initialization.
+```
+
+Likely causes:
+
+1. **State-distribution mismatch.**  SITCOM's internal `xt` is produced by repeated reverse-diffusion, measurement-correction, and forward-noising transitions.  Adding Gaussian noise to a final NP image may not match this trajectory distribution.
+2. **Measurement/scaling mismatch risk.**  The patched exporter saves the NP measurement, but any remaining operator or scaling mismatch can hurt continuation.
+3. **Wrong intervention granularity.**  A single handoff is likely too coarse if NP's real role is per-step trajectory correction.
+
+### Scientific interpretation
+
+Branch B should continue as a diagnostic/secondary branch, not as the main bet.  It is useful for understanding whether NP states can be made compatible with SITCOM dynamics, but current evidence suggests the more promising solver-hybrid idea is per-step intervention rather than one-shot initialization.
+
+## Current priority ranking
+
+```text
+Priority 1:
+  Branch A as a path to a per-step SITCOM risk detector and NP intervention controller.
+
+Priority 2:
+  Branch B diagnostic sweeps around the best handoff regime and measurement/scaling checks.
+
+Priority 3:
+  Branch B as a standalone final solver, only if narrow handoff sweeps or state-matching changes improve substantially.
+```
+
+## Recommended split into future chats
+
+The two branches now deserve separate focused workstreams:
+
+```text
+New chat: NP-SITCOM Branch A — candidate selection and per-step defect detection
+  Focus: no-ground-truth risk features, SITCOM trajectory diagnostics, per-step NP controller.
+
+New chat: NP-SITCOM Branch B — sigma handoff and continuation diagnostics
+  Focus: handoff quality, sigma sweeps, measurement scaling, state-distribution mismatch.
+```
+
+## What should not be forgotten
+
+1. Branch A's oracle result is strong and should be treated as evidence of real complementarity.
+2. Branch A's current executable selectors are not valid final methods because SITCOM rows lack comparable residual features.
+3. Branch B's technical success is important: the patched SITCOM continuation pipeline runs.  But current quality is not competitive.
+4. The most plausible final algorithm is not a final-output fallback.  It is a per-step reliability/manifold controller that uses NP-style intervention when SITCOM trajectories become risky.
