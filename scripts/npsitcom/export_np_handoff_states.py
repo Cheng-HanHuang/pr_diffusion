@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
-"""Branch B: export timestep-compatible NP handoff states.
+"""Branch B: export SITCOM-compatible NP handoff states.
 
-This does not call SITCOM. It creates .pt files containing x_t states generated
-from NP-selected x0 candidates:
+SITCOM_ODE/DAPS uses EDM-style sigma states.  Its sampler normally starts from
+`randn_like(image) * sigma_max` and then alternates reverse diffusion,
+Langevin/data-consistency, and forward noising.  Therefore a timestep-compatible
+handoff from an NP reconstruction should be represented as
 
-  x_t = sqrt(alpha_bar_t) x_np + sqrt(1-alpha_bar_t) eps
+    x_sigma = x_np + sigma * eps
 
-The resulting manifest can be consumed by a SITCOM wrapper once the local
-SITCOM_ODE entrypoint supports init-state/start-timestep arguments.
+not as a DDPM alpha-bar state.  This script exports x_sigma .pt files plus a
+manifest.  A patched/wrapper SITCOM continuation can then load x_sigma and start
+from the matching sigma index.
 """
 from __future__ import annotations
 
-import argparse, csv, importlib.util, math, os, sys, time
+import argparse, csv, importlib.util, os, sys, time
 from pathlib import Path
 from typing import Dict, List
-
 import torch
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -41,9 +43,8 @@ def write_csv(path: str, rows: List[Dict[str,object]]):
     with open(path,'w',newline='',encoding='utf-8') as f:
         w=csv.DictWriter(f,fieldnames=keys); w.writeheader(); w.writerows(rows)
 
-
-def parse_ints(s): return [int(x.strip()) for x in str(s).split(',') if x.strip()]
-def parse_floats(s): return [float(x.strip()) for x in str(s).split(',') if x.strip()]
+def ints(s): return [int(x.strip()) for x in str(s).split(',') if x.strip()]
+def floats(s): return [float(x.strip()) for x in str(s).split(',') if x.strip()]
 
 
 def main():
@@ -67,7 +68,7 @@ def main():
     ap.add_argument('--s2_lambda_schedule', default='pre_projection_only')
     ap.add_argument('--score_huber_delta', type=float, default=0.05)
     ap.add_argument('--oversample', type=float, default=2.0)
-    ap.add_argument('--handoff_timesteps', default='700,500,300,100')
+    ap.add_argument('--handoff_sigmas', default='50,20,10,5,2,1,0.5')
     ap.add_argument('--measurement_noise_seed', type=int, default=20260423)
     ap.add_argument('--clip_noisy_magnitude', action='store_true')
     args=ap.parse_args()
@@ -80,11 +81,10 @@ def main():
     image_size=int(bundle.unet.config.sample_size)
     pad=base.oversample_pad(image_size,args.oversample)
     images=base.collect_images(args.data_root,args.image_list_file)[:args.max_images]
-    seeds=parse_ints(args.seeds); noises=parse_floats(args.noise_values); handoff_ts=parse_ints(args.handoff_timesteps)
+    seeds=ints(args.seeds); noises=floats(args.noise_values); sigmas=floats(args.handoff_sigmas)
     variant=base.NPVariant(name=f'np_soft{args.soft_candidates}_hard{args.hard_candidates}', soft=args.soft_candidates, hard=args.hard_candidates, proj_start=args.late_start, use_lowfreq_score=True, use_lowfreq_projection=True)
     configs=[('lf','lf',0.0,'constant'),('s2_preproj','prev_l2',args.s2_lambda,args.s2_lambda_schedule)]
     rows=[]
-    scheduler=bundle.scheduler
     for noise_std in noises:
       for image_i,name in enumerate(images):
         x_gt=load_image(base.resolve_image_path(args.data_root,name), size=image_size, device=device)
@@ -95,18 +95,16 @@ def main():
             if args.clip_noisy_magnitude: mag_target=mag_target.clamp_min(0.0)
         for cfg_tag,score_mode,lam,sched in configs:
           for seed in seeds:
-            x_np,stats=selector.reconstruct_with_selector_stat(mag_target,pad=pad,seed=seed,unet=bundle.unet,scheduler=scheduler,device=device,variant=variant,num_steps=args.np_steps,score_radius=args.score_radius,proj_radius=args.proj_radius,proj_radius_schedule=None,score_mode=score_mode,score_reg_lambda=lam,score_reg_lambda_schedule=sched,score_huber_delta=args.score_huber_delta,log_every=0)
-            for t in handoff_ts:
-              alpha=scheduler.alphas_cumprod[int(t)].to(device=device,dtype=x_np.dtype)
-              gen=torch.Generator(device=device).manual_seed(900000+seed*1000+int(t)+image_i)
+            x_np,stats=selector.reconstruct_with_selector_stat(mag_target,pad=pad,seed=seed,unet=bundle.unet,scheduler=bundle.scheduler,device=device,variant=variant,num_steps=args.np_steps,score_radius=args.score_radius,proj_radius=args.proj_radius,proj_radius_schedule=None,score_mode=score_mode,score_reg_lambda=lam,score_reg_lambda_schedule=sched,score_huber_delta=args.score_huber_delta,log_every=0)
+            for sigma in sigmas:
+              gen=torch.Generator(device=device).manual_seed(900000+seed*1000+int(round(100*sigma))+image_i)
               eps=torch.randn(x_np.shape,device=device,dtype=x_np.dtype,generator=gen)
-              x_t=torch.sqrt(alpha)*x_np + torch.sqrt(1-alpha)*eps
-              fn=f'{stamp}_{name}_noise{noise_std:g}_{cfg_tag}_seed{seed}_t{t}.pt'.replace('/','_')
+              x_sigma=x_np + float(sigma)*eps
+              fn=f'{stamp}_{name}_noise{noise_std:g}_{cfg_tag}_seed{seed}_sigma{sigma:g}.pt'.replace('/','_')
               path=os.path.join(state_dir,fn)
-              torch.save({'x_t':x_t.cpu(),'x0_np':x_np.cpu(),'timestep':int(t),'image_basename':name,'noise_std':float(noise_std),'seed':int(seed),'config_tag':cfg_tag,'selector_stats':stats}, path)
-              row=dict(state_path=path,image_basename=name,measurement_noise_std=noise_std,seed=seed,config_tag=cfg_tag,handoff_timestep=t,np_steps=args.np_steps,score_radius=args.score_radius,proj_radius=args.proj_radius,**stats)
-              rows.append(row)
-              print('[handoff]', name, noise_std, cfg_tag, seed, 't', t, path, flush=True)
+              torch.save({'x_sigma':x_sigma.cpu(),'x0_np':x_np.cpu(),'sigma':float(sigma),'image_basename':name,'noise_std':float(noise_std),'seed':int(seed),'config_tag':cfg_tag,'selector_stats':stats}, path)
+              rows.append(dict(state_path=path,image_basename=name,measurement_noise_std=noise_std,seed=seed,config_tag=cfg_tag,handoff_sigma=sigma,np_steps=args.np_steps,score_radius=args.score_radius,proj_radius=args.proj_radius,**stats))
+              print('[handoff]', name, noise_std, cfg_tag, seed, 'sigma', sigma, path, flush=True)
     write_csv(os.path.join(args.outdir,'handoff_manifest.csv'), rows)
     print('wrote', os.path.join(args.outdir,'handoff_manifest.csv'))
 
