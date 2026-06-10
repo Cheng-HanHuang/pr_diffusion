@@ -88,7 +88,7 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     bundle = load_guided_diffusion_model(
-        args.guided_model_path,
+        model_path=args.guided_model_path,
         device=device,
         preset=args.guided_preset,
         guided_diffusion_dir=args.guided_diffusion_dir,
