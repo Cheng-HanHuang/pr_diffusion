@@ -23,8 +23,10 @@
       "thresholds": {
         "x0y_full_residual_normed__interrun_rank__first80pct__last_in_window": 3.0,
         "x0y_full_residual_normed__interrun_rank__first80pct__slope": 0.8767080745341616
-      }
-    }
+      },
+      "combine_mode": "and"
+    },
+    "combine_mode": "or"
   },
   "fit_dataset": "A8+A11 development only",
   "fit_source_dirs": {
@@ -71,5 +73,6 @@
     "tn": 141,
     "fn": 6
   },
-  "warning": "Freeze this secondary aggressive policy before any new A14 trajectories are evaluated. Do not use A14 results to change thresholds or features."
+  "warning": "Freeze this secondary aggressive policy before any new A14 trajectories are evaluated. Do not use A14 results to change thresholds or features.",
+  "combine_mode": "or"
 }
