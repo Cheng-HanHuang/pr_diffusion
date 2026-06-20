@@ -1,0 +1,75 @@
+{
+  "policy_name": "residual_or_lowfreq_nn",
+  "policy_family": "residual_or_consensus",
+  "role": "secondary_aggressive_higher_replacement_budget",
+  "policy_spec": {
+    "consensus_spec": {
+      "direction": "high_is_risky",
+      "feature_name": "lowfreq_dist_to_nearest_neighbor",
+      "policy_family": "consensus_single",
+      "threshold": 27.855274200439453
+    },
+    "policy_family": "residual_or_consensus",
+    "residual_spec": {
+      "feature_directions": {
+        "x0y_full_residual_normed__interrun_rank__first80pct__last_in_window": "high_is_risky",
+        "x0y_full_residual_normed__interrun_rank__first80pct__slope": "high_is_risky"
+      },
+      "feature_names": [
+        "x0y_full_residual_normed__interrun_rank__first80pct__slope",
+        "x0y_full_residual_normed__interrun_rank__first80pct__last_in_window"
+      ],
+      "policy_family": "residual_and",
+      "thresholds": {
+        "x0y_full_residual_normed__interrun_rank__first80pct__last_in_window": 3.0,
+        "x0y_full_residual_normed__interrun_rank__first80pct__slope": 0.8767080745341616
+      }
+    }
+  },
+  "fit_dataset": "A8+A11 development only",
+  "fit_source_dirs": {
+    "A8": "/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045/branch_A/A8_sitcom25_trajectory_controller_validation",
+    "A11": "/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045/branch_A/A11_prospective_frozen_policy_validation"
+  },
+  "fallback_source_csv": "/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260608/np_selector_ffhq/selector_full25_s100_103/lf_s2_selector_20260609_154712/run_level.csv",
+  "measurement_noise_std": 0.05,
+  "selection_criterion": {
+    "primary_goal": "reduce bad25 and bad20 on A8+A11 development pool",
+    "preference_budgets": {
+      "false_positive_replacements_max_preferred": 10,
+      "total_replacements_max_strict_preferred": 35,
+      "total_replacements_max_relaxed_preferred": 40
+    },
+    "sort_order": [
+      "budget tier: fp<=10 and repl<=40 preferred",
+      "min remaining bad25",
+      "min remaining bad20",
+      "prefer <=35 replacements when possible",
+      "min budget excess",
+      "max image-level best-of-4 min",
+      "max run-level mean PSNR"
+    ]
+  },
+  "combined_metrics": {
+    "policy_name": "residual_or_lowfreq_nn",
+    "policy_family": "residual_or_consensus",
+    "run_level_mean_psnr": 29.94436259031296,
+    "run_level_min_psnr": 7.901012897491455,
+    "run_level_num_below25": 6,
+    "run_level_num_below20": 6,
+    "num_replaced": 53,
+    "num_false_positive_replacements": 4,
+    "num_true_positive_replacements": 49,
+    "num_false_negative_remaining_bad25": 6,
+    "bad25_recall": 0.8909090909090909,
+    "bad25_precision": 0.9245283018867925,
+    "image_level_best_of_4_mean_psnr": 31.101646461486816,
+    "image_level_best_of_4_min_psnr": 28.661277770996094,
+    "balanced_accuracy_bad25": 0.9316614420062695,
+    "tp": 49,
+    "fp": 4,
+    "tn": 141,
+    "fn": 6
+  },
+  "warning": "Freeze this secondary aggressive policy before any new A14 trajectories are evaluated. Do not use A14 results to change thresholds or features."
+}
