@@ -235,7 +235,55 @@ clean-free certificates for each candidate.
 
 This may be more honest for ill-posed inverse problems, where a single scalar certificate may not fully determine correctness.
 
-## 8. What should not be claimed yet
+## 8. Future controller directions
+
+The next algorithmic step is not simply to add more fixed-window thresholds. The current results motivate two controller-level directions, recorded in more detail in:
+
+`docs/branch_A_future_controller_directions.md`
+
+### 8.1 Direction A: anytime risk detection
+
+Replace fixed checkpoints such as `first50pct` and `first80pct` with a per-step cumulative risk process.
+
+Instead of asking:
+
+```text
+does the first50 or first80 summary exceed a threshold?
+```
+
+ask:
+
+```text
+at each step t, has this run accumulated enough persistent clean-free evidence that it is entering a bad basin?
+```
+
+This direction should separate two phenomena:
+
+```text
+late-developing failures:
+  failures that are not visible at first50 but become visible later;
+
+certificate-invisible failures:
+  failures that remain invisible to the existing residual/consensus certificates even late in the trajectory.
+```
+
+The immediate offline experiment for this direction is `A17_offline_anytime_detector_design`, using existing A8, A11, A14, and A16 trajectories only.
+
+### 8.2 Direction B: population / beam controller
+
+Use many SITCOM trajectories and clean-free in-distribution certificates to select, prune, respawn, or fallback.
+
+The current controller runs several trajectories and replaces suspicious final outputs. A population controller would maintain a set of active trajectories and ask whether the population contains at least one healthy candidate. A beam version would branch candidate continuations, keep a small certified set, and fall back to NP only when the population itself looks unhealthy.
+
+This direction is motivated by the limitation of relative detectors:
+
+```text
+if all sibling runs are bad or ambiguous, relative outlierness alone may not reveal the failure.
+```
+
+Population health should therefore combine relative certificates with absolute/self-normalized evidence, trajectory stability, and possibly agreement with NP fallback.
+
+## 9. What should not be claimed yet
 
 Branch A should not yet claim:
 
@@ -251,7 +299,7 @@ The current validated claim is narrower and stronger:
 At sigma_y = 0.05 on the FFHQ-25 setup, frozen clean-free controllers can substantially reduce catastrophic SITCOM failures on fresh trajectories. The most robust current controller is a residual+consensus OR rule, validated prospectively in A14 and A16.
 ```
 
-## 9. Recommended next steps
+## 10. Recommended next steps
 
 The recommended next steps are:
 
@@ -259,10 +307,12 @@ The recommended next steps are:
 2. Treat `residual_or_lowfreq_nn` as the current best practical Branch A controller.
 3. Write the method in terms of clean-free certificates rather than posthoc feature mining.
 4. Use image `00017` as the motivating example for why the current certificates are incomplete.
-5. If continuing empirically, run a separate out-of-distribution stress test at `sigma_y = 0.08` using the same frozen aggressive policy, with no threshold retuning.
-6. If starting a new development cycle, predeclare a new candidate certificate family such as pixel/perceptual consensus and validate it on fresh trajectories.
+5. Use `docs/branch_A_future_controller_directions.md` to guide the next algorithmic development cycle.
+6. If continuing empirically, start with `A17_offline_anytime_detector_design` using existing trajectories only; do not run new SITCOM jobs first.
+7. After A17, consider a population / beam-controller design pass if the anytime event diagnostics show that enough bad runs become visible before the end.
+8. If starting a new certificate-family cycle, predeclare the new family and validate it on fresh trajectories rather than retuning on A14/A16 misses.
 
-## 10. Short research summary
+## 11. Short research summary
 
 A concise summary of the current Branch A state is:
 
@@ -270,5 +320,5 @@ A concise summary of the current Branch A state is:
 Branch A produced a prospectively validated clean-free controller for diffusion-prior phase retrieval.
 The best current policy combines a late-window residual-rank certificate with a low-frequency cross-run consensus certificate by OR.
 Across A14 and A16, this reduced roughly twenty bad25 SITCOM failures to one remaining bad run, with modest false-positive cost.
-The remaining limitation is a persistent image-specific catastrophic case, image 00017, which escapes the current certificates and motivates future work on pixel/perceptual consensus or stronger candidate-set certification.
+The remaining limitation is a persistent image-specific catastrophic case, image 00017, which escapes the current certificates and motivates future work on anytime risk detection, population/beam control, and stronger pixel/perceptual or temporal consensus certificates.
 ```
