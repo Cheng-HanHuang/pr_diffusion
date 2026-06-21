@@ -84,7 +84,7 @@ Selection note:
 A14 used GPU `3` with seeds `71/72` and fresh chunk ordering for task-management reasons. That is recorded in provenance and is not a methodological issue. Both policies were frozen before A14 and were applied unchanged.
 
 | policy | run mean | run min | bad25 | bad20 | replaced | TP repl | FP repl | FN bad25 |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
 | SITCOM only | `27.184` | `5.084` | `20` | `19` | `0` | `0` | `0` | `20` |
 | conservative `consensus_lowfreq_nn` | `30.231` | `5.084` | `2` | `2` | `19` | `18` | `1` | `2` |
 | aggressive `residual_or_lowfreq_nn` | `30.428` | `5.084` | `1` | `1` | `21` | `19` | `2` | `1` |
@@ -130,11 +130,11 @@ A16 replayed the same frozen A14 policies on a fresh SITCOM run with new seeds a
 Replicated result table:
 
 | policy | run mean | run min | bad25 | bad20 | replaced | TP repl | FP repl | FN bad25 |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
-| SITCOM only | 27.236 | 5.084 | 21 | 16 | 0 | 0 | 0 | 21 |
-| `consensus_lowfreq_nn` | 29.646 | 5.084 | 7 | 4 | 15 | 14 | 1 | 7 |
-| `residual_or_lowfreq_nn` | 30.337 | 5.084 | 1 | 1 | 24 | 20 | 4 | 1 |
-| oracle-risk NP fallback | 30.605 | 25.005 | 0 | 0 | 21 | 21 | 0 | 0 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| SITCOM only | `27.236` | `5.084` | `21` | `16` | `0` | `0` | `0` | `21` |
+| `consensus_lowfreq_nn` | `29.646` | `5.084` | `7` | `4` | `15` | `14` | `1` | `7` |
+| `residual_or_lowfreq_nn` | `30.337` | `5.084` | `1` | `1` | `24` | `20` | `4` | `1` |
+| oracle-risk NP fallback | `30.605` | `25.005` | `0` | `0` | `21` | `21` | `0` | `0` |
 
 Interpretation:
 
@@ -176,7 +176,20 @@ The conservative policy turned out to be brittle in A16, but the aggressive resi
 It still does not yet eliminate the remaining catastrophic floor case, so it is not a final solver story yet.
 ```
 
-## 13. A14 Frozen Policy Candidates
+## Clean-free certificate note
+
+The conceptual interpretation of Branch A as a clean-free reliability-controller experiment is written in:
+
+`docs/branch_A_clean_free_certificates.md`
+
+That note explains the current certificate families:
+
+- late-window residual-rank behavior;
+- low-frequency cross-run consensus;
+- the residual+consensus OR policy;
+- image `00017` as the persistent certificate-invisible floor case;
+- candidate future certificates such as pixel/perceptual consensus and temporal consensus.
+
 ## Current objective
 
 The project objective is still to develop a reliable diffusion-prior phase-retrieval solver for FFHQ-25. Reliability means not only high average PSNR, but also controlled failure modes: no catastrophic per-image failures, good minimum PSNR, and a method that can be explained as a solver rather than as an offline oracle over many unrelated runs.
