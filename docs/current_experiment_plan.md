@@ -16,6 +16,7 @@ Current state:
 - A13: showed first80 residual-rank policies transfer better across A8 / A11 than first50 policies.
 - A13.5: showed consensus / nearest-neighbor outlier features catch several residual-rank invisible failures.
 - A14: prospectively validated both predeclared frozen policies on a fresh run; both reduced failures substantially, with the conservative policy as primary and the aggressive policy as secondary higher-replacement-budget evidence.
+- A15: diagnosed the remaining A14 miss; both frozen policies still miss `image 00017/run0`, which looks like a certificate-invisible floor case rather than a reason to retune A14.
 
 ## Frozen A14 policy definitions
 
@@ -97,13 +98,14 @@ Main conclusion:
 ```text
 Branch A now has prospective evidence across A11 and A14 that frozen clean-free controllers reduce failures.
 The conservative policy remains the primary result, and the aggressive policy is a valid secondary higher-replacement-budget result.
+A15 sharpened the diagnosis: the remaining bottleneck is rare certificate-invisible failures, not a lack of signal.
 Both policies still miss the same catastrophic floor case, so run-level minimum PSNR remains 5.084.
 ```
 
 ## Immediate next steps
 
-1. `A15`: diagnose the remaining A14 miss, especially `image 00017 / run0`.
-2. Then decide between a small `sigma=0.08` test and foundations/writeup.
+1. `A16` fresh replication at `sigma_y = 0.05` using the same frozen A14 policies, with no retuning.
+2. Or pause for foundations / writeup on clean-free certificates: measurement residual, trajectory stability, cross-run consensus, and perceptual / pixel consensus.
 
 ## Current objective
 

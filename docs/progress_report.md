@@ -2,9 +2,9 @@
 
 Updated: 2026-06-20
 
-## June 20 addendum: Branch A through A14 prospective validation
+## June 20 addendum: Branch A through A15 miss anatomy
 
-Branch A has now crossed four important milestones beyond the earlier A10 retrospective controller story.
+Branch A has now crossed five important milestones beyond the earlier A10 retrospective controller story.
 
 1. **A11 prospective validation:**
    the frozen first50 controller was tested on a fresh SITCOM trajectory run and helped materially:
@@ -43,6 +43,20 @@ Interpretation:
 Branch A now has prospective evidence across both A11 and A14 that frozen clean-free controllers reduce failures on fresh SITCOM trajectories.
 The conservative policy is the primary A14 result and the aggressive policy is a valid secondary higher-replacement-budget result.
 The remaining caveat is that both policies still miss the same catastrophic floor case, so run-level minimum PSNR remains 5.084 rather than being lifted by the controller.
+```
+
+5. **A15 remaining-miss anatomy:**
+   the shared A14 floor miss was traced to `image 00017/run0`.
+   - SITCOM PSNR: `5.084`
+   - NP-selected fallback: `27.185`
+   - both frozen A14 policies missed it
+   - the run is a strong pixel-space outlier, but it was not caught by the frozen low-frequency consensus gate or the first80 residual-rank gate
+
+Interpretation:
+
+```text
+The remaining bottleneck is now rare certificate-invisible failures, not a total lack of signal.
+Branch A should not retune the A14 policies after A14/A15; the right next move is either a fresh replication with the same frozen policies or a writeup / foundations pass on clean-free certificates.
 ```
 
 Frozen config folders remain:
