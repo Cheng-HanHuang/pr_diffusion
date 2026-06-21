@@ -15,7 +15,7 @@ Current state:
 - A12: showed many A11 misses were late-developing rather than fundamentally invisible.
 - A13: showed first80 residual-rank policies transfer better across A8 / A11 than first50 policies.
 - A13.5: showed consensus / nearest-neighbor outlier features catch several residual-rank invisible failures.
-- A14 candidate fit: two predeclared development-only frozen policies have now been written before any future A14 trajectory evaluation.
+- A14: prospectively validated both predeclared frozen policies on a fresh run; both reduced failures substantially, with the conservative policy as primary and the aggressive policy as secondary higher-replacement-budget evidence.
 
 ## Frozen A14 policy definitions
 
@@ -77,26 +77,33 @@ Selection note:
 - the repo-side copies under `configs/branch_A/a14/` are the in-tree references for A14 evaluation;
 - no A14 results may be used to change thresholds or features.
 
-## Immediate next experiment
+## A14 Prospective Result
 
-### A14 prospective frozen-policy validation on a fresh trajectory run
+A14 used GPU `3` with seeds `71/72` and fresh chunk ordering for task-management reasons. That is recorded in provenance and is not a methodological issue. Both policies were frozen before A14 and were applied unchanged.
 
-The next Branch A experiment should be a true prospective validation of the frozen A14 policy on a fresh SITCOM trajectory run at `sigma_y = 0.05`.
+| policy | run mean | run min | bad25 | bad20 | replaced | TP repl | FP repl | FN bad25 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| SITCOM only | `27.184` | `5.084` | `20` | `19` | `0` | `0` | `0` | `20` |
+| conservative `consensus_lowfreq_nn` | `30.231` | `5.084` | `2` | `2` | `19` | `18` | `1` | `2` |
+| aggressive `residual_or_lowfreq_nn` | `30.428` | `5.084` | `1` | `1` | `21` | `19` | `2` | `1` |
+| oracle-risk NP fallback | `30.689` | `26.766` | `0` | `0` | `20` | `20` | `0` | `0` |
 
-Required rules:
+A14 row-count sanity passed:
+- `trajectory_step_metrics.csv = 20000`
+- `run_level_summary.csv = 100`
 
-- use `frozen_policy.json` exactly as written for the primary conservative policy;
-- also evaluate `frozen_policy_aggressive.json` exactly as written for the secondary aggressive policy;
-- do not retune thresholds or features using A14 results;
-- evaluate SITCOM-only baseline, both frozen A14 policies, and oracle-risk diagnostics separately;
-- report replacement cost, bad25 / bad20 counts, and image-level best-of-4 preservation.
-
-Main questions:
+Main conclusion:
 
 ```text
-Does the primary conservative A14 policy hold up prospectively on fresh trajectories?
-How much extra bad-run reduction does the secondary aggressive policy buy, and at what replacement cost?
+Branch A now has prospective evidence across A11 and A14 that frozen clean-free controllers reduce failures.
+The conservative policy remains the primary result, and the aggressive policy is a valid secondary higher-replacement-budget result.
+Both policies still miss the same catastrophic floor case, so run-level minimum PSNR remains 5.084.
 ```
+
+## Immediate next steps
+
+1. `A15`: diagnose the remaining A14 miss, especially `image 00017 / run0`.
+2. Then decide between a small `sigma=0.08` test and foundations/writeup.
 
 ## Current objective
 

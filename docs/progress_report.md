@@ -2,9 +2,9 @@
 
 Updated: 2026-06-20
 
-## June 20 addendum: Branch A through A13.5 and frozen A14 candidate
+## June 20 addendum: Branch A through A14 prospective validation
 
-Branch A has now crossed three important milestones beyond the earlier A10 retrospective controller story.
+Branch A has now crossed four important milestones beyond the earlier A10 retrospective controller story.
 
 1. **A11 prospective validation:**
    the frozen first50 controller was tested on a fresh SITCOM trajectory run and helped materially:
@@ -23,55 +23,32 @@ Branch A has now crossed three important milestones beyond the earlier A10 retro
    - A13.5 showed that consensus / nearest-neighbor outlier features catch several residual-rank invisible failures.
    - These A13 / A13.5 results are development evidence only, not prospective validation.
 
-The resulting frozen A14 development policies are now:
+4. **A14 prospective dual-policy validation:**
+   both A14 policies were frozen before the fresh run and then evaluated unchanged on GPU `3` with seeds `71/72`.
 
-Primary conservative policy:
+| policy | run mean | run min | bad25 | bad20 | replaced | TP repl | FP repl | FN bad25 |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| SITCOM only | `27.184` | `5.084` | `20` | `19` | `0` | `0` | `0` | `20` |
+| conservative `consensus_lowfreq_nn` | `30.231` | `5.084` | `2` | `2` | `19` | `18` | `1` | `2` |
+| aggressive `residual_or_lowfreq_nn` | `30.428` | `5.084` | `1` | `1` | `21` | `19` | `2` | `1` |
+| oracle-risk NP fallback | `30.689` | `26.766` | `0` | `0` | `20` | `20` | `0` | `0` |
 
-```text
-consensus_lowfreq_nn
-feature = lowfreq_dist_to_nearest_neighbor
-direction = high_is_risky
-threshold = 27.855274200439453
-```
-
-Secondary aggressive policy:
-
-```text
-residual_or_lowfreq_nn
-residual first80 AND lowfreq-nearest OR rule
-predeclared from A8+A11 only
-```
-
-Frozen config folders:
-
-`/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045/branch_A/A14_frozen_policy_config`
-`/egr/research-pac/huang248/pr_diffusion_repo/configs/branch_A/a14`
-
-Combined A8+A11 development metrics:
-
-Primary conservative:
-- remaining bad25: `16`
-- remaining bad20: `13`
-- false-positive replacements: `1`
-- total replacements: `40`
-- run mean PSNR: `29.210`
-- image best-of-4 min PSNR: `28.661`
-
-Secondary aggressive:
-- remaining bad25: `6`
-- remaining bad20: `6`
-- false-positive replacements: `4`
-- total replacements: `53`
-- run mean PSNR: `29.944`
-- image best-of-4 min PSNR: `28.661`
+Row-count sanity passed:
+- `trajectory_step_metrics.csv = 20000`
+- `run_level_summary.csv = 100`
 
 Interpretation:
 
 ```text
-Branch A now has prospective evidence that a frozen controller can help (A11),
-and stronger development evidence that late-window and consensus features improve the detector design space (A13 / A13.5).
-The next step is a true prospective A14 run evaluating both predeclared frozen policies, with the conservative policy as primary and the aggressive policy as secondary.
+Branch A now has prospective evidence across both A11 and A14 that frozen clean-free controllers reduce failures on fresh SITCOM trajectories.
+The conservative policy is the primary A14 result and the aggressive policy is a valid secondary higher-replacement-budget result.
+The remaining caveat is that both policies still miss the same catastrophic floor case, so run-level minimum PSNR remains 5.084 rather than being lifted by the controller.
 ```
+
+Frozen config folders remain:
+
+`/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045/branch_A/A14_frozen_policy_config`
+`/egr/research-pac/huang248/pr_diffusion_repo/configs/branch_A/a14`
 
 For the full writeup, see:
 
