@@ -558,10 +558,12 @@ def render_summary(
     exact_commands: Sequence[str],
 ) -> None:
     by_name = {str(r["policy_name"]): r for r in policy_summaries}
+    chunk_cfgs = [json.loads((chunk / "config.json").read_text(encoding="utf-8")) for chunk in chunk_dirs]
+    gpu_ids = sorted({str(cfg["gpu"]) for cfg in chunk_cfgs})
     lines = [
-        "# A14 Prospective Dual-Policy Validation",
+        "# Prospective Dual-Policy Validation",
         "",
-        "This analysis uses a fresh SITCOM trajectory run and evaluates the two predeclared frozen A14 Branch A policies without any retuning.",
+        "This analysis uses a fresh SITCOM trajectory run and evaluates the two predeclared frozen Branch A policies without any retuning.",
         "",
         "## Policy Summary",
         "",
@@ -603,12 +605,12 @@ def render_summary(
             "- `residual_or_lowfreq_nn` is the secondary aggressive higher-replacement-budget prospective result.",
             "- `replace_all_np_selected` is a degenerate baseline and not an acceptable solver policy.",
             "- `oracle_risk_np_selected` is diagnostic only and not executable.",
-            "- The copied frozen configs were used unchanged; no A14 result was used to alter thresholds, features, directions, or fallback source.",
+            "- The copied frozen configs were used unchanged; no result from this run was used to alter thresholds, features, directions, or fallback source.",
             "",
             "## Provenance",
             "",
             f"- Git commit: `{git_commit}`",
-            f"- GPU IDs: `3`",
+            f"- GPU IDs: `{','.join(gpu_ids)}`",
             f"- Conservative config source: `{conservative_src}`",
             f"- Aggressive config source: `{aggressive_src}`",
             f"- Conservative config SHA256: `{sha256_file(outdir / 'frozen_policy_conservative.json')}`",
@@ -625,8 +627,7 @@ def render_summary(
     for cmd in exact_commands:
         lines.append(f"- `{cmd}`")
     lines.extend(["", "Chunk configs:"])
-    for chunk in chunk_dirs:
-        cfg = json.loads((chunk / "config.json").read_text(encoding="utf-8"))
+    for chunk, cfg in zip(chunk_dirs, chunk_cfgs):
         lines.append(
             f"- `{chunk.name}`: seed `{cfg['seed']}`, gpu `{cfg['gpu']}`, image_ids `{','.join(cfg['image_ids'])}`"
         )

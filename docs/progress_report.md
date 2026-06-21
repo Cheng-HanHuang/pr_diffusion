@@ -2,9 +2,9 @@
 
 Updated: 2026-06-20
 
-## June 20 addendum: Branch A through A15 miss anatomy
+## June 20 addendum: Branch A through A16 replication
 
-Branch A has now crossed five important milestones beyond the earlier A10 retrospective controller story.
+Branch A has now crossed six important milestones beyond the earlier A10 retrospective controller story.
 
 1. **A11 prospective validation:**
    the frozen first50 controller was tested on a fresh SITCOM trajectory run and helped materially:
@@ -52,11 +52,20 @@ The remaining caveat is that both policies still miss the same catastrophic floo
    - both frozen A14 policies missed it
    - the run is a strong pixel-space outlier, but it was not caught by the frozen low-frequency consensus gate or the first80 residual-rank gate
 
+6. **A16 fresh replication:**
+   the same frozen A14 policies were replayed on a fresh SITCOM run with new seeds and chunk ordering.
+   - SITCOM-only: mean/min `27.236 / 5.084`, bad25/bad20 `21 / 16`
+   - conservative `consensus_lowfreq_nn`: mean/min `29.646 / 5.084`, bad25/bad20 `7 / 4`, replacements `15`, TP/FP `14 / 1`
+   - aggressive `residual_or_lowfreq_nn`: mean/min `30.337 / 5.084`, bad25/bad20 `1 / 1`, replacements `24`, TP/FP `20 / 4`
+   - oracle-risk NP-selected: bad25/bad20 `0 / 0`
+
 Interpretation:
 
 ```text
-The remaining bottleneck is now rare certificate-invisible failures, not a total lack of signal.
-Branch A should not retune the A14 policies after A14/A15; the right next move is either a fresh replication with the same frozen policies or a writeup / foundations pass on clean-free certificates.
+A16 is a mixed but useful replication.
+The conservative consensus-only policy is weaker than in A14, while the aggressive residual+consensus OR policy replicated strongly and is now the best practical Branch A controller.
+The remaining catastrophic miss is still image 00017, now run1 instead of A14 run0.
+Do not retune the frozen A14/A16 policies based on this result.
 ```
 
 Frozen config folders remain:
@@ -64,12 +73,17 @@ Frozen config folders remain:
 `/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045/branch_A/A14_frozen_policy_config`
 `/egr/research-pac/huang248/pr_diffusion_repo/configs/branch_A/a14`
 
+## Next Steps
+
+1. Stop further policy tuning at `sigma_y = 0.05` unless we explicitly start a new development cycle.
+2. Write a foundations note on clean-free certificates and `image 00017` as a persistent certificate-invisible case.
+3. Optionally later test `sigma_y = 0.08` using the same aggressive policy as an out-of-distribution stress test, clearly marked as separate from the `sigma_y = 0.05` development line.
+
 For the full writeup, see:
 
 - `/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045/branch_A/BRANCH_A_CONSOLIDATED_REPORT.md`
 
 This report records the current project state after the June 2026 NP-SITCOM experiments. The previous active progress report is archived as `docs/historical/progress_report_archived_20260610_before_npsitcom_two_branch_update.md`.
-
 ## Executive summary
 
 The project has moved from pure Noise Picking (NP) tuning toward a hybrid reliability question:
