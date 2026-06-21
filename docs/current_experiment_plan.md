@@ -1,6 +1,6 @@
 # Current experiment plan: NP-SITCOM Branch A and Branch B
 
-Updated: 2026-06-20
+Updated: 2026-06-21
 
 ## June 20 Branch A status update
 
@@ -91,6 +91,7 @@ A14 used GPU `3` with seeds `71/72` and fresh chunk ordering for task-management
 | oracle-risk NP fallback | `30.689` | `26.766` | `0` | `0` | `20` | `20` | `0` | `0` |
 
 A14 row-count sanity passed:
+
 - `trajectory_step_metrics.csv = 20000`
 - `run_level_summary.csv = 100`
 
@@ -190,6 +191,24 @@ That note explains the current certificate families:
 - image `00017` as the persistent certificate-invisible floor case;
 - candidate future certificates such as pixel/perceptual consensus and temporal consensus.
 
+## Future controller directions
+
+The two longer-horizon Branch A directions are written in:
+
+`docs/branch_A_future_controller_directions.md`
+
+They are:
+
+```text
+Direction A: anytime risk detection
+  Replace fixed first50/first80 windows with a per-step cumulative risk process.
+
+Direction B: population / beam controller
+  Maintain multiple SITCOM trajectories and use clean-free in-distribution certificates to select, prune, respawn, or fallback.
+```
+
+This future-directions note should guide the next Codex development cycle. In particular, the next recommended task is an offline `A17_offline_anytime_detector_design` pass using existing A8, A11, A14, and A16 trajectories only.
+
 ## Current objective
 
 The project objective is still to develop a reliable diffusion-prior phase-retrieval solver for FFHQ-25. Reliability means not only high average PSNR, but also controlled failure modes: no catastrophic per-image failures, good minimum PSNR, and a method that can be explained as a solver rather than as an offline oracle over many unrelated runs.
@@ -217,15 +236,3 @@ External DiffFPR utilities:
 Guided FFHQ checkpoint:
   /egr/research-pac/huang248/models/ffhq_10m.pt
 ```
-
-Environment convention:
-
-```text
-prdiff_ffhq:
-  run NP, DiffFPR/guided-model code, CSV parsing/mixing, and offline controller analysis.
-
-sitcom_ode_bw:
-  run official SITCOM-ODE and patched SITCOM handoff continuation.
-```
-
-Branch B remains available as a secondary diagnostic path, but Branch A prospective controller validation is currently the highest-priority solver experiment.
