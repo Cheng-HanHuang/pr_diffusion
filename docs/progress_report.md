@@ -2,7 +2,7 @@
 
 Updated: 2026-06-20
 
-## June 20 addendum: Branch A through A16 replication
+## June 21 addendum: Branch A through A17.5
 
 Branch A has now crossed six important milestones beyond the earlier A10 retrospective controller story.
 
@@ -59,6 +59,24 @@ The remaining caveat is that both policies still miss the same catastrophic floo
    - aggressive `residual_or_lowfreq_nn`: mean/min `30.337 / 5.084`, bad25/bad20 `1 / 1`, replacements `24`, TP/FP `20 / 4`
    - oracle-risk NP-selected: bad25/bad20 `0 / 0`
 
+7. **A17 anytime diagnostics:**
+   broad event-time diagnostics on A8, A11, A14, and A16 showed that the bad runs are visible very early under union certificates:
+   - bad25 visibility before `50%`: `96 / 96`
+   - bad20 visibility before `50%`: `86 / 86`
+   - image `00017` is not fundamentally invisible under broad anytime diagnostics
+   - this is diagnostic evidence only, not a frozen controller result
+
+8. **A17.5 cross-fit audit:**
+   the strongest anytime candidates were cross-fit audited under strict freeze budgets, but no useful frozen anytime rule survived:
+   - correction-norm persistence-10
+   - x0hat/x0y disagreement persistence-10
+   - full-residual persistence-10
+   - low-frequency-residual persistence-10
+   - OR combinations of the above
+   - best feasible thresholds collapsed toward do-nothing
+   - no nonzero test-recall rows survived the tested budgets
+   - image `00017` was not caught by any selected budget-feasible candidate rule
+
 Interpretation:
 
 ```text
@@ -76,8 +94,9 @@ Frozen config folders remain:
 ## Next Steps
 
 1. Stop further policy tuning at `sigma_y = 0.05` unless we explicitly start a new development cycle.
-2. Write a foundations note on clean-free certificates and `image 00017` as a persistent certificate-invisible case.
-3. Optionally later test `sigma_y = 0.08` using the same aggressive policy as an out-of-distribution stress test, clearly marked as separate from the `sigma_y = 0.05` development line.
+2. Write a foundations note on clean-free certificates, anytime visibility, and `image 00017` as a persistent certificate-invisible case for the current controller family.
+3. Shift the next development effort toward population / beam controller design using existing trajectories first.
+4. Optionally later test `sigma_y = 0.08` using the same aggressive policy as an out-of-distribution stress test, clearly marked as separate from the `sigma_y = 0.05` development line.
 
 For the full writeup, see:
 

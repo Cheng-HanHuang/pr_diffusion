@@ -18,6 +18,8 @@ Current state:
 - A14: prospectively validated both predeclared frozen policies on a fresh run; both reduced failures substantially, with the conservative policy as primary and the aggressive policy as secondary higher-replacement-budget evidence.
 - A15: diagnosed the remaining A14 miss; both frozen policies still miss `image 00017/run0`, which looks like a certificate-invisible floor case rather than a reason to retune A14.
 - A16: fresh replication showed the conservative gate is brittle, but the aggressive residual+consensus OR policy replicated strongly and is the best practical Branch A controller.
+- A17: broad anytime diagnostics showed that all `96/96` bad25 and `86/86` bad20 runs become visible before `50%` under union diagnostics; this is diagnostic evidence only, not a frozen policy.
+- A17.5: strict cross-fit audits of the strongest anytime candidates did not yield a budget-feasible frozen rule; the best thresholds collapsed toward do-nothing and image `00017` stayed uncaught by the selected candidate rules.
 
 ## Frozen A14 policy definitions
 
@@ -173,8 +175,10 @@ So the sharpened Branch A answer is:
 
 ```text
 Branch A now has prospective evidence across A11, A14, and A16 that frozen clean-free controllers reduce failures.
-The conservative policy turned out to be brittle in A16, but the aggressive residual+consensus OR policy replicated strongly and is the best practical Branch A controller so far.
+A17 adds strong anytime visibility diagnostics, but A17.5 shows that stable budgeted anytime control is not solved yet.
+The conservative policy turned out to be brittle in A16, but the aggressive residual+consensus OR policy replicated strongly and remains the best practical Branch A controller so far.
 It still does not yet eliminate the remaining catastrophic floor case, so it is not a final solver story yet.
+The next direction should be population / beam controller design using existing trajectories first, rather than freezing a new anytime policy now.
 ```
 
 ## Clean-free certificate note
@@ -207,7 +211,7 @@ Direction B: population / beam controller
   Maintain multiple SITCOM trajectories and use clean-free in-distribution certificates to select, prune, respawn, or fallback.
 ```
 
-This future-directions note should guide the next Codex development cycle. In particular, the next recommended task is an offline `A17_offline_anytime_detector_design` pass using existing A8, A11, A14, and A16 trajectories only.
+This future-directions note should guide the next Codex development cycle. A17 and A17.5 are now diagnostics only; the next recommended algorithmic direction is population / beam controller design using existing trajectories first, not a new anytime-policy freeze.
 
 ## Current objective
 

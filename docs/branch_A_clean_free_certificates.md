@@ -12,7 +12,7 @@ can we detect likely failed runs without using the ground-truth image,
 and replace only those runs by a conservative NP-selected fallback?
 ```
 
-The current answer is positive but incomplete. Frozen clean-free controllers reduce many catastrophic SITCOM failures on fresh trajectories, especially the aggressive residual-plus-consensus OR policy. However, they still do not eliminate the persistent catastrophic floor case associated with image `00017`.
+The current answer is positive but incomplete. Frozen clean-free controllers reduce many catastrophic SITCOM failures on fresh trajectories, especially the aggressive residual-plus-consensus OR policy. A17 then showed broad anytime visibility under union diagnostics, but A17.5 found that the strongest anytime candidates do not survive strict cross-fit freeze budgets in a useful way. So Branch A has an anytime signal, but not yet a stable budgeted anytime controller. The persistent catastrophic floor case associated with image `00017` is still the cleanest example of the remaining limitation.
 
 ## 1. Why clean-free certificates are needed
 
@@ -128,6 +128,15 @@ This is the main Branch A empirical result so far:
 ```text
 A frozen clean-free residual+consensus controller generalized to two fresh prospective runs and reduced roughly twenty bad25 SITCOM failures to one remaining bad run.
 ```
+
+## 5. Certificate family 4: anytime persistence diagnostics
+
+A17 broadened the view from fixed-window summaries to stepwise and cumulative risk. Under the union diagnostics, all `96/96` bad25 and `86/86` bad20 runs became visible before `50%` of the trajectory, so image `00017` is not fundamentally invisible to broad anytime diagnostics. That result is diagnostic only, not a frozen policy.
+
+A17.5 then cross-fit audited the strongest anytime candidates under strict freeze budgets. The thresholds collapsed toward do-nothing, no nonzero test-recall rule survived the tested budgets, and image `00017` was not caught by any selected budget-feasible candidate. So we have an anytime signal, but not a stable budgeted anytime controller yet.
+
+## 6. What the controller is actually doing
+
 
 ## 5. What the controller is actually doing
 
@@ -267,7 +276,7 @@ certificate-invisible failures:
   failures that remain invisible to the existing residual/consensus certificates even late in the trajectory.
 ```
 
-The immediate offline experiment for this direction is `A17_offline_anytime_detector_design`, using existing A8, A11, A14, and A16 trajectories only.
+The A17 offline experiment has been completed using existing A8, A11, A14, and A16 trajectories only. The key implication is now that broad anytime signal exists, but stable budgeted anytime control still is not solved, so the next development direction should move toward population / beam controller design rather than freezing a new anytime policy.
 
 ### 8.2 Direction B: population / beam controller
 
@@ -308,8 +317,8 @@ The recommended next steps are:
 3. Write the method in terms of clean-free certificates rather than posthoc feature mining.
 4. Use image `00017` as the motivating example for why the current certificates are incomplete.
 5. Use `docs/branch_A_future_controller_directions.md` to guide the next algorithmic development cycle.
-6. If continuing empirically, start with `A17_offline_anytime_detector_design` using existing trajectories only; do not run new SITCOM jobs first.
-7. After A17, consider a population / beam-controller design pass if the anytime event diagnostics show that enough bad runs become visible before the end.
+6. Use the A17/A17.5 diagnostics as development evidence only; do not freeze a new anytime policy from them yet.
+7. Move next to population / beam-controller design using existing trajectories first, before any fresh prospective anytime validation.
 8. If starting a new certificate-family cycle, predeclare the new family and validate it on fresh trajectories rather than retuning on A14/A16 misses.
 
 ## 11. Short research summary
@@ -317,8 +326,8 @@ The recommended next steps are:
 A concise summary of the current Branch A state is:
 
 ```text
-Branch A produced a prospectively validated clean-free controller for diffusion-prior phase retrieval.
+Branch A produced prospectively validated clean-free controllers for diffusion-prior phase retrieval.
 The best current policy combines a late-window residual-rank certificate with a low-frequency cross-run consensus certificate by OR.
 Across A14 and A16, this reduced roughly twenty bad25 SITCOM failures to one remaining bad run, with modest false-positive cost.
-The remaining limitation is a persistent image-specific catastrophic case, image 00017, which escapes the current certificates and motivates future work on anytime risk detection, population/beam control, and stronger pixel/perceptual or temporal consensus certificates.
+The remaining limitation is a persistent image-specific catastrophic case, image 00017, which escapes the current certificates and motivates future work on population/beam control and stronger pixel/perceptual or temporal consensus certificates.
 ```

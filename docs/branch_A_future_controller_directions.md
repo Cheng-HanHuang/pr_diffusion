@@ -10,6 +10,14 @@ The current empirical state is:
 A frozen aggressive residual+consensus controller reduces most catastrophic SITCOM failures on fresh runs, but it still leaves a persistent image-specific floor case around image 00017.
 ```
 
+A17 added a broad anytime-visibility diagnostic result, but A17.5 showed that the strongest candidate anytime rules do not survive strict cross-fit freeze budgets in a useful way. The current takeaway is therefore:
+
+```text
+anytime signal exists;
+stable budgeted anytime control is not solved;
+do not freeze a new anytime policy yet.
+```
+
 Therefore the next Branch A work should not be another ad hoc threshold patch on A14/A16. It should move from fixed-window posthoc triage toward clean-free trajectory control.
 
 ## 1. Direction A: anytime risk detection
@@ -302,10 +310,4 @@ Image `00017` should be treated as a motivating failure case for new certificate
 
 ## 5. Suggested immediate next Codex task
 
-The next useful Codex task is an offline anytime-detector design pass:
-
-```text
-A17_offline_anytime_detector_design
-```
-
-It should use only existing A8, A11, A14, and A16 trajectory CSVs, produce event-time diagnostics, and answer how early each failure becomes visible under existing trajectory-side certificates. It should not run new SITCOM jobs and should not alter the frozen A14/A16 policies.
+The next useful Codex task is a population / beam-controller design pass using existing trajectories first. The anytime work should remain in diagnostic mode until a budget-feasible frozen rule is genuinely available.
