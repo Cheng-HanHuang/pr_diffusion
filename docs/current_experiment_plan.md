@@ -1,8 +1,8 @@
 # Current experiment plan: NP-SITCOM Branch A and Branch B
 
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-## June 20 Branch A status update
+## June 22 Branch A status update
 
 Branch A is no longer a final-output selector project.
 
@@ -21,7 +21,10 @@ Current state:
 - A17: broad anytime diagnostics showed that all `96/96` bad25 and `86/86` bad20 runs become visible before `50%` under union diagnostics; this is diagnostic evidence only, not an executable detector.
 - A17.5: strict cross-fit audits of the strongest anytime candidates did not yield a budget-feasible frozen rule; the best thresholds collapsed toward do-nothing and image `00017` stayed uncaught by the selected candidate rules.
 - A18: population / candidate-set control looks conceptually promising; many image groups keep at least one good SITCOM survivor, and A8/00007 is the clean whole-population-bad case where NP fallback is needed.
-- A18.5: the current population score saturates at `2.0` on almost every run, AUROC is `0.5`, and the crude top2 rule mostly degenerates into run-index tie-breaking; A14/00017 is the clean failure example.
+- A18.5: the first population score saturates at `2.0` on almost every run, AUROC is `0.5`, and the crude top2 rule mostly degenerates into run-index tie-breaking; A14/00017 is the clean failure example.
+- A18.6: the saturation bug was corrected; `top3_weighted` is the safer diagnostic and `top2_weighted` is the more aggressive variant, but both are still candidate-set oracle style rather than executable controllers.
+- A18.7: the candidate-set oracle signal is real; the best non-degenerate executable-style rule is `top2_remove_aggressive_weighted` with `lowest_full_residual_proxy` or `lowest_lowfreq_residual_proxy`, but the remaining `bad25/bad20 = 2/2` floor shows the within-set selector is still the bottleneck.
+- A18.8: split wiring was fixed and provisional outputs were overwritten; the canonical fit is train `A8+A11 -> A14+A16`, the reverse diagnostic is train `A14+A16 -> A8+A11`, and the best regenerated candidate is `lowest_full_residual_proxy / fallback_if_selected_residual_high`, but selective fallback still does not fix the remaining canonical A18.7 misses.
 
 ## Frozen A14 policy definitions
 
@@ -178,9 +181,10 @@ So the sharpened Branch A answer is:
 ```text
 Branch A now has prospective evidence across A11, A14, and A16 that frozen clean-free controllers reduce failures.
 A17 adds strong anytime visibility diagnostics, but A17.5 shows that stable budgeted anytime control is not solved yet.
-The conservative policy turned out to be brittle in A16, but the aggressive residual+consensus OR policy replicated strongly and remains the best practical Branch A controller so far.
+A18 through A18.8 make the population / candidate-set direction look real, but the frozen population story is still not ready for prospective A19.
+The conservative policy turned out to be brittle in A16, but the aggressive residual+consensus OR policy replicated strongly and remains the best validated Branch A controller so far.
 It still does not yet eliminate the remaining catastrophic floor case, so it is not a final solver story yet.
-The next direction should be corrected population scoring / beam controller design using existing trajectories first, rather than freezing a new anytime policy now.
+The next direction should be corrected population-health/fallback certificate design using existing trajectories first, rather than freezing a new anytime policy now.
 ```
 
 ## Clean-free certificate note
@@ -213,7 +217,7 @@ Direction B: population / beam controller
   Maintain multiple SITCOM trajectories and use clean-free in-distribution certificates to select, prune, respawn, or fallback.
 ```
 
-This future-directions note should guide the next Codex development cycle. A17 and A17.5 are now diagnostics only; the next recommended algorithmic direction is population / beam controller design using existing trajectories first, not a new anytime-policy freeze.
+This future-directions note should guide the next Codex development cycle. A17 through A18.8 are diagnostics only; the next recommended algorithmic direction is population / beam controller design using existing trajectories first, not a new anytime-policy freeze.
 
 ## Current objective
 

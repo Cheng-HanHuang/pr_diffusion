@@ -1,8 +1,8 @@
 # Branch A future controller directions
 
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-This note records the two next algorithmic directions that should guide future Branch A work after the A14/A16 prospective validations.
+This note records the two next algorithmic directions that should guide future Branch A work after the A14/A16 prospective validations and the A17-A18.8 offline diagnostics.
 
 The current empirical state is:
 
@@ -10,12 +10,13 @@ The current empirical state is:
 A frozen aggressive residual+consensus controller reduces most catastrophic SITCOM failures on fresh runs, but it still leaves a persistent image-specific floor case around image 00017.
 ```
 
-A17 added a broad anytime-visibility diagnostic result, but A17.5 showed that the strongest candidate anytime rules do not survive strict cross-fit freeze budgets in a useful way. A18 then showed that a population / candidate-set view is promising, while A18.5 showed that the current population score saturates and the crude top2 rule mostly collapses into run-index tie-breaking. The current takeaway is therefore:
+A17 added a broad anytime-visibility diagnostic result, but A17.5 showed that the strongest candidate anytime rules do not survive strict cross-fit freeze budgets in a useful way. A18 then showed that a population / candidate-set view is promising, while A18.5 showed that the first population score saturates and the crude top2 rule mostly collapses into run-index tie-breaking. A18.6 corrected the saturation, A18.7 found the best non-degenerate executable-style selector, and A18.8 fixed the split wiring while showing that selective fallback still does not fix the remaining canonical misses. The current takeaway is therefore:
 
 ```text
 anytime signal exists;
 stable budgeted anytime control is not solved;
-a frozen crude population top2 rule is not ready yet.
+the corrected population selector is still candidate-set style, not a frozen prospective policy;
+A19 prospective validation is not yet plausible.
 ```
 
 Therefore the next Branch A work should not be another ad hoc threshold patch on A14/A16. It should move from fixed-window posthoc triage toward corrected clean-free trajectory control.
@@ -310,4 +311,4 @@ Image `00017` should be treated as a motivating failure case for new certificate
 
 ## 5. Suggested immediate next Codex task
 
-The next useful Codex task is a corrected population-scoring pass using existing trajectories first. The anytime work should remain in diagnostic mode until a budget-feasible frozen rule is genuinely available, and the crude top2 population rule should not be frozen as-is.
+The next useful Codex task is a corrected population-health and fallback-certificate pass using existing trajectories first. The anytime work should remain in diagnostic mode until a budget-feasible frozen rule is genuinely available, the selective fallback path should be audited against the remaining canonical misses, and the candidate-set selector should not be frozen as-is.

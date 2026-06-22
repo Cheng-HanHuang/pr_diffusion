@@ -1,8 +1,8 @@
 # Progress report: NP-SITCOM two-branch phase-retrieval update
 
-Updated: 2026-06-20
+Updated: 2026-06-22
 
-## June 21 addendum: Branch A through A17.5
+## June 22 addendum: Branch A through A18.8
 
 Branch A has now crossed eight important milestones beyond the earlier A10 retrospective controller story.
 
@@ -84,7 +84,7 @@ The remaining caveat is that both policies still miss the same catastrophic floo
    - `A8/00007` is a genuine whole-population-bad case where NP fallback is needed
 
 10. **A18.5 score/tie-break audit:**
-   the current population score turned out to be too flat to trust as a frozen rule:
+   the first population score turned out to be too flat to trust as a frozen rule:
    - the score families saturate at `2.0` on almost every run
    - AUROC is effectively `0.5`, so the score direction is unclear
    - top-k selection mostly degenerates into run-index tie-breaking
@@ -92,14 +92,40 @@ The remaining caveat is that both policies still miss the same catastrophic floo
    - a prospective A19 population validation is not ready for the crude top2 rule
    - the next step should be corrected population scoring, not a fresh prospective run
 
+11. **A18.6 corrected population score design:**
+   the saturation bug was corrected and the score now behaves more like a real ranking signal:
+   - `top3_weighted` is the safer candidate-set diagnostic
+   - `top2_weighted` is the more aggressive variant
+   - both are still candidate-set oracle style, not yet executable controllers
+   - the correction is a diagnostic improvement, not yet a frozen policy
+
+12. **A18.7 candidate-set executable selector:**
+   the candidate-set oracle signal is real, and the best non-degenerate executable-style rule is now:
+   - `top2_remove_aggressive_weighted`
+   - with `lowest_full_residual_proxy` or `lowest_lowfreq_residual_proxy`
+   - it fixes `A14/00017` and `A16/00017`
+   - it still leaves `bad25/bad20 = 2/2` and a low failure floor
+   - within-set executable selection remains the bottleneck
+
+13. **A18.8 selective population health fallback:**
+   split wiring was fixed and the provisional outputs were overwritten:
+   - canonical fit is train `A8+A11 -> A14+A16`
+   - reverse diagnostic is train `A14+A16 -> A8+A11`
+   - the best regenerated candidate is `lowest_full_residual_proxy / fallback_if_selected_residual_high`
+   - selective fallback avoids the fallback-on-everything degeneracy
+   - the remaining canonical `A18.7` misses are still not fixed
+   - `A8/00007` is not sent to NP under the chosen reverse rule
+   - `A19` prospective validation is not yet plausible
+
 Interpretation:
 
 ```text
 A16 is a mixed but useful replication.
-The conservative consensus-only policy is weaker than in A14, while the aggressive residual+consensus OR policy replicated strongly and is now the best practical Branch A controller.
-The A18 candidate-set view looks promising, but A18.5 shows the current population score is too flat to freeze as-is.
+The conservative consensus-only policy is weaker than in A14, while the aggressive residual+consensus OR policy replicated strongly and is still the best validated Branch A controller.
+A17 adds strong anytime visibility diagnostics, but A17.5 shows that stable budgeted anytime control is not solved yet.
+A18 through A18.8 make the population / candidate-set direction look real, but the frozen population story is still not ready for prospective A19.
 The remaining catastrophic miss is still image 00017, now run1 instead of A14 run0.
-Do not retune the frozen A14/A16 policies based on this result.
+Do not retune the frozen A14/A16 policies based on these results.
 ```
 
 Frozen config folders remain:
@@ -110,9 +136,9 @@ Frozen config folders remain:
 ## Next Steps
 
 1. Stop further policy tuning at `sigma_y = 0.05` unless we explicitly start a new development cycle.
-2. Write a foundations note on clean-free certificates, anytime visibility, and `image 00017` as a persistent certificate-invisible case for the current controller family.
-3. Shift the next development effort toward population / beam controller design using existing trajectories first.
-4. First fix and freeze a corrected population scoring / tie-break rule if we continue Branch A in that direction.
+2. Write a foundations note on clean-free certificates, anytime visibility, population scoring, and `image 00017` as a persistent certificate-invisible case for the current controller family.
+3. Shift the next development effort toward population-health / fallback certificate design using existing trajectories first.
+4. If Branch A continues, improve the population-health/fallback certificate or pause Branch A and write up the validated A14/A16 controller story.
 5. Optionally later test `sigma_y = 0.08` using the same aggressive policy as an out-of-distribution stress test, clearly marked as separate from the `sigma_y = 0.05` development line.
 
 For the full writeup, see:

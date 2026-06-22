@@ -1,8 +1,8 @@
 # Branch A clean-free certificates for phase retrieval
 
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-This note records the current conceptual interpretation of Branch A after the A11, A14, and A16 prospective validation runs.
+This note records the current conceptual interpretation of Branch A after the A11, A14, A16, A17, and A18.8 development runs.
 
 Branch A should now be read less as a final-output NP/SITCOM selector and more as a clean-free reliability-controller experiment:
 
@@ -135,6 +135,28 @@ A17 broadened the view from fixed-window summaries to stepwise and cumulative ri
 
 A17.5 then cross-fit audited the strongest anytime candidates under strict freeze budgets. The thresholds collapsed toward do-nothing, no nonzero test-recall rule survived the tested budgets, and image `00017` was not caught by any selected budget-feasible candidate. So we have an anytime signal, but not a stable budgeted anytime controller yet.
 
+## 5. Certificate family 5: population score and selective fallback
+
+A18.5 through A18.8 make the population story more concrete, but still not executable enough to freeze.
+
+The key sequence is:
+
+```text
+A18.5: first population score saturated at 2.0 and top-k degenerated into run-index tie-breaking.
+A18.6: corrected population score restored a usable ranking signal; top3_weighted is the safer diagnostic, top2_weighted the more aggressive one.
+A18.7: candidate-set oracle signal is real; top2_remove_aggressive_weighted with lowest_full_residual_proxy or lowest_lowfreq_residual_proxy is the best non-degenerate executable-style rule, but it still leaves bad25/bad20 = 2/2.
+A18.8: split wiring fixed; canonical fit is train A8+A11 -> A14+A16 and reverse diagnostic is train A14+A16 -> A8+A11; lowest_full_residual_proxy / fallback_if_selected_residual_high is the best regenerated candidate, but selective fallback does not fix the remaining canonical misses.
+```
+
+This matters because it sharpens what the candidate-set controller is and is not:
+
+```text
+it is more than a flat score;
+it is less than a fully reliable frozen population policy;
+it is still oracle-like inside the candidate set;
+it is not yet a prospective solver for A19.
+```
+
 ## 5. What the controller is actually doing
 
 The controller is not an oracle selector. It does not choose the better of SITCOM and NP by PSNR.
@@ -158,6 +180,8 @@ keep most successful SITCOM runs;
 replace the runs that violate clean-free certificates;
 pay a small false-positive cost for a large reduction in catastrophic failures.
 ```
+
+A18.8 adds an important nuance: the candidate-set controller can now do selective fallback without degenerating into fallback-on-everything, but the remaining canonical misses mean the current population-health certificate is still not strong enough to become a frozen A19 policy.
 
 ## 6. The persistent image 00017 failure
 
