@@ -18,8 +18,10 @@ Current state:
 - A14: prospectively validated both predeclared frozen policies on a fresh run; both reduced failures substantially, with the conservative policy as primary and the aggressive policy as secondary higher-replacement-budget evidence.
 - A15: diagnosed the remaining A14 miss; both frozen policies still miss `image 00017/run0`, which looks like a certificate-invisible floor case rather than a reason to retune A14.
 - A16: fresh replication showed the conservative gate is brittle, but the aggressive residual+consensus OR policy replicated strongly and is the best practical Branch A controller.
-- A17: broad anytime diagnostics showed that all `96/96` bad25 and `86/86` bad20 runs become visible before `50%` under union diagnostics; this is diagnostic evidence only, not a frozen policy.
+- A17: broad anytime diagnostics showed that all `96/96` bad25 and `86/86` bad20 runs become visible before `50%` under union diagnostics; this is diagnostic evidence only, not an executable detector.
 - A17.5: strict cross-fit audits of the strongest anytime candidates did not yield a budget-feasible frozen rule; the best thresholds collapsed toward do-nothing and image `00017` stayed uncaught by the selected candidate rules.
+- A18: population / candidate-set control looks conceptually promising; many image groups keep at least one good SITCOM survivor, and A8/00007 is the clean whole-population-bad case where NP fallback is needed.
+- A18.5: the current population score saturates at `2.0` on almost every run, AUROC is `0.5`, and the crude top2 rule mostly degenerates into run-index tie-breaking; A14/00017 is the clean failure example.
 
 ## Frozen A14 policy definitions
 
@@ -178,7 +180,7 @@ Branch A now has prospective evidence across A11, A14, and A16 that frozen clean
 A17 adds strong anytime visibility diagnostics, but A17.5 shows that stable budgeted anytime control is not solved yet.
 The conservative policy turned out to be brittle in A16, but the aggressive residual+consensus OR policy replicated strongly and remains the best practical Branch A controller so far.
 It still does not yet eliminate the remaining catastrophic floor case, so it is not a final solver story yet.
-The next direction should be population / beam controller design using existing trajectories first, rather than freezing a new anytime policy now.
+The next direction should be corrected population scoring / beam controller design using existing trajectories first, rather than freezing a new anytime policy now.
 ```
 
 ## Clean-free certificate note

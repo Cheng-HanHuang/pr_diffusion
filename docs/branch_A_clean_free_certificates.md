@@ -12,7 +12,7 @@ can we detect likely failed runs without using the ground-truth image,
 and replace only those runs by a conservative NP-selected fallback?
 ```
 
-The current answer is positive but incomplete. Frozen clean-free controllers reduce many catastrophic SITCOM failures on fresh trajectories, especially the aggressive residual-plus-consensus OR policy. A17 then showed broad anytime visibility under union diagnostics, but A17.5 found that the strongest anytime candidates do not survive strict cross-fit freeze budgets in a useful way. So Branch A has an anytime signal, but not yet a stable budgeted anytime controller. The persistent catastrophic floor case associated with image `00017` is still the cleanest example of the remaining limitation.
+The current answer is positive but incomplete. Frozen clean-free controllers reduce many catastrophic SITCOM failures on fresh trajectories, especially the aggressive residual-plus-consensus OR policy. A17 then showed broad anytime visibility under union diagnostics, but A17.5 found that the strongest anytime candidates do not survive strict cross-fit freeze budgets in a useful way. A18 showed that a population / candidate-set view is conceptually promising, but A18.5 showed that the current population score is too flat to freeze as-is because the top-k rule mostly degenerates into run-index tie-breaking. So Branch A has an anytime signal and a promising population view, but not yet a stable budgeted anytime controller or a frozen population selector. The persistent catastrophic floor case associated with image `00017` is still the cleanest example of the remaining limitation.
 
 ## 1. Why clean-free certificates are needed
 
@@ -134,9 +134,6 @@ A frozen clean-free residual+consensus controller generalized to two fresh prosp
 A17 broadened the view from fixed-window summaries to stepwise and cumulative risk. Under the union diagnostics, all `96/96` bad25 and `86/86` bad20 runs became visible before `50%` of the trajectory, so image `00017` is not fundamentally invisible to broad anytime diagnostics. That result is diagnostic only, not a frozen policy.
 
 A17.5 then cross-fit audited the strongest anytime candidates under strict freeze budgets. The thresholds collapsed toward do-nothing, no nonzero test-recall rule survived the tested budgets, and image `00017` was not caught by any selected budget-feasible candidate. So we have an anytime signal, but not a stable budgeted anytime controller yet.
-
-## 6. What the controller is actually doing
-
 
 ## 5. What the controller is actually doing
 
@@ -276,7 +273,7 @@ certificate-invisible failures:
   failures that remain invisible to the existing residual/consensus certificates even late in the trajectory.
 ```
 
-The A17 offline experiment has been completed using existing A8, A11, A14, and A16 trajectories only. The key implication is now that broad anytime signal exists, but stable budgeted anytime control still is not solved, so the next development direction should move toward population / beam controller design rather than freezing a new anytime policy.
+The A17 offline experiment has been completed using existing A8, A11, A14, and A16 trajectories only. The key implication is now that broad anytime signal exists, but stable budgeted anytime control still is not solved. A18 added a promising population / candidate-set view, but A18.5 showed that the current score saturates and the crude top2 rule is not ready to freeze. The next development direction should therefore move toward corrected population scoring and then population / beam controller design rather than freezing a new anytime policy.
 
 ### 8.2 Direction B: population / beam controller
 
@@ -329,5 +326,6 @@ A concise summary of the current Branch A state is:
 Branch A produced prospectively validated clean-free controllers for diffusion-prior phase retrieval.
 The best current policy combines a late-window residual-rank certificate with a low-frequency cross-run consensus certificate by OR.
 Across A14 and A16, this reduced roughly twenty bad25 SITCOM failures to one remaining bad run, with modest false-positive cost.
-The remaining limitation is a persistent image-specific catastrophic case, image 00017, which escapes the current certificates and motivates future work on population/beam control and stronger pixel/perceptual or temporal consensus certificates.
+A18 suggests a population / candidate-set view is promising, but A18.5 shows the current population score is too flat to freeze as-is.
+The remaining limitation is a persistent image-specific catastrophic case, image 00017, which escapes the current certificates and motivates future work on corrected population scoring, population / beam control, and stronger pixel/perceptual or temporal consensus certificates.
 ```

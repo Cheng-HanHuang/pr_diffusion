@@ -4,7 +4,7 @@ Updated: 2026-06-20
 
 ## June 21 addendum: Branch A through A17.5
 
-Branch A has now crossed six important milestones beyond the earlier A10 retrospective controller story.
+Branch A has now crossed eight important milestones beyond the earlier A10 retrospective controller story.
 
 1. **A11 prospective validation:**
    the frozen first50 controller was tested on a fresh SITCOM trajectory run and helped materially:
@@ -64,7 +64,7 @@ The remaining caveat is that both policies still miss the same catastrophic floo
    - bad25 visibility before `50%`: `96 / 96`
    - bad20 visibility before `50%`: `86 / 86`
    - image `00017` is not fundamentally invisible under broad anytime diagnostics
-   - this is diagnostic evidence only, not a frozen controller result
+   - this is diagnostic evidence only, not an executable detector
 
 8. **A17.5 cross-fit audit:**
    the strongest anytime candidates were cross-fit audited under strict freeze budgets, but no useful frozen anytime rule survived:
@@ -77,11 +77,27 @@ The remaining caveat is that both policies still miss the same catastrophic floo
    - no nonzero test-recall rows survived the tested budgets
    - image `00017` was not caught by any selected budget-feasible candidate rule
 
+9. **A18 population candidate-set audit:**
+   the population / candidate-set view looks conceptually promising:
+   - many image groups retain at least one good SITCOM survivor
+   - a small candidate set can preserve most of the good-best-of-4 behavior while excluding many catastrophes
+   - `A8/00007` is a genuine whole-population-bad case where NP fallback is needed
+
+10. **A18.5 score/tie-break audit:**
+   the current population score turned out to be too flat to trust as a frozen rule:
+   - the score families saturate at `2.0` on almost every run
+   - AUROC is effectively `0.5`, so the score direction is unclear
+   - top-k selection mostly degenerates into run-index tie-breaking
+   - `A14/00017` is the clean example: top2 selected tied runs `[0,1]` and missed good runs
+   - a prospective A19 population validation is not ready for the crude top2 rule
+   - the next step should be corrected population scoring, not a fresh prospective run
+
 Interpretation:
 
 ```text
 A16 is a mixed but useful replication.
 The conservative consensus-only policy is weaker than in A14, while the aggressive residual+consensus OR policy replicated strongly and is now the best practical Branch A controller.
+The A18 candidate-set view looks promising, but A18.5 shows the current population score is too flat to freeze as-is.
 The remaining catastrophic miss is still image 00017, now run1 instead of A14 run0.
 Do not retune the frozen A14/A16 policies based on this result.
 ```
@@ -96,7 +112,8 @@ Frozen config folders remain:
 1. Stop further policy tuning at `sigma_y = 0.05` unless we explicitly start a new development cycle.
 2. Write a foundations note on clean-free certificates, anytime visibility, and `image 00017` as a persistent certificate-invisible case for the current controller family.
 3. Shift the next development effort toward population / beam controller design using existing trajectories first.
-4. Optionally later test `sigma_y = 0.08` using the same aggressive policy as an out-of-distribution stress test, clearly marked as separate from the `sigma_y = 0.05` development line.
+4. First fix and freeze a corrected population scoring / tie-break rule if we continue Branch A in that direction.
+5. Optionally later test `sigma_y = 0.08` using the same aggressive policy as an out-of-distribution stress test, clearly marked as separate from the `sigma_y = 0.05` development line.
 
 For the full writeup, see:
 
