@@ -1,135 +1,89 @@
 # PR Diffusion: reliable diffusion-prior phase retrieval
 
-This repository studies diffusion-prior solvers for phase retrieval, with the current active focus on **FFHQ 256×256 phase retrieval** under oversampled Fourier magnitude measurements.
+Updated: 2026-06-23
 
-The central goal is not merely to report a best-of-many benchmark number.  The goal is to develop a **reliable phase-retrieval solver**: high average quality, no catastrophic per-image failures, controlled failure modes, and a method that can be explained as a coherent algorithm rather than as a post-hoc oracle over many unrelated runs.
+This repository studies diffusion-prior solvers for phase retrieval, with the current active focus on **FFHQ 256x256 phase retrieval** under oversampled Fourier magnitude measurements.
+
+The central goal is not merely to report a best-of-many benchmark number.  The goal is to develop a **reliable phase-retrieval solver**: high average quality, controlled failure modes, good minimum PSNR, and a method that can be explained as a coherent algorithm rather than as a post-hoc oracle over many unrelated runs.
 
 ## Current project objective
 
-The project has moved from pure Noise Picking (NP) tuning to an NP-SITCOM hybrid investigation.
+The project moved from pure Noise Picking (NP) tuning to an NP-SITCOM reliability investigation.
 
-The current hypothesis is:
-
-```text
-SITCOM-ODE has a higher successful-reconstruction ceiling.
-Noise Picking is more conservative and can rescue some SITCOM failure cases.
-A useful hybrid should use NP not merely as a final fallback, but as a reliability/controller mechanism.
-```
-
-The key question is:
+The current evidence is more nuanced than the original hybrid hypothesis:
 
 ```text
-Can we combine NP's conservative failure-avoidance behavior with SITCOM-ODE's stronger successful reconstructions to obtain a reliable phase-retrieval solver?
+SITCOM-ODE has a high successful-reconstruction ceiling, but occasional catastrophic failures.
+NP can rescue some SITCOM failures, but current one-shot NP also has severe image-specific failures.
+Naive NP-to-SITCOM sigma handoff is technically useful but not competitive as a solver.
+A fair solver must respect a fixed compute / candidate budget, not rely on unbounded fallback retries.
 ```
 
-The current evidence says yes at the oracle/complementarity level, but the executable solver design is still open.
-
-## Why the project moved in this direction
-
-Earlier FFHQ NP work established a practical NP baseline and showed that multi-lambda LF/S2 selection is useful.  The current practical NP setting is:
+Therefore the current practical objective is:
 
 ```text
-score_radius = 0.6
-proj_radius  = 0.2
-proj_start   = 300
-soft_k       = 5
-hard_k       = 1
-oversample   = 2
+Find clean-free, fixed-budget reliability mechanisms for diffusion-prior phase retrieval.
 ```
-
-Multi-lambda NP selection improved robustness and often selected near-oracle candidates over the available NP pool.  However, later validation showed that some seed pairs still fail because no good NP candidate is generated for recurring hard images.  This means the bottleneck is not only final selector error; it is also candidate generation and trajectory reliability.
-
-SITCOM-ODE provides a different failure profile.  It often produces stronger reconstructions when it succeeds, but can still have catastrophic failures.  This creates a natural complementarity:
-
-```text
-NP:       conservative, stable, lower ceiling in many cases, useful rescue behavior
-SITCOM:   stronger successful quality, but occasional severe failures
-Hybrid:   aim for SITCOM's ceiling with NP's reliability
-```
-
-This led to two active branches.
 
 ## Current active branches
 
-### Branch A: NP-SITCOM candidate selection and per-step controller
+### Branch A: clean-free controller / selector path
 
-Branch A is the engineering-light hybrid.  It runs NP and SITCOM separately, standardizes their candidates into a common CSV format, and studies how much improvement is possible by selecting between them.
+Branch A studies whether failed SITCOM trajectories can be detected without ground-truth images and selectively replaced or controlled.
 
-Current all-noise Branch A candidate pool:
+Current state:
 
-```text
-NP candidates:
-  5 noises × 25 images × 2 configs × 4 seeds = 1000
+- A14 prospectively validated frozen conservative and aggressive controllers on a fresh SITCOM population.
+- A16 replicated the frozen A14 policies; the conservative policy was brittle, but the aggressive residual+consensus OR policy replicated strongly.
+- A17--A18.8 show useful anytime and population/candidate-set diagnostics, but no new frozen population policy is ready for prospective A19.
 
-SITCOM candidates:
-  5 noises × 25 images × 4 runs = 500
+The strongest current Branch-A controller is the aggressive residual+consensus OR policy, but it still does not eliminate the catastrophic floor case.
 
-Total:
-  1500 candidates
-```
-
-After normalizing image IDs and noise labels, the oracle NP+SITCOM pool beats both individual source oracles across all tested noise levels.  Approximate corrected summary:
-
-| Noise | NP best mean | SITCOM best mean | Oracle NP+SITCOM mean | Oracle min |
-|---:|---:|---:|---:|---:|
-| 0 | ~33.83 | ~32.91 | **~35.43** | ~31.54 |
-| 0.01 | ~32.38 | ~32.54 | **~33.43** | ~29.83 |
-| 0.05 | ~29.43 | ~30.00 | **~30.75** | ~29.38 |
-| 0.08 | ~27.88 | ~29.01 | **~29.46** | ~27.73 |
-| 0.10 | ~27.19 | ~28.54 | **~28.84** | ~26.57 |
-
-This is strong evidence that NP and SITCOM are complementary.  However, current executable selectors are not solved because SITCOM candidates do not yet have comparable measurement-side residual/risk features.  Therefore Branch A is currently best understood as evidence for a more ambitious direction: a **per-step risk detector/controller**.
-
-The intended long-term Branch A algorithm is not simply:
+Relevant docs:
 
 ```text
-run NP;
-run SITCOM;
-choose final output.
+docs/progress_report.md
+docs/branch_A_clean_free_certificates.md
+docs/branch_A_future_controller_directions.md
 ```
 
-The stronger direction is:
+### Branch B: fixed-budget SITCOM population selection
+
+Branch B began as the true-solver handoff experiment: export NP reconstructions as SITCOM/DAPS-compatible sigma states and continue them using a patched SITCOM-ODE runner.
+
+That handoff pipeline works technically, but B3--B8 showed that forcing NP states through SITCOM continuation is not currently competitive.  The useful Branch-B result is instead a fixed-budget SITCOM population selector:
 
 ```text
-During the SITCOM/DAPS trajectory:
-  monitor risk / out-of-distribution / defect signals;
-  if the trajectory becomes risky, invoke NP-style correction or resampling;
-  otherwise continue the high-quality SITCOM update.
+For one measurement:
+  run 4 independent SITCOM-ODE trajectories;
+  at tau = 0.8, read correction_norm for each run;
+  select the run with lowest correction_norm;
+  return its final reconstruction.
 ```
 
-### Branch B: NP-to-SITCOM sigma handoff
+Pooled over B11, B12, and B16-stage1:
 
-Branch B is the true-solver handoff experiment.  It exports NP reconstructions as SITCOM/DAPS-compatible sigma states and continues them using a patched SITCOM-ODE runner.
+| method | n source-image cases | mean selected PSNR | min selected PSNR | bad25 | bad20 |
+|---|---:|---:|---:|---:|---:|
+| 4S SITCOM, tau0.8 correction selector | 75 | 30.565 | 5.087 | 2 | 1 |
 
-SITCOM-ODE uses EDM/DAPS-style sigma states, so the handoff state is:
+The two failures split into one selector failure (`B11/image 00027`) and one SITCOM population-generation failure (`B12/image 00017`).
+
+Extra 4-to-8 fallback candidates and same-budget 3S+1NP candidate sets are useful diagnostics, but they are not final methods yet:
+
+- 4-to-8 replacement increased compute and degraded already-good selected outputs in B16A.
+- 3S+1NP has an oracle-complementary candidate set, but the executable health-to-NP rule was worse than 4S.
+- NP rescues `00017`, but fails badly on `00013`, `00028`, `00034`, `00018`, and `00027` under the tested seed/config.
+
+Relevant doc:
 
 ```text
-x_sigma = x_NP + sigma * eps
+docs/branch_B_fixed_budget_population_selector.md
 ```
-
-not a DDPM alpha-bar timestep state.
-
-The first larger Branch B run completed successfully:
-
-```text
-handoff_25img_s100_101_sig20_10_5_2
-25 images × 2 seeds × 2 NP configs × 4 sigmas = 400 continuations
-```
-
-The pipeline works technically, but the current naive one-shot handoff is not competitive in quality.  The best current behavior is near `handoff_sigma ≈ 2`, with S2-preprojection handoff generally better than LF handoff, but the results remain below standalone NP/SITCOM and far below Branch A oracle selection.
-
-Current interpretation:
-
-```text
-Branch B is useful diagnostically, but naive final-NP-state + sigma noise is not enough.
-The mismatch may be state-distribution mismatch, measurement/operator scaling, or the fact that one-shot handoff is the wrong granularity.
-```
-
-Branch B should continue with narrow diagnostics, but the highest-priority solver idea is now the Branch A/per-step controller direction.
 
 ## PAC paths and non-repo dependencies
 
-Most active work is run on PAC.  The repo does not contain datasets, external solver checkouts, or output artifacts.  Important absolute paths are:
+Most active work is run on PAC.  The repo does not contain datasets, external solver checkouts, model checkpoints, or output artifacts.  Important absolute paths are:
 
 ```text
 Repository:
@@ -138,7 +92,10 @@ Repository:
 FFHQ image root:
   /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
 
-Current NP-SITCOM output root:
+Current phase-retrieval output root:
+  /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045
+
+Earlier NP-SITCOM output root:
   /egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610
 
 Original external SITCOM-ODE checkout:
@@ -161,10 +118,10 @@ prdiff_ffhq:
   Use for this repo, NP, DiffFPR/guided model code, CSV parsing/mixing, and NP handoff export.
 
 sitcom_ode_bw:
-  Use for official SITCOM-ODE and patched SITCOM handoff continuation.
+  Use for official SITCOM-ODE trajectory generation and patched SITCOM handoff continuation.
 ```
 
-This distinction matters.  Some failures are environment errors rather than algorithmic errors.
+This distinction matters.  Some failures are environment or path errors rather than algorithmic errors.
 
 ## Main code locations
 
@@ -174,16 +131,18 @@ Current NP-SITCOM scripts:
 scripts/npsitcom/
 ```
 
-Branch A scripts:
+Branch A / SITCOM trajectory scripts:
 
 ```text
+scripts/npsitcom/run_branchA_sitcom_trajectory_hard.py
 scripts/npsitcom/run_sitcom_official_ffhq_one_gpu.sh
 scripts/npsitcom/make_sitcom_image_folder.py
 scripts/npsitcom/parse_sitcom_metrics.py
 scripts/npsitcom/mix_select_candidates.py
+configs/branch_A/a14/
 ```
 
-Branch B scripts:
+Branch B handoff scripts:
 
 ```text
 scripts/npsitcom/run_branchB_export_np_handoff_with_measurement_ffhq_one_gpu.sh
@@ -194,100 +153,21 @@ scripts/npsitcom/run_branchB_sitcom_handoff_one_gpu.sh
 
 Historical NP/DiffFPR scripts remain in `scripts/`.  Many older `slurm_*`, `phase_retrieval_*`, and one-off analysis scripts correspond to earlier project phases and should be treated as historical unless explicitly reused.
 
-## Current output organization
-
-Current output root:
-
-```text
-/egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610
-```
-
-Important subfolders:
-
-```text
-sitcom_official/
-  Official SITCOM-ODE baseline runs.
-
-branchA_mix/
-  NP/SITCOM standardized candidate CSVs and selection summaries.
-
-branchB_handoff/
-  NP-exported sigma handoff states and manifests.
-
-branchB_sitcom_handoff/
-  Patched SITCOM continuation outputs from NP handoff states.
-
-sitcom_images_ffhq25/
-  SITCOM-compatible symlinked FFHQ-25 image folder.
-
-logs/
-  nohup logs for current experiments.
-```
-
-## Active docs
+## Documentation map
 
 Start here:
 
 ```text
 docs/README.md
-  Navigation page for active docs.
-
 docs/progress_report.md
-  Detailed June 10 NP-SITCOM progress report and current interpretation.
-
 docs/current_experiment_plan.md
-  Recommended next experiments for Branch A and Branch B.
+docs/branch_B_fixed_budget_population_selector.md
+docs/branch_A_clean_free_certificates.md
+docs/branch_A_future_controller_directions.md
+```
 
+Archived older plans, previous progress reports, PAC migration notes, and NeurIPS phased experiment docs live under:
+
+```text
 docs/historical/
-  Archived older plans, previous progress reports, PAC migration notes, and earlier NP-only context.
 ```
-
-## Evaluation convention
-
-Always specify whether a result is:
-
-```text
-all-run mean over every image/seed;
-image-level best-of-k;
-source oracle;
-NP+SITCOM oracle;
-raw alignment;
-rot180 alignment;
-resolve alignment;
-noise level;
-number of seeds/configs/runs;
-whether measurement residuals are comparable across sources.
-```
-
-Do not treat a method-level oracle as an executable algorithm.  Branch A oracle results are currently evidence of complementarity, not yet a clean-free selector.
-
-## Current priority ranking
-
-```text
-Priority 1:
-  Branch A as a path to per-step SITCOM risk detection and NP intervention.
-
-Priority 2:
-  Branch B narrow diagnostics around the best handoff sigma and measurement/operator scaling.
-
-Priority 3:
-  Branch B as a standalone solver, only if narrow handoff diagnostics improve substantially.
-```
-
-Recommended future chat split:
-
-```text
-NP-SITCOM Branch A: candidate selection and per-step defect detection
-NP-SITCOM Branch B: sigma handoff and continuation diagnostics
-```
-
-## Repo hygiene notes
-
-The repository contains historical backup scripts and old experiment plans.  Before final release or paper artifact packaging, review and remove accidental backup files such as:
-
-```text
-*.bak*
-*_patched.py
-```
-
-unless they are intentionally archived.
