@@ -1,0 +1,18 @@
+[submodule "external/dps"]
+	path = external/dps
+	url = https://github.com/DPS2022/diffusion-posterior-sampling
+[submodule "external/mcg_diffusion"]
+	path = external/mcg_diffusion
+	url = https://github.com/HJ-harry/MCG_diffusion
+[submodule "external/dmplug"]
+	path = external/dmplug
+	url = https://github.com/sun-umn/DMPlug
+[submodule "external/sitcom_ode"]
+	path = external/sitcom_ode
+	url = https://github.com/sjames40/SITCOM_ODE
+[submodule "external/sitcom_ode_npsitcom"]
+	path = external/sitcom_ode_npsitcom
+	url = git@github.com:Cheng-HanHuang/SITCOM_ODE_npsitcom.git
+[submodule "external/daps"]
+	path = external/daps
+	url = https://github.com/zhangbingliang2019/DAPS
