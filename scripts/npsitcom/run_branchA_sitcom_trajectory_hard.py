@@ -230,6 +230,8 @@ def main() -> None:
     ap.add_argument("--score_radius", type=float, default=0.6)
     ap.add_argument("--anneal_steps", type=int, default=200)
     ap.add_argument("--diff_steps", type=int, default=5)
+    ap.add_argument("--save_measurement_path", default="")
+    ap.add_argument("--load_measurement_path", default="")
     args = ap.parse_args()
 
     outdir = Path(args.outdir)
@@ -259,7 +261,31 @@ def main() -> None:
         )
         images = data.get_data(len(image_ids), 0)
         operator = get_operator(name="phase_retrieval", sigma=args.noise, oversample=args.oversample)
-        y = operator.measure(images)
+        if args.load_measurement_path:
+            payload = torch.load(args.load_measurement_path, map_location=device)
+            y = payload["measurement"] if isinstance(payload, dict) and "measurement" in payload else payload
+            y = y.to(device)
+            print(f"[measurement] loaded {args.load_measurement_path} shape={tuple(y.shape)}")
+        else:
+            y = operator.measure(images)
+            print(f"[measurement] generated shape={tuple(y.shape)}")
+
+        if args.save_measurement_path:
+            measurement_path = Path(args.save_measurement_path)
+            measurement_path.parent.mkdir(parents=True, exist_ok=True)
+            torch.save(
+                {
+                    "measurement": y.detach().cpu(),
+                    "images": images.detach().cpu(),
+                    "manifest": manifest,
+                    "image_ids": image_ids,
+                    "noise": args.noise,
+                    "oversample": args.oversample,
+                    "resolution": args.resolution,
+                },
+                measurement_path,
+            )
+            print(f"[measurement] saved {measurement_path}")
         sampler = get_sampler(
             latent=False,
             annealing_scheduler_config={
