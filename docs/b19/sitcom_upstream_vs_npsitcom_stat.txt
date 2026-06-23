@@ -1,0 +1,30 @@
+ external/{sitcom_ode => sitcom_ode_npsitcom}/.git  |   2 +-
+ .../sitcom_ode_npsitcom/.gitignore                 |  33 ++
+ .../__pycache__/__init__.cpython-38.pyc            | Bin 12038 -> 12064 bytes
+ .../__pycache__/fastmri_utils.cpython-38.pyc       | Bin 5826 -> 5852 bytes
+ .../__pycache__/resizer.cpython-38.pyc             | Bin 4370 -> 4396 bytes
+ .../forward_operator/motionblur/README.md          |  69 ++++
+ .../forward_operator/motionblur/__init__.py        |   0
+ .../forward_operator/motionblur/environment.yaml   |  20 +
+ .../motionblur/example_kernel/kernel0.png          | Bin 0 -> 2347 bytes
+ .../motionblur/example_kernel/kernel100.png        | Bin 0 -> 3513 bytes
+ .../motionblur/example_kernel/kernel25.png         | Bin 0 -> 2301 bytes
+ .../motionblur/example_kernel/kernel50.png         | Bin 0 -> 2351 bytes
+ .../motionblur/example_kernel/kernel75.png         | Bin 0 -> 2202 bytes
+ .../forward_operator/motionblur/images/flag.png    | Bin 0 -> 2503 bytes
+ .../motionblur/images/flagBLURRED.png              | Bin 0 -> 24228 bytes
+ .../forward_operator/motionblur/images/moon.png    | Bin 0 -> 273630 bytes
+ .../forward_operator/motionblur/intensity.png      | Bin 0 -> 230184 bytes
+ .../forward_operator/motionblur/motionblur.py      | 419 +++++++++++++++++++++
+ .../model/__pycache__/__init__.cpython-38.pyc      | Bin 7951 -> 7977 bytes
+ .../model/__pycache__/precond.cpython-38.pyc       | Bin 7374 -> 7400 bytes
+ .../ddpm/__pycache__/fp16_util.cpython-38.pyc      | Bin 7739 -> 7765 bytes
+ .../model/ddpm/__pycache__/nn.cpython-38.pyc       | Bin 5856 -> 5882 bytes
+ .../model/ddpm/__pycache__/unet.cpython-38.pyc     | Bin 28175 -> 28201 bytes
+ .../edm/dnnlib/__pycache__/__init__.cpython-38.pyc | Bin 207 -> 233 bytes
+ .../edm/dnnlib/__pycache__/util.cpython-38.pyc     | Bin 14102 -> 14128 bytes
+ .../sitcom_ode_npsitcom/npsitcom_handoff_sample.py | 168 +++++++++
+ .../posterior_sample.py                            |   2 +-
+ .../sitcom_ode_npsitcom/run_ffhq25_noise_sweep.sh  |  51 +++
+ .../run_imagenet25_noise_sweep.sh                  |  53 +++
+ 29 files changed, 815 insertions(+), 2 deletions(-)
