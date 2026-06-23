@@ -57,3 +57,30 @@ Summary:
 Interpretation:
 
 This special-six run is a strong within-population selection test.  Images `00017`, `00028`, and `00034` each have one good candidate and three bad/catastrophic candidates, yet the tau=0.8 minimum-correction and minimum-residual selectors recover good candidates.  The deliberately wrong `max_x0y_full_residual_tau` selector fails badly, confirming that the features are meaningful rather than the candidate set being trivially all-good.
+
+## Early tau and tau-window conclusion
+
+Early-grid analysis tested tau values:
+
+`0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50`.
+
+Main observation:
+
+- `tau <= 0.35` is not reliable for the current correction/residual features.
+- `min_correction_tau` first becomes successful on this special-six run around `tau = 0.40`.
+- `min_x0y_full_residual_tau` and `min_x0y_lowfreq_residual_tau` become successful around `tau = 0.50`.
+- Very late correction/disagreement can become misleading again at `tau = 0.90--0.95`.
+
+The tau-window selector using `tau = 0.50,0.60,0.70,0.75,0.80,0.85` gives:
+
+| selector | mean PSNR | min PSNR | bad25 | bad20 |
+|---|---:|---:|---:|---:|
+| oracle_best_psnr_diagnostic | 30.393 | 29.151 | 0 | 0 |
+| tau_window_all_features | 30.339 | 29.151 | 0 | 0 |
+| tau_window_correction_plus_residual | 30.339 | 29.151 | 0 | 0 |
+| tau_window_residual_only | 30.339 | 29.151 | 0 | 0 |
+| tau_window_correction_only | 30.318 | 29.023 | 0 | 0 |
+
+Interpretation:
+
+This is not yet a true early-warning signal.  The current clean-free features are unreliable before approximately `tau=0.40`.  However, they provide a strong mid-trajectory population-selection certificate.  For a fixed-budget four-SITCOM solver, this is already useful, because candidate selection can be performed after all trajectories finish.  SURE/SGPS-style diagnostics should be reserved for future early intervention and all-four generation-failure detection.
