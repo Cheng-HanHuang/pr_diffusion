@@ -30,3 +30,30 @@ This run is mainly a within-population selector/certificate testbed.  There is n
 Next analysis:
 
 Run `scripts/b19/analyze_sitcom_tau_selectors.py` to evaluate tau=0.8 correction and residual selectors.
+
+## Tau=0.8 selector analysis
+
+Analysis script:
+
+`scripts/b19/analyze_sitcom_tau_selectors.py`
+
+Output folder:
+
+`/egr/research-pac/huang248/outputs/pr_diffusion/b19_solver/B19_0_sitcom_special6_noise005_npsitcomroot/tau08_selector_analysis`
+
+At tau=0.8, the executable clean-free selectors successfully chose good candidates for all six images.
+
+Summary:
+
+| selection method | n images | mean PSNR | min PSNR | bad25 | bad20 |
+|---|---:|---:|---:|---:|---:|
+| oracle_best_psnr_diagnostic | 6 | 30.393 | 29.151 | 0 | 0 |
+| min_x0y_full_residual_tau | 6 | 30.360 | 29.141 | 0 | 0 |
+| min_x0y_lowfreq_residual_tau | 6 | 30.360 | 29.141 | 0 | 0 |
+| min_correction_tau | 6 | 30.326 | 29.023 | 0 | 0 |
+| min_x0hat_x0y_disagreement_tau | 6 | 30.326 | 29.023 | 0 | 0 |
+| max_x0y_full_residual_tau | 6 | 19.121 | 5.824 | 4 | 3 |
+
+Interpretation:
+
+This special-six run is a strong within-population selection test.  Images `00017`, `00028`, and `00034` each have one good candidate and three bad/catastrophic candidates, yet the tau=0.8 minimum-correction and minimum-residual selectors recover good candidates.  The deliberately wrong `max_x0y_full_residual_tau` selector fails badly, confirming that the features are meaningful rather than the candidate set being trivially all-good.
