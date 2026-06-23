@@ -1,9 +1,5 @@
 # B19.3 DAPS smoke on special images
 
-Purpose:
-
-Test whether official DAPS, using its default FFHQ pixel-DDPM phase-retrieval configuration, can rescue or reproduce the hard/special B19 images.
-
 Setup:
 
 - DAPS root: `external/daps`
@@ -18,9 +14,9 @@ Setup:
 - operator noise: `0.05`
 - DAPS seed: `42`
 
-Important caveat:
+Caveat:
 
-These are DAPS-generated measurements, not yet same-measurement comparisons with the SITCOM B19 runs.
+These are DAPS-generated measurements, not same-measurement comparisons with SITCOM.
 
 ## Results
 
@@ -33,18 +29,10 @@ These are DAPS-generated measurements, not yet same-measurement comparisons with
 
 ## Interpretation
 
-DAPS is not globally broken in this environment.  It gives stable good reconstructions on `00013` and finds high-quality candidates on mixed-population images `00017` and `00034`.
+DAPS is not globally broken in this environment. It succeeds on `00013` and finds high-quality candidates on `00017` and `00034`.
 
-However, DAPS also fails on image `00028`: all four candidates stay around `12--15` dB.  This supports the current B19 diagnosis that `00028` is a shared hard image/measurement/prior case, not just a SITCOM selector failure.
+However, DAPS fails on `00028`, with all four candidates around `12--15` dB. This supports the B19 diagnosis that `00028` is a shared hard image/measurement/prior case, not merely a SITCOM selector failure.
 
-Compared with SITCOM:
+Next step:
 
-- SITCOM 4S on `00028 / seed19053` had oracle4 around `12.78` dB.
-- SITCOM 12S partially rescued the case to around `27.66` dB.
-- DAPS 4-run smoke on `00028` did not rescue it, reaching only around `15.09` dB max under its own generated measurement.
-
-Next steps:
-
-1. Use DAPS metrics as evidence that DAPS works on easier/mixed images.
-2. Do not spend effort patching DAPS for same-measurement testing unless needed for a final fair comparison.
-3. Focus B19 next on clean-free detection of hard low-ceiling cases and conditional escalation, because both SITCOM and DAPS can fail on `00028`.
+Before running more solver sweeps, make the comparison measurement-locked: save/load the same phase-retrieval measurement `y` for SITCOM and DAPS.
