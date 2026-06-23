@@ -1,0 +1,37 @@
+methods:
+  sitcom_ode:
+    tier: core_baseline
+    path: external/sitcom_ode
+    role: "Official SITCOM-ODE baseline; high-ceiling local consistency solver."
+    first_action: "Reproduce current 4S correction_norm selector."
+
+  sitcom_ode_npsitcom:
+    tier: patched_baseline
+    path: external/sitcom_ode_npsitcom
+    role: "Local patched SITCOM-ODE fork for handoff/instrumentation."
+    first_action: "Diff against upstream and preserve only necessary patches."
+
+  daps:
+    tier: core_external_candidate
+    path: external/daps
+    role: "Exploration / decoupled posterior sampling candidate; competitive in phase retrieval."
+    first_action: "Run official phase-retrieval config, then adapt to FFHQ-25 protocol."
+
+  mcg_diffusion:
+    tier: diagnostic_reference
+    path: external/mcg_diffusion
+    role: "Manifold-consistency correction reference."
+    first_action: "Inspect whether phase retrieval/nonlinear operator support exists."
+
+  dmplug:
+    tier: heavy_reference
+    path: external/dmplug
+    role: "Manifold feasibility + measurement feasibility benchmark/inspiration."
+    first_action: "Check runtime and whether nonlinear PR operator can be adapted."
+
+  dps:
+    tier: optional_reference
+    path: external/dps
+    role: "Reviewer baseline / sanity check; not expected to beat SITCOM."
+    first_action: "Defer unless needed."
+
