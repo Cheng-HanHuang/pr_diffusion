@@ -1,0 +1,21 @@
+diff --git a/posterior_sample.py b/posterior_sample.py
+index 8873e56..9bdb09d 100644
+--- a/posterior_sample.py
++++ b/posterior_sample.py
+@@ -179,7 +179,15 @@ def main(args):
+     # get operator & measurement
+     task_group = args.task[args.task_group]
+     operator = get_operator(**task_group.operator)
+-    y = operator.measure(images)
++    measurement_path = args.get("measurement_path", None)
++    if measurement_path:
++        payload = torch.load(measurement_path, map_location=images.device)
++        y = payload["measurement"] if isinstance(payload, dict) and "measurement" in payload else payload
++        y = y.to(images.device)
++        print(f"[measurement] loaded {measurement_path} shape={tuple(y.shape)}")
++    else:
++        y = operator.measure(images)
++        print(f"[measurement] generated shape={tuple(y.shape)}")
+ 
+     # get sampler
+     sampler = get_sampler(**args.sampler, mcmc_sampler_config=task_group.mcmc_sampler_config)
