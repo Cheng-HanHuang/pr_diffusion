@@ -4,40 +4,50 @@ This note summarizes the current B19 branch-B findings for DAPS phase retrieval 
 
 ## Leading policy
 
-The current leading policy is:
+The current main frozen policy is:
 
-- Run `K = 5` valid DAPS prefixes.
-- Stop at checkpoint step `125 / 200`.
-- Keep `2` prefixes by relative clean-free prefix score.
-- Finish only the kept prefixes.
-- Final-select by exact DAPS operator loss among the completed kept candidates.
+```text
+P6_c100_keep2_inst_lhc:
+  K = 6 valid DAPS prefixes
+  checkpoint = 100 / 200
+  keep_k = 2
+  score = rank(x0y measurement loss)
+        + rank(x0hat measurement loss)
+        + rank(correction RMS)
+  final selector = exact DAPS operator loss among the two completed candidates
+  cost = 4.0 full-DAPS equivalents
+```
 
-The relative prefix score is:
+The conservative backup policy is:
 
-    rank(sqrt_loss_x0y_over_y_norm) + rank(correction_rms)
+```text
+P5_c125_keep2_inst_lc:
+  K = 5 valid DAPS prefixes
+  checkpoint = 125 / 200
+  keep_k = 2
+  score = rank(x0y measurement loss) + rank(correction RMS)
+  final selector = exact DAPS operator loss among the two completed candidates
+  cost = 3.875 full-DAPS equivalents
+```
 
-Ranks are computed only within the current image/measurement prefix pool.
+The step-count cost model is:
 
-Under the simple step-count model,
+```text
+cost = K * checkpoint / 200 + keep_k * (200 - checkpoint) / 200
+```
 
-    cost = K * checkpoint / 200 + keep_k * (200 - checkpoint) / 200,
-
-the leading policy has cost
-
-    5 * 125/200 + 2 * 75/200 = 3.875
-
-full-DAPS equivalents, slightly below the cost of full DAPS best-of-4.
+`keep_k = 2` means that two prefixes are kept alive and completed. The final selected reconstruction is still chosen by clean-free exact operator loss, not by final PSNR.
 
 ## B19.13 cost-normalized replay
 
-On the 15-image hard/mixed panel:
+On the 15-image hard/mixed panel, the first leading policy was `P5_c125_keep2_cost3p875`.
 
 | policy | cost | mean PSNR | min PSNR | bad25 | bad20 | >=29 | >=30 |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | `P5_c125_keep2_cost3p875` | 3.875 | 30.747 | 29.311 | 0/15 | 0/15 | 15/15 | 12/15 |
 | `F4_full_exact` | 4.000 | 29.304 | 10.352 | 1/15 | 1/15 | 13/15 | 10/15 |
 
-The leading prefix policy is not simply using more compute. It reallocates a best-of-4-like budget: one additional partial prefix is sampled, but only two prefixes are completed.
+The prefix policy is not simply using more compute. It reallocates a best-of-4-like budget: one additional partial prefix is sampled, but only two prefixes are completed.
 
 ## Failure-mode decomposition
 
@@ -114,18 +124,107 @@ In contrast:
 - `F5_full_exact`, `F6_full_exact`, and `F8_full_exact` selected the `00034` symmetry-rescuable rot180 candidate.
 - Full `F12` and `F16` eventually selected unaligned-good candidates, but they keep many symmetry and true-bad candidates because they do not prune.
 
-## Interpretation
+## B19.14/B19.15: earliest reliable checkpoint and symmetry signal
 
-The current evidence supports the following mechanism.
+B19.14 searched earlier checkpoint policies using existing raw trajectories. The main conclusion was that checkpoint 50 and 75 are too early for the current features, while checkpoint 100 is the earliest reliable checkpoint.
 
-Full best-of-N has two problems:
+The most useful policy from this stage was:
 
-1. With too few samples, the candidate set may contain no good basin.
-2. With more samples, the candidate set may include symmetry-basin or bad low-loss candidates that fool final exact-loss selection.
+```text
+P6_c100_keep2_inst_lhc:
+  sample 6 prefixes to checkpoint 100
+  rank by x0y measurement loss + x0hat measurement loss + correction RMS
+  keep 2 prefixes
+  finish the kept prefixes
+```
 
-The prefix policy addresses both:
+B19.15 showed that rot180-rescuable candidates are exactly measurement-ambiguous: the DAPS phase-retrieval operator loss of a candidate and its 180-degree rotation is equal up to numerical precision. However, by checkpoint 100 the prefix features strongly separate the symmetry-rescuable candidates from the unaligned-good candidates in the hard/mixed panel.
 
-1. It samples more valid prefixes than DAPS4S under a comparable compute budget.
-2. It uses clean-free mid-trajectory geometry to prune bad or symmetry-basin prefixes before final selection.
+## B19.16A/B/C/D: full FFHQ-25 frozen-policy validation
 
-The method does not guarantee good reconstruction. It improves compute allocation and reduces the empirical probability of both initialization misses and final-selection traps on the current hard/mixed panel.
+After freezing `P6_c100_keep2_inst_lhc`, we evaluated it on full FFHQ-25.
+
+### B19.16A: same-seed full FFHQ-25 replay
+
+B19.16A used locked `meas3000` measurements and combined the existing hard/mixed raw16 trajectories with raw6 trajectories for the remaining images.
+
+| policy | cost | mean PSNR | min PSNR | bad25 | bad20 | >=29 | >=30 | failure summary |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| `P5_c125_keep2_inst_lc` | 3.875 | 30.893 | 29.311 | 0/25 | 0/25 | 25/25 | 22/25 | none |
+| `P6_c100_keep2_inst_lhc` | 4.000 | 30.838 | 29.276 | 0/25 | 0/25 | 25/25 | 21/25 | none |
+| `F4_full_exact` | 4.000 | 30.013 | 10.352 | 1/25 | 1/25 | 23/25 | 20/25 | init failure on `00007` |
+| `F6_full_exact` | 6.000 | 30.030 | 11.943 | 1/25 | 1/25 | 23/25 | 21/25 | final-selection failure on `00034` |
+
+### B19.16B: fresh trajectory validation
+
+B19.16B reran all 25 images with fresh DAPS trajectory seed `4100`, while keeping the same locked measurements `meas3000`.
+
+| policy | cost | mean PSNR | min PSNR | bad25 | bad20 | >=29 | >=30 | failure summary |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| `P5_c125_keep2_inst_lc` | 3.875 | 30.824 | 29.319 | 0/25 | 0/25 | 25/25 | 21/25 | none |
+| `P6_c100_keep2_inst_lhc` | 4.000 | 30.845 | 29.278 | 0/25 | 0/25 | 25/25 | 21/25 | none |
+| `F4_full_exact` | 4.000 | 29.959 | 9.162 | 1/25 | 1/25 | 24/25 | 20/25 | final-selection failure on `00005` |
+| `F6_full_exact` | 6.000 | 29.962 | 9.162 | 1/25 | 1/25 | 24/25 | 20/25 | final-selection failure on `00005` |
+
+### B19.16C: fresh-run `00005` audit
+
+B19.16C showed that the fresh-run `00005` failure is another rot180 symmetry-basin case.
+
+Full exact-loss selection picks run `0`:
+
+```text
+run 0:
+  final PSNR = 9.16
+  exact operator loss = 963.395
+  rot180-aligned PSNR = 30.41
+```
+
+Good upright candidates exist in the same pool:
+
+```text
+run 3:
+  final PSNR = 31.23
+  exact operator loss = 963.651
+
+run 2:
+  final PSNR = 31.25
+  exact operator loss = 964.413
+```
+
+At checkpoint 100, the frozen prefix score ranks the good upright runs ahead of run `0`:
+
+```text
+run 3: score_inst_lhc = 4
+run 2: score_inst_lhc = 5
+run 0: score_inst_lhc = 9
+```
+
+Therefore `P6_c100_keep2_inst_lhc` keeps runs `3,2`, rejects the low-loss rot180 basin, and selects a 31.23 dB reconstruction.
+
+### B19.16D: fresh measurement validation
+
+B19.16D generated fresh locked measurements with seed `4000` and used trajectory seed `4100`.
+
+| policy | cost | mean PSNR | min PSNR | bad25 | bad20 | >=29 | >=30 | failure summary |
+|---|---:|---:|---:|---:|---:|---:|---:|---|
+| `P5_c125_keep2_inst_lc` | 3.875 | 30.873 | 29.249 | 0/25 | 0/25 | 25/25 | 22/25 | none |
+| `F4_full_exact` | 4.000 | 30.876 | 29.249 | 0/25 | 0/25 | 25/25 | 22/25 | none |
+| `P6_c100_keep2_inst_lhc` | 4.000 | 30.820 | 29.209 | 0/25 | 0/25 | 25/25 | 21/25 | none |
+| `F6_full_exact` | 6.000 | 30.856 | 29.249 | 0/25 | 0/25 | 25/25 | 22/25 | none |
+
+Fresh measurement seed `4000` appears easier for standard DAPS4S: `F4_full_exact` has no bad25 failures. The frozen prefix policy also remains stable and has no bad25 failures, but does not improve mean PSNR on this seed.
+
+## Current interpretation
+
+The current evidence supports the following claim:
+
+```text
+At the same step-count budget as DAPS4S,
+we run 6 valid DAPS prefixes to checkpoint 100,
+use clean-free measurement/prior-consistency features to keep 2,
+and complete only the kept prefixes.
+```
+
+This policy avoids the observed DAPS4S/DAPS6S failures on `meas3000`, including final exact-loss selection of rot180 symmetry-basin candidates. On fresh measurement seed `4000`, the standard baselines do not fail, and the prefix policy remains stable.
+
+The method does not solve phase retrieval ambiguity in principle. Fourier magnitude alone cannot distinguish upside-up and upside-down symmetry-related reconstructions. The contribution is a clean-free basin-selection mechanism that uses mid-trajectory consistency to avoid some ambiguous low-loss basins.
