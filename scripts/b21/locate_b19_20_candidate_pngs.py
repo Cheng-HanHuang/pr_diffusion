@@ -88,7 +88,8 @@ def token_match(path: str, tokens: Sequence[str], case_insensitive: bool = True)
 
 
 def looks_b19_20(path: str) -> bool:
-    return token_match(path, ["b19_20", "ffhq100", "runseed4400"], case_insensitive=True)
+    # runseed4400 alone is not enough: several B19.16/B20 outputs use that seed.
+    return token_match(path, ["b19_20", "ffhq100"], case_insensitive=True)
 
 
 def main() -> None:
@@ -103,11 +104,11 @@ def main() -> None:
     )
     ap.add_argument(
         "--require_any",
-        default="B19_20,b19_20,ffhq100,runseed4400",
-        help="Comma-separated path tokens. Default is strict B19.20-ish search. Use an empty string to disable.",
+        default="B19_20,b19_20,ffhq100",
+        help="Comma-separated path tokens. Default is strict B19.20/FFHQ100 search. Use an empty string to disable.",
     )
     ap.add_argument("--sample_only", action="store_true", help="Keep only files under samples/ and drop grid_results/trajectory PNGs.")
-    ap.add_argument("--maybe_b19_20_only", action="store_true", help="Keep only paths that look like B19.20/FFHQ100/runseed4400 outputs.")
+    ap.add_argument("--maybe_b19_20_only", action="store_true", help="Keep only paths that look like B19.20/FFHQ100 outputs.")
     ap.add_argument("--max_files_per_root", type=int, default=0)
     ap.add_argument("--outdir", default="/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_2_b19_20_candidate_png_locator")
     ap.add_argument("--report_path", default="docs/b21/b21_2_b19_20_candidate_png_locator.md")
