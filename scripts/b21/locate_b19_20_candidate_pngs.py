@@ -13,9 +13,9 @@ import csv
 import json
 import os
 import re
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
-from typing import Dict, Iterable, List, Sequence, Tuple
+from typing import Dict, Iterable, List, Sequence
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
 
@@ -42,7 +42,6 @@ def write_csv(path: Path, rows: Sequence[Dict[str, object]]) -> None:
 def walk_images(root: Path, max_files: int = 0) -> Iterable[Path]:
     count = 0
     for dirpath, dirnames, filenames in os.walk(root):
-        # Prune common irrelevant large dirs if they appear under repo roots.
         dirnames[:] = [d for d in dirnames if d not in {".git", "__pycache__", ".aider.tags.cache.v4"}]
         for name in filenames:
             if Path(name).suffix.lower() in IMAGE_EXTS:
@@ -67,6 +66,31 @@ def infer_int_after(patterns: Sequence[str], text: str) -> str:
     return ""
 
 
+def is_sample_png(path: str) -> bool:
+    p = Path(path)
+    parts = set(p.parts)
+    if p.name.startswith("grid_results"):
+        return False
+    if "trajectory" in parts:
+        return False
+    return "samples" in parts
+
+
+def token_match(path: str, tokens: Sequence[str], case_insensitive: bool = True) -> bool:
+    if not tokens:
+        return True
+    hay = path.lower() if case_insensitive else path
+    for tok in tokens:
+        needle = tok.lower() if case_insensitive else tok
+        if needle and needle in hay:
+            return True
+    return False
+
+
+def looks_b19_20(path: str) -> bool:
+    return token_match(path, ["b19_20", "ffhq100", "runseed4400"], case_insensitive=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Locate candidate PNG/JPG paths for B19.20/B21.2")
     ap.add_argument("--targets", default="00046,00136,00154,00171,00253,00480,00746,00971")
@@ -77,7 +101,13 @@ def main() -> None:
             "/egr/research-pac/huang248/outputs/pr_diffusion/b19_solver"
         ),
     )
-    ap.add_argument("--require_any", default="B19_20,b19_20,ffhq100,runseed4400,meas5001,meas5002,meas5003,meas5004,meas5005,meas5006,meas5007,meas5008,meas5009,meas5010")
+    ap.add_argument(
+        "--require_any",
+        default="B19_20,b19_20,ffhq100,runseed4400",
+        help="Comma-separated path tokens. Default is strict B19.20-ish search. Use an empty string to disable.",
+    )
+    ap.add_argument("--sample_only", action="store_true", help="Keep only files under samples/ and drop grid_results/trajectory PNGs.")
+    ap.add_argument("--maybe_b19_20_only", action="store_true", help="Keep only paths that look like B19.20/FFHQ100/runseed4400 outputs.")
     ap.add_argument("--max_files_per_root", type=int, default=0)
     ap.add_argument("--outdir", default="/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_2_b19_20_candidate_png_locator")
     ap.add_argument("--report_path", default="docs/b21/b21_2_b19_20_candidate_png_locator.md")
@@ -91,6 +121,7 @@ def main() -> None:
 
     rows: List[Dict[str, object]] = []
     root_stats: List[Dict[str, object]] = []
+    rejected = Counter()
     for root in roots:
         if not root.exists():
             root_stats.append({"root": str(root), "exists": False, "scanned_images": 0, "matches": 0})
@@ -102,8 +133,17 @@ def main() -> None:
             s = str(p)
             image_id = infer_image_id(s, targets)
             if not image_id:
+                rejected["non_target_image"] += 1
                 continue
-            if require_any and not any(tok in s for tok in require_any):
+            if require_any and not token_match(s, require_any, case_insensitive=True):
+                rejected["missing_required_token"] += 1
+                continue
+            maybe_b19 = looks_b19_20(s)
+            if args.maybe_b19_20_only and not maybe_b19:
+                rejected["not_maybe_b19_20"] += 1
+                continue
+            if args.sample_only and not is_sample_png(s):
+                rejected["not_sample_png"] += 1
                 continue
             matched += 1
             rows.append(
@@ -114,7 +154,8 @@ def main() -> None:
                     "meas_seed": infer_int_after([r"meas(\d{4,})", r"meas_seed[_-]?(\d{4,})"], s),
                     "run_seed": infer_int_after([r"runseed(\d{4,})", r"seed(\d{4,})"], s),
                     "run_index": infer_int_after([r"run(\d{4})", r"run[_-]?(\d+)"], s),
-                    "maybe_b19_20": any(tok.lower() in s.lower() for tok in ["b19_20", "ffhq100", "runseed4400"]),
+                    "is_sample_png": is_sample_png(s),
+                    "maybe_b19_20": maybe_b19,
                 }
             )
         root_stats.append({"root": str(root), "exists": True, "scanned_images": scanned, "matches": matched})
@@ -122,12 +163,20 @@ def main() -> None:
     write_csv(outdir / "candidate_png_matches.csv", rows)
     by_image = Counter(str(r["image_id"]) for r in rows)
     by_root = Counter(str(r["root"]) for r in rows)
+    by_maybe = Counter(str(r["maybe_b19_20"]) for r in rows)
+    sample_count = sum(1 for r in rows if r.get("is_sample_png"))
     summary = {
         "total_matches": len(rows),
+        "sample_png_matches": sample_count,
+        "maybe_b19_20_counts": dict(sorted(by_maybe.items())),
         "targets": sorted(targets),
+        "require_any": require_any,
+        "sample_only": bool(args.sample_only),
+        "maybe_b19_20_only": bool(args.maybe_b19_20_only),
         "root_stats": root_stats,
         "matches_by_image": dict(sorted(by_image.items())),
         "matches_by_root": dict(sorted(by_root.items())),
+        "rejected_counts": dict(sorted(rejected.items())),
     }
     (outdir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
@@ -137,6 +186,11 @@ def main() -> None:
         "Status: generated by `scripts/b21/locate_b19_20_candidate_pngs.py`.",
         "",
         f"Total matches: `{len(rows)}`",
+        f"Sample PNG matches: `{sample_count}`",
+        f"maybe_b19_20 counts: `{dict(sorted(by_maybe.items()))}`",
+        f"require_any: `{require_any}`",
+        f"sample_only: `{bool(args.sample_only)}`",
+        f"maybe_b19_20_only: `{bool(args.maybe_b19_20_only)}`",
         "",
         "## Root stats",
         "",
