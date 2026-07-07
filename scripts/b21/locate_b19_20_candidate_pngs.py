@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Locate B19.20 candidate PNGs outside replay CSVs.
+
+B21.2 selector-v2 needs actual candidate images.  The B19.20 replay CSVs record
+policy rows but no sample paths, so this helper searches likely DAPS/result roots
+for PNG/JPG files whose path encodes target image IDs and optionally run seeds or
+measurement seeds.  It is intentionally read-only and no-GPU.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import os
+import re
+from collections import Counter, defaultdict
+from pathlib import Path
+from typing import Dict, Iterable, List, Sequence, Tuple
+
+IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".webp"}
+
+
+def split_items(text: str) -> List[str]:
+    return [x.strip() for x in str(text).split(",") if x.strip()]
+
+
+def write_csv(path: Path, rows: Sequence[Dict[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    keys: List[str] = []
+    seen = set()
+    for r in rows:
+        for k in r:
+            if k not in seen:
+                seen.add(k)
+                keys.append(k)
+    with path.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=keys)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def walk_images(root: Path, max_files: int = 0) -> Iterable[Path]:
+    count = 0
+    for dirpath, dirnames, filenames in os.walk(root):
+        # Prune common irrelevant large dirs if they appear under repo roots.
+        dirnames[:] = [d for d in dirnames if d not in {".git", "__pycache__", ".aider.tags.cache.v4"}]
+        for name in filenames:
+            if Path(name).suffix.lower() in IMAGE_EXTS:
+                yield Path(dirpath) / name
+                count += 1
+                if max_files > 0 and count >= max_files:
+                    return
+
+
+def infer_image_id(path: str, targets: set[str]) -> str:
+    for t in sorted(targets):
+        if t in path:
+            return t
+    return ""
+
+
+def infer_int_after(patterns: Sequence[str], text: str) -> str:
+    for pat in patterns:
+        m = re.search(pat, text)
+        if m:
+            return m.group(1)
+    return ""
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser(description="Locate candidate PNG/JPG paths for B19.20/B21.2")
+    ap.add_argument("--targets", default="00046,00136,00154,00171,00253,00480,00746,00971")
+    ap.add_argument(
+        "--roots",
+        default=(
+            "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps/results,"
+            "/egr/research-pac/huang248/outputs/pr_diffusion/b19_solver"
+        ),
+    )
+    ap.add_argument("--require_any", default="B19_20,b19_20,ffhq100,runseed4400,meas5001,meas5002,meas5003,meas5004,meas5005,meas5006,meas5007,meas5008,meas5009,meas5010")
+    ap.add_argument("--max_files_per_root", type=int, default=0)
+    ap.add_argument("--outdir", default="/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_2_b19_20_candidate_png_locator")
+    ap.add_argument("--report_path", default="docs/b21/b21_2_b19_20_candidate_png_locator.md")
+    args = ap.parse_args()
+
+    targets = set(split_items(args.targets))
+    roots = [Path(x) for x in split_items(args.roots)]
+    require_any = split_items(args.require_any)
+    outdir = Path(args.outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    rows: List[Dict[str, object]] = []
+    root_stats: List[Dict[str, object]] = []
+    for root in roots:
+        if not root.exists():
+            root_stats.append({"root": str(root), "exists": False, "scanned_images": 0, "matches": 0})
+            continue
+        scanned = 0
+        matched = 0
+        for p in walk_images(root, max_files=args.max_files_per_root):
+            scanned += 1
+            s = str(p)
+            image_id = infer_image_id(s, targets)
+            if not image_id:
+                continue
+            if require_any and not any(tok in s for tok in require_any):
+                continue
+            matched += 1
+            rows.append(
+                {
+                    "path": s,
+                    "root": str(root),
+                    "image_id": image_id,
+                    "meas_seed": infer_int_after([r"meas(\d{4,})", r"meas_seed[_-]?(\d{4,})"], s),
+                    "run_seed": infer_int_after([r"runseed(\d{4,})", r"seed(\d{4,})"], s),
+                    "run_index": infer_int_after([r"run(\d{4})", r"run[_-]?(\d+)"], s),
+                    "maybe_b19_20": any(tok.lower() in s.lower() for tok in ["b19_20", "ffhq100", "runseed4400"]),
+                }
+            )
+        root_stats.append({"root": str(root), "exists": True, "scanned_images": scanned, "matches": matched})
+
+    write_csv(outdir / "candidate_png_matches.csv", rows)
+    by_image = Counter(str(r["image_id"]) for r in rows)
+    by_root = Counter(str(r["root"]) for r in rows)
+    summary = {
+        "total_matches": len(rows),
+        "targets": sorted(targets),
+        "root_stats": root_stats,
+        "matches_by_image": dict(sorted(by_image.items())),
+        "matches_by_root": dict(sorted(by_root.items())),
+    }
+    (outdir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    lines = [
+        "# B21.2 B19.20 candidate PNG locator",
+        "",
+        "Status: generated by `scripts/b21/locate_b19_20_candidate_pngs.py`.",
+        "",
+        f"Total matches: `{len(rows)}`",
+        "",
+        "## Root stats",
+        "",
+        "| root | exists | scanned images | matches |",
+        "|---|---|---:|---:|",
+    ]
+    for r in root_stats:
+        lines.append(f"| `{r['root']}` | {r['exists']} | {r['scanned_images']} | {r['matches']} |")
+    lines.extend(["", "## Matches by image", "", "| image_id | matches |", "|---|---:|"])
+    for image_id, count in sorted(by_image.items()):
+        lines.append(f"| `{image_id}` | {count} |")
+    lines.extend(["", "Artifacts:", "", "```text", str(outdir / "candidate_png_matches.csv"), str(outdir / "summary.json"), "```", ""])
+    Path(args.report_path).parent.mkdir(parents=True, exist_ok=True)
+    Path(args.report_path).write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    print(f"[write] {outdir / 'candidate_png_matches.csv'}")
+    print(f"[write] {outdir / 'summary.json'}")
+    print(f"[write] {args.report_path}")
+
+
+if __name__ == "__main__":
+    main()
