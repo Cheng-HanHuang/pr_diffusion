@@ -40,7 +40,7 @@ def read_exact_loss(path: Path) -> float:
     )
 
 
-def find_gt(repo: Path, image_id: str) -> Path:
+def find_gt(image_id: str) -> Path:
     root = Path("/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024")
     image_id = f"{int(image_id):05d}"
     candidates = [
@@ -48,9 +48,9 @@ def find_gt(repo: Path, image_id: str) -> Path:
         root / f"{image_id}.png",
         root / "00000" / f"{int(image_id):06d}.png",
     ]
-    for p in candidates:
-        if p.exists():
-            return p
+    for path in candidates:
+        if path.exists():
+            return path
     raise FileNotFoundError(f"ground truth not found for {image_id}; tried {candidates}")
 
 
@@ -80,6 +80,24 @@ def pixel_diff(a: Path, b: Path) -> tuple[float, float]:
     return float(diff.max()), float(diff.mean())
 
 
+def markdown_rows(df: pd.DataFrame) -> list[str]:
+    lines = [
+        "| case | exact operator loss | PSNR | good25 | sha256 |",
+        "|---|---:|---:|---:|---|",
+    ]
+    for _, row in df.iterrows():
+        lines.append(
+            "| {case} | {loss:.9g} | {psnr:.6f} | {good} | `{sha}` |".format(
+                case=row["case"],
+                loss=float(row["exact_operator_loss"]),
+                psnr=float(row["psnr_recomputed_from_png"]),
+                good=int(row["good25"]),
+                sha=str(row["sha256"]),
+            )
+        )
+    return lines
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", type=Path, required=True)
@@ -94,10 +112,10 @@ def main() -> int:
     repo = args.repo.resolve()
     save_dir = out / "daps_results"
     metric_dir = out / "metrics"
-    gt = find_gt(repo, args.image)
+    gt = find_gt(args.image)
 
     case_names = ["default_full", "source_full", "cont0_same_seed"] + [
-        f"branch_seed{s}" for s in args.branch_seeds
+        f"branch_seed{seed}" for seed in args.branch_seeds
     ]
 
     rows: list[dict[str, object]] = []
@@ -108,6 +126,7 @@ def main() -> int:
             raise FileNotFoundError(sample)
         if not metric.exists():
             raise FileNotFoundError(metric)
+        sample_psnr = psnr(sample, gt)
         rows.append(
             {
                 "case": case_name,
@@ -115,8 +134,8 @@ def main() -> int:
                 "metric_path": str(metric),
                 "sha256": sha256(sample),
                 "exact_operator_loss": read_exact_loss(metric),
-                "psnr_recomputed_from_png": psnr(sample, gt),
-                "good25": int(psnr(sample, gt) >= 25.0),
+                "psnr_recomputed_from_png": sample_psnr,
+                "good25": int(sample_psnr >= 25.0),
             }
         )
 
@@ -148,8 +167,8 @@ def main() -> int:
         )
     )
 
-    branch_cases = [f"branch_seed{s}" for s in args.branch_seeds]
-    branch_hashes = [str(by_case.loc[c, "sha256"]) for c in branch_cases]
+    branch_cases = [f"branch_seed{seed}" for seed in args.branch_seeds]
+    branch_hashes = [str(by_case.loc[case, "sha256"]) for case in branch_cases]
     branch_unique_hashes = len(set(branch_hashes))
     branch_diversity_pass = branch_unique_hashes >= 2
 
@@ -157,7 +176,9 @@ def main() -> int:
     state0 = state_dir / "step0000.pt"
     state_split = state_dir / f"step{args.split_step:04d}.pt"
     state_payloads_pass = state0.exists() and state_split.exists()
-    default_off_pass = (save_dir / "default_full" / "samples" / "00000_run0000.png").exists()
+    default_off_pass = (
+        save_dir / "default_full" / "samples" / "00000_run0000.png"
+    ).exists()
 
     overall_pass = bool(
         default_off_pass
@@ -215,7 +236,7 @@ def main() -> int:
         "",
         "## Candidate rows",
         "",
-        df[["case", "exact_operator_loss", "psnr_recomputed_from_png", "good25", "sha256"]].to_markdown(index=False),
+        *markdown_rows(df),
         "",
         f"Runtime artifacts: `{out}`",
     ]
