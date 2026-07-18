@@ -17,6 +17,7 @@ LF_ALPHA=${LF_ALPHA:-0.50}
 LF_FRAC=${LF_FRAC:-0.35}
 LF_RADIUS_FRAC=${LF_RADIUS_FRAC:-0.12}
 B21_FORCE=${B21_FORCE:-0}
+B21_SMOKE_ONLY=${B21_SMOKE_ONLY:-0}
 TUNED_IMAGE=${TUNED_IMAGE:-00046}
 
 HIO_MANIFEST="$HIO_OUT/manifest.tsv"
@@ -26,6 +27,7 @@ CASE_ROOT="$OUT/cases"
 MANIFEST="$OUT/manifest.tsv"
 DONE="$OUT/done.tsv"
 FAIL="$OUT/fail.tsv"
+SOURCE_ROWS="$OUT/source_rows.tsv"
 ANALYZER="$REPO/scripts/b19/analyze_daps_exact_final_loss_selector.py"
 PORTFOLIO_ANALYZER="$REPO/scripts/b21/analyze_b21_5_three_arm_portfolio.py"
 DATA_ROOT=/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
@@ -74,17 +76,23 @@ end_id: 1
 YAML
 done
 
+if [[ "$B21_SMOKE_ONLY" == "1" ]]; then
+  tail -n +2 "$HIO_MANIFEST" | head -n 1 > "$SOURCE_ROWS"
+else
+  tail -n +2 "$HIO_MANIFEST" > "$SOURCE_ROWS"
+fi
+
 : > "$DONE"
 : > "$FAIL"
 printf "job_id\timage_id\tcase_id\tgpu\tbase_seed\n" > "$MANIFEST"
 
 idx=0
-tail -n +2 "$HIO_MANIFEST" | while IFS=$'\t' read -r job_id image case_id old_gpu base_seed hio_seed warm_seed; do
+while IFS=$'\t' read -r job_id image case_id old_gpu base_seed hio_seed warm_seed; do
   [[ -z "${job_id:-}" ]] && continue
   gpu="${GPU_ARR[$((idx % ${#GPU_ARR[@]}))]}"
   printf "%s\t%s\t%s\t%s\t%s\n" "$job_id" "$image" "$case_id" "$gpu" "$base_seed" >> "$MANIFEST"
   idx=$((idx + 1))
-done
+done < "$SOURCE_ROWS"
 
 {
   echo "timestamp=$(date -Is)"
@@ -101,7 +109,8 @@ done
   echo "lf_alpha=$LF_ALPHA"
   echo "lf_frac=$LF_FRAC"
   echo "lf_radius_frac=$LF_RADIUS_FRAC"
-  echo "expected_cases=$(($(wc -l < "$MANIFEST") - 1))"
+  echo "smoke_only=$B21_SMOKE_ONLY"
+  echo "expected_cases=$idx"
 } > "$OUT/launch_env.txt"
 
 run_lf() {
@@ -203,6 +212,12 @@ echo "[workers done] completed=$completed failed=$failed"
 if [[ "$status" -ne 0 || "$failed" -ne 0 ]]; then
   cat "$FAIL" >&2
   exit 5
+fi
+
+if [[ "$B21_SMOKE_ONLY" == "1" ]]; then
+  echo "[smoke-only] completed first matched LF050 case; full analyzer intentionally skipped"
+  echo "[done] smoke artifacts: $OUT"
+  exit 0
 fi
 
 "$PYTHON_BIN" "$PORTFOLIO_ANALYZER" \
