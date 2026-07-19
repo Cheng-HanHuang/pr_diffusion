@@ -5,20 +5,134 @@ import argparse
 import json
 import math
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Sequence
 
+import numpy as np
 import pandas as pd
+from PIL import Image
+import torch
+import torchvision.transforms as transforms
 
 
-def read_metric(path: Path) -> tuple[float, float]:
+DEFAULT_IMAGE_ROOT = Path(
+    "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024"
+)
+
+
+def first_numeric(row: pd.Series, names: Sequence[str]) -> float:
+    for name in names:
+        if name not in row.index:
+            continue
+        value = pd.to_numeric(row[name], errors="coerce")
+        if pd.notna(value):
+            return float(value)
+    return float("nan")
+
+
+def find_gt(image_root: Path, image_id: str) -> Path:
+    value = int(image_id)
+    folder = f"{(value // 1000) * 1000:05d}"
+    candidates = [
+        image_root / folder / f"{value:05d}.png",
+        image_root / "00000" / f"{value:05d}.png",
+        image_root / f"{value:05d}.png",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    hits = list(image_root.rglob(f"{value:05d}.png"))
+    if len(hits) == 1:
+        return hits[0]
+    raise FileNotFoundError(
+        f"ground truth image {image_id} not found under {image_root}; "
+        f"candidates={candidates} hits={hits[:5]}"
+    )
+
+
+def load_sample_model_range(path: Path) -> torch.Tensor:
+    array = np.asarray(Image.open(path).convert("RGB"), dtype=np.float32) / 255.0
+    x01 = torch.from_numpy(array).permute(2, 0, 1).unsqueeze(0)
+    return x01 * 2.0 - 1.0
+
+
+def load_gt_model_range(path: Path, resolution: int = 256) -> torch.Tensor:
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize(resolution),
+        transforms.CenterCrop(resolution),
+    ])
+    return (transform(Image.open(path).convert("RGB")) * 2.0 - 1.0).unsqueeze(0)
+
+
+def psnr_model_range(sample: torch.Tensor, gt: torch.Tensor) -> float:
+    sample01 = (sample.clamp(-1, 1) + 1.0) / 2.0
+    gt01 = (gt.clamp(-1, 1) + 1.0) / 2.0
+    mse = (sample01 - gt01).pow(2).flatten(1).mean(dim=1).clamp_min(1e-12)
+    return float((-10.0 * torch.log10(mse))[0].item())
+
+
+def read_metric(path: Path, gt: torch.Tensor) -> tuple[float, float, str, str]:
+    """Read exact loss and obtain offline PSNR without requiring GT in measurement.
+
+    Older locked-measurement payloads included an ``images`` tensor, so the metric
+    CSV contained ``psnr_recomputed_from_png``.  The fresh-validation measurement
+    files intentionally contain only the measurement tensor.  In that case the
+    exact-loss analyzer correctly omits PSNR, and this final offline analyzer
+    recomputes it from the saved sample PNG plus the frozen FFHQ ground truth.
+    """
     frame = pd.read_csv(path)
     if frame.empty:
         raise ValueError(f"empty metric CSV: {path}")
     row = frame.iloc[0]
-    return (
-        float(pd.to_numeric(row["exact_operator_loss"], errors="raise")),
-        float(pd.to_numeric(row["psnr_recomputed_from_png"], errors="raise")),
+
+    loss = first_numeric(
+        row,
+        [
+            "exact_operator_loss",
+            "selector_exact_operator_loss",
+            "operator_loss",
+            "loss",
+        ],
     )
+    if not math.isfinite(loss):
+        raise ValueError(
+            f"no finite exact operator loss in {path}; columns={list(frame.columns)}"
+        )
+
+    sample_path_raw = str(row.get("sample_path", "")).strip()
+    if not sample_path_raw:
+        raise ValueError(
+            f"metric CSV lacks sample_path needed for offline PSNR: {path}; "
+            f"columns={list(frame.columns)}"
+        )
+    sample_path = Path(sample_path_raw)
+    if not sample_path.exists():
+        raise FileNotFoundError(
+            f"sample_path recorded in {path} does not exist: {sample_path}"
+        )
+
+    psnr = first_numeric(
+        row,
+        [
+            "psnr_recomputed_from_png",
+            "selector_psnr_recomputed_from_png",
+            "psnr_metrics_json",
+            "psnr",
+        ],
+    )
+    if math.isfinite(psnr):
+        source = "metric_csv"
+    else:
+        sample = load_sample_model_range(sample_path)
+        if tuple(sample.shape) != tuple(gt.shape):
+            raise ValueError(
+                f"sample/GT shape mismatch for {sample_path}: "
+                f"sample={tuple(sample.shape)} gt={tuple(gt.shape)}"
+            )
+        psnr = psnr_model_range(sample, gt)
+        source = "offline_png_vs_frozen_gt"
+
+    return loss, psnr, source, str(sample_path)
 
 
 def read_timings(path: Path) -> dict[str, float]:
@@ -93,7 +207,11 @@ def summarize(group: pd.DataFrame, name: str) -> dict[str, object]:
         "median_three_minus_base_lf_psnr": float(group.three_minus_base_lf_psnr.median()),
         "mean_lf_wall_over_base": lf_wall / base_wall if base_wall > 0 else float("nan"),
         "mean_hio_wall_over_base": hio_wall / base_wall if base_wall > 0 else float("nan"),
-        "three_arm_total_cost_over_base": (base_wall + lf_wall + hio_wall) / base_wall if base_wall > 0 else float("nan"),
+        "three_arm_total_cost_over_base": (
+            (base_wall + lf_wall + hio_wall) / base_wall
+            if base_wall > 0
+            else float("nan")
+        ),
     }
 
 
@@ -104,19 +222,33 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, required=True)
     parser.add_argument("--theta", type=float, default=0.7)
     parser.add_argument("--report", type=Path, required=True)
+    parser.add_argument("--image-root", type=Path, default=DEFAULT_IMAGE_ROOT)
     args = parser.parse_args()
 
     repo = args.repo.resolve()
     out = args.out.resolve()
+    image_root = args.image_root.resolve()
     manifest = pd.read_csv(args.manifest, sep="\t", dtype={"image_id": str})
     manifest["image_id"] = manifest.image_id.map(lambda x: f"{int(x):05d}")
 
+    gt_cache: dict[str, tuple[Path, torch.Tensor]] = {}
     rows: list[dict[str, object]] = []
     for rec in manifest.itertuples(index=False):
         case_dir = out / "cases" / f"{rec.image_id}_case{int(rec.case_id):02d}"
-        base_loss, base_psnr = read_metric(case_dir / "metrics" / "base_full.csv")
-        lf_loss, lf_psnr = read_metric(case_dir / "metrics" / "lf050.csv")
-        hio_loss, hio_psnr = read_metric(case_dir / "metrics" / "hio_warm.csv")
+        if rec.image_id not in gt_cache:
+            gt_path = find_gt(image_root, rec.image_id)
+            gt_cache[rec.image_id] = (gt_path, load_gt_model_range(gt_path))
+        gt_path, gt = gt_cache[rec.image_id]
+
+        base_loss, base_psnr, base_psnr_source, base_sample = read_metric(
+            case_dir / "metrics" / "base_full.csv", gt
+        )
+        lf_loss, lf_psnr, lf_psnr_source, lf_sample = read_metric(
+            case_dir / "metrics" / "lf050.csv", gt
+        )
+        hio_loss, hio_psnr, hio_psnr_source, hio_sample = read_metric(
+            case_dir / "metrics" / "hio_warm.csv", gt
+        )
         timing = read_timings(case_dir / "timings.tsv")
         hio_summary = json.loads((case_dir / "hio" / "hio_summary.json").read_text())
 
@@ -155,6 +287,13 @@ def main() -> int:
             "hio_seed": int(rec.hio_seed),
             "warm_noise_seed": int(rec.warm_noise_seed),
             "measurement_path": str(rec.measurement_path),
+            "gt_path": str(gt_path),
+            "base_sample_path": base_sample,
+            "lf_sample_path": lf_sample,
+            "hio_sample_path": hio_sample,
+            "base_psnr_source": base_psnr_source,
+            "lf_psnr_source": lf_psnr_source,
+            "hio_psnr_source": hio_psnr_source,
             "base_exact_operator_loss": base_loss,
             "lf_exact_operator_loss": lf_loss,
             "hio_exact_operator_loss": hio_loss,
@@ -185,13 +324,21 @@ def main() -> int:
             "lf_wall_seconds": timing.get("lf050", float("nan")),
             "hio_generate_wall_seconds": timing.get("hio_generate", float("nan")),
             "hio_warm_wall_seconds": timing.get("hio_warm", float("nan")),
-            "hio_total_wall_seconds": timing.get("hio_generate", float("nan")) + timing.get("hio_warm", float("nan")),
-            "hio_relative_residual": float(hio_summary["hio_sqrt_loss_over_y_norm"]),
+            "hio_total_wall_seconds": (
+                timing.get("hio_generate", float("nan"))
+                + timing.get("hio_warm", float("nan"))
+            ),
+            "hio_relative_residual": float(
+                hio_summary["hio_sqrt_loss_over_y_norm"]
+            ),
             "hio_state_sha256": hio_summary["warm_state_sha256"],
         })
 
     frame = pd.DataFrame(rows).sort_values(["image_id", "case_id"]).reset_index(drop=True)
-    by_image = [summarize(group, image) for image, group in frame.groupby("image_id", sort=True)]
+    by_image = [
+        summarize(group, image)
+        for image, group in frame.groupby("image_id", sort=True)
+    ]
     overall = summarize(frame, "ALL")
     image_summary = pd.DataFrame(by_image)
 
@@ -200,16 +347,31 @@ def main() -> int:
     zero_images = int((image_summary.three_arm_net_vs_base_lf == 0).sum())
     image_sign_p = exact_sign_p(positive_images, negative_images)
 
-    complete_gate = bool(len(frame) == len(manifest) == 80 and frame.state_valid.eq(1).all())
+    complete_gate = bool(
+        len(frame) == len(manifest) == 80
+        and frame.state_valid.eq(1).all()
+        and frame[["base_psnr", "lf_psnr", "hio_psnr"]]
+        .apply(np.isfinite)
+        .all()
+        .all()
+    )
     net_gate = int(overall["three_arm_net_vs_base_lf"]) >= 6
     harm_gate = int(overall["incremental_hio_harms"]) <= 2
     image_spread_gate = positive_images >= 5 and negative_images <= 2
-    capture_gate = float(overall["selector_capture_fraction_of_oracle_incremental_hio"]) >= 0.80
+    capture_gate = (
+        float(overall["selector_capture_fraction_of_oracle_incremental_hio"])
+        >= 0.80
+    )
     marginal_hio_gate = float(overall["mean_hio_wall_over_base"]) <= 0.70
     total_cost_gate = float(overall["three_arm_total_cost_over_base"]) <= 1.75
     fresh_validation_pass = bool(
-        complete_gate and net_gate and harm_gate and image_spread_gate
-        and capture_gate and marginal_hio_gate and total_cost_gate
+        complete_gate
+        and net_gate
+        and harm_gate
+        and image_spread_gate
+        and capture_gate
+        and marginal_hio_gate
+        and total_cost_gate
     )
 
     verdict = {
@@ -219,13 +381,14 @@ def main() -> int:
         "expected_cases": 80,
         "complete_cases": len(frame),
         "official_validation_split": "FFHQ ids 60000--69999",
+        "psnr_evaluation": "offline saved PNG versus frozen FFHQ ground truth using DAPS preprocessing; selection remains exact-loss-only",
         "overall": overall,
         "positive_image_count": positive_images,
         "negative_image_count": negative_images,
         "zero_image_count": zero_images,
         "image_level_exact_sign_test_two_sided_p": image_sign_p,
         "gates": {
-            "complete_80_valid_states": complete_gate,
+            "complete_80_valid_states_and_finite_psnr": complete_gate,
             "incremental_net_at_least_6": net_gate,
             "incremental_harms_at_most_2": harm_gate,
             "positive_images_at_least_5_and_negative_at_most_2": image_spread_gate,
@@ -254,6 +417,7 @@ def main() -> int:
         f"- paired cases: `{len(frame)}`",
         f"- frozen margin: `{args.theta}`",
         f"- fresh validation pass: **{fresh_validation_pass}**",
+        "- PSNR: offline saved PNG versus frozen FFHQ ground truth; selection remains exact-loss-only.",
         "",
         "## By image",
         "",
@@ -262,10 +426,14 @@ def main() -> int:
     ]
     for row in by_image:
         lines.append(
-            f"| `{row['group']}` | {row['n']} | {row['base_lf_gated_good25']} | {row['three_arm_gated_good25']} | "
-            f"{int(row['three_arm_net_vs_base_lf']):+d} | {row['incremental_hio_rescues']} | {row['incremental_hio_harms']} | "
-            f"{row['accepted_lf']} | {row['accepted_hio_after_lf']} | {row['oracle_incremental_hio']} | "
-            f"{float(row['selector_capture_fraction_of_oracle_incremental_hio']):.3f} | {float(row['three_arm_total_cost_over_base']):.3f} |"
+            f"| `{row['group']}` | {row['n']} | "
+            f"{row['base_lf_gated_good25']} | {row['three_arm_gated_good25']} | "
+            f"{int(row['three_arm_net_vs_base_lf']):+d} | "
+            f"{row['incremental_hio_rescues']} | {row['incremental_hio_harms']} | "
+            f"{row['accepted_lf']} | {row['accepted_hio_after_lf']} | "
+            f"{row['oracle_incremental_hio']} | "
+            f"{float(row['selector_capture_fraction_of_oracle_incremental_hio']):.3f} | "
+            f"{float(row['three_arm_total_cost_over_base']):.3f} |"
         )
     lines += [
         "",
