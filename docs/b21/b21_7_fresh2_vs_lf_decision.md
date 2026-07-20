@@ -1,6 +1,6 @@
 # B21.7 Fresh2 versus Base+LF decision
 
-The 80-case official FFHQ validation-split allocation experiment completed with no failures.
+The 80-case official FFHQ validation-split allocation experiment and the matched runtime calibration both completed without failures.
 
 ## Quality result
 
@@ -16,28 +16,35 @@ one-sided exact p favoring Fresh2: 0.046142578125
 
 The same `+7` advantage appears under oracle any-good25 (`70/80` versus `63/80`), so the result is a candidate-generation difference rather than a selector artifact. Five images favor Fresh2, one favors Base+LF, and four tie.
 
-Under the frozen quality rule, Fresh2 wins and LF050 should not be the default second arm.
+Under the frozen quality rule, Fresh2 wins and LF050 is retired as the default second arm.
 
-## Runtime caveat
+## Matched runtime result
 
-The two second arms have the same declared full-trajectory work (`ann400`, `diff5`), but they were executed in different jobs. Their historical wall times are not comparable:
+Eight interleaved pairs reran a fresh base trajectory and LF050 under the same current environment, with the same seed within a pair and alternating execution order:
 
 ```text
-historical LF wall / historical base wall:      1.025
-later base_extra wall / historical base wall:   2.263
+paired mean LF/base:   0.997360
+paired median LF/base: 0.998649
+paired range:          [0.976526, 1.010050]
+base-first mean:       0.994814
+LF-first mean:         0.999905
 ```
 
-Thus the quality comparison is valid at fixed trajectory/work budget, but the label `equal wall-clock cost` is not yet supported. The `base_extra` slowdown is likely a run-environment or contention effect, but that must be checked rather than assumed.
+The two arms are therefore equivalent in wall time to within about one percent. Execution order did not produce a meaningful effect.
 
-## Required next step
+Historical cross-job timing ratios are not used for allocation claims. In particular, the earlier aggregate `base_extra/base = 2.263` field conflicts with both the matched audit and the sampled historical per-case timings, and is treated as cross-run/accounting contamination rather than algorithmic cost.
 
-Run a small interleaved timing calibration in one job:
+## Final decision
 
-- eight frozen cases;
-- same seed for fresh-base and LF within each pair;
-- both candidates launched under the same current environment;
-- alternating base-first and LF-first order;
-- four GPUs;
-- no new quality claim.
+```text
+preferred second arm: independent fresh DAPS restart
+retired default arm:  LF050
+selector:             frozen exact-loss margin theta=0.7
+cost interpretation: Fresh2 and Base+LF are both approximately two full-run equivalents
+```
 
-If paired LF/base wall ratios are approximately one, retain the fixed-work conclusion that independent restarts are the preferred second arm and treat the historical `2.263x` number as cross-run timing contamination. Otherwise, investigate the runtime difference before designing the next budget policy.
+LF050 remains preserved as a diagnostic or optional diversity arm, but there is no evidence to spend the standard second-run budget on it instead of an independent restart.
+
+## Next stage
+
+Build the independent-restart budget curve by adding third and fourth fresh trajectories on the same development panel. Select the smallest restart count that reaches the preregistered reliability target, then validate that count unchanged on a new disjoint official-validation panel.
