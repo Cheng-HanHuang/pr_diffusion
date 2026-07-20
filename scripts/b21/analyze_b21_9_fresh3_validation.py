@@ -247,7 +247,6 @@ def main() -> int:
         })
     image_summary = pd.DataFrame(image_rows)
 
-    overall_k2 = curve[1]
     overall_k3 = curve[2]
     positive_images = int((image_summary.fresh3_minus_fresh2_selected_good25 > 0).sum())
     negative_images = int((image_summary.fresh3_minus_fresh2_selected_good25 < 0).sum())
@@ -278,7 +277,10 @@ def main() -> int:
         "frozen_theta": args.theta,
         "expected_cases": 80,
         "complete_cases": len(frame),
-        "panel_shape": "20 untouched official-validation images x 4 independent measurement/seed cases",
+        "panel_shape": "20 untouched official-validation images x 4 trajectory-seed cases; one locked measurement per image",
+        "independent_image_units": 20,
+        "locked_measurements": 20,
+        "trajectory_seed_cases_per_image": 4,
         "curve": curve,
         "fresh3_incremental_rescues": incremental_rescues,
         "fresh3_incremental_harms": incremental_harms,
@@ -311,8 +313,9 @@ def main() -> int:
     lines = [
         "# B21.9 Fresh3 disjoint validation",
         "",
-        "- panel: `20` untouched official FFHQ validation images x `4` cases",
-        "- paired cases: `80`",
+        "- panel: `20` untouched official FFHQ validation images",
+        "- locked measurements: `20` (one per image)",
+        "- trajectory-seed cases: `4` per image, `80` rows total",
         f"- frozen theta: `{args.theta}`",
         f"- validation pass: **{validation_pass}**",
         "",
