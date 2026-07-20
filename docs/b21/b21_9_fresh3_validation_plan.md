@@ -34,7 +34,7 @@ Use 20 previously untouched IDs from the official FFHQ validation range `60000--
 
 The list is the first 20 SHA-256-ranked unused IDs under salt `B21.9-fresh3-validation-v1`, excluding the ten B21.5/B21.8 images.
 
-Use four cases per image, for 80 total cases.
+Use four trajectory-seed cases per image, for 80 rows total. Each image has one newly generated locked noisy measurement shared by its four trajectory-seed cases. The independent generalization units are therefore the 20 images, while the four cases characterize within-image stochastic reliability.
 
 Fresh locked configuration:
 
@@ -45,7 +45,7 @@ trajectory-2 seeds:         18000--18079
 trajectory-3 seeds:         19000--19079
 ```
 
-Measurements are generated once with the local DAPS preprocessing and phase-retrieval operator, then saved with hashes before any solver output.
+Twenty measurements are generated once with the local DAPS preprocessing and phase-retrieval operator, then saved with hashes before any solver output.
 
 ## Frozen validation gates
 
