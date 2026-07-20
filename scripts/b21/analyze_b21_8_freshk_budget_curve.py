@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import math
 from pathlib import Path
 
 import numpy as np
@@ -105,7 +104,9 @@ def main() -> int:
         raise ValueError(f"expected 80 prior/manifest rows, got {len(prior)} and {len(manifest)}")
 
     merged = prior.merge(
-        manifest[["job_id", "image_id", "case_id", "extra2_seed", "extra3_seed"]],
+        manifest[[
+            "image_id", "case_id", "extra1_seed", "extra2_seed", "extra3_seed"
+        ]],
         on=["image_id", "case_id"],
         how="inner",
         validate="one_to_one",
@@ -155,7 +156,7 @@ def main() -> int:
             "image_id": image_id,
             "case_id": case_id,
             "base_seed": int(rec.base_seed),
-            "extra1_seed": int(rec.extra_seed),
+            "extra1_seed": int(rec.extra1_seed),
             "extra2_seed": int(rec.extra2_seed),
             "extra3_seed": int(rec.extra3_seed),
             "measurement_path": str(rec.measurement_path),
@@ -211,30 +212,43 @@ def main() -> int:
         "base_exact_operator_loss", "extra1_exact_operator_loss",
         "extra2_exact_operator_loss", "extra3_exact_operator_loss",
         "base_psnr", "extra1_psnr", "extra2_psnr", "extra3_psnr",
-        "base_wall_seconds", "extra1_wall_seconds", "extra2_wall_seconds", "extra3_wall_seconds",
+        "base_wall_seconds", "extra1_wall_seconds", "extra2_wall_seconds",
+        "extra3_wall_seconds",
     ]
     finite_gate = bool(np.isfinite(frame[numeric].to_numpy(dtype=float)).all())
 
-    curve_rows: list[dict[str, object]] = []
     per_image_rows: list[dict[str, object]] = []
     for image_id, group in frame.groupby("image_id", sort=True):
         image_row: dict[str, object] = {"image_id": image_id, "n": len(group)}
         for k in range(1, 5):
-            image_row[f"fresh{k}_selected_good25"] = int(group[f"fresh{k}_selected_good25"].sum())
-            image_row[f"fresh{k}_oracle_good25"] = int(group[f"fresh{k}_oracle_good25"].sum())
+            image_row[f"fresh{k}_selected_good25"] = int(
+                group[f"fresh{k}_selected_good25"].sum()
+            )
+            image_row[f"fresh{k}_oracle_good25"] = int(
+                group[f"fresh{k}_oracle_good25"].sum()
+            )
         per_image_rows.append(image_row)
     per_image = pd.DataFrame(per_image_rows)
 
+    curve_rows: list[dict[str, object]] = []
     total_base_wall = float(frame.base_wall_seconds.sum())
     cumulative_wall = total_base_wall
     selected_harms_cumulative = 0
     for k in range(1, 5):
         if k > 1:
             cumulative_wall += float(frame[f"extra{k-1}_wall_seconds"].sum())
-            selected_harms_cumulative += int(frame[f"fresh{k}_incremental_harm"].sum())
+            selected_harms_cumulative += int(
+                frame[f"fresh{k}_incremental_harm"].sum()
+            )
         selected_good = int(frame[f"fresh{k}_selected_good25"].sum())
         oracle_good = int(frame[f"fresh{k}_oracle_good25"].sum())
         min_image_good = int(per_image[f"fresh{k}_selected_good25"].min())
+        previous_selected = (
+            int(frame[f"fresh{k-1}_selected_good25"].sum()) if k > 1 else 0
+        )
+        previous_oracle = (
+            int(frame[f"fresh{k-1}_oracle_good25"].sum()) if k > 1 else 0
+        )
         curve_rows.append({
             "k": k,
             "selected_good25": selected_good,
@@ -242,18 +256,16 @@ def main() -> int:
             "oracle_good25": oracle_good,
             "oracle_bad25": 80 - oracle_good,
             "selected_oracle_gap": oracle_good - selected_good,
-            "incremental_selected_gain": (
-                selected_good - int(frame[f"fresh{k-1}_selected_good25"].sum()) if k > 1 else selected_good
-            ),
-            "incremental_oracle_gain": (
-                oracle_good - int(frame[f"fresh{k-1}_oracle_good25"].sum()) if k > 1 else oracle_good
-            ),
+            "incremental_selected_gain": selected_good - previous_selected,
+            "incremental_oracle_gain": oracle_good - previous_oracle,
             "incremental_rescues": int(frame[f"fresh{k}_incremental_rescue"].sum()),
             "incremental_harms": int(frame[f"fresh{k}_incremental_harm"].sum()),
             "cumulative_harms": selected_harms_cumulative,
             "accepted_new_arm": int(frame[f"fresh{k}_accepted_new"].sum()),
             "min_per_image_selected_good25": min_image_good,
-            "total_wall_over_base": cumulative_wall / total_base_wall if total_base_wall > 0 else float("nan"),
+            "historical_total_wall_over_base": (
+                cumulative_wall / total_base_wall if total_base_wall > 0 else float("nan")
+            ),
             "meets_reliability_target": bool(
                 selected_good >= args.target_good
                 and oracle_good - selected_good <= args.max_oracle_gap
@@ -285,6 +297,7 @@ def main() -> int:
         "curve": curve_rows,
         "selected_k": selected_k,
         "budget_decision": decision,
+        "wall_time_note": "historical cross-job ratios are diagnostic only; K is interpreted primarily as full-trajectory work equivalents",
         "next_if_selected": "freeze selected K and validate unchanged on a disjoint official FFHQ validation panel with new measurements and seeds",
         "next_if_none": "do not scale independent restarts blindly; return to hard-case candidate-generation or adaptive budget design",
     }
@@ -305,10 +318,11 @@ def main() -> int:
         f"- paired cases: `{len(frame)}`",
         f"- frozen theta: `{args.theta}`",
         f"- budget decision: **{decision}**",
+        "- cost axis: full-trajectory work equivalents; historical wall ratios are diagnostic only.",
         "",
         "## Curve",
         "",
-        "| K | selected good25 | oracle good25 | selected-oracle gap | incremental selected | rescues | harms | cumulative harms | min image good | cost/base | target |",
+        "| K | selected good25 | oracle good25 | selected-oracle gap | incremental selected | rescues | harms | cumulative harms | min image good | historical wall/base | target |",
         "|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in curve_rows:
@@ -317,7 +331,8 @@ def main() -> int:
             f"{row['selected_oracle_gap']} | {row['incremental_selected_gain']:+d} | "
             f"{row['incremental_rescues']} | {row['incremental_harms']} | "
             f"{row['cumulative_harms']} | {row['min_per_image_selected_good25']}/8 | "
-            f"{float(row['total_wall_over_base']):.3f} | {row['meets_reliability_target']} |"
+            f"{float(row['historical_total_wall_over_base']):.3f} | "
+            f"{row['meets_reliability_target']} |"
         )
     lines += [
         "",
