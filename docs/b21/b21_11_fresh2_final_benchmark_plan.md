@@ -1,6 +1,6 @@
 # B21.11 prospective Fresh2 final benchmark
 
-Status: preregistered plan only. The runner must implement this plan without changing the panel, seeds, selector, or reporting metrics.
+Status: implementation ready on `codex/b21-11-fresh2-final-benchmark`; smoke and integrity review are required before the full launch. The runner implements this plan without changing the panel, seeds, selector, or reporting metrics.
 
 ## Objective
 
