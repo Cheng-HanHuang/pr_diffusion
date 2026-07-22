@@ -21,6 +21,12 @@ def binary_auc(scores: pd.Series, labels: pd.Series) -> float:
     return wins / (len(pos) * len(neg))
 
 
+def json_scalar(value: object) -> object:
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
+
+
 def load_png01(path: Path) -> np.ndarray:
     if not path.exists():
         raise FileNotFoundError(path)
@@ -171,7 +177,8 @@ def main() -> int:
         ["development_specificity", "development_auc"], ascending=[False, False]
     )
     best_feature = str(relative_features.iloc[0].feature)
-    best_row = feature_table.loc[feature_table.feature.eq(best_feature)].iloc[0].to_dict()
+    best_series = feature_table.loc[feature_table.feature.eq(best_feature)].iloc[0]
+    best_row = {str(key): json_scalar(value) for key, value in best_series.items()}
 
     combined = pd.concat([development, validation], ignore_index=True)
     validation_ranking = validation.sort_values(
