@@ -104,7 +104,12 @@ def main() -> int:
             )
     else:
         with tsv_path.open("w", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=list(rows[0].keys()), delimiter="\t")
+            writer = csv.DictWriter(
+                handle,
+                fieldnames=list(rows[0].keys()),
+                delimiter="\t",
+                lineterminator="\n",
+            )
             writer.writeheader()
             writer.writerows(rows)
 
