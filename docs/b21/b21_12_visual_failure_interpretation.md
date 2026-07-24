@@ -48,3 +48,11 @@ The five failures persistent after the identity/rot180 oracle split into three d
 3. **High-complexity or low-density content with unstable prior behavior**: row 37.
 
 This means that “five genuine candidate-generation failures” should not be read as five examples of the same attractor. A future method would likely need different interventions for chromatic consistency, twin-mixture rejection, and low-density complex imagery. The final B21.11 panel must not be used to tune those interventions.
+
+## Evaluation implication
+
+The official raw-PSNR score should remain primary for comparability, but manuscript tables should also report an offline ambiguity-aware PSNR defined by
+
+`max(PSNR(x, x_gt), PSNR(rot180(x), x_gt))`.
+
+This does not improve the runtime method. It prevents exact 180-degree symmetry outcomes from being conflated with structural reconstruction failures. Under that descriptive convention, the three pure ambiguity cases are separated from the five persistent failures.
