@@ -9,10 +9,12 @@ This directory freezes the state of the FFHQ diffusion phase-retrieval project a
 1. `00_START_HERE.md` — this file.
 2. `01_PROJECT_CHECKPOINT.md` — scientific conclusions, adopted/rejected methods, repository state, and artifact map.
 3. `02_PAC_INVENTORY_AND_FREEZE.md` — PAC-side inventory and preservation procedure.
-4. `03_B22_NEW_CHAT_HANDOVER.md` — exact scope and opening prompt for the next chat.
-5. `docs/b21/b21_11_fresh2_final_benchmark.md` — final prospective Fresh2 benchmark.
-6. `docs/b21/b21_12_failure_atlas_decision.md` and `docs/b21/b21_12_visual_failure_interpretation.md` — failure decomposition.
-7. `docs/b21/b21_registry.md` — full method/policy registry.
+4. `03_B22_NEW_CHAT_HANDOVER.md` — exact B22 scope and execution constraints.
+5. `04_DIRTY_SOURCE_SNAPSHOT_AMENDMENT.md` — preservation of untracked research source and dirty DAPS files.
+6. `05_NEXT_CHAT_LAUNCH_PACKET.md` — what is on GitHub, what remains PAC-side, minimum attachments, and the final copyable new-chat opening message.
+7. `docs/b21/b21_11_fresh2_final_benchmark.md` — final prospective Fresh2 benchmark.
+8. `docs/b21/b21_12_failure_atlas_decision.md` and `docs/b21/b21_12_visual_failure_interpretation.md` — failure decomposition.
+9. `docs/b21/b21_registry.md` — full method/policy registry.
 
 Later files must not silently override an earlier file in this order. If a contradiction is found, stop and record it in the checkpoint rather than guessing.
 
@@ -65,7 +67,7 @@ This branch is based on the completed B21.12 branch and adds documentation/inven
 The checkpoint is complete when:
 
 - the repository-side checkpoint documents are committed;
-- the PAC inventory script has been run once and its output directory preserved;
+- the PAC inventory and companion source-snapshot collectors have both run and their output directories are preserved;
 - the manually reviewed B21.12 label CSV is included in the PAC checkpoint artifacts;
 - the branch/PR integration decision is recorded;
-- the next chat starts from `03_B22_NEW_CHAT_HANDOVER.md` rather than reconstructing the project from conversation history.
+- the next chat starts from `05_NEXT_CHAT_LAUNCH_PACKET.md` and the committed checkpoint rather than reconstructing the project from conversation history.
