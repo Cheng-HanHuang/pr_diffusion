@@ -5,15 +5,19 @@
 **B22.1 is signed off.**
 
 The recovered one-image fixed-baseline smoke passed the independent validator for
-both `SITCOM-1` and `NP-1`. The full 100-image baseline implementation may now be
-prepared, but no full-panel GPU launch is authorized until that implementation,
-its sharding/accounting contract, and its dry-run validation are reviewed.
+both `SITCOM-1` and `NP-1`. B22.2 full-panel implementation has now been
+published as a strict smoke-gated overnight package. The user has authorized the
+full GPU launch only through that automatic machine gate: the full workers may
+start after, and only after, the B22.2 full-policy smoke passes all candidate,
+metric, selector, source, and exact B22.1 replay checks.
 
 ```text
 B22.0 inventory: SIGNED OFF
 B22.1 one-image smoke: SIGNED OFF
-B22.2 full-panel implementation: AUTHORIZED
-Full 100-image GPU launch: BLOCKED pending B22.2 implementation review
+B22.2 full-panel implementation: PUBLISHED
+B22.2 full-policy smoke: AUTHORIZED
+B22.2 automatic full launch after smoke PASS: AUTHORIZED
+Full scientific sign-off: BLOCKED pending returned result archive
 ```
 
 ## Returned recovery archive
@@ -119,6 +123,18 @@ is now represented as JSON `null` and listed explicitly under
 `undefined_diagnostics`. This is correct because the frozen post-projection
 configuration has one hard candidate.
 
+The B22.2 full-policy smoke additionally requires exact replay of:
+
+```text
+SITCOM-1 reconstruction SHA-256:
+14ed2c4e209d2f00601f73cfd35b87c7db1365a57065c41a3c3ab162cae429d2
+
+NP-1 reconstruction SHA-256:
+b6dee35138e453fc8a1c77aa1dc3331d1b70bce8fa75a10d66fc39d5fd836641
+```
+
+Any replay mismatch blocks the automatic full launch.
+
 ## Visual review
 
 The ground truth and both reconstructions were inspected. Both methods recover
@@ -127,10 +143,9 @@ cleaner and less grainy than SITCOM on this image, consistent with the higher ra
 PSNR. This visual observation is descriptive only and does not replace the
 paired panel evaluation.
 
-## B22.2 requirements
+## B22.2 frozen full-panel rows
 
-The next authorized task is implementation and non-GPU/dry-run validation of the
-full-panel execution package. It must freeze and expose separate rows for:
+Executable:
 
 - existing `Fresh1`;
 - existing frozen `Fresh2`;
@@ -139,27 +154,31 @@ full-panel execution package. It must freeze and expose separate rows for:
 - `NP-1`;
 - `NP-8-RS`, using `global_run_by_selector` over LF/S2 and seeds 100--103.
 
-Ground-truth-assisted oracle rows may be computed only as clearly labeled
-diagnostics and must never replace the executable rows.
+Diagnostic only:
 
-The implementation must:
+- SITCOM-oracle4;
+- NP-oracle8.
 
-1. consume the same 100 locked measurement tensors;
-2. never regenerate measurement noise;
-3. reuse existing Fresh1/Fresh2 outputs rather than rerunning them;
-4. preserve raw PSNR as primary and rot180-aware PSNR as auxiliary;
-5. record per-trajectory and per-policy timing, GPU-seconds, wall time, memory,
+The implementation:
+
+1. consumes the same 100 locked measurement tensors;
+2. never regenerates measurement noise;
+3. reuses existing Fresh1/Fresh2 outputs rather than rerunning them;
+4. preserves raw PSNR as primary and rot180-aware PSNR as auxiliary;
+5. records per-candidate and per-policy timing, GPU-seconds, memory,
    source/config/model/tensor identities, and output hashes;
-6. support deterministic resumable sharding over the four PAC GPUs;
-7. refuse silent overwrite and partial-row omission;
-8. package compact summaries and failure artifacts without terminal flooding;
-9. perform a CPU-only plan/dry-run before any full GPU launch;
-10. keep the full-panel launch blocked until explicit implementation sign-off.
+6. uses deterministic resumable sharding over four PAC GPUs;
+7. refuses silent overwrite and partial-row omission;
+8. packages compact summaries and failure artifacts without terminal flooding;
+9. performs a strict two-row, four-GPU, full-policy smoke before full launch;
+10. independently recomputes every candidate hash, metric, and executable
+    selector before the full workers start.
 
 ## Gate
 
 ```text
 B22.1 decision: PASS / SIGNED OFF
-B22.2 implementation: AUTHORIZED
-B22.2 full-panel execution: NOT YET AUTHORIZED
+B22.2 implementation: PUBLISHED
+B22.2 smoke-to-full gated execution: AUTHORIZED
+B22.2 scientific interpretation: PENDING RETURNED ARCHIVE
 ```
