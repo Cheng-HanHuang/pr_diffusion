@@ -12,6 +12,7 @@ from pathlib import Path
 
 import torch
 
+from b22_json_safe import nonfinite_paths, sanitize_for_json
 from b22_smoke_common import (
     cuda_memory_snapshot,
     environment_cuda_visible_devices,
@@ -130,6 +131,7 @@ def main() -> None:
     torch.save({"reconstruction": reconstruction.detach().cpu()}, tensor_path)
     save_model_range_png(reconstruction, png_path)
 
+    undefined_diagnostics = nonfinite_paths(selector_stats, "selector_stats")
     result = {
         "schema_version": 1,
         "method": "NP-1",
@@ -153,7 +155,8 @@ def main() -> None:
         ),
         "config": method,
         "pad_pixels_each_side": pad,
-        "selector_stats": selector_stats,
+        "selector_stats": sanitize_for_json(selector_stats),
+        "undefined_diagnostics": undefined_diagnostics,
         "metrics": metrics,
         "timing": {
             "model_load_s": model_load_s,
@@ -175,6 +178,7 @@ def main() -> None:
                 "image_id": manifest["image_id"],
                 "psnr_raw": metrics["psnr_raw"],
                 "runtime_s": reconstruction_s,
+                "undefined_diagnostics": undefined_diagnostics,
             },
             sort_keys=True,
         )
