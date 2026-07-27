@@ -28,19 +28,38 @@
     "auxiliary_metric": "max(raw, rot180) PSNR; offline ground-truth-assisted"
   },
   "execution": {
-    "smoke_row_indices": [0, 1],
+    "smoke_row_indices": [
+      0,
+      1
+    ],
     "sitcom_shards": 2,
     "np_shards": 2,
-    "sitcom_gpus": [0, 1],
-    "np_gpus": [2, 3],
+    "sitcom_gpus": [
+      0,
+      1
+    ],
+    "np_gpus": [
+      2,
+      3
+    ],
     "automatic_full_launch_after_smoke_pass": true,
     "resume_existing_valid_candidates": true,
     "refuse_silent_overwrite": true
   },
   "sitcom": {
-    "policy_rows": ["SITCOM-1", "SITCOM-4S"],
-    "diagnostic_rows": ["SITCOM-oracle4"],
-    "seeds": [43, 44, 45, 46],
+    "policy_rows": [
+      "SITCOM-1",
+      "SITCOM-4S"
+    ],
+    "diagnostic_rows": [
+      "SITCOM-oracle4"
+    ],
+    "seeds": [
+      43,
+      44,
+      45,
+      46
+    ],
     "sitcom1_candidate_index": 0,
     "selector_tau": 0.8,
     "selector_step": 160,
@@ -55,16 +74,26 @@
     "diff_sigma_min": 0.01,
     "timestep": "poly-7",
     "lgvd_steps": 100,
-    "lgvd_lr": 0.00005,
+    "lgvd_lr": 5e-05,
     "lgvd_lr_min_ratio": 0.01,
     "lgvd_tau": 0.01,
     "measurement_preprocessing": "none",
     "model_path_relative_to_sitcom_root": "checkpoint/ffhq256.pt"
   },
   "np": {
-    "policy_rows": ["NP-1", "NP-8-RS"],
-    "diagnostic_rows": ["NP-oracle8"],
-    "seeds": [100, 101, 102, 103],
+    "policy_rows": [
+      "NP-1",
+      "NP-8-RS"
+    ],
+    "diagnostic_rows": [
+      "NP-oracle8"
+    ],
+    "seeds": [
+      100,
+      101,
+      102,
+      103
+    ],
     "np1_config_tag": "lf",
     "np1_seed": 100,
     "configs": [
@@ -104,5 +133,11 @@
     "full_panel_launch_authorized_by_user_request": true,
     "no_policy_tuning": true,
     "no_measurement_regeneration": true
+  },
+  "smoke_replay": {
+    "image_id": "60044",
+    "sitcom1_reconstruction_content_sha256": "14ed2c4e209d2f00601f73cfd35b87c7db1365a57065c41a3c3ab162cae429d2",
+    "np1_reconstruction_content_sha256": "b6dee35138e453fc8a1c77aa1dc3331d1b70bce8fa75a10d66fc39d5fd836641",
+    "purpose": "Exact replay gate against the signed-off B22.1 smoke."
   }
 }
