@@ -29,14 +29,17 @@ Diagnostic-only rows:
 - SITCOM-oracle4;
 - NP-oracle8.
 
-SITCOM seeds are frozen before the full panel as `43,44,45,46`. The selector
-reads
+The historical SITCOM population is frozen as one master seed `43` set before
+model construction, followed by four sequential trajectories from that RNG
+stream. It is not four separately reseeded runs. Candidate 0 is therefore the
+exact SITCOM-1 trajectory used by B22.1. The 4S selector reads
 
 ```text
 sqrt(mean((x0y - x0hat)^2))
 ```
 
-at annealing step 160 of 200. Stable ties choose the lower candidate index.
+at annealing step 160 of 200 (`tau=0.8`). Stable ties choose the lower candidate
+index.
 
 ## Compute plan
 
@@ -44,8 +47,8 @@ Four physical GPUs are used concurrently:
 
 | GPU role | method | full rows |
 |---|---|---:|
-| first SITCOM GPU | SITCOM candidates 0--3 | 50 |
-| second SITCOM GPU | SITCOM candidates 0--3 | 50 |
+| first SITCOM GPU | SITCOM sequential candidates 0--3 | 50 |
+| second SITCOM GPU | SITCOM sequential candidates 0--3 | 50 |
 | first NP GPU | LF/S2 x seeds 100--103 | 50 |
 | second NP GPU | LF/S2 x seeds 100--103 | 50 |
 
@@ -216,6 +219,7 @@ inspection.
 - four distinct GPU indices are required;
 - full execution starts only after machine validation of the full-policy smoke;
 - the B22.1 SITCOM-1 and NP-1 reconstruction hashes must replay exactly;
+- SITCOM uses the frozen master-seed-43 sequential four-trajectory population;
 - no output directory is silently overwritten;
 - valid completed candidates are resumable;
 - partial/invalid candidate directories stop rather than being replaced;
