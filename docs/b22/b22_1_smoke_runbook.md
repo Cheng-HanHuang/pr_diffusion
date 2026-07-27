@@ -184,6 +184,77 @@ logs/
 
 The archive contains no model checkpoint and no locked measurement copy.
 
+## Attempt-1 NP JSON recovery
+
+The first returned archive, `B22_1_smoke_20260727_142201.tar.gz`, passed CPU
+preflight and SITCOM. NP completed the frozen trajectory and wrote finite tensor
+and PNG outputs, but result serialization failed because
+`selector_post_lf_mse_margin_mean` was `NaN`. With `hard_candidates=1`, that
+first-versus-second post-projection margin is mathematically undefined.
+
+The corrected runner records undefined scalar diagnostics as JSON `null` while
+keeping strict JSON compliance. The complete incident record is:
+
+```text
+docs/b22/b22_1_attempt1_np_json_failure.md
+```
+
+Pull the corrected branch in the existing B22 worktree:
+
+```bash
+WT=/egr/research-pac/huang248/pr_diffusion_b22
+cd "$WT"
+git fetch origin
+git pull --ff-only origin codex/b22-fixed-baseline-comparison
+
+git branch --show-current
+git rev-parse HEAD
+git status --short --branch
+```
+
+Then rerun NP only, preserving and hash-checking the first reconstruction:
+
+```bash
+WT=/egr/research-pac/huang248/pr_diffusion_b22
+RUN=/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines/B22_1_smoke_20260727_142201
+GPU=0
+
+cd "$WT"
+nohup bash scripts/b22/resume_b22_1_after_np_json_failure.sh \
+  "$GPU" \
+  "$RUN" \
+  > /egr/research-pac/huang248/tmp/b22_1_np_json_recovery.log 2>&1 &
+
+echo "recovery_pid=$!"
+echo "recovery_log=/egr/research-pac/huang248/tmp/b22_1_np_json_recovery.log"
+```
+
+The recovery does not rerun SITCOM. It preserves attempt 1, repeats the same NP
+seed/configuration, requires an exact reconstruction tensor-content hash match,
+runs the original validator, and produces a sibling recovery archive.
+
+Check only the compact recovery log:
+
+```bash
+tail -n 50 /egr/research-pac/huang248/tmp/b22_1_np_json_recovery.log
+```
+
+Success requires:
+
+```text
+[OK  ] np1-attempt1-preserved
+[OK  ] np1-retry
+[OK  ] np1-replay-identity
+[OK  ] validate-recovery
+[OK  ] recovery-archive
+exact_replay_match=1
+validate_ok=1
+full_panel_authorized=0
+```
+
+Attach the recovery `.tar.gz` path printed by the launcher. A replay-identity or
+validation failure is a checkpoint stop.
+
 ## Review gate
 
 After the archive is returned, the execution lead will decide one of:
