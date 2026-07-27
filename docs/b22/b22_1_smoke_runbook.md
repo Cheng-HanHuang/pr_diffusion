@@ -2,16 +2,26 @@
 
 ## Status and scope
 
-B22.0 is signed off. This checkpoint runs:
+B22.0 is signed off. B22.1 is now also signed off after the recovered one-image
+smoke passed independent validation. The historical execution instructions below
+are retained for reproducibility.
+
+This checkpoint ran:
 
 - `SITCOM-1`: one official SITCOM trajectory, seed 43;
 - `NP-1`: one frozen LF NP trajectory, seed 100.
 
-Both methods consume the same nondiscretionarily selected B21.11 locked
-measurement. The script selects the lexicographically first filename among the
+Both methods consumed the same nondiscretionarily selected B21.11 locked
+measurement. The script selected the lexicographically first filename among the
 100 locked tensors before loading either method.
 
-This runbook does **not** authorize:
+The successful sign-off record is:
+
+```text
+docs/b22/b22_1_smoke_signoff.md
+```
+
+This runbook does **not** authorize, by itself:
 
 - a 100-image panel;
 - SITCOM-4S;
@@ -19,6 +29,9 @@ This runbook does **not** authorize:
 - configuration changes;
 - method tuning;
 - measurement regeneration.
+
+B22.2 full-panel implementation is authorized separately, while the full-panel
+GPU launch remains blocked pending implementation review.
 
 ## Repository branch
 
@@ -184,86 +197,53 @@ logs/
 
 The archive contains no model checkpoint and no locked measurement copy.
 
-## Attempt-1 NP JSON recovery
+## Recovered attempt-1 serialization defect
 
-The first returned archive, `B22_1_smoke_20260727_142201.tar.gz`, passed CPU
-preflight and SITCOM. NP completed the frozen trajectory and wrote finite tensor
-and PNG outputs, but result serialization failed because
-`selector_post_lf_mse_margin_mean` was `NaN`. With `hard_candidates=1`, that
-first-versus-second post-projection margin is mathematically undefined.
-
-The corrected runner records undefined scalar diagnostics as JSON `null` while
-keeping strict JSON compliance. The complete incident record is:
+The first PAC attempt completed the frozen NP reconstruction but failed after
+saving the tensor and PNG because one mathematically undefined selector
+diagnostic was `NaN`, which strict JSON correctly rejected. The incident is
+recorded at:
 
 ```text
 docs/b22/b22_1_attempt1_np_json_failure.md
 ```
 
-Pull the corrected branch in the existing B22 worktree:
-
-```bash
-WT=/egr/research-pac/huang248/pr_diffusion_b22
-cd "$WT"
-git fetch origin
-git pull --ff-only origin codex/b22-fixed-baseline-comparison
-
-git branch --show-current
-git rev-parse HEAD
-git status --short --branch
-```
-
-Then rerun NP only, preserving and hash-checking the first reconstruction:
-
-```bash
-WT=/egr/research-pac/huang248/pr_diffusion_b22
-RUN=/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines/B22_1_smoke_20260727_142201
-GPU=0
-
-cd "$WT"
-nohup bash scripts/b22/resume_b22_1_after_np_json_failure.sh \
-  "$GPU" \
-  "$RUN" \
-  > /egr/research-pac/huang248/tmp/b22_1_np_json_recovery.log 2>&1 &
-
-echo "recovery_pid=$!"
-echo "recovery_log=/egr/research-pac/huang248/tmp/b22_1_np_json_recovery.log"
-```
-
-The recovery does not rerun SITCOM. It preserves attempt 1, repeats the same NP
-seed/configuration, requires an exact reconstruction tensor-content hash match,
-runs the original validator, and produces a sibling recovery archive.
-
-Check only the compact recovery log:
-
-```bash
-tail -n 50 /egr/research-pac/huang248/tmp/b22_1_np_json_recovery.log
-```
-
-Success requires:
+The corrected branch serializes undefined scalar diagnostics as JSON `null`,
+keeps non-standard `NaN` tokens forbidden, and exposes an NP-only recovery
+launcher:
 
 ```text
-[OK  ] np1-attempt1-preserved
-[OK  ] np1-retry
-[OK  ] np1-replay-identity
-[OK  ] validate-recovery
-[OK  ] recovery-archive
+scripts/b22/resume_b22_1_after_np_json_failure.sh
+```
+
+The authorized recovery for that exact attempt was:
+
+```bash
+bash scripts/b22/resume_b22_1_after_np_json_failure.sh \
+  0 \
+  /egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines/B22_1_smoke_20260727_142201
+```
+
+The recovery preserved the first NP reconstruction, reran the identical frozen
+configuration and seed, required an exact reconstruction tensor-content hash
+match, reused the already successful SITCOM result, and then ran the independent
+validator. No method parameter changed.
+
+## Final B22.1 result
+
+The recovered archive passed:
+
+```text
 exact_replay_match=1
 validate_ok=1
 full_panel_authorized=0
+gate_state=B22.1_SMOKE_COMPLETE_PENDING_EXECUTION_LEAD_REVIEW
 ```
 
-Attach the recovery `.tar.gz` path printed by the launcher. A replay-identity or
-validation failure is a checkpoint stop.
-
-## Review gate
-
-After the archive is returned, the execution lead will decide one of:
+The execution-lead sign-off then changed the project gate to:
 
 ```text
-B22.1 SIGNED OFF
-B22.1 REPEAT REQUIRED because of an implementation/runtime defect
-B22 STOP because of a source/measurement/method incompatibility
+B22.1 one-image smoke: SIGNED OFF
+B22.2 full-panel implementation: AUTHORIZED
+Full 100-image GPU launch: BLOCKED pending B22.2 implementation review
 ```
-
-The full 100-image runner will be implemented and authorized only after explicit
-B22.1 sign-off.
