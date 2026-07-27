@@ -20,6 +20,11 @@ RUN_ROOT=${5:-$OUTPUT_ROOT/B22_2_overnight_$STAMP}
 LOG_ROOT=$RUN_ROOT/logs
 STATUS=$RUN_ROOT/status.tsv
 
+if [[ $(printf '%s\n' "$GPU_S0" "$GPU_S1" "$GPU_N0" "$GPU_N1" | sort -u | wc -l) -ne 4 ]]; then
+  echo "STOP: B22.2 requires four distinct physical GPU indices." >&2
+  exit 1
+fi
+
 mkdir -p "$LOG_ROOT"
 printf 'step\tstatus\tdetail\n' > "$STATUS"
 echo "run_root=$RUN_ROOT"
@@ -58,6 +63,7 @@ wait_worker() {
 archive_compact() {
   local suffix=$1
   local archive="${RUN_ROOT}_${suffix}.tar.gz"
+  local archive_log="${RUN_ROOT}_${suffix}_archive.log"
   tar \
     --exclude='*.pt' \
     --exclude='*.png' \
@@ -65,13 +71,13 @@ archive_compact() {
     -C "$(dirname "$RUN_ROOT")" \
     -czf "$archive" \
     "$(basename "$RUN_ROOT")" \
-    >"$LOG_ROOT/archive_${suffix}.log" 2>&1
+    >"$archive_log" 2>&1
   local rc=$?
   if [[ $rc -eq 0 ]]; then
     record "archive-$suffix" OK "$archive"
     printf '%s\n' "$archive"
   else
-    record "archive-$suffix" FAIL "archive rc=$rc"
+    record "archive-$suffix" FAIL "archive rc=$rc log=$archive_log"
   fi
   return "$rc"
 }
@@ -196,8 +202,13 @@ run_root=$RUN_ROOT
 repo_head=$(git -C "$REPO_ROOT" rev-parse HEAD)
 EOF
 
-ARCHIVE=$(archive_compact complete | tail -n 1)
-echo
-echo "B22.2 overnight run completed."
-echo "run_root=$RUN_ROOT"
-echo "return_archive=$ARCHIVE"
+if ARCHIVE=$(archive_compact complete | tail -n 1); then
+  echo
+  echo "B22.2 overnight run completed."
+  echo "run_root=$RUN_ROOT"
+  echo "return_archive=$ARCHIVE"
+else
+  echo "B22.2 computation and validation completed, but compact archive creation failed."
+  echo "run_root=$RUN_ROOT"
+  exit 1
+fi
