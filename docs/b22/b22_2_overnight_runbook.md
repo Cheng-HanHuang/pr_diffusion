@@ -6,9 +6,10 @@ B22.1 is signed off. This package is designed for a late-night launch:
 
 1. CPU-only identity, manifest, and sharding preparation;
 2. strict four-GPU full-policy smoke on two nondiscretionary panel rows;
-3. independent smoke validation;
-4. automatic 100-image launch only after the smoke passes;
-5. independent full-panel validation and compact return archive.
+3. exact replay of the signed-off B22.1 SITCOM-1 and NP-1 hashes on image 60044;
+4. independent smoke validation;
+5. automatic 100-image launch only after the smoke passes;
+6. independent full-panel validation and compact return archive.
 
 The launcher does not tune any policy and never regenerates a measurement.
 
@@ -90,7 +91,7 @@ NP: GPUs 2,3
 ```
 
 Change only the four physical GPU indices passed to the launcher. Do not change
-method parameters.
+method parameters. The launcher refuses duplicate GPU indices.
 
 ## 3. Start the overnight gate-and-launch workflow
 
@@ -133,6 +134,10 @@ Before sleeping, the required transition is:
 [OK  ] full-prepare
 [OK  ] full-launch
 ```
+
+The smoke validator also requires exact reconstruction-content replay of the
+signed-off B22.1 SITCOM-1 and NP-1 outputs on image 60044. If either hash differs,
+the full workers do not launch.
 
 If the log instead contains `smoke-gate FAIL`, no full worker is launched. Do
 not manually bypass the gate.
@@ -208,7 +213,9 @@ inspection.
 
 ## Safety gates
 
+- four distinct GPU indices are required;
 - full execution starts only after machine validation of the full-policy smoke;
+- the B22.1 SITCOM-1 and NP-1 reconstruction hashes must replay exactly;
 - no output directory is silently overwritten;
 - valid completed candidates are resumable;
 - partial/invalid candidate directories stop rather than being replaced;
