@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "checkpoint": "B22.2",
+  "branch": "codex/b22-fixed-baseline-comparison",
+  "purpose": "Strict four-GPU smoke followed by automatic paired 100-image fixed-baseline execution.",
+  "expected_identity": {
+    "sitcom_commit": "275ab67efbd8146bffca20155171ba6be1169c09",
+    "difffpr_commit": "a45ffe58f18fed8a63d3446600424e2b08733524",
+    "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "pac_paths": {
+    "sitcom_root": "/egr/research-pac/huang248/external/SITCOM_ODE",
+    "difffpr_root": "/egr/research-pac/huang248/external/DiffFPR",
+    "model_path": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "ffhq_data_root": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024",
+    "locked_measurement_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements",
+    "fresh2_rows_csv": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/fresh2_final_rows.csv",
+    "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines"
+  },
+  "problem": {
+    "dataset": "FFHQ",
+    "resolution": 256,
+    "oversample": 2.0,
+    "sigma_y": 0.05,
+    "measurement_glob": "ffhq*_phase_noise005_meas5401.pt",
+    "expected_measurement_count": 100,
+    "primary_metric": "raw RGB PSNR after clamp to [-1,1] and map to [0,1]",
+    "auxiliary_metric": "max(raw, rot180) PSNR; offline ground-truth-assisted"
+  },
+  "execution": {
+    "smoke_row_indices": [0, 1],
+    "sitcom_shards": 2,
+    "np_shards": 2,
+    "sitcom_gpus": [0, 1],
+    "np_gpus": [2, 3],
+    "automatic_full_launch_after_smoke_pass": true,
+    "resume_existing_valid_candidates": true,
+    "refuse_silent_overwrite": true
+  },
+  "sitcom": {
+    "policy_rows": ["SITCOM-1", "SITCOM-4S"],
+    "diagnostic_rows": ["SITCOM-oracle4"],
+    "seeds": [43, 44, 45, 46],
+    "sitcom1_candidate_index": 0,
+    "selector_tau": 0.8,
+    "selector_step": 160,
+    "selector_stat": "sqrt(mean((x0y-x0hat)^2)) at annealing step 160",
+    "selector_rule": "minimum correction_norm; stable tie break by candidate index",
+    "anneal_steps": 200,
+    "anneal_schedule": "linear",
+    "anneal_sigma_max": 100.0,
+    "anneal_sigma_min": 0.1,
+    "diff_steps": 5,
+    "diff_schedule": "linear",
+    "diff_sigma_min": 0.01,
+    "timestep": "poly-7",
+    "lgvd_steps": 100,
+    "lgvd_lr": 0.00005,
+    "lgvd_lr_min_ratio": 0.01,
+    "lgvd_tau": 0.01,
+    "measurement_preprocessing": "none",
+    "model_path_relative_to_sitcom_root": "checkpoint/ffhq256.pt"
+  },
+  "np": {
+    "policy_rows": ["NP-1", "NP-8-RS"],
+    "diagnostic_rows": ["NP-oracle8"],
+    "seeds": [100, 101, 102, 103],
+    "np1_config_tag": "lf",
+    "np1_seed": 100,
+    "configs": [
+      {
+        "config_tag": "lf",
+        "score_mode": "lf",
+        "score_reg_lambda": 0.0,
+        "score_reg_lambda_schedule": "constant"
+      },
+      {
+        "config_tag": "s2_preproj_lam001",
+        "score_mode": "prev_l2",
+        "score_reg_lambda": 0.01,
+        "score_reg_lambda_schedule": "pre_projection_only"
+      }
+    ],
+    "selector_stat": "selector_post_winner_lf_mse_mean",
+    "selector_rule": "minimum selector statistic across all 8 trajectories; stable tie break by config order then seed",
+    "guided_preset": "difffpr_ffhq_10m",
+    "guided_strict": true,
+    "variant": "np_canonical_soft5_hard1",
+    "num_steps": 1000,
+    "proj_start": 300,
+    "soft_candidates": 5,
+    "hard_candidates": 1,
+    "score_radius": 0.6,
+    "proj_radius": 0.2,
+    "proj_radius_schedule": "300:0.2",
+    "score_huber_delta": 0.05,
+    "measurement_preprocessing": "clamp_min_zero_in_memory",
+    "log_every": 0
+  },
+  "gate": {
+    "smoke_required_rows_per_method": 2,
+    "full_required_rows_per_method": 100,
+    "full_launch_requires_smoke_validation_pass": true,
+    "full_panel_launch_authorized_by_user_request": true,
+    "no_policy_tuning": true,
+    "no_measurement_regeneration": true
+  }
+}
