@@ -1,173 +1,145 @@
 # PR Diffusion: reliable diffusion-prior phase retrieval
 
-Updated: 2026-06-23
+Updated: 2026-07-27
 
-This repository studies diffusion-prior solvers for phase retrieval, with the current active focus on **FFHQ 256x256 phase retrieval** under oversampled Fourier magnitude measurements.
+This repository studies reliability and failure modes of diffusion-prior solvers for FFHQ phase retrieval under oversampled Fourier-magnitude measurements.
 
-The central goal is not merely to report a best-of-many benchmark number.  The goal is to develop a **reliable phase-retrieval solver**: high average quality, controlled failure modes, good minimum PSNR, and a method that can be explained as a coherent algorithm rather than as a post-hoc oracle over many unrelated runs.
+## Current status
 
-## Current project objective
+B21 method development is complete and frozen for the current FFHQ, `sigma_y=0.05` setting.
 
-The project moved from pure Noise Picking (NP) tuning to an NP-SITCOM reliability investigation.
+The adopted policy, **Fresh2**, is:
 
-The current evidence is more nuanced than the original hybrid hypothesis:
+1. run two independent full DAPS trajectories;
+2. use `ann400`, `diff5`, LF disabled, HIO disabled;
+3. begin with trajectory 1;
+4. accept trajectory 2 only when its exact operator loss improves by more than `0.7`;
+5. return the selected reconstruction.
+
+Prospective result on 100 untouched official-validation images with one locked measurement per image:
+
+| policy | good25 | bad25 |
+|---|---:|---:|
+| Fresh1 | 80/100 | 20/100 |
+| Fresh2 selected | 92/100 | 8/100 |
+| two-candidate oracle-any-good | 92/100 | 8/100 |
+
+Fresh2 produced 12 rescues, zero harms, and zero selected-oracle gap at 2.0 full-run equivalents.
+
+The B21.12 atlas further showed that three of the eight official failures are clean reconstructions under the known 180-degree ambiguity, while five remain bad under both candidates and both orientations. The five persistent failures include chromatic/illumination errors, structured twin/ghost mixtures, and one high-complexity collapse.
+
+## Start here
+
+The current authoritative checkpoint is:
 
 ```text
-SITCOM-ODE has a high successful-reconstruction ceiling, but occasional catastrophic failures.
-NP can rescue some SITCOM failures, but current one-shot NP also has severe image-specific failures.
-Naive NP-to-SITCOM sigma handoff is technically useful but not competitive as a solver.
-A fair solver must respect a fixed compute / candidate budget, not rely on unbounded fallback retries.
+docs/checkpoints/2026-07-27_b21_to_b22/00_START_HERE.md
 ```
 
-Therefore the current practical objective is:
+Read in order:
 
 ```text
-Find clean-free, fixed-budget reliability mechanisms for diffusion-prior phase retrieval.
+docs/checkpoints/2026-07-27_b21_to_b22/00_START_HERE.md
+docs/checkpoints/2026-07-27_b21_to_b22/01_PROJECT_CHECKPOINT.md
+docs/checkpoints/2026-07-27_b21_to_b22/02_PAC_INVENTORY_AND_FREEZE.md
+docs/checkpoints/2026-07-27_b21_to_b22/03_B22_NEW_CHAT_HANDOVER.md
 ```
 
-## Current active branches
-
-### Branch A: clean-free controller / selector path
-
-Branch A studies whether failed SITCOM trajectories can be detected without ground-truth images and selectively replaced or controlled.
-
-Current state:
-
-- A14 prospectively validated frozen conservative and aggressive controllers on a fresh SITCOM population.
-- A16 replicated the frozen A14 policies; the conservative policy was brittle, but the aggressive residual+consensus OR policy replicated strongly.
-- A17--A18.8 show useful anytime and population/candidate-set diagnostics, but no new frozen population policy is ready for prospective A19.
-
-The strongest current Branch-A controller is the aggressive residual+consensus OR policy, but it still does not eliminate the catastrophic floor case.
-
-Relevant docs:
+Primary completed reports:
 
 ```text
-docs/progress_report.md
-docs/branch_A_clean_free_certificates.md
-docs/branch_A_future_controller_directions.md
+docs/b21/b21_11_fresh2_final_benchmark.md
+docs/b21/b21_12_failure_atlas_decision.md
+docs/b21/b21_12_visual_failure_interpretation.md
+docs/b21/b21_registry.md
 ```
 
-### Branch B: fixed-budget SITCOM population selection
+## Phase boundary
 
-Branch B began as the true-solver handoff experiment: export NP reconstructions as SITCOM/DAPS-compatible sigma states and continue them using a patched SITCOM-ODE runner.
+### B21: complete
 
-That handoff pipeline works technically, but B3--B8 showed that forcing NP states through SITCOM continuation is not currently competitive.  The useful Branch-B result is instead a fixed-budget SITCOM population selector:
+B21 studied fixed-budget reliability mechanisms, including independent restarts, LF guidance, HIO warm starts, continuation branching, restart-budget scaling, and clean-free failure detectors.
+
+The final decision is to retain the simple fixed Fresh2 policy. Do not tune its threshold, restart count, detector, LF/HIO fallback, or other policy component on the final B21.11 panel.
+
+### B22: next
+
+B22 is a new fixed-baseline evaluation stage. Its first task is to inventory and preregister SITCOM and NP configurations before any GPU launch.
+
+The key unresolved question is whether frozen Fresh2 beats or meaningfully complements established baselines in catastrophic-failure rate, PSNR distribution, and reliability-versus-compute tradeoff.
+
+B22 is not authorization to resume Fresh2 method invention.
+
+## PAC paths
+
+Current integration checkout:
 
 ```text
-For one measurement:
-  run 4 independent SITCOM-ODE trajectories;
-  at tau = 0.8, read correction_norm for each run;
-  select the run with lowest correction_norm;
-  return its final reconstruction.
+/egr/research-pac/huang248/pr_diffusion_b19_solver
 ```
 
-Pooled over B11, B12, and B16-stage1:
-
-| method | n source-image cases | mean selected PSNR | min selected PSNR | bad25 | bad20 |
-|---|---:|---:|---:|---:|---:|
-| 4S SITCOM, tau0.8 correction selector | 75 | 30.565 | 5.087 | 2 | 1 |
-
-The two failures split into one selector failure (`B11/image 00027`) and one SITCOM population-generation failure (`B12/image 00017`).
-
-Extra 4-to-8 fallback candidates and same-budget 3S+1NP candidate sets are useful diagnostics, but they are not final methods yet:
-
-- 4-to-8 replacement increased compute and degraded already-good selected outputs in B16A.
-- 3S+1NP has an oracle-complementary candidate set, but the executable health-to-NP rule was worse than 4S.
-- NP rescues `00017`, but fails badly on `00013`, `00028`, `00034`, `00018`, and `00027` under the tested seed/config.
-
-Relevant doc:
+B21 output root:
 
 ```text
-docs/branch_B_fixed_budget_population_selector.md
+/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver
 ```
 
-## PAC paths and non-repo dependencies
-
-Most active work is run on PAC.  The repo does not contain datasets, external solver checkouts, model checkpoints, or output artifacts.  Important absolute paths are:
+Final B21.11 output:
 
 ```text
-Repository:
-  /egr/research-pac/huang248/pr_diffusion_repo
+/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/
+B21_11_fresh2_final_val100_meas5401
+```
 
 FFHQ image root:
-  /egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
-
-Current phase-retrieval output root:
-  /egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260616_220045
-
-Earlier NP-SITCOM output root:
-  /egr/research-pac/huang248/outputs/pr_diffusion/npsitcom_20260610
-
-Original external SITCOM-ODE checkout:
-  /egr/research-pac/huang248/external/SITCOM_ODE
-
-Patched SITCOM checkout for Branch B:
-  /egr/research-pac/huang248/external/SITCOM_ODE_npsitcom
-
-External DiffFPR utilities:
-  /egr/research-pac/huang248/external/DiffFPR
-
-FFHQ guided diffusion checkpoint:
-  /egr/research-pac/huang248/models/ffhq_10m.pt
-```
-
-Environment convention:
 
 ```text
-prdiff_ffhq:
-  Use for this repo, NP, DiffFPR/guided model code, CSV parsing/mixing, and NP handoff export.
-
-sitcom_ode_bw:
-  Use for official SITCOM-ODE trajectory generation and patched SITCOM handoff continuation.
+/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024
 ```
 
-This distinction matters.  Some failures are environment or path errors rather than algorithmic errors.
-
-## Main code locations
-
-Current NP-SITCOM scripts:
+FFHQ model checkpoint:
 
 ```text
-scripts/npsitcom/
+/egr/research-pac/huang248/models/ffhq_10m.pt
 ```
 
-Branch A / SITCOM trajectory scripts:
+DAPS Python:
 
 ```text
-scripts/npsitcom/run_branchA_sitcom_trajectory_hard.py
-scripts/npsitcom/run_sitcom_official_ffhq_one_gpu.sh
-scripts/npsitcom/make_sitcom_image_folder.py
-scripts/npsitcom/parse_sitcom_metrics.py
-scripts/npsitcom/mix_select_candidates.py
-configs/branch_A/a14/
+/egr/research-pac/huang248/conda-envs/daps/bin/python
 ```
 
-Branch B handoff scripts:
+External SITCOM/NP paths and environments must be re-inventoried through the checkpoint collector before B22. Do not rely on historical README paths without verification.
+
+## Repository workflow
+
+The B21 work is currently represented by a stacked draft-PR chain:
 
 ```text
-scripts/npsitcom/run_branchB_export_np_handoff_with_measurement_ffhq_one_gpu.sh
-scripts/npsitcom/export_np_handoff_states_with_measurement.py
-scripts/npsitcom/sitcom_patch/npsitcom_handoff_sample.py
-scripts/npsitcom/run_branchB_sitcom_handoff_one_gpu.sh
+#30 continuation interface
+  -> #31 B21.5–B21.10 development
+     -> #32 B21.11 final benchmark
+        -> #33 B21.12 atlas
 ```
 
-Historical NP/DiffFPR scripts remain in `scripts/`.  Many older `slurm_*`, `phase_retrieval_*`, and one-off analysis scripts correspond to earlier project phases and should be treated as historical unless explicitly reused.
-
-## Documentation map
-
-Start here:
+The checkpoint branch is:
 
 ```text
-docs/README.md
-docs/progress_report.md
-docs/current_experiment_plan.md
-docs/branch_B_fixed_budget_population_selector.md
-docs/branch_A_clean_free_certificates.md
-docs/branch_A_future_controller_directions.md
+codex/project-checkpoint-b21-to-b22
 ```
 
-Archived older plans, previous progress reports, PAC migration notes, and NeurIPS phased experiment docs live under:
+Never directly edit, reset, rebase, merge into, or force-push `b19_solver_integration` from an assistant workflow. Use a dedicated `codex/*` or `llm-agent/*` branch and preserve dirty PAC state.
+
+## Historical work
+
+Earlier NP/SITCOM branch investigations and historical plans remain useful background but are no longer the current project entry point. See:
 
 ```text
 docs/historical/
+docs/progress_report.md
+docs/branch_A_clean_free_certificates.md
+docs/branch_B_fixed_budget_population_selector.md
+scripts/npsitcom/
 ```
+
+When a historical file conflicts with the 2026-07-27 checkpoint, the checkpoint is authoritative unless a concrete implementation or artifact error is demonstrated.
