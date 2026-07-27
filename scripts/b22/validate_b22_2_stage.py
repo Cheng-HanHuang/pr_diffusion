@@ -289,6 +289,24 @@ def main() -> int:
         if np1["candidate_config_tag"] != "lf" or int(np1["candidate_seed"]) != 100:
             raise RuntimeError(f"NP-1 identity mismatch for {image_id}")
 
+        if args.stage == "smoke" and image_id == config["smoke_replay"]["image_id"]:
+            observed_sitcom_hash = sitcom["policies"]["SITCOM-1"][
+                "reconstruction_content_sha256"
+            ]
+            observed_np_hash = np_policy["policies"]["NP-1"][
+                "reconstruction_content_sha256"
+            ]
+            if observed_sitcom_hash != config["smoke_replay"][
+                "sitcom1_reconstruction_content_sha256"
+            ]:
+                raise RuntimeError(
+                    f"B22.1 SITCOM-1 replay hash mismatch: {observed_sitcom_hash}"
+                )
+            if observed_np_hash != config["smoke_replay"][
+                "np1_reconstruction_content_sha256"
+            ]:
+                raise RuntimeError(f"B22.1 NP-1 replay hash mismatch: {observed_np_hash}")
+
         policy_specs = [
             ("SITCOM-1", sitcom["policies"]["SITCOM-1"], False, 1),
             ("SITCOM-4S", sitcom["policies"]["SITCOM-4S"], False, 4),
@@ -416,6 +434,7 @@ def main() -> int:
             "sitcom_selector_recomputed": True,
             "np_selector_recomputed": True,
             "no_policy_row_omission": True,
+            "b22_1_exact_replay_hashes": args.stage == "smoke",
             "fresh_outputs_reused_not_rerun": args.stage == "full",
         },
         "automatic_full_launch_machine_gate": args.stage == "smoke",
