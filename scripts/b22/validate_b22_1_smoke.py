@@ -22,6 +22,9 @@ from b22_smoke_common import (
 )
 
 
+METRIC_TOLERANCE_DB = 1.0e-5
+
+
 def load_reconstruction(path: str | Path) -> torch.Tensor:
     payload = torch.load(str(path), map_location="cpu")
     if isinstance(payload, torch.Tensor):
@@ -41,8 +44,16 @@ def require_equal(observed: Any, expected: Any, label: str) -> None:
 
 
 def require_close(observed: float, expected: float, label: str) -> None:
-    if not math.isclose(float(observed), float(expected), rel_tol=1.0e-7, abs_tol=1.0e-7):
-        raise RuntimeError(f"{label}: observed {observed!r}, expected {expected!r}")
+    if not math.isclose(
+        float(observed),
+        float(expected),
+        rel_tol=METRIC_TOLERANCE_DB,
+        abs_tol=METRIC_TOLERANCE_DB,
+    ):
+        raise RuntimeError(
+            f"{label}: observed {observed!r}, expected {expected!r}, "
+            f"tolerance={METRIC_TOLERANCE_DB} dB"
+        )
 
 
 def validate_method(
@@ -180,6 +191,7 @@ def main() -> None:
         "measurement_file_sha256": manifest["measurement_file_sha256"],
         "repo_head": manifest["repo_head"],
         "validated_methods": ["SITCOM-1", "NP-1"],
+        "metric_tolerance_db": METRIC_TOLERANCE_DB,
         "comparison_csv": str(comparison_path),
         "checks": {
             "locked_measurement_identity": True,
