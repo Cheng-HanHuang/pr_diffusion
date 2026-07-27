@@ -62,7 +62,7 @@ def load_external_sitcom(sitcom_root: Path):
     return old_cwd, get_operator, get_model, get_sampler
 
 
-def valid_candidate(path: Path, row: dict[str, Any], run_index: int, seed: int) -> bool:
+def valid_candidate(path: Path, row: dict[str, Any], run_index: int, master_seed: int) -> bool:
     if not path.is_file():
         return False
     try:
@@ -72,7 +72,7 @@ def valid_candidate(path: Path, row: dict[str, Any], run_index: int, seed: int) 
             result["status"] == "PASS"
             and result["image_id"] == row["image_id"]
             and int(result["run_index"]) == run_index
-            and int(result["seed"]) == seed
+            and int(result["master_seed"]) == master_seed
             and result["measurement_content_sha256"] == row["measurement_content_sha256"]
             and tensor_path.is_file()
         )
@@ -97,28 +97,22 @@ def run_candidate(
     row: dict[str, Any],
     method_dir: Path,
     run_index: int,
-    seed: int,
+    master_seed: int,
     selector_step: int,
     device: torch.device,
     repo_root: Path,
     sitcom_root: Path,
     config: dict[str, Any],
 ) -> dict[str, Any]:
-    candidate_dir = method_dir / "candidates" / f"run{run_index:02d}_seed{seed}"
+    candidate_dir = method_dir / "candidates" / f"run{run_index:02d}_masterseed{master_seed}"
     result_path = candidate_dir / "result.json"
-    if valid_candidate(result_path, row, run_index, seed):
+    if valid_candidate(result_path, row, run_index, master_seed):
         return read_json(result_path)
     if candidate_dir.exists():
         raise RuntimeError(
             f"Refusing to overwrite incomplete/invalid candidate directory: {candidate_dir}"
         )
     candidate_dir.mkdir(parents=True)
-
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
 
     selector_holder: dict[str, float] = {}
     counter = {"step": 0}
@@ -185,7 +179,8 @@ def run_candidate(
         "image_id": row["image_id"],
         "row_id": row["row_id"],
         "run_index": run_index,
-        "seed": seed,
+        "master_seed": master_seed,
+        "rng_stream_run_index": run_index,
         "measurement_path": row["measurement_path"],
         "measurement_file_sha256": row["measurement_file_sha256"],
         "measurement_content_sha256": row["measurement_content_sha256"],
@@ -236,7 +231,7 @@ def materialize_selected(method_dir: Path, label: str, result: dict[str, Any]) -
         shutil.copy2(source_png, target_png)
     return {
         "candidate_run_index": result["run_index"],
-        "candidate_seed": result["seed"],
+        "candidate_master_seed": result["master_seed"],
         "metrics": result["metrics"],
         "reconstruction_s": result["timing"]["reconstruction_s"],
         "reconstruction_content_sha256": result["reconstruction_content_sha256"],
@@ -302,6 +297,13 @@ def main() -> int:
                 "tau": float(method["lgvd_tau"]),
             },
         )
+        master_seed = int(method["master_seed"])
+        np.random.seed(master_seed)
+        torch.manual_seed(master_seed)
+        torch.cuda.manual_seed_all(master_seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
         load_start = time.perf_counter()
         model = get_model(
             name="ddpm",
@@ -327,6 +329,9 @@ def main() -> int:
         )
         torch.cuda.synchronize(device)
         model_load_s = time.perf_counter() - load_start
+        post_model_np_state = np.random.get_state()
+        post_model_torch_state = torch.get_rng_state().clone()
+        post_model_cuda_states = [state.clone() for state in torch.cuda.get_rng_state_all()]
 
         completed = 0
         for row in rows:
@@ -348,8 +353,15 @@ def main() -> int:
             if tensor_content_sha256(gt) != row["ground_truth_content_sha256"]:
                 raise RuntimeError(f"Ground truth content changed for {row['image_id']}")
 
+            # Reproduce the official historical population: one master seed is set
+            # before model construction, then four trajectories consume one sequential
+            # RNG stream. Restore the post-model state independently for every image.
+            np.random.set_state(post_model_np_state)
+            torch.set_rng_state(post_model_torch_state.clone())
+            torch.cuda.set_rng_state_all([state.clone() for state in post_model_cuda_states])
+
             candidates: list[dict[str, Any]] = []
-            for run_index, seed in enumerate(method["seeds"]):
+            for run_index in range(int(method["trajectory_count"])):
                 candidates.append(
                     run_candidate(
                         sampler=sampler,
@@ -360,7 +372,7 @@ def main() -> int:
                         row=row,
                         method_dir=method_dir,
                         run_index=run_index,
-                        seed=int(seed),
+                        master_seed=master_seed,
                         selector_step=int(method["selector_step"]),
                         device=device,
                         repo_root=repo_root,
@@ -386,7 +398,8 @@ def main() -> int:
                 "row_id": row["row_id"],
                 "image_id": row["image_id"],
                 "candidate_count": len(candidates),
-                "candidate_seeds": [int(x) for x in method["seeds"]],
+                "master_seed": master_seed,
+                "sequential_trajectory_count": int(method["trajectory_count"]),
                 "measurement_content_sha256": row["measurement_content_sha256"],
                 "model_load_s_worker_shared": model_load_s,
                 "sum_candidate_reconstruction_s": sum(
@@ -401,7 +414,8 @@ def main() -> int:
                 "selector_values": [
                     {
                         "run_index": r["run_index"],
-                        "seed": r["seed"],
+                        "master_seed": r["master_seed"],
+                        "rng_stream_run_index": r["rng_stream_run_index"],
                         "correction_norm": r["selector"]["correction_norm"],
                     }
                     for r in candidates
