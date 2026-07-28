@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # B22.2: strict four-GPU full-policy smoke, then automatic full-panel launch.
-# This script is intended to be run under nohup. Verbose output is redirected.
+# Intended for nohup. Verbose output is redirected into the run root.
 
 set -u
 
@@ -38,26 +38,47 @@ record() {
 }
 
 run_logged() {
-  local step=$1 logfile=$2
+  local step=$1 logfile=$2 rc
   shift 2
-  if "$@" >"$logfile" 2>&1; then
+  "$@" >"$logfile" 2>&1
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
     record "$step" OK "$(basename "$logfile")"
-    return 0
+  else
+    record "$step" FAIL "$(basename "$logfile") rc=$rc"
   fi
-  local rc=$?
-  record "$step" FAIL "$(basename "$logfile") rc=$rc"
   return "$rc"
 }
 
 wait_worker() {
-  local step=$1 pid=$2 logfile=$3
-  if wait "$pid"; then
+  local step=$1 pid=$2 logfile=$3 rc
+  wait "$pid"
+  rc=$?
+  if [[ $rc -eq 0 ]]; then
     record "$step" OK "$(basename "$logfile")"
-    return 0
+  else
+    record "$step" FAIL "$(basename "$logfile") rc=$rc"
   fi
-  local rc=$?
-  record "$step" FAIL "$(basename "$logfile") rc=$rc"
   return "$rc"
+}
+
+require_stage_plan() {
+  local stage=$1 path
+  for path in \
+    "$RUN_ROOT/$stage/manifest.json" \
+    "$RUN_ROOT/$stage/config_snapshot.json" \
+    "$RUN_ROOT/$stage/plan.json" \
+    "$RUN_ROOT/$stage/shards/sitcom_shard0.json" \
+    "$RUN_ROOT/$stage/shards/sitcom_shard1.json" \
+    "$RUN_ROOT/$stage/shards/np_shard0.json" \
+    "$RUN_ROOT/$stage/shards/np_shard1.json"
+  do
+    if [[ ! -s "$path" ]]; then
+      record "$stage-prepare-contract" FAIL "missing or empty: $path"
+      return 1
+    fi
+  done
+  record "$stage-prepare-contract" OK "manifest, plan, config, and four shards present"
 }
 
 archive_compact() {
@@ -75,7 +96,6 @@ archive_compact() {
   local rc=$?
   if [[ $rc -eq 0 ]]; then
     record "archive-$suffix" OK "$archive"
-    printf '%s\n' "$archive"
   else
     record "archive-$suffix" FAIL "archive rc=$rc log=$archive_log"
   fi
@@ -95,7 +115,6 @@ export PYTHONPATH="$REPO_ROOT/scripts/b22${PYTHONPATH:+:$PYTHONPATH}"
   nvidia-smi --query-gpu=index,name,memory.total,memory.used,utilization.gpu --format=csv,noheader || true
 } > "$RUN_ROOT/launch_metadata.txt" 2>&1
 
-# CPU-only preparation and sharding dry-run.
 if ! run_logged smoke-prepare "$LOG_ROOT/smoke_prepare.log" \
   "$DAPS_PY" -u "$REPO_ROOT/scripts/b22/prepare_b22_2_panel.py" \
     --config "$CONFIG" --repo_root "$REPO_ROOT" --run_root "$RUN_ROOT" --stage smoke
@@ -103,8 +122,11 @@ then
   archive_compact smoke_prepare_failed || true
   exit 1
 fi
+if ! require_stage_plan smoke; then
+  archive_compact smoke_prepare_contract_failed || true
+  exit 1
+fi
 
-# Four-GPU end-to-end smoke: two SITCOM images and two NP images.
 CUDA_VISIBLE_DEVICES="$GPU_S0" "$SITCOM_PY" -u "$REPO_ROOT/scripts/b22/run_b22_2_sitcom_worker.py" \
   --config "$CONFIG" --repo_root "$REPO_ROOT" --run_root "$RUN_ROOT" --stage smoke --shard 0 \
   >"$LOG_ROOT/smoke_sitcom_shard0.log" 2>&1 & P_S0=$!
@@ -123,7 +145,6 @@ wait_worker smoke-sitcom-0 "$P_S0" "$LOG_ROOT/smoke_sitcom_shard0.log" || SMOKE_
 wait_worker smoke-sitcom-1 "$P_S1" "$LOG_ROOT/smoke_sitcom_shard1.log" || SMOKE_OK=0
 wait_worker smoke-np-0 "$P_N0" "$LOG_ROOT/smoke_np_shard0.log" || SMOKE_OK=0
 wait_worker smoke-np-1 "$P_N1" "$LOG_ROOT/smoke_np_shard1.log" || SMOKE_OK=0
-
 if [[ $SMOKE_OK -ne 1 ]]; then
   record smoke-gate FAIL "one or more GPU smoke workers failed; full launch blocked"
   archive_compact smoke_failed || true
@@ -140,7 +161,6 @@ then
 fi
 record smoke-gate PASS "all full-policy smoke checks passed; starting 100-image run"
 
-# Full CPU plan must independently pass before the full workers start.
 if ! run_logged full-prepare "$LOG_ROOT/full_prepare.log" \
   "$DAPS_PY" -u "$REPO_ROOT/scripts/b22/prepare_b22_2_panel.py" \
     --config "$CONFIG" --repo_root "$REPO_ROOT" --run_root "$RUN_ROOT" --stage full
@@ -148,8 +168,11 @@ then
   archive_compact full_prepare_failed || true
   exit 1
 fi
+if ! require_stage_plan full; then
+  archive_compact full_prepare_contract_failed || true
+  exit 1
+fi
 
-# Balanced concurrent schedule: 50 images per SITCOM worker and 50 per NP worker.
 CUDA_VISIBLE_DEVICES="$GPU_S0" "$SITCOM_PY" -u "$REPO_ROOT/scripts/b22/run_b22_2_sitcom_worker.py" \
   --config "$CONFIG" --repo_root "$REPO_ROOT" --run_root "$RUN_ROOT" --stage full --shard 0 \
   >"$LOG_ROOT/full_sitcom_shard0.log" 2>&1 & F_S0=$!
@@ -176,7 +199,6 @@ wait_worker full-sitcom-0 "$F_S0" "$LOG_ROOT/full_sitcom_shard0.log" || FULL_OK=
 wait_worker full-sitcom-1 "$F_S1" "$LOG_ROOT/full_sitcom_shard1.log" || FULL_OK=0
 wait_worker full-np-0 "$F_N0" "$LOG_ROOT/full_np_shard0.log" || FULL_OK=0
 wait_worker full-np-1 "$F_N1" "$LOG_ROOT/full_np_shard1.log" || FULL_OK=0
-
 if [[ $FULL_OK -ne 1 ]]; then
   record full-gate FAIL "one or more full workers failed; preserve run root for resume"
   archive_compact full_worker_failed || true
@@ -202,11 +224,11 @@ run_root=$RUN_ROOT
 repo_head=$(git -C "$REPO_ROOT" rev-parse HEAD)
 EOF
 
-if ARCHIVE=$(archive_compact complete | tail -n 1); then
+if archive_compact complete; then
   echo
   echo "B22.2 overnight run completed."
   echo "run_root=$RUN_ROOT"
-  echo "return_archive=$ARCHIVE"
+  echo "return_archive=${RUN_ROOT}_complete.tar.gz"
 else
   echo "B22.2 computation and validation completed, but compact archive creation failed."
   echo "run_root=$RUN_ROOT"
