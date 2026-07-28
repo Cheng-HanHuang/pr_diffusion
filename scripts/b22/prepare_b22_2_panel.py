@@ -1,10 +1,17 @@
 #!/usr/bin/env python3
-"""Prepare and validate a deterministic B22.2 smoke or full-panel execution plan."""
+"""Prepare and validate a deterministic B22.2 smoke or full-panel execution plan.
+
+Preparation is atomic: the visible stage directory is created only after all
+identity checks, manifests, shards, and the plan have been written successfully.
+"""
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -33,10 +40,10 @@ def find_gt(root: Path, image_id: str) -> Path:
         root / "00000" / f"{value:05d}.png",
         root / f"{value:05d}.png",
     ]
-    hits = [p for p in candidates if p.is_file()]
+    hits = [path for path in candidates if path.is_file()]
     if not hits:
         hits = list(root.rglob(f"{value:05d}.png"))
-    unique = sorted({p.resolve() for p in hits})
+    unique = sorted({path.resolve() for path in hits})
     if len(unique) != 1:
         raise FileNotFoundError(
             f"Expected one FFHQ image for {image_id}; found {len(unique)} under {root}"
@@ -56,8 +63,6 @@ def load_gt(path: Path, resolution: int) -> torch.Tensor:
 
 
 def git_diff(repo: Path, path: str) -> str:
-    import subprocess
-
     return subprocess.check_output(
         ["git", "-C", str(repo), "diff", "--", path],
         stderr=subprocess.STDOUT,
@@ -152,7 +157,49 @@ def build_rows(config: dict[str, Any]) -> list[dict[str, Any]]:
 def make_shards(rows: list[dict[str, Any]], count: int) -> list[list[dict[str, Any]]]:
     if count <= 0:
         raise ValueError("Shard count must be positive")
-    return [[row for i, row in enumerate(rows) if i % count == shard] for shard in range(count)]
+    return [
+        [row for index, row in enumerate(rows) if index % count == shard]
+        for shard in range(count)
+    ]
+
+
+def write_stage_atomically(
+    stage_root: Path,
+    config: dict[str, Any],
+    manifest: dict[str, Any],
+    sitcom_shards: list[list[dict[str, Any]]],
+    np_shards: list[list[dict[str, Any]]],
+    plan: dict[str, Any],
+) -> None:
+    if stage_root.exists():
+        raise FileExistsError(f"Refusing to overwrite existing stage directory: {stage_root}")
+    temporary = stage_root.with_name(f".{stage_root.name}.prepare.{os.getpid()}")
+    if temporary.exists():
+        raise FileExistsError(f"Temporary preparation directory already exists: {temporary}")
+    temporary.mkdir(parents=True)
+    try:
+        write_json(temporary / "manifest.json", manifest)
+        write_json(temporary / "config_snapshot.json", config)
+        shards_root = temporary / "shards"
+        shards_root.mkdir()
+        for method, shards in (("sitcom", sitcom_shards), ("np", np_shards)):
+            for shard_id, shard_rows in enumerate(shards):
+                write_json(
+                    shards_root / f"{method}_shard{shard_id}.json",
+                    {
+                        "schema_version": 1,
+                        "stage": manifest["stage"],
+                        "method": method,
+                        "shard_id": shard_id,
+                        "shard_count": len(shards),
+                        "rows": shard_rows,
+                    },
+                )
+        write_json(temporary / "plan.json", plan)
+        temporary.replace(stage_root)
+    except Exception:
+        shutil.rmtree(temporary, ignore_errors=True)
+        raise
 
 
 def main() -> int:
@@ -167,23 +214,21 @@ def main() -> int:
     repo_root = Path(args.repo_root).resolve()
     run_root = Path(args.run_root).resolve()
     stage_root = run_root / args.stage
-    if stage_root.exists():
-        raise FileExistsError(f"Refusing to overwrite existing stage directory: {stage_root}")
-    stage_root.mkdir(parents=True)
 
     identities = verify_identities(config, repo_root)
     all_rows = build_rows(config)
     if args.stage == "smoke":
-        indices = [int(x) for x in config["execution"]["smoke_row_indices"]]
-        if len(set(indices)) != len(indices) or any(i < 0 or i >= len(all_rows) for i in indices):
+        indices = [int(value) for value in config["execution"]["smoke_row_indices"]]
+        if len(set(indices)) != len(indices) or any(
+            index < 0 or index >= len(all_rows) for index in indices
+        ):
             raise RuntimeError(f"Invalid smoke row indices: {indices}")
-        rows = [all_rows[i] for i in indices]
+        rows = [all_rows[index] for index in indices]
     else:
         rows = all_rows
 
     sitcom_shards = make_shards(rows, int(config["execution"]["sitcom_shards"]))
     np_shards = make_shards(rows, int(config["execution"]["np_shards"]))
-
     manifest = {
         "schema_version": 1,
         "stage": args.stage,
@@ -195,40 +240,24 @@ def main() -> int:
         "selected_row_count": len(rows),
         "selection_uses_method_outcome": False,
         "selection_rule": (
-            "fixed row indices from config" if args.stage == "smoke" else "all rows in sorted locked-measurement filename order"
+            "fixed row indices from config"
+            if args.stage == "smoke"
+            else "all rows in sorted locked-measurement filename order"
         ),
     }
-    write_json(stage_root / "manifest.json", manifest)
-    write_json(stage_root / "config_snapshot.json", config)
-
-    shards_root = stage_root / "shards"
-    shards_root.mkdir()
-    for method, shards in (("sitcom", sitcom_shards), ("np", np_shards)):
-        for shard_id, shard_rows in enumerate(shards):
-            write_json(
-                shards_root / f"{method}_shard{shard_id}.json",
-                {
-                    "schema_version": 1,
-                    "stage": args.stage,
-                    "method": method,
-                    "shard_id": shard_id,
-                    "shard_count": len(shards),
-                    "rows": shard_rows,
-                },
-            )
-
     plan = {
         "stage": args.stage,
         "selected_rows": len(rows),
-        "sitcom_shard_sizes": [len(x) for x in sitcom_shards],
-        "np_shard_sizes": [len(x) for x in np_shards],
-        "expected_sitcom_candidates": len(rows) * len(config["sitcom"]["seeds"]),
+        "sitcom_shard_sizes": [len(shard) for shard in sitcom_shards],
+        "np_shard_sizes": [len(shard) for shard in np_shards],
+        "expected_sitcom_candidates": len(rows)
+        * int(config["sitcom"]["trajectory_count"]),
         "expected_np_candidates": len(rows)
         * len(config["np"]["seeds"])
         * len(config["np"]["configs"]),
         "full_launch_machine_gate": args.stage == "smoke",
     }
-    write_json(stage_root / "plan.json", plan)
+    write_stage_atomically(stage_root, config, manifest, sitcom_shards, np_shards, plan)
     print(json.dumps({"status": "PASS", **plan}, sort_keys=True))
     return 0
 
