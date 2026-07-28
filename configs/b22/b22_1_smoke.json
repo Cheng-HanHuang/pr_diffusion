@@ -1,0 +1,91 @@
+{
+  "branch": "codex/b22-fixed-baseline-comparison",
+  "checkpoint": "B22.1",
+  "expected_identity": {
+    "daps_base_commit": "e7a77d094167084faed19b599b96673b7bb11447",
+    "difffpr_commit": "a45ffe58f18fed8a63d3446600424e2b08733524",
+    "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "sitcom_commit": "275ab67efbd8146bffca20155171ba6be1169c09"
+  },
+  "gate": {
+    "full_panel_authorized_before_smoke_review": false,
+    "required_methods": [
+      "SITCOM-1",
+      "NP-1"
+    ],
+    "required_outputs": [
+      "input/input_manifest.json",
+      "sitcom1/result.json",
+      "sitcom1/reconstruction.pt",
+      "sitcom1/reconstruction.png",
+      "np1/result.json",
+      "np1/reconstruction.pt",
+      "np1/reconstruction.png",
+      "comparison.csv",
+      "validation.json",
+      "FINAL_STATUS.txt"
+    ]
+  },
+  "np1": {
+    "config_tag": "lf",
+    "guided_preset": "difffpr_ffhq_10m",
+    "guided_strict": true,
+    "hard_candidates": 1,
+    "log_every": 100,
+    "measurement_preprocessing": "clamp_min_zero_in_memory",
+    "num_steps": 1000,
+    "proj_radius": 0.2,
+    "proj_radius_schedule": "300:0.2",
+    "proj_start": 300,
+    "score_huber_delta": 0.05,
+    "score_mode": "lf",
+    "score_radius": 0.6,
+    "score_reg_lambda": 0.0,
+    "score_reg_lambda_schedule": "constant",
+    "seed": 100,
+    "soft_candidates": 5,
+    "variant": "np_canonical_soft5_hard1"
+  },
+  "pac_paths": {
+    "difffpr_root": "/egr/research-pac/huang248/external/DiffFPR",
+    "ffhq_data_root": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024",
+    "locked_measurement_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements",
+    "model_path": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "sitcom_root": "/egr/research-pac/huang248/external/SITCOM_ODE"
+  },
+  "problem": {
+    "auxiliary_metric": "max(raw, rot180) PSNR; offline ground-truth-assisted",
+    "dataset": "FFHQ",
+    "operator": "oversampled phase retrieval",
+    "oversample": 2.0,
+    "primary_metric": "raw RGB PSNR after clamp to [-1,1] and map to [0,1]",
+    "resolution": 256,
+    "sigma_y": 0.05
+  },
+  "purpose": "One-image reproducibility smoke for fixed SITCOM-1 and NP-1 baselines on the exact B21.11 locked measurement.",
+  "schema_version": 1,
+  "sitcom1": {
+    "anneal_schedule": "linear",
+    "anneal_sigma_max": 100.0,
+    "anneal_sigma_min": 0.1,
+    "anneal_steps": 200,
+    "diff_schedule": "linear",
+    "diff_sigma_min": 0.01,
+    "diff_steps": 5,
+    "lgvd_lr": 5e-05,
+    "lgvd_lr_min_ratio": 0.01,
+    "lgvd_steps": 100,
+    "lgvd_tau": 0.01,
+    "measurement_preprocessing": "none",
+    "model_path_relative_to_sitcom_root": "checkpoint/ffhq256.pt",
+    "num_runs": 1,
+    "seed": 43,
+    "timestep": "poly-7"
+  },
+  "smoke_selection": {
+    "expected_measurement_count": 100,
+    "measurement_glob": "ffhq*_phase_noise005_meas5401.pt",
+    "rule": "lexicographically_first_locked_measurement",
+    "uses_method_outcome": false
+  }
+}

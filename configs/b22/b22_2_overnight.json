@@ -1,0 +1,139 @@
+{
+  "branch": "codex/b22-fixed-baseline-comparison",
+  "checkpoint": "B22.2",
+  "execution": {
+    "automatic_full_launch_after_smoke_pass": true,
+    "np_gpus": [
+      2,
+      3
+    ],
+    "np_shards": 2,
+    "refuse_silent_overwrite": true,
+    "resume_existing_valid_candidates": true,
+    "sitcom_gpus": [
+      0,
+      1
+    ],
+    "sitcom_shards": 2,
+    "smoke_row_indices": [
+      0,
+      1
+    ]
+  },
+  "expected_identity": {
+    "difffpr_commit": "a45ffe58f18fed8a63d3446600424e2b08733524",
+    "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "sitcom_commit": "275ab67efbd8146bffca20155171ba6be1169c09"
+  },
+  "gate": {
+    "full_launch_requires_smoke_validation_pass": true,
+    "full_panel_launch_authorized_by_user_request": true,
+    "full_required_rows_per_method": 100,
+    "no_measurement_regeneration": true,
+    "no_policy_tuning": true,
+    "smoke_required_rows_per_method": 2
+  },
+  "np": {
+    "configs": [
+      {
+        "config_tag": "lf",
+        "score_mode": "lf",
+        "score_reg_lambda": 0.0,
+        "score_reg_lambda_schedule": "constant"
+      },
+      {
+        "config_tag": "s2_preproj_lam001",
+        "score_mode": "prev_l2",
+        "score_reg_lambda": 0.01,
+        "score_reg_lambda_schedule": "pre_projection_only"
+      }
+    ],
+    "diagnostic_rows": [
+      "NP-oracle8"
+    ],
+    "guided_preset": "difffpr_ffhq_10m",
+    "guided_strict": true,
+    "hard_candidates": 1,
+    "log_every": 0,
+    "measurement_preprocessing": "clamp_min_zero_in_memory",
+    "np1_config_tag": "lf",
+    "np1_seed": 100,
+    "num_steps": 1000,
+    "policy_rows": [
+      "NP-1",
+      "NP-8-RS"
+    ],
+    "proj_radius": 0.2,
+    "proj_radius_schedule": "300:0.2",
+    "proj_start": 300,
+    "score_huber_delta": 0.05,
+    "score_radius": 0.6,
+    "seeds": [
+      100,
+      101,
+      102,
+      103
+    ],
+    "selector_rule": "minimum selector statistic across all 8 trajectories; stable tie break by config order then seed",
+    "selector_stat": "selector_post_winner_lf_mse_mean",
+    "soft_candidates": 5,
+    "variant": "np_canonical_soft5_hard1"
+  },
+  "pac_paths": {
+    "difffpr_root": "/egr/research-pac/huang248/external/DiffFPR",
+    "ffhq_data_root": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024",
+    "fresh2_rows_csv": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/fresh2_final_rows.csv",
+    "locked_measurement_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements",
+    "model_path": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines",
+    "sitcom_root": "/egr/research-pac/huang248/external/SITCOM_ODE"
+  },
+  "problem": {
+    "auxiliary_metric": "max(raw, rot180) PSNR; offline ground-truth-assisted",
+    "dataset": "FFHQ",
+    "expected_measurement_count": 100,
+    "measurement_glob": "ffhq*_phase_noise005_meas5401.pt",
+    "oversample": 2.0,
+    "primary_metric": "raw RGB PSNR after clamp to [-1,1] and map to [0,1]",
+    "resolution": 256,
+    "sigma_y": 0.05
+  },
+  "purpose": "Strict four-GPU smoke followed by automatic paired 100-image fixed-baseline execution.",
+  "schema_version": 1,
+  "sitcom": {
+    "anneal_schedule": "linear",
+    "anneal_sigma_max": 100.0,
+    "anneal_sigma_min": 0.1,
+    "anneal_steps": 200,
+    "diagnostic_rows": [
+      "SITCOM-oracle4"
+    ],
+    "diff_schedule": "linear",
+    "diff_sigma_min": 0.01,
+    "diff_steps": 5,
+    "lgvd_lr": 5e-05,
+    "lgvd_lr_min_ratio": 0.01,
+    "lgvd_steps": 100,
+    "lgvd_tau": 0.01,
+    "master_seed": 43,
+    "measurement_preprocessing": "none",
+    "model_path_relative_to_sitcom_root": "checkpoint/ffhq256.pt",
+    "policy_rows": [
+      "SITCOM-1",
+      "SITCOM-4S"
+    ],
+    "selector_rule": "minimum correction_norm; stable tie break by candidate index",
+    "selector_stat": "sqrt(mean((x0y-x0hat)^2)) at annealing step 160",
+    "selector_step": 160,
+    "selector_tau": 0.8,
+    "sitcom1_candidate_index": 0,
+    "timestep": "poly-7",
+    "trajectory_count": 4
+  },
+  "smoke_replay": {
+    "image_id": "60044",
+    "np1_reconstruction_content_sha256": "b6dee35138e453fc8a1c77aa1dc3331d1b70bce8fa75a10d66fc39d5fd836641",
+    "purpose": "Exact replay gate against the signed-off B22.1 smoke.",
+    "sitcom1_reconstruction_content_sha256": "14ed2c4e209d2f00601f73cfd35b87c7db1365a57065c41a3c3ab162cae429d2"
+  }
+}
