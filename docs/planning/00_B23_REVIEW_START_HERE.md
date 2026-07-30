@@ -39,6 +39,7 @@ Read in this order:
 10. `docs/current_experiment_plan.md`
 11. `docs/branch_B_fixed_budget_population_selector.md`
 12. `docs/planning/01_B23_EXECUTOR_START_HERE.md`
+13. `docs/planning/02_B23_PAC_EXECUTION_AND_RETURN_PROTOCOL.md`
 
 Historical only:
 
