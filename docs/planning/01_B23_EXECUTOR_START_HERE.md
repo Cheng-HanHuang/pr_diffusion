@@ -2,7 +2,8 @@
 
 Date: 2026-07-30
 
-Status: executor handoff for the first post-review implementation checkpoint. This document does not itself authorize execution; begin only after the user explicitly approves the reviewed B23 plan.
+Status: executor handoff for B23.0 and preparation of B23.1. This document does not authorize
+execution.
 
 Repository: `Cheng-HanHuang/pr_diffusion`
 
@@ -10,191 +11,348 @@ Planning branch: `codex/post-b22-reliability-plan`
 
 Planning PR: `#36`
 
-## 1. Preconditions before starting
+## 1. Authorization rule
 
-The executor must receive an explicit statement from the user that:
+By default, the first executor may perform **B23.0 only** after the user explicitly says that:
 
-1. the B23 plan and amendment have been reviewed and accepted;
-2. required review changes, if any, have been incorporated;
-3. B23.0 and B23.1 are authorized;
-4. no B23.2 schedule experiment or large GPU panel is authorized yet.
+1. the final B23 plan is accepted;
+2. B23.0 is authorized;
+3. no GPU execution is authorized;
+4. no B23.2 schedule work is authorized.
 
-If any condition is absent, stop after reading and report the missing authorization.
+The executor may prepare B23.1 code, tests, and runbooks during B23.0, but must stop before any
+B23.1 GPU launch.
 
-## 2. Required reading and precedence
+B23.1 GPU replay requires a second explicit approval after the B23.0 return package is reviewed.
 
-Read every file before proposing implementation, in this order:
+If any authorization is missing, read and report only.
+
+## 2. Required reading
+
+Read every file in this order:
 
 1. `docs/planning/00_B23_REVIEW_START_HERE.md`
-2. `docs/planning/2026-07-30_b23_modular_fixed_budget_amendment.md`
-3. `docs/planning/2026-07-29_post_b22_reliability_research_plan.md`
+2. `docs/planning/2026-07-30_b23_final_research_plan.md`
+3. `docs/planning/2026-07-30_b23_supersession_ledger.md`
 4. `docs/b22/b22_3_scientific_closeout.md`
-5. `docs/checkpoints/2026-07-27_b21_to_b22/01_PROJECT_CHECKPOINT.md`
-6. `docs/b21/b21_registry.md`
-7. parent-method source/report files required to replay Fresh1, LF, NP-1, and SITCOM-1.
+5. `docs/b22/b22_3_visual_failure_taxonomy.csv`
+6. `docs/checkpoints/2026-07-27_b21_to_b22/01_PROJECT_CHECKPOINT.md`
+7. `docs/b21/b21_registry.md`
+8. `docs/b21/b21_11_fresh2_final_benchmark.md`
+9. `docs/b21/b21_7_fresh2_vs_lf_decision.md`
+10. `docs/b21/b21_10_detector_screen_decision.md`
+11. `docs/current_experiment_plan.md`
+12. `docs/branch_B_fixed_budget_population_selector.md`
+13. exact parent source and runbooks identified during inventory.
 
-Precedence:
+The July 29 plan and July 30 amendment are historical. Do not merge their stage plans with the final
+plan.
 
-- the 2026-07-30 amendment overrides the 2026-07-29 plan where they differ;
-- the review entrypoint specifies reading and gate policy but does not alter scientific hypotheses;
-- historical reports provide evidence and exact parent behavior but cannot reopen rejected directions without a new approved hypothesis;
-- no executor may tune on the B21/B22 final panel.
+## 3. B23.0 scope
 
-## 3. First executor scope
+### 3.1 Repository and PAC inventory
 
-The first executor is responsible for **B23.0 and B23.1 only**.
+1. inspect the open branch/PR stack;
+2. identify the immutable B22 scientific base and current accepted B23 planning head;
+3. do not merge, retarget, squash, force-push, or rewrite protected history;
+4. propose or create one clean execution branch only after the user approves the base;
+5. use a clean worktree under `/egr/research-pac/huang248`, never `/home`;
+6. inventory repository, external DAPS, NP, SITCOM, and DiffFPR revisions;
+7. inventory dirty diffs and patch hashes;
+8. inventory environments, model, data, measurements, outputs, hardware, driver, CUDA, cuDNN, and
+   PyTorch.
 
-### B23.0 — integration, inventory, and protocol freeze
+Use documented manifests and targeted paths. Do not recursively scan large output, data, or model
+trees without explicit user approval.
 
-Deliverables:
+### 3.2 Freeze the parent definitions
 
-1. inspect the open PR/branch stack and report the exact dependency structure;
-2. do not merge, retarget, squash, force-push, or rewrite protected history without an explicit human decision;
-3. identify the accepted B22 scientific head and accepted B23 planning head;
-4. create or propose one clean B23 execution branch from the approved integration point;
-5. create a clean PAC worktree under `/egr/research-pac/huang248`;
-6. create an exclusion manifest containing every B21/B22 image ID;
-7. inventory exact source revisions, external solver revisions, environments, model, dataset, measurements, and output roots;
-8. write the common-state/module API specification;
-9. write the machine-readable compute-ledger schema;
-10. write smoke, validation, and artifact-retention runbooks.
+For each of Fresh1, LF-v1, NP-1, and SITCOM-1, identify:
 
-No GPU launch is required for B23.0.
+- exact source entrypoint;
+- exact commit and local diff;
+- exact config and defaults;
+- model and scheduler;
+- operator and measurement preprocessing;
+- solver and measurement seed derivation;
+- native state and time/noise coordinate;
+- native module boundaries, if any;
+- expected outputs and retained B22 artifacts.
 
-### B23.1 — parent module extraction and exact replay
+Do not treat `prdiffusion/algorithms/hybrid_np_sitcom.py` or historical handoff code as the native
+SITCOM parent.
 
-Implement parent algorithms through the common interface in this order:
+### 3.3 Exposure and split protocol
 
-1. Fresh1/DAPS;
-2. LF-guided parent;
-3. NP-1 with its actual delayed/scoring/resampling semantics preserved;
-4. SITCOM-1 only after state conversion and RNG behavior are explicitly audited.
+Create a machine-readable `PRE_B23_EXPOSURE.csv` that covers B19, B20, early NP/SITCOM Branch A/B,
+B21, B22, and manually inspected examples.
 
-Required replay evidence for each parent:
+Required columns:
 
-- one-image exact or tolerance-qualified replay;
-- intermediate-state/checkpoint comparison;
-- random-generator and random-consumption audit;
-- output tensor hash where deterministic replay is expected;
-- final metric agreement within a frozen tolerance;
-- identical or fully reconciled operation counts;
-- measured GPU time, wall time, and peak memory;
-- serializable/resumable module boundaries;
-- no hidden extra diffusion or measurement evaluations.
+```text
+image_id
+measurement_id
+dataset_split
+first_project_stage
+roles_seen
+ground_truth_inspected
+artifacts
+exclusion_reason
+source_evidence
+```
 
-After one-image replay, run a four-image heterogeneous smoke only. Do not run a schedule screen or full panel.
+If exposure is uncertain, exclude the row.
 
-## 4. Required technical artifacts
+Define but do not populate future B23 split manifests beyond what is needed for a non-experimental
+smoke plan.
 
-At minimum, B23.0/B23.1 should add:
+### 3.4 Typed state and compatibility specification
+
+Write a typed API specification containing:
+
+- `NativeState[parent]`;
+- `Module[input_type -> output_type]`;
+- `Adapter[parent_A -> parent_B]`;
+- semantic noise/log-SNR coordinate;
+- cumulative budget coordinate;
+- validity, information-loss, round-trip, serialization, and resume checks;
+- explicit failure states that classify a parent as `BASELINE-ONLY`.
+
+Do not implement one generic `state.x` abstraction that hides parent semantics.
+
+### 3.5 Compute ledger and FRE specification
+
+Write a machine-readable schema for:
+
+- model forwards/backwards/JVPs/VJPs;
+- measurement forwards/adjoints/JVPs/VJPs;
+- FFT/projection/correction calls;
+- optimizer iterations;
+- conversions and re-noising;
+- named RNG draws;
+- live/retained branches and terminal candidates;
+- GPU-active and wall seconds;
+- memory;
+- overhead.
+
+Define the atomic-operation microbenchmark procedure and how it will freeze `w_j` before hybrid
+execution.
+
+Implement formulas for:
+
+```text
+work_FRE
+time_FRE
+claim_FRE = max(work_FRE, time_FRE)
+```
+
+Do not invent the numerical weights before measuring them.
+
+### 3.6 Replay and RNG policy
+
+Write:
+
+- native repeatability procedure;
+- bitwise replay eligibility;
+- tolerance-freeze procedure;
+- deterministic-flag audit;
+- named RNG stream and seed-derivation scheme;
+- draw-count and serialization checks;
+- wrapper-versus-native comparison format.
+
+The native parent determines whether bitwise replay is realistic. Do not change the parent simply to
+force a hash.
+
+### 3.7 Historical dead-direction ledger
+
+The B23 docs must explicitly include:
+
+- LF-v1 loses to a fresh restart as the default second arm;
+- Fresh3 scaling and shared-prefix branching were rejected;
+- scalar/pairwise detector thresholds were rejected;
+- direct NP-to-SITCOM handoff was noncompetitive;
+- executable `3S+1NP` routing was worse than `4S`;
+- residual is not a correctness certificate;
+- existing hybrid/handoff code is prototype evidence only.
+
+## 4. Required B23.0 artifacts
+
+At minimum:
 
 ```text
 docs/b23/00_START_HERE.md
 docs/b23/01_PROTOCOL_AND_GATES.md
-docs/b23/02_COMMON_STATE_AND_MODULE_API.md
-docs/b23/03_COMPUTE_LEDGER_SPEC.md
-docs/b23/04_PARENT_REPLAY_RUNBOOK.md
-docs/b23/05_PAC_INVENTORY_AND_FREEZE.md
+docs/b23/02_PARENT_SEMANTICS_AND_COMPATIBILITY.md
+docs/b23/03_TYPED_STATE_MODULE_ADAPTER_API.md
+docs/b23/04_COMPUTE_LEDGER_AND_FRE_SPEC.md
+docs/b23/05_REPLAY_DETERMINISM_AND_RNG_POLICY.md
+docs/b23/06_PRE_B23_EXPOSURE_MANIFEST.md
+docs/b23/07_PAC_INVENTORY_AND_FREEZE.md
+docs/b23/08_HISTORICAL_DEAD_DIRECTIONS.md
+docs/b23/09_B23_1_REPLAY_RUNBOOK.md
+docs/b23/10_B23_2_PREREGISTRATION_TEMPLATE.md
 configs/b23/...
 scripts/b23/...
 tests/b23/...
 ```
 
-The exact file split may change, but the information and gates may not be omitted.
-
-## 5. Common-state design requirements
-
-The common state must expose, at minimum:
-
-- current sample/latent and its representation contract;
-- diffusion time/noise/schedule position;
-- measurement and operator handles;
-- RNG/generator state;
-- model and solver-state references;
-- accumulated diagnostics;
-- explicit conversion metadata;
-- optional candidate/branch metadata;
-- operation counters for the compute ledger.
-
-Do not pretend heterogeneous solvers share identical state semantics. Every conversion must be explicit, reversible where required, and tested.
-
-## 6. Compute-ledger requirements
-
-Record at least:
-
-- diffusion-network evaluations;
-- measurement forward evaluations;
-- measurement adjoint evaluations;
-- gradient/projection/correction calls;
-- inner optimizer iterations;
-- stochastic branches;
-- retained candidates;
-- GPU-seconds;
-- wall time;
-- peak allocated/reserved memory;
-- preprocessing or conversion overhead.
-
-The ledger must support normalization to one frozen Fresh1-equivalent run while preserving raw counts and measured time.
-
-## 7. Prohibited actions
-
-The first executor must not:
-
-- run B23.2 schedule search;
-- invent hybrid schedules beyond interface smokes;
-- launch a large GPU panel;
-- tune on B21/B22 final images;
-- change the B1/B2 compute caps;
-- add NP/LF/SITCOM work on top of a full DAPS trajectory without subtracting cost elsewhere;
-- implement a learned controller;
-- train an image classifier;
-- use ground-truth-dependent runtime features;
-- run hidden best-of-k candidate banks;
-- treat NP as a generic gradient step if that changes its semantics;
-- merge or rewrite the historical PR stack without explicit human authorization.
-
-## 8. B23.1 sign-off gate
-
-B23.1 passes only if all four parents replay correctly through the common interface and the compute ledger is trustworthy.
+Machine-readable files should include:
 
 ```text
-Fresh1 replay: REQUIRED
-LF replay: REQUIRED
-NP-1 replay: REQUIRED
-SITCOM-1 replay: REQUIRED
-one-image parent checks: REQUIRED
-four-image heterogeneous smoke: REQUIRED
-intermediate/RNG audit: REQUIRED
-compute ledger: REQUIRED
-module serialization/resume: REQUIRED
-B23.2 authorization: SEPARATE DECISION
+manifests/b23/PRE_B23_EXPOSURE.csv
+schemas/b23/compute_ledger.schema.json
+schemas/b23/replay_report.schema.json
+configs/b23/fresh1_frozen.yaml
+configs/b23/lf_v1_frozen.yaml
+configs/b23/np1_frozen.yaml
+configs/b23/sitcom1_frozen.yaml
+configs/b23/replay_policy.yaml
 ```
 
-If one parent cannot be represented faithfully, do not conceal the mismatch. Report whether:
+Exact paths may change only if the same information and gates remain easy to find.
 
-- the module boundary is wrong;
-- state conversion is lossy;
-- RNG semantics differ;
-- the parent method must remain an external whole-solver baseline;
-- the modular-composition hypothesis needs revision.
+## 5. B23.0 validation
 
-## 9. Executor return package
+Run only safe, no-GPU checks:
+
+- schema validation;
+- config parsing;
+- manifest uniqueness and overlap tests;
+- source/hash inventory checks;
+- unit tests for ledger arithmetic;
+- unit tests for seed derivation and state serialization using synthetic tensors;
+- dry-run command rendering;
+- no experiment launcher.
+
+## 6. B23.0 return package
 
 Return:
 
-1. branch and exact head SHA;
+1. execution branch and exact head SHA;
 2. PR or commit list;
-3. source/environment/PAC inventory;
-4. common-state API and compute-ledger specification;
-5. replay table for all four parents;
-6. one-image and four-image logs;
-7. tensor/metric/checkpoint comparisons;
-8. operation-count and timing tables;
-9. unresolved semantic or implementation risks;
-10. explicit recommendation: authorize B23.2A, revise B23.1, or stop modular composition.
+3. branch-stack recommendation without performing history changes;
+4. PAC/source/environment/hardware inventory;
+5. unresolved artifact or source identity gaps;
+6. exposure-manifest coverage and unresolved IDs;
+7. parent-semantics table;
+8. typed API;
+9. compute ledger and FRE procedure;
+10. replay/RNG policy;
+11. proposed one-image and four-image B23.1 smoke manifests;
+12. exact B23.1 commands as dry runs;
+13. explicit recommendation:
+   - authorize B23.1;
+   - revise B23.0;
+   - stop because parent identity or protocol is not recoverable.
 
-## 10. Initial instruction to the executor
+Stop and wait for planner/user sign-off.
 
-Use the following instruction when handing off after plan approval:
+## 7. B23.1 scope after separate authorization
 
-> Work as the execution lead for B23.0 and B23.1 in `Cheng-HanHuang/pr_diffusion`. Start from `docs/planning/01_B23_EXECUTOR_START_HERE.md`, read every required file in its stated precedence order, and do not propose or run B23.2 schedules. First consolidate the repository/inventory/protocol, then implement a common modular interface that faithfully replays Fresh1, LF, NP-1, and SITCOM-1 with an audited compute ledger. Commit every implementation and runbook change before PAC execution, use smoke gates, and return compact evidence for sign-off.
+### 7.1 Native parent replay
+
+In order:
+
+1. Fresh1;
+2. LF-v1;
+3. NP-1;
+4. SITCOM-1.
+
+For each:
+
+- native repeatability calibration;
+- unchanged native reference run;
+- instrumented-wrapper run;
+- intermediate trace comparison;
+- RNG draw reconciliation;
+- exact raw operation counts;
+- GPU-active, wall-time, and memory measurement;
+- bitwise or tolerance-qualified report;
+- serialization/resume check where meaningful.
+
+### 7.2 Four-image heterogeneous smoke
+
+Use only four new preregistered images. The smoke may test engineering heterogeneity but may not be
+used to choose:
+
+- module boundaries;
+- schedule windows;
+- thresholds;
+- parent configs;
+- B23.2 candidates.
+
+### 7.3 Donor extraction
+
+Mandatory:
+
+- DAPS-native Fresh1 module sequence replay;
+- DAPS-native LF-v1 module sequence replay.
+
+Audited:
+
+- NP proposal/ranking donor;
+- SITCOM triple-consistency donor.
+
+Classify every donor as:
+
+```text
+NATIVE-REPLAYED
+DAPS-NATIVE-DONOR
+ADAPTER-QUALIFIED-DONOR
+BASELINE-ONLY
+REJECTED-PROTOTYPE
+```
+
+Do not force NP or SITCOM through a lossy adapter merely to pass H0.
+
+## 8. B23.1 sign-off
+
+Required for all:
+
+- all four native wrappers replay;
+- Fresh1 and LF-v1 DAPS-native replay;
+- exact operation-count reconciliation;
+- trustworthy RNG and compute ledgers;
+- no hidden conversion or model call;
+- parent-specific state validity.
+
+Required for cross-family Track A:
+
+- at least one NP or SITCOM `ADAPTER-QUALIFIED-DONOR`.
+
+Return one:
+
+- `AUTHORIZE B23.2 PREREGISTRATION`;
+- `CONTINUE DAPS-NATIVE ONLY UNDER NARROWED CLAIM`;
+- `REVISE B23.1`;
+- `STOP TRACK A AND PIVOT TO TRACK B`.
+
+No B23.2 command, config, manifest, or GPU screen is authorized yet.
+
+## 9. Prohibited actions
+
+The executor must not:
+
+- launch GPU work during B23.0;
+- launch B23.1 without the second approval;
+- implement or run B23.2 schedules;
+- tune on any pre-B23 image;
+- treat the B22 panel as schedule-selection data;
+- change B1/B2 caps;
+- append a donor to a full parent without cost subtraction;
+- create hidden branches or candidates;
+- reduce NP to a generic gradient step;
+- label SITCOM as late polish without semantic evidence;
+- revive NP-to-SITCOM handoff;
+- add DiffStateGrad or another fifth family;
+- implement a learned controller;
+- merge or rewrite protected history;
+- place work under `/home`.
+
+## 10. Initial executor instruction
+
+> Work as the B23.0 execution lead for `Cheng-HanHuang/pr_diffusion`. Start at
+> `docs/planning/01_B23_EXECUTOR_START_HERE.md` and follow its reading order. Perform repository,
+> PAC, artifact, parent-semantics, exposure, typed-state, compute-ledger, replay-policy, and dry-run
+> preparation only. Do not launch a GPU job and do not implement B23.2 schedules. Return the full
+> B23.0 package and stop for sign-off before B23.1.
