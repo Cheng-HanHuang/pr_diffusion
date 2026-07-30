@@ -1,6 +1,6 @@
 # B23 executor start here
 
-Date: 2026-07-30
+Date: 2026-07-31
 
 Status: executor handoff for B23.0 and preparation of B23.1. This document does not authorize
 execution.
@@ -34,16 +34,17 @@ Read every file in this order:
 1. `docs/planning/00_B23_REVIEW_START_HERE.md`
 2. `docs/planning/2026-07-30_b23_final_research_plan.md`
 3. `docs/planning/2026-07-30_b23_supersession_ledger.md`
-4. `docs/b22/b22_3_scientific_closeout.md`
-5. `docs/b22/b22_3_visual_failure_taxonomy.csv`
-6. `docs/checkpoints/2026-07-27_b21_to_b22/01_PROJECT_CHECKPOINT.md`
-7. `docs/b21/b21_registry.md`
-8. `docs/b21/b21_11_fresh2_final_benchmark.md`
-9. `docs/b21/b21_7_fresh2_vs_lf_decision.md`
-10. `docs/b21/b21_10_detector_screen_decision.md`
-11. `docs/current_experiment_plan.md`
-12. `docs/branch_B_fixed_budget_population_selector.md`
-13. exact parent source and runbooks identified during inventory.
+4. `docs/planning/02_B23_PAC_EXECUTION_AND_RETURN_PROTOCOL.md`
+5. `docs/b22/b22_3_scientific_closeout.md`
+6. `docs/b22/b22_3_visual_failure_taxonomy.csv`
+7. `docs/checkpoints/2026-07-27_b21_to_b22/01_PROJECT_CHECKPOINT.md`
+8. `docs/b21/b21_registry.md`
+9. `docs/b21/b21_11_fresh2_final_benchmark.md`
+10. `docs/b21/b21_7_fresh2_vs_lf_decision.md`
+11. `docs/b21/b21_10_detector_screen_decision.md`
+12. `docs/current_experiment_plan.md`
+13. `docs/branch_B_fixed_budget_population_selector.md`
+14. exact parent source and runbooks identified during inventory.
 
 The July 29 plan and July 30 amendment are historical. Do not merge their stage plans with the final
 plan.
@@ -245,6 +246,11 @@ Return:
    - revise B23.0;
    - stop because parent identity or protocol is not recoverable.
 
+Package and report this return exactly as specified in
+`docs/planning/02_B23_PAC_EXECUTION_AND_RETURN_PROTOCOL.md`. Commit transparent text/CSV/JSON
+evidence and artifact hashes to the execution branch. Keep large raw outputs on PAC; do not use a
+binary `.tar.gz` file as the only scientific record.
+
 Stop and wait for planner/user sign-off.
 
 ## 7. B23.1 scope after separate authorization
@@ -354,5 +360,6 @@ The executor must not:
 > Work as the B23.0 execution lead for `Cheng-HanHuang/pr_diffusion`. Start at
 > `docs/planning/01_B23_EXECUTOR_START_HERE.md` and follow its reading order. Perform repository,
 > PAC, artifact, parent-semantics, exposure, typed-state, compute-ledger, replay-policy, and dry-run
-> preparation only. Do not launch a GPU job and do not implement B23.2 schedules. Return the full
-> B23.0 package and stop for sign-off before B23.1.
+> preparation only. Follow `docs/planning/02_B23_PAC_EXECUTION_AND_RETURN_PROTOCOL.md` for PAC
+> paths, evidence storage, and the exact planner-return block. Do not launch a GPU job and do not
+> implement B23.2 schedules. Return the full B23.0 package and stop for sign-off before B23.1.
