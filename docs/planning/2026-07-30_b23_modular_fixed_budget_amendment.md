@@ -1,3 +1,9 @@
+> [!IMPORTANT]
+> **Superseded on 2026-07-30.** The authoritative plan is
+> `docs/planning/2026-07-30_b23_final_research_plan.md`; section-level status is in
+> `docs/planning/2026-07-30_b23_supersession_ledger.md`. This file is retained as historical
+> planning rationale and does not authorize execution.
+
 # B23 amendment: fixed-budget modular solver synthesis
 
 Date: 2026-07-30
