@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **Superseded as an execution plan on 2026-07-30.** The authoritative B23 plan is
+> `docs/planning/2026-07-30_b23_final_research_plan.md`. The portfolio material in this file is
+> retained as historical Track-B rationale only; it does not authorize implementation.
+
 # Post-B22 research decision and detailed reliability roadmap
 
 Date: 2026-07-29
