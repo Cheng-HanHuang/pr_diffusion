@@ -1,0 +1,53 @@
+from __future__ import annotations
+
+import importlib.util
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+
+REPO = Path(__file__).resolve().parents[2]
+
+
+def load_script(name: str):
+    path = REPO / "scripts/b23" / name
+    spec = importlib.util.spec_from_file_location(name.replace(".", "_"), path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+class PackagingSafetyTests(unittest.TestCase):
+    def test_archive_validator_rejects_oversize(self) -> None:
+        publish = load_script("publish_b23_0_evidence.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "fake.tar.gz"
+            path.write_bytes(b"too large")
+            with self.assertRaises(ValueError):
+                publish.validate_archive(path, 1)
+
+    def test_schemas_are_draft_2020_12(self) -> None:
+        for path in (REPO / "schemas/b23").glob("*.schema.json"):
+            schema = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+
+    def test_exact_manifest_can_resolve_seeded_unknown_measurement(self) -> None:
+        collector = load_script("collect_b23_0_pac_evidence.py")
+        builder = collector.ExposureBuilder()
+        builder.add(
+            "60044", None, stage="B22", role="manual", artifact="taxonomy",
+            evidence="taxonomy",
+        )
+        builder.add(
+            "60044", "meas5401:seed123", stage="B21", role="manifest",
+            artifact="measurement_manifest", evidence="measurement_manifest",
+            exact_replaces_unknown=True,
+        )
+        self.assertIn(("60044", "meas5401:seed123"), builder.rows)
+        self.assertNotIn(("60044", "UNKNOWN_ALL_MEASUREMENTS"), builder.rows)
+
+
+if __name__ == "__main__":
+    unittest.main()

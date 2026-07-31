@@ -1,0 +1,17 @@
+{
+  "schema_version": "b23.compute-ledger.v1",
+  "experiment_id": "B23_0_SCHEMA_EXAMPLE",
+  "image_id": "SYNTHETIC",
+  "measurement_id": "SYNTHETIC",
+  "parent_or_policy_id": "Fresh1",
+  "hardware_identity_id": null,
+  "raw_counts": {"denoiser_forward": 0, "denoiser_backward": 0, "denoiser_jvp": 0, "denoiser_vjp": 0, "measurement_forward": 0, "measurement_adjoint": 0, "measurement_jvp": 0, "measurement_vjp": 0, "fft": 0, "projection": 0, "correction": 0, "optimizer_iterations": 0, "state_conversion": 0, "renoising": 0, "random_proposals": 0, "rng_draws": 0},
+  "optimizer_iterations_by_type": {},
+  "rng_streams": [],
+  "branches": {"max_live": 0, "retained": 0, "terminal_candidates": 0},
+  "timing": {"gpu_active_seconds": 0.0, "wall_seconds": 0.0, "timer_method": "NOT_RUN"},
+  "memory_bytes": {"peak_allocated": 0, "peak_reserved": 0},
+  "overhead_seconds": {"serialization": 0.0, "preprocessing": 0.0, "conversion": 0.0},
+  "fre": {"status": "UNCALIBRATED", "work_FRE": null, "time_FRE": null, "claim_FRE": null, "reference_id": "Fresh1-ann400-diff5", "weight_registry_sha256": null},
+  "notes": ["Schema example only; it is not an experiment or cost estimate."]
+}

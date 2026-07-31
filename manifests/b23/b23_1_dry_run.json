@@ -1,0 +1,27 @@
+{
+  "authorized": false,
+  "blockers": [
+    "B23.0 planner/user sign-off has not been recorded",
+    "separate B23.1 GPU authorization has not been received",
+    "the B23.1 signed smoke registry is intentionally empty",
+    "native repeatability tolerances and atomic operation weights are not yet measured"
+  ],
+  "command_templates": {
+    "Fresh1": "CUDA_VISIBLE_DEVICES=<AUTHORIZED_GPU> <DAPS_PYTHON> <DAPS_ROOT>/posterior_sample.py <FROZEN_FRESH1_ARGS_FROM_CONFIG> <SIGNED_REGISTRY_ROW>",
+    "LF-v1": "CUDA_VISIBLE_DEVICES=<AUTHORIZED_GPU> B20_LF_ENABLE=1 B20_LF_ALPHA=0.50 B20_LF_FRAC=0.35 B20_LF_RADIUS_FRAC=0.12 <DAPS_PYTHON> <DAPS_ROOT>/posterior_sample.py <FROZEN_LF_V1_ARGS> <SIGNED_REGISTRY_ROW>",
+    "NP-1": "CUDA_VISIBLE_DEVICES=<AUTHORIZED_GPU> <NP_PYTHON> scripts/b22/run_b22_1_np_smoke.py <FROZEN_NP1_ARGS> <SIGNED_REGISTRY_ROW>",
+    "SITCOM-1": "CUDA_VISIBLE_DEVICES=<AUTHORIZED_GPU> <SITCOM_PYTHON> scripts/b22/run_b22_1_sitcom_smoke.py <FROZEN_SITCOM1_ARGS> <SIGNED_REGISTRY_ROW>"
+  },
+  "commands": [],
+  "gpu_work_performed": false,
+  "note": "Templates are documentation, not executable schedules. Exact commands are rendered only after a signed registry and authorization exist.",
+  "parents": [
+    "Fresh1",
+    "LF-v1",
+    "NP-1",
+    "SITCOM-1"
+  ],
+  "registry": "/workspace/scratch/d1a3226fc3b9/pr_diffusion_b23_local/manifests/b23/future_split_registry.csv",
+  "registry_rows": 0,
+  "schema_version": "b23.b23-1-dry-run.v1"
+}
