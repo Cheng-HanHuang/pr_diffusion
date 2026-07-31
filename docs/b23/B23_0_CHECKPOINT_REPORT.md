@@ -1,21 +1,21 @@
 # B23.0 checkpoint report
 
-Status: **PASS_RECOMMEND_PLANNER_REVIEW**
+Status: **REVISE_B23_0_CORRECTIVE_RERUN_REQUIRED**
 GPU work performed: **NO**
 
-The clean execution worktree was checked at `78b32319dd49719c0ffa7bdcc0b358b5d13317cd` on
-`codex/b23-execution`. It descends from the pinned operational handoff `d1119e37fa688ac07f48ffc87ce19b13dbfb1c27`.
+The return capsule `B23_0_return_20260731T174838Z.tar.gz` and evidence commit
+`0d35656b360b4b0d04a28812079f18de8a03a9af` are preserved but invalid as a B23.0 PASS.
 
-The bounded PAC freeze records the historical checkout and its preserved dirty patch, DAPS and its
-preserved B21 patch, official SITCOM, the NP/SITCOM fork, DiffFPR, all three named environments,
-the FFHQ model/checkpoint, dataset-root existence, and hardware inventory. No data or output tree was
-recursively scanned and Python probes ran with `CUDA_VISIBLE_DEVICES` empty.
+The capsule's `STDERR_TAIL.txt` records two `ModuleNotFoundError: No module named 'prdiffusion'`
+errors. The unit-test process returned nonzero because it ran outside the repository without an
+explicit import path. The original grouped shell runner then executed later successful commands and
+lost that nonzero status, so it emitted and published a false PASS.
 
-The merged exposure manifest contains 328 images and
-429 image/measurement rows. Any unresolved measurement identity excludes
-all measurements for that image. The future B23 split registry remains empty.
+The correction binds the PAC interpreter to the repository, records every prerequisite return code,
+stops after the first failure, and makes the publisher independently reject any non-PASS step
+ledger. The earlier evidence is not deleted or rewritten.
 
-Numeric atomic-operation weights are intentionally absent: B23.1 microbenchmarks must measure and
-freeze them before any hybrid execution. B23.1 and B23.2 remain unauthorized.
+Failures: `PAC_IMPORT_CONTEXT`, `FAIL_OPEN_GROUPED_SHELL_STATUS`, `FALSE_PASS_PUBLICATION`
 
-Failures: NONE
+B23.1 and B23.2 remain unauthorized. A new timestamped zero-GPU capsule and post-run evidence commit
+must pass review before any `PLANNER_RETURN` recommends B23.1 consideration.

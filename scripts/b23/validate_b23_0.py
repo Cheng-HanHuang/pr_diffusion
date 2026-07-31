@@ -23,6 +23,7 @@ REQUIRED_FILES = (
     "docs/b23/08_HISTORICAL_DEAD_DIRECTIONS.md",
     "docs/b23/09_B23_1_REPLAY_RUNBOOK.md",
     "docs/b23/10_B23_2_PREREGISTRATION_TEMPLATE.md",
+    "docs/b23/B23_0_CORRECTION_LEDGER.md",
     "configs/b23/fresh1_frozen.yaml",
     "configs/b23/lf_v1_frozen.yaml",
     "configs/b23/np1_frozen.yaml",
@@ -30,6 +31,7 @@ REQUIRED_FILES = (
     "configs/b23/replay_policy.yaml",
     "manifests/b23/PRE_B23_EXPOSURE.csv",
     "manifests/b23/future_split_registry.csv",
+    "manifests/b23/b23_0_correction_ledger.json",
     "schemas/b23/compute_ledger.schema.json",
     "schemas/b23/replay_report.schema.json",
     "schemas/b23/future_split_registry.schema.json",
@@ -163,6 +165,21 @@ def main() -> int:
     checks["future_registry"] = check_future_registry(
         repo / "manifests/b23/future_split_registry.csv"
     )
+    correction_ledger = read_json(
+        repo / "manifests/b23/b23_0_correction_ledger.json"
+    )
+    invalidated = {
+        entry.get("evidence_commit")
+        for entry in correction_ledger.get("entries", [])
+        if entry.get("disposition") == "INVALID_AS_B23_0_PASS_PRESERVED"
+    }
+    expected_invalidated = "0d35656b360b4b0d04a28812079f18de8a03a9af"
+    if expected_invalidated not in invalidated:
+        raise ValueError("B23.0 correction ledger omits the preserved false-PASS evidence commit")
+    checks["correction_ledger"] = {
+        "status": "PASS",
+        "invalidated_evidence_commit": expected_invalidated,
+    }
 
     compute_schema = read_json(repo / "schemas/b23/compute_ledger.schema.json")
     replay_schema = read_json(repo / "schemas/b23/replay_report.schema.json")

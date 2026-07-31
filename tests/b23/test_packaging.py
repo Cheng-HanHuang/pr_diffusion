@@ -48,6 +48,35 @@ class PackagingSafetyTests(unittest.TestCase):
         self.assertIn(("60044", "meas5401:seed123"), builder.rows)
         self.assertNotIn(("60044", "UNKNOWN_ALL_MEASUREMENTS"), builder.rows)
 
+    def test_publisher_rejects_failed_zero_gpu_step(self) -> None:
+        publish = load_script("publish_b23_0_evidence.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "steps.tsv"
+            path.write_text(
+                "step\tstatus\treturn_code\n"
+                "unit_tests\tFAIL\t1\n"
+                "repository_validation\tPASS\t0\n"
+                "b23_1_dry_render\tPASS\t0\n"
+                "pac_evidence_collection\tPASS\t0\n",
+                encoding="utf-8",
+            )
+            with self.assertRaises(ValueError):
+                publish.validate_step_results(path)
+
+    def test_publisher_accepts_exact_zero_gpu_step_ledger(self) -> None:
+        publish = load_script("publish_b23_0_evidence.py")
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "steps.tsv"
+            path.write_text(
+                "step\tstatus\treturn_code\n"
+                "unit_tests\tPASS\t0\n"
+                "repository_validation\tPASS\t0\n"
+                "b23_1_dry_render\tPASS\t0\n"
+                "pac_evidence_collection\tPASS\t0\n",
+                encoding="utf-8",
+            )
+            publish.validate_step_results(path)
+
 
 if __name__ == "__main__":
     unittest.main()

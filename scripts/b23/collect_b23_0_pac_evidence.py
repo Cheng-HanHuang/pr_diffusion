@@ -364,6 +364,9 @@ def main() -> int:
     summaries.mkdir()
     diagnostics.mkdir()
 
+    correction_ledger = repo / "manifests/b23/b23_0_correction_ledger.json"
+    shutil.copy2(correction_ledger, capsule / "CORRECTION_LEDGER.json")
+
     failures: list[str] = []
     identities: dict[str, Any] = {
         "planning_head_used": PLANNING_HEAD,
@@ -576,18 +579,23 @@ all measurements for that image. The future B23 split registry remains empty.
 Numeric atomic-operation weights are intentionally absent: B23.1 microbenchmarks must measure and
 freeze them before any hybrid execution. B23.1 and B23.2 remain unauthorized.
 
+The fail-closed wrapper records the repository tests, contract validator, dry renderer, and PAC
+collector in `ZERO_GPU_STEP_RESULTS.tsv`. The evidence publisher independently requires all four
+rows to be `PASS` with return code zero.
+
 Failures: {json.dumps(failures) if failures else 'NONE'}
 """
     (summaries / "B23_0_CHECKPOINT_REPORT.md").write_text(report, encoding="utf-8")
     (capsule / "README.md").write_text(
-        "# B23.0 evidence capsule\n\nThis compact capsule accompanies transparent GitHub evidence. It contains no model, dataset, or raw reconstruction payload.\n",
+        "# B23.0 evidence capsule\n\nThis compact capsule accompanies transparent GitHub evidence. It contains no model, dataset, or raw reconstruction payload. `ZERO_GPU_STEP_RESULTS.tsv` is the fail-closed prerequisite ledger; `CORRECTION_LEDGER.json` preserves earlier partial/invalid returns.\n",
         encoding="utf-8",
     )
     (capsule / "COMMANDS.sh").write_text(
         "# Recorded zero-GPU procedure (documentation; not an executable launcher)\n"
-        "CUDA_VISIBLE_DEVICES='' <daps-python> -m unittest discover -s tests/b23 -v\n"
-        "CUDA_VISIBLE_DEVICES='' <daps-python> scripts/b23/validate_b23_0.py --repo <execution-worktree>\n"
-        "CUDA_VISIBLE_DEVICES='' <daps-python> scripts/b23/collect_b23_0_pac_evidence.py --repo <execution-worktree> --output-root <b23-output-root>\n",
+        "cd <execution-worktree> && PYTHONPATH='<execution-worktree>' CUDA_VISIBLE_DEVICES='' <daps-python> -m unittest discover -s tests/b23 -v\n"
+        "cd <execution-worktree> && PYTHONPATH='<execution-worktree>' CUDA_VISIBLE_DEVICES='' <daps-python> scripts/b23/validate_b23_0.py --repo <execution-worktree>\n"
+        "cd <execution-worktree> && PYTHONPATH='<execution-worktree>' CUDA_VISIBLE_DEVICES='' <daps-python> scripts/b23/render_b23_1_dry_runs.py --repo <execution-worktree> --output <b23-output-root>/B23_1_dry_run_<timestamp>.json\n"
+        "cd <execution-worktree> && PYTHONPATH='<execution-worktree>' CUDA_VISIBLE_DEVICES='' <daps-python> scripts/b23/collect_b23_0_pac_evidence.py --repo <execution-worktree> --output-root <b23-output-root>\n",
         encoding="utf-8",
     )
     (capsule / "STDOUT_TAIL.txt").write_text("Filled by scripts/b23/run_b23_0_zero_gpu.sh before packaging.\n", encoding="utf-8")

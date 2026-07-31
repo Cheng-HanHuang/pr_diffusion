@@ -14,6 +14,7 @@ from pathlib import Path
 REQUIRED = (
     "README.md", "EXECUTION_IDENTITY.json", "GATE_DECISION.json",
     "ARTIFACT_MANIFEST.tsv", "COMMANDS.sh", "STDOUT_TAIL.txt", "STDERR_TAIL.txt",
+    "ZERO_GPU_STEP_RESULTS.tsv", "CORRECTION_LEDGER.json",
     "summaries/PAC_FREEZE.json", "summaries/EXPOSURE_COVERAGE.json",
     "summaries/PRE_B23_EXPOSURE.csv", "summaries/B23_0_CHECKPOINT_REPORT.md",
 )

@@ -49,7 +49,10 @@ in `ARTIFACT_MANIFEST.tsv`.
 
 ## Current recommendation
 
-Before the PAC zero-GPU collector and post-run evidence commit: `COMPLETE B23.0 PAC FREEZE`.
+Evidence commit `0d35656b360b4b0d04a28812079f18de8a03a9af` is preserved but invalid as a B23.0
+PASS: its PAC tests had two import errors and the original wrapper continued. Follow
+`B23_0_CORRECTION_LEDGER.md` and complete a new fail-closed zero-GPU return from a later pre-run
+commit.
 
-After those checks pass: `REQUEST PLANNER REVIEW OF B23.0`; this is not self-authorization for
-B23.1.
+Only after the corrected capsule passes all gates: `REQUEST PLANNER REVIEW OF B23.0`. This is not
+self-authorization for B23.1.

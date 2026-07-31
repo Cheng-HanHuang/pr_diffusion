@@ -67,6 +67,43 @@ class RepositoryContractTests(unittest.TestCase):
         self.assertFalse(replay["authorization"]["b23_1_gpu_authorized"])
         self.assertFalse(replay["authorization"]["b23_2_schedule_authorized"])
 
+    def test_zero_gpu_wrapper_is_repo_bound_and_fail_closed(self) -> None:
+        wrapper = (REPO / "scripts/b23/run_b23_0_zero_gpu.sh").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('PYTHONPATH="$repo"', wrapper)
+        self.assertIn(
+            'run_python_step "unit_tests" \\\n    -m unittest discover -s tests/b23 -v || rc=$?',
+            wrapper,
+        )
+        self.assertNotIn(
+            '} > "$stdout_log" 2> "$stderr_log" || rc=$?',
+            wrapper,
+        )
+        for step in (
+            "unit_tests",
+            "repository_validation",
+            "b23_1_dry_render",
+            "pac_evidence_collection",
+        ):
+            self.assertIn(f'run_python_step "{step}"', wrapper)
+
+    def test_false_pass_evidence_is_permanently_invalidated(self) -> None:
+        ledger = json.loads(
+            (REPO / "manifests/b23/b23_0_correction_ledger.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        invalidated = {
+            entry.get("evidence_commit")
+            for entry in ledger["entries"]
+            if entry.get("disposition") == "INVALID_AS_B23_0_PASS_PRESERVED"
+        }
+        self.assertIn(
+            "0d35656b360b4b0d04a28812079f18de8a03a9af",
+            invalidated,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import shutil
 import subprocess
@@ -12,6 +13,12 @@ from pathlib import Path
 
 
 BRANCH = "codex/b23-execution"
+REQUIRED_ZERO_GPU_STEPS = (
+    "unit_tests",
+    "repository_validation",
+    "b23_1_dry_render",
+    "pac_evidence_collection",
+)
 
 
 def run(command: list[str], *, cwd: Path | None = None) -> str:
@@ -39,6 +46,25 @@ def validate_archive(archive: Path, max_bytes: int) -> None:
             raise ValueError(f"unsafe archive member: {member.name}")
 
 
+def validate_step_results(path: Path) -> None:
+    with path.open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if tuple(reader.fieldnames or ()) != ("step", "status", "return_code"):
+            raise ValueError(f"unexpected zero-GPU step-result columns: {reader.fieldnames}")
+        rows = list(reader)
+    observed = tuple(row["step"] for row in rows)
+    if observed != REQUIRED_ZERO_GPU_STEPS:
+        raise ValueError(
+            f"zero-GPU step order mismatch: observed={observed} expected={REQUIRED_ZERO_GPU_STEPS}"
+        )
+    failed = [
+        row for row in rows
+        if row["status"] != "PASS" or row["return_code"] != "0"
+    ]
+    if failed:
+        raise ValueError(f"refusing publication with failed zero-GPU steps: {failed}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, required=True)
@@ -55,6 +81,7 @@ def main() -> int:
         raise ValueError("user-approved archive publication requires --commit-archive")
     if not archive.is_file() or not sidecar.is_file():
         raise ValueError("package and checksum sidecar must exist before publication")
+    validate_step_results(capsule / "ZERO_GPU_STEP_RESULTS.tsv")
     validate_archive(archive, args.max_archive_mib * 1024 * 1024)
     decision = json.loads((capsule / "GATE_DECISION.json").read_text(encoding="utf-8"))
     if decision["verdict"] != "PASS_RECOMMEND_PLANNER_REVIEW":
