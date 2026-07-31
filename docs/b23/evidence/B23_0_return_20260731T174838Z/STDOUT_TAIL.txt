@@ -1,0 +1,43 @@
+timestamp=20260731T174838Z
+repo=/egr/research-pac/huang248/pr_diffusion_b23
+output_root=/egr/research-pac/huang248/outputs/pr_diffusion/b23
+python=/egr/research-pac/huang248/conda-envs/daps/bin/python
+CUDA_VISIBLE_DEVICES=<empty>
+gpu_work_performed=NO
+{
+  "checks": {
+    "configs": {
+      "count": 7,
+      "format": "JSON_SUBSET_OF_YAML",
+      "status": "PASS"
+    },
+    "exposure_manifest": {
+      "images": 47,
+      "rows": 47,
+      "unknown_measurement_rows": 47
+    },
+    "future_registry": {
+      "rows": 0,
+      "status": "EMPTY_AS_REQUIRED"
+    },
+    "pac_path_policy": {
+      "root": "/egr/research-pac/huang248",
+      "status": "PASS"
+    },
+    "required_files": {
+      "count": 21,
+      "status": "PASS"
+    },
+    "schemas": {
+      "status": "PASS",
+      "validation_modes": [
+        "STRUCTURAL_FALLBACK"
+      ]
+    }
+  },
+  "gpu_work_performed": false,
+  "schema_version": "b23.zero-gpu-validation.v1",
+  "status": "PASS"
+}
+{"commands": 0, "output": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_dry_run_20260731T174838Z.json", "status": "DRY_RUN_ONLY"}
+{"capsule": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_0_return_20260731T174838Z", "exposure_images": 328, "failures": 0, "status": "PASS_RECOMMEND_PLANNER_REVIEW"}

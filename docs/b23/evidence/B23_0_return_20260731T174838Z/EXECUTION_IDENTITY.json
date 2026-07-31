@@ -1,0 +1,9 @@
+{
+  "accepted_plan_snapshot": "ed4f46e8f116648eda76d387388d762d7cb8f3d7",
+  "execution_branch": "codex/b23-execution",
+  "execution_head_before_evidence": "78b32319dd49719c0ffa7bdcc0b358b5d13317cd",
+  "frozen_b22_base": "ba78c06e0c5eac0c915263e4faed0b262d5e917a",
+  "planning_head_is_ancestor": true,
+  "planning_head_used": "d1119e37fa688ac07f48ffc87ce19b13dbfb1c27",
+  "worktree_clean_before_collection": true
+}
