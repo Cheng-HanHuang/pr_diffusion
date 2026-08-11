@@ -49,17 +49,16 @@ in `ARTIFACT_MANIFEST.tsv`.
 
 ## Current recommendation
 
-The planner reviewed execution head `5096dc02d9a6ecd6a8615d25f026433adf660e5e` and accepted its
-corrected PAC execution, ancestry, zero-GPU status, 21-test run, freeze identities, and preservation
-of invalid evidence commit `0d35656b360b4b0d04a28812079f18de8a03a9af`. The current planner
-verdict is nevertheless `REVISE_BEFORE_SIGNOFF`: replay, compute/FRE/RNG, exposure, schema, and
-untracked-source contracts require this bounded zero-GPU correction. The new timestamped evidence
-capsule is pending PAC execution and review.
+The planner reviewed execution head `5096dc02d9a6ecd6a8615d25f026433adf660e5e` with verdict
+`REVISE_BEFORE_SIGNOFF`. The authorized zero-GPU correction is frozen at pre-run commit
+`4cf026d834650b90a1bfc6b8951a69500d190b21`; its PAC suite completed 62/62 tests and all four
+fail-closed steps at return timestamp `20260811T031927Z`. Post-run evidence commit
+`241551d92c8402521dc970947b54a10b4b0a726a` reports `PASS_RECOMMEND_PLANNER_REVIEW`.
 
-The accepted execution evidence under review remains preserved at
-`docs/b23/evidence/B23_0_return_20260801T001227Z/` with transport archive
-`docs/b23/evidence/capsules/B23_0_return_20260801T001227Z.tar.gz`. It is not the sign-off evidence;
-the next later timestamped capsule will supersede it for decision purposes without deleting it.
+Current extracted evidence is at `docs/b23/evidence/B23_0_return_20260811T031927Z/`; its transport
+archive is `docs/b23/evidence/capsules/B23_0_return_20260811T031927Z.tar.gz` with SHA-256
+`f18219334ca8313b5445847e9caf37787f6c43358b71dcde13f0f19a26e8a1a4`. Prior evidence, including
+the invalid return preserved in `B23_0_CORRECTION_LEDGER.md`, remains immutable.
 
-Follow `B23_0_CORRECTION_LEDGER.md`. Only after the new correction capsule passes all gates:
-`REQUEST PLANNER REVIEW OF B23.0`. B23.1 remains **NOT AUTHORIZED**.
+Requested decision: planner sign-off of B23.0. This repository status is a request, not
+self-authorization. B23.1 remains **NOT AUTHORIZED** until separate explicit planner/user approval.
