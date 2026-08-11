@@ -27,7 +27,11 @@ def main() -> int:
         "schema_version": "b23.b23-1-dry-run.v1",
         "authorized": False,
         "gpu_work_performed": False,
-        "registry": str(registry),
+        "registry": (
+            registry.resolve().relative_to(repo).as_posix()
+            if registry.resolve().is_relative_to(repo)
+            else "PAC_CONTRACT:" + str(registry.resolve())
+        ),
         "registry_rows": len(rows),
         "parents": list(PARENTS),
         "commands": [],

@@ -10,7 +10,9 @@
     "image_id",
     "measurement_id",
     "parent_or_policy_id",
+    "hardware_identity",
     "raw_counts",
+    "coupled_operation_blocks",
     "optimizer_iterations_by_type",
     "rng_streams",
     "branches",
@@ -25,7 +27,15 @@
     "image_id": {"type": "string", "minLength": 1},
     "measurement_id": {"type": "string", "minLength": 1},
     "parent_or_policy_id": {"type": "string", "minLength": 1},
-    "hardware_identity_id": {"type": ["string", "null"]},
+    "hardware_identity": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["identity_id", "inventory_sha256"],
+      "properties": {
+        "identity_id": {"type": "string", "minLength": 1},
+        "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
     "raw_counts": {
       "type": "object",
       "additionalProperties": false,
@@ -54,6 +64,20 @@
         "rng_draws": {"$ref": "#/$defs/count"}
       }
     },
+    "coupled_operation_blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["operation_type", "count", "measured_weight_seconds", "definition_sha256"],
+        "properties": {
+          "operation_type": {"type": "string", "minLength": 1},
+          "count": {"$ref": "#/$defs/count"},
+          "measured_weight_seconds": {"$ref": "#/$defs/nonnegative"},
+          "definition_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
     "optimizer_iterations_by_type": {
       "type": "object",
       "additionalProperties": {"$ref": "#/$defs/count"}
@@ -80,11 +104,15 @@
     "branches": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["max_live", "retained", "terminal_candidates"],
+      "required": ["total_created", "max_live", "retained", "terminal_candidates", "branch_ids", "retained_branch_ids", "terminal_branch_ids"],
       "properties": {
+        "total_created": {"$ref": "#/$defs/count"},
         "max_live": {"$ref": "#/$defs/count"},
         "retained": {"$ref": "#/$defs/count"},
-        "terminal_candidates": {"$ref": "#/$defs/count"}
+        "terminal_candidates": {"$ref": "#/$defs/count"},
+        "branch_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "retained_branch_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "terminal_branch_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
       }
     },
     "timing": {
@@ -118,14 +146,27 @@
     "fre": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "work_FRE", "time_FRE", "claim_FRE", "reference_id"],
+      "required": ["status", "work_FRE", "time_FRE", "claim_FRE", "reference"],
       "properties": {
         "status": {"enum": ["UNCALIBRATED", "CALIBRATED"]},
         "work_FRE": {"type": ["number", "null"], "minimum": 0},
         "time_FRE": {"type": ["number", "null"], "minimum": 0},
         "claim_FRE": {"type": ["number", "null"], "minimum": 0},
-        "reference_id": {"type": "string", "minLength": 1},
-        "weight_registry_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+        "reference": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["identity_id", "inventory_sha256", "reference_id", "reference_ledger_sha256", "weight_registry_sha256", "raw_counts", "coupled_operation_blocks", "gpu_active_seconds"],
+          "properties": {
+            "identity_id": {"type": "string", "minLength": 1},
+            "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "reference_id": {"type": "string", "minLength": 1},
+            "reference_ledger_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "weight_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "raw_counts": {"$ref": "#/properties/raw_counts"},
+            "coupled_operation_blocks": {"$ref": "#/properties/coupled_operation_blocks"},
+            "gpu_active_seconds": {"$ref": "#/$defs/nonnegative"}
+          }
+        }
       }
     },
     "notes": {"type": "array", "items": {"type": "string"}}

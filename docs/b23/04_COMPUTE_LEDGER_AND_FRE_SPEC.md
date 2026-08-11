@@ -39,8 +39,11 @@ count. The procedure is:
 6. rerun enough paired blocks to establish stable medians;
 7. freeze a machine-readable weight registry and SHA-256 in the pre-hybrid commit.
 
-Operations that cannot be isolated are measured as an explicitly named coupled block, never assigned
-a guessed decomposition. A nonzero operation without a measured weight blocks calibrated work-FRE.
+Operations that cannot be isolated are recorded in `coupled_operation_blocks` with a unique typed
+operation name, count, finite strictly positive measured weight, and SHA-256 of its definition. They
+are never assigned a guessed decomposition. Every other parent operation must decompose completely
+into the fixed raw counters. A nonzero atomic or coupled operation without a finite strictly positive
+measured weight makes the ledger invalid.
 
 B23.0 intentionally supplies no numeric `w_j` values.
 
@@ -55,9 +58,11 @@ time_FRE(s,i) = GPU_active_seconds(s,i) / paired_median_GPU_active_seconds(Fresh
 claim_FRE(s,i) = max(work_FRE(s,i), time_FRE(s,i))
 ```
 
-`prdiffusion.b23_protocol.fre_values` implements these formulas and refuses missing weights,
-negative/non-finite costs, or a zero reference. `claim_FRE` is never a cheaper choice between work
-and time.
+`prdiffusion.b23_protocol.validate_compute_ledger` recomputes all three FRE values from the frozen
+reference raw counts, coupled blocks, weights, paired GPU-active time, hardware inventory identity,
+and evidence hashes. It rejects supplied values that differ from the recomputation. It also
+reconciles optimizer totals by type, RNG totals by unique named stream, branch/candidate identities,
+timing, memory, and overhead. `claim_FRE` is never a cheaper choice between work and time.
 
 ## Gates
 

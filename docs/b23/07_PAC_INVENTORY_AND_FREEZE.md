@@ -57,7 +57,12 @@ recursive scan. The B21.11 benchmark and source snapshot roots are present.
 3. re-hash current source diffs and the source-snapshot DAPS patch;
 4. probe all three environments with CUDA hidden;
 5. merge exact B21 locked-measurement and historical exposure evidence;
-6. publish the compact extracted evidence, checksums, and bounded archive.
+6. enumerate only Git-reported untracked paths in historical DAPS, official SITCOM, and the
+   NP/SITCOM fork; classify each as importable source, cache, dataset, output, or other artifact;
+   SHA-256 every importable `.py`, `.pyi`, `.pyx`, `.so`, or `.pyd`; stop on any unresolved
+   importable path;
+7. publish `UNTRACKED_SOURCE_INVENTORY.tsv`, its machine-readable summary, the compact extracted
+   evidence, checksums, and bounded archive.
 
 Until the post-run evidence commit passes those checks, B23.1 remains blocked. No discrepancy may be
 resolved by modifying the historical checkout, external repos, model, or measurements.

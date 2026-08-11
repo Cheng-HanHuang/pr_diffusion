@@ -49,10 +49,17 @@ in `ARTIFACT_MANIFEST.tsv`.
 
 ## Current recommendation
 
-Evidence commit `0d35656b360b4b0d04a28812079f18de8a03a9af` is preserved but invalid as a B23.0
-PASS: its PAC tests had two import errors and the original wrapper continued. Follow
-`B23_0_CORRECTION_LEDGER.md` and complete a new fail-closed zero-GPU return from a later pre-run
-commit.
+The planner reviewed execution head `5096dc02d9a6ecd6a8615d25f026433adf660e5e` and accepted its
+corrected PAC execution, ancestry, zero-GPU status, 21-test run, freeze identities, and preservation
+of invalid evidence commit `0d35656b360b4b0d04a28812079f18de8a03a9af`. The current planner
+verdict is nevertheless `REVISE_BEFORE_SIGNOFF`: replay, compute/FRE/RNG, exposure, schema, and
+untracked-source contracts require this bounded zero-GPU correction. The new timestamped evidence
+capsule is pending PAC execution and review.
 
-Only after the corrected capsule passes all gates: `REQUEST PLANNER REVIEW OF B23.0`. This is not
-self-authorization for B23.1.
+The accepted execution evidence under review remains preserved at
+`docs/b23/evidence/B23_0_return_20260801T001227Z/` with transport archive
+`docs/b23/evidence/capsules/B23_0_return_20260801T001227Z.tar.gz`. It is not the sign-off evidence;
+the next later timestamped capsule will supersede it for decision purposes without deleting it.
+
+Follow `B23_0_CORRECTION_LEDGER.md`. Only after the new correction capsule passes all gates:
+`REQUEST PLANNER REVIEW OF B23.0`. B23.1 remains **NOT AUTHORIZED**.

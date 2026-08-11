@@ -18,8 +18,12 @@ For each parent in B23.1:
 5. only then run the wrapper on the same row;
 6. require wrapper error inside the frozen envelope and exact operation/RNG reconciliation.
 
-The result uses `schemas/b23/replay_report.schema.json`. A `PASS` is impossible unless operation and
-RNG counts both reconcile.
+The result uses `schemas/b23/replay_report.schema.json`. `NOT_RUN` has `UNDETERMINED` eligibility;
+it cannot claim tolerance qualification. A `PASS` needs at least three unique native run IDs, a
+non-null wrapper run, complete finite native-envelope and wrapper-comparison values, required
+evidence hashes that reconcile exactly, exact operation/RNG reconciliation, and serialization
+`PASS` or a documented `NOT_APPLICABLE`. Merely setting reconciliation booleans is insufficient.
+`BITWISE` additionally requires matching tensor hashes and zero tensor, scalar, and trace deltas.
 
 ## Deterministic-flag audit
 

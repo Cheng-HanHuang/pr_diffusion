@@ -17,6 +17,7 @@ REQUIRED = (
     "ZERO_GPU_STEP_RESULTS.tsv", "CORRECTION_LEDGER.json",
     "summaries/PAC_FREEZE.json", "summaries/EXPOSURE_COVERAGE.json",
     "summaries/PRE_B23_EXPOSURE.csv", "summaries/B23_0_CHECKPOINT_REPORT.md",
+    "summaries/UNTRACKED_SOURCE_INVENTORY.tsv", "summaries/UNTRACKED_SOURCE_SUMMARY.json",
 )
 
 

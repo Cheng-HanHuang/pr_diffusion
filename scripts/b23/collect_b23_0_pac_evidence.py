@@ -118,6 +118,12 @@ def measurement_id(mapping: dict[str, Any]) -> str | None:
 class ExposureBuilder:
     def __init__(self) -> None:
         self.rows: dict[tuple[str, str], dict[str, set[str] | bool]] = {}
+        self.unresolved_measurement_tag_mentions = 0
+
+    def _merge_rows(self, destination: dict[str, set[str] | bool], source: dict[str, set[str] | bool]) -> None:
+        for field in ("stages", "roles", "artifacts", "evidence"):
+            destination[field].update(source[field])  # type: ignore[union-attr]
+        destination["gt"] = bool(destination["gt"] or source["gt"])
 
     def add(
         self,
@@ -136,6 +142,9 @@ class ExposureBuilder:
         if normalized is None:
             return
         measurement = measurement or "UNKNOWN_ALL_MEASUREMENTS"
+        if "DERIVED_SEED_UNRESOLVED" in measurement:
+            self.unresolved_measurement_tag_mentions += 1
+            measurement = "UNKNOWN_ALL_MEASUREMENTS"
         unknown_key = (normalized, "UNKNOWN_ALL_MEASUREMENTS")
         if measurement == "UNKNOWN_ALL_MEASUREMENTS":
             exact_keys = [key for key in self.rows if key[0] == normalized and key != unknown_key]
@@ -148,8 +157,12 @@ class ExposureBuilder:
                     row["evidence"].add(evidence)  # type: ignore[union-attr]
                     row["gt"] = bool(row["gt"] or gt_inspected)
                 return
+            unknown = self.rows.setdefault(
+                unknown_key,
+                {"stages": set(), "roles": set(), "artifacts": set(), "evidence": set(), "gt": False},
+            )
             for key in [key for key in self.rows if key[0] == normalized and key != unknown_key]:
-                del self.rows[key]
+                self._merge_rows(unknown, self.rows.pop(key))
             key = unknown_key
         elif unknown_key in self.rows:
             if exact_replaces_unknown:
@@ -208,10 +221,64 @@ class ExposureBuilder:
         return {
             "row_count": len(self.rows),
             "image_count": len({key[0] for key in self.rows}),
-            "exact_measurement_rows": sum(key[1] != "UNKNOWN_ALL_MEASUREMENTS" for key in self.rows),
-            "unknown_all_measurement_rows": sum(key[1] == "UNKNOWN_ALL_MEASUREMENTS" for key in self.rows),
+            "truly_resolved_measurement_rows": sum(key[1] != "UNKNOWN_ALL_MEASUREMENTS" for key in self.rows),
+            "unresolved_measurement_tag_mentions": self.unresolved_measurement_tag_mentions,
+            "image_wide_unknown_exposure_rows": sum(key[1] == "UNKNOWN_ALL_MEASUREMENTS" for key in self.rows),
             "sha256": sha256_file(path),
         }
+
+
+IMPORTABLE_SUFFIXES = {".py", ".pyi", ".pyx", ".so", ".pyd"}
+
+
+def classify_untracked(relative: str) -> str:
+    path = Path(relative)
+    lowered = {part.lower() for part in path.parts}
+    if path.suffix.lower() in IMPORTABLE_SUFFIXES:
+        return "IMPORTABLE_SOURCE"
+    if "__pycache__" in lowered or "cache" in lowered or path.suffix.lower() in {".pyc", ".pyo"}:
+        return "CACHE"
+    if lowered & {"data", "dataset", "datasets"} or path.suffix.lower() in {".png", ".jpg", ".jpeg", ".npy", ".npz"}:
+        return "DATASET"
+    if lowered & {"output", "outputs", "result", "results", "logs", "samples", "checkpoints"}:
+        return "OUTPUT"
+    return "OTHER_ARTIFACT"
+
+
+def inventory_untracked(label: str, root: Path) -> tuple[list[dict[str, Any]], list[str]]:
+    payload = subprocess.run(
+        ["git", "-C", str(root), "ls-files", "--others", "--exclude-standard", "-z"],
+        check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    ).stdout
+    relatives = [item.decode("utf-8", errors="surrogateescape") for item in payload.split(b"\0") if item]
+    if len(relatives) > 5000:
+        return [], [f"{label} has more than 5000 untracked paths; bounded inventory refused"]
+    rows: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for relative in relatives:
+        path = root / relative
+        classification = classify_untracked(relative)
+        importable = classification == "IMPORTABLE_SOURCE"
+        digest: str | None = None
+        resolution = "NOT_HASHED_NONIMPORTABLE"
+        if importable:
+            if path.is_symlink() or not path.is_file():
+                resolution = "UNRESOLVED_IMPORTABLE_SOURCE"
+                failures.append(f"unresolved importable source: {label}:{relative}")
+            else:
+                digest = sha256_file(path)
+                resolution = "HASHED_IMPORTABLE_SOURCE"
+        rows.append({
+            "source_checkout": label,
+            "root": str(root),
+            "relative_path": relative,
+            "classification": classification,
+            "importable": importable,
+            "bytes": path.stat().st_size if path.exists() and not path.is_symlink() else None,
+            "sha256": digest,
+            "resolution": resolution,
+        })
+    return rows, failures
 
 
 def add_mapping(
@@ -413,6 +480,40 @@ def main() -> int:
         if diff_hash != expected_diff:
             failures.append(f"{label} tracked diff mismatch: {diff_hash} != {expected_diff}")
 
+    untracked_rows: list[dict[str, Any]] = []
+    for label, root in (
+        ("historical_daps", args.historical / "external/daps"),
+        ("official_sitcom", args.sitcom),
+        ("np_sitcom_fork", args.np_sitcom),
+    ):
+        rows, inventory_failures = inventory_untracked(label, root)
+        untracked_rows.extend(rows)
+        failures.extend(inventory_failures)
+    inventory_path = summaries / "UNTRACKED_SOURCE_INVENTORY.tsv"
+    inventory_fields = (
+        "source_checkout", "root", "relative_path", "classification", "importable",
+        "bytes", "sha256", "resolution",
+    )
+    with inventory_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=inventory_fields, delimiter="\t", lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(untracked_rows)
+    classification_counts: dict[str, int] = defaultdict(int)
+    for row in untracked_rows:
+        classification_counts[row["classification"]] += 1
+    inventory_summary = {
+        "status": "PASS" if not any("unresolved importable source" in item for item in failures) else "FAIL_STOP",
+        "path_count": len(untracked_rows),
+        "classification_counts": dict(sorted(classification_counts.items())),
+        "importable_source_count": sum(row["importable"] for row in untracked_rows),
+        "hashed_importable_source_count": sum(row["resolution"] == "HASHED_IMPORTABLE_SOURCE" for row in untracked_rows),
+        "unresolved_importable_source_count": sum(row["resolution"] == "UNRESOLVED_IMPORTABLE_SOURCE" for row in untracked_rows),
+        "inventory_sha256": sha256_file(inventory_path),
+    }
+    (summaries / "UNTRACKED_SOURCE_SUMMARY.json").write_text(
+        json.dumps(inventory_summary, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
     if not args.model.is_file():
         failures.append(f"missing model: {args.model}")
         model_hash = None
@@ -537,7 +638,12 @@ def main() -> int:
         "3_branch_stack_recommendation": "KEEP draft execution PR based on codex/post-b22-reliability-plan; do not rewrite planning PR #36",
         "4_pac_source_environment_hardware_inventory": "PASS" if not failures else "SEE_FAILURES",
         "5_unresolved_identity_gaps": "NONE" if not failures else "SEE_FAILURES",
-        "6_exposure_coverage": f"{exposure_report['image_count']} images; {exposure_report['row_count']} rows; uncertain measurements excluded conservatively",
+        "6_exposure_coverage": (
+            f"{exposure_report['image_count']} images; {exposure_report['row_count']} rows; "
+            f"{exposure_report['truly_resolved_measurement_rows']} resolved rows; "
+            f"{exposure_report['unresolved_measurement_tag_mentions']} unresolved tag mentions; "
+            f"{exposure_report['image_wide_unknown_exposure_rows']} image-wide unknown rows"
+        ),
         "7_parent_semantics": "FOUR_NATIVE_PARENTS_FROZEN",
         "8_typed_api": "NATIVE_STATE_MODULE_ADAPTER_CONTRACT_VALIDATED",
         "9_compute_and_fre": "RAW_LEDGER_AND_FORMULAS_VALIDATED; NUMERIC_WEIGHTS_INTENTIONALLY_UNMEASURED",
@@ -573,8 +679,14 @@ the FFHQ model/checkpoint, dataset-root existence, and hardware inventory. No da
 recursively scanned and Python probes ran with `CUDA_VISIBLE_DEVICES` empty.
 
 The merged exposure manifest contains {exposure_report['image_count']} images and
-{exposure_report['row_count']} image/measurement rows. Any unresolved measurement identity excludes
-all measurements for that image. The future B23 split registry remains empty.
+{exposure_report['row_count']} image/measurement rows: {exposure_report['truly_resolved_measurement_rows']}
+truly resolved rows, {exposure_report['unresolved_measurement_tag_mentions']} unresolved measurement-tag
+mentions, and {exposure_report['image_wide_unknown_exposure_rows']} image-wide unknown rows. Every
+unresolved identity excludes all measurements for that image. The future B23 split registry remains empty.
+
+The bounded untracked-path inventory classifies {inventory_summary['path_count']} paths across historical
+DAPS, official SITCOM, and the NP/SITCOM fork. All {inventory_summary['importable_source_count']} importable
+files are hashed; any unresolved importable source is a hard stop.
 
 Numeric atomic-operation weights are intentionally absent: B23.1 microbenchmarks must measure and
 freeze them before any hybrid execution. B23.1 and B23.2 remain unauthorized.

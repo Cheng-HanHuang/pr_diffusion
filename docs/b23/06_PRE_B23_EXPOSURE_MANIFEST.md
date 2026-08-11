@@ -13,8 +13,10 @@ image_id, measurement_id, dataset_split, first_project_stage, roles_seen,
 ground_truth_inspected, artifacts, exclusion_reason, source_evidence
 ```
 
-`UNKNOWN_ALL_MEASUREMENTS` means every measurement for that image is excluded. This is deliberately
-stronger than pretending an unresolved measurement tag is a seed.
+`UNKNOWN_ALL_MEASUREMENTS` means every measurement for that image is excluded. Every identity
+containing `DERIVED_SEED_UNRESOLVED` is normalized to that image-wide exclusion; it is never counted
+as resolved. Coverage reports separately count truly resolved rows, unresolved tag mentions seen
+during collection, and final image-wide unknown rows.
 
 ## Two-step construction
 
@@ -46,8 +48,8 @@ stopping rule, promotion, or final claim.
 `schemas/b23/future_split_registry.schema.json`. The one- and four-image B23.1 smoke templates are
 also empty. B23.0 assigns no new image, measurement, seed, GPU, or method schedule.
 
-After separate authorization, each row must be assigned once before execution, prove image and
-measurement disjointness from `PRE_B23_EXPOSURE.csv`, carry a source-manifest hash, and receive
+After separate authorization, each row must be assigned once before execution, prove **image-level**
+disjointness from `PRE_B23_EXPOSURE.csv` regardless of measurement ID or seed, carry a source-manifest hash, and receive
 independent measurement and solver base seeds. The full final-plan split names and minimum sizes are
 encoded in the schema, but no rows are populated here.
 

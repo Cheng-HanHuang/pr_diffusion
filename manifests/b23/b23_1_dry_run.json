@@ -21,7 +21,7 @@
     "NP-1",
     "SITCOM-1"
   ],
-  "registry": "/workspace/scratch/d1a3226fc3b9/pr_diffusion_b23_local/manifests/b23/future_split_registry.csv",
+  "registry": "manifests/b23/future_split_registry.csv",
   "registry_rows": 0,
   "schema_version": "b23.b23-1-dry-run.v1"
 }

@@ -33,6 +33,18 @@ class PackagingSafetyTests(unittest.TestCase):
             schema = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
 
+    def test_untracked_source_classifier_marks_importable_files(self) -> None:
+        collector = load_script("collect_b23_0_pac_evidence.py")
+        self.assertEqual(collector.classify_untracked("pkg/module.py"), "IMPORTABLE_SOURCE")
+        self.assertEqual(collector.classify_untracked("pkg/native.so"), "IMPORTABLE_SOURCE")
+
+    def test_untracked_source_classifier_separates_non_source_artifacts(self) -> None:
+        collector = load_script("collect_b23_0_pac_evidence.py")
+        self.assertEqual(collector.classify_untracked("__pycache__/module.pyc"), "CACHE")
+        self.assertEqual(collector.classify_untracked("data/image.png"), "DATASET")
+        self.assertEqual(collector.classify_untracked("outputs/run/log.txt"), "OUTPUT")
+        self.assertEqual(collector.classify_untracked("README.local"), "OTHER_ARTIFACT")
+
     def test_exact_manifest_can_resolve_seeded_unknown_measurement(self) -> None:
         collector = load_script("collect_b23_0_pac_evidence.py")
         builder = collector.ExposureBuilder()

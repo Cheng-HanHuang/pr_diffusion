@@ -87,16 +87,25 @@ def check_manifest(path: Path) -> dict[str, Any]:
             raise ValueError(f"invalid ground_truth_inspected at line {index}")
         if not row["exclusion_reason"] or not row["source_evidence"]:
             raise ValueError(f"missing exclusion evidence at line {index}")
+        if "DERIVED_SEED_UNRESOLVED" in row["measurement_id"]:
+            raise ValueError(
+                f"unresolved measurement tag must be image-wide UNKNOWN_ALL_MEASUREMENTS at line {index}"
+            )
     return {
         "rows": len(rows),
         "images": len({row["image_id"] for row in rows}),
-        "unknown_measurement_rows": sum(
+        "truly_resolved_measurement_rows": sum(
+            row["measurement_id"] != "UNKNOWN_ALL_MEASUREMENTS" for row in rows
+        ),
+        "unresolved_measurement_tag_rows": 0,
+        "image_wide_unknown_exposure_rows": sum(
             row["measurement_id"] == "UNKNOWN_ALL_MEASUREMENTS" for row in rows
         ),
+        "image_ids": sorted({row["image_id"] for row in rows}),
     }
 
 
-def check_future_registry(path: Path) -> dict[str, Any]:
+def check_future_registry(path: Path, exposed_image_ids: set[str]) -> dict[str, Any]:
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         if tuple(reader.fieldnames or ()) != FUTURE_COLUMNS:
@@ -104,17 +113,14 @@ def check_future_registry(path: Path) -> dict[str, Any]:
         rows = list(reader)
     if rows:
         raise ValueError("B23.0 future split registry must remain unpopulated")
-    return {"rows": 0, "status": "EMPTY_AS_REQUIRED"}
+    from prdiffusion.b23_protocol import validate_future_split_registry
+    validate_future_split_registry(rows, exposed_image_ids)
+    return {"rows": 0, "status": "EMPTY_AND_EXPOSED_IMAGE_DISJOINT"}
 
 
 def validate_schema_instance(schema: dict[str, Any], instance: Any) -> str:
-    try:
-        import jsonschema
-    except ImportError:
-        return "STRUCTURAL_FALLBACK"
-    jsonschema.Draft202012Validator.check_schema(schema)
-    jsonschema.validate(instance=instance, schema=schema)
-    return "JSONSCHEMA_DRAFT_2020_12"
+    from prdiffusion.b23_schema import validate_with_mode
+    return validate_with_mode(instance, schema)
 
 
 def main() -> int:
@@ -159,12 +165,22 @@ def main() -> int:
         raise ValueError("B23.0 smoke template unexpectedly contains GPU commands")
     checks["configs"] = {"count": len(configs), "status": "PASS", "format": "JSON_SUBSET_OF_YAML"}
 
-    checks["exposure_manifest"] = check_manifest(
+    exposure_check = check_manifest(
         repo / "manifests/b23/PRE_B23_EXPOSURE.csv"
     )
+    exposed_image_ids = set(exposure_check.pop("image_ids"))
+    checks["exposure_manifest"] = exposure_check
     checks["future_registry"] = check_future_registry(
-        repo / "manifests/b23/future_split_registry.csv"
+        repo / "manifests/b23/future_split_registry.csv", exposed_image_ids
     )
+    for smoke_name in (
+        "b23_1_one_image_smoke.template.csv",
+        "b23_1_four_image_smoke.template.csv",
+    ):
+        with (repo / "manifests/b23" / smoke_name).open(newline="", encoding="utf-8") as handle:
+            if list(csv.DictReader(handle)):
+                raise ValueError(f"B23.1 smoke registry must remain empty: {smoke_name}")
+    checks["smoke_registries"] = {"rows": 0, "status": "EMPTY_AS_REQUIRED"}
     correction_ledger = read_json(
         repo / "manifests/b23/b23_0_correction_ledger.json"
     )
@@ -197,7 +213,11 @@ def main() -> int:
     }
     validate_compute_ledger(compute_example)
     validate_replay_report(replay_example)
-    checks["schemas"] = {"status": "PASS", "validation_modes": sorted(modes)}
+    checks["schemas"] = {
+        "status": "PASS",
+        "validation_modes": sorted(modes),
+        "custom_validator_scope": "ALL_ASSERTION_KEYWORDS_PRESENT_IN_B23_SCHEMAS",
+    }
 
     b23_text_files = [
         path for root in (repo / "configs/b23", repo / "scripts/b23")

@@ -7,15 +7,18 @@
   "required": [
     "schema_version", "experiment_id", "parent_id", "native_run_ids", "wrapper_run_id",
     "eligibility", "determinism_audit", "native_repeatability_envelope",
-    "wrapper_comparison", "operation_count_reconciled", "rng_draws_reconciled", "verdict"
+    "wrapper_comparison", "native_tensor_sha256s", "wrapper_tensor_sha256",
+    "native_trace_sha256s", "wrapper_trace_sha256", "operation_count_reconciled",
+    "rng_draws_reconciled", "serialization_resume_check",
+    "serialization_not_applicable_reason", "verdict", "failure_reasons"
   ],
   "properties": {
-    "schema_version": {"const": "b23.replay-report.v1"},
+    "schema_version": {"const": "b23.replay-report.v2"},
     "experiment_id": {"type": "string", "minLength": 1},
     "parent_id": {"enum": ["Fresh1", "LF-v1", "NP-1", "SITCOM-1"]},
-    "native_run_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 2, "uniqueItems": true},
+    "native_run_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
     "wrapper_run_id": {"type": ["string", "null"]},
-    "eligibility": {"enum": ["BITWISE", "TOLERANCE_QUALIFIED"]},
+    "eligibility": {"enum": ["BITWISE", "TOLERANCE_QUALIFIED", "UNDETERMINED"]},
     "eligibility_rationale": {"type": "string"},
     "determinism_audit": {
       "type": "object",
@@ -32,6 +35,10 @@
     },
     "native_repeatability_envelope": {"$ref": "#/$defs/comparison"},
     "wrapper_comparison": {"$ref": "#/$defs/comparison"},
+    "native_tensor_sha256s": {"type": "array", "items": {"$ref": "#/$defs/sha256"}},
+    "wrapper_tensor_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "native_trace_sha256s": {"type": "array", "items": {"$ref": "#/$defs/sha256"}},
+    "wrapper_trace_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "native_operation_counts_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "wrapper_operation_counts_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "operation_count_reconciled": {"type": "boolean"},
@@ -39,10 +46,12 @@
     "wrapper_rng_ledger_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
     "rng_draws_reconciled": {"type": "boolean"},
     "serialization_resume_check": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE", "NOT_RUN"]},
+    "serialization_not_applicable_reason": {"type": ["string", "null"]},
     "verdict": {"enum": ["PASS", "FAIL", "NOT_RUN"]},
     "failure_reasons": {"type": "array", "items": {"type": "string"}}
   },
   "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
     "metric": {"type": ["number", "null"], "minimum": 0},
     "comparison": {
       "type": "object",

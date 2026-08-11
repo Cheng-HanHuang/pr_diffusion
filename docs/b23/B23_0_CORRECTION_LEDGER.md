@@ -30,3 +30,16 @@ A valid replacement must have a later timestamp and pre-run commit, run all four
 from the repository with the explicit DAPS Python, and include `ZERO_GPU_STEP_RESULTS.tsv` with this
 exact ordered PASS set: unit tests, repository validation, B23.1 dry renderer, PAC evidence
 collection. Packaging and publication must stop if any row is absent or nonzero.
+
+## Planner revision at reviewed head `5096dc02d9a6ecd6a8615d25f026433adf660e5e`
+
+- Planner verdict: `REVISE_BEFORE_SIGNOFF`.
+- Accepted evidence: corrected fail-closed PAC execution, ancestry, zero-GPU status, 21 tests,
+  model/environment/source freeze, and preservation of the invalid evidence commit.
+- Required bounded correction: evidence-derived replay PASS rules; compute/FRE/RNG reconciliation
+  and recomputation; conservative unresolved exposure and image-level future disjointness; bounded
+  untracked-source classification/hashing; current start-file/provenance records; and always-on full
+  validation of every schema assertion used by B23.
+- Scope: B23.0 correction only. GPU work, B23.1, registry population, B23.2, Track B, and Track C
+  remain unauthorized.
+- GPU work performed for this planner review/correction: no.

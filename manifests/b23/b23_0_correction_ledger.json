@@ -28,6 +28,27 @@
       ],
       "gpu_work_performed": false,
       "disposition": "INVALID_AS_B23_0_PASS_PRESERVED"
+    },
+    {
+      "entry_id": "planner_revise_before_signoff_5096dc02",
+      "reviewed_head": "5096dc02d9a6ecd6a8615d25f026433adf660e5e",
+      "classification": "PLANNER_REVISE_BEFORE_SIGNOFF",
+      "accepted_evidence": [
+        "corrected fail-closed PAC execution",
+        "ancestry and zero-GPU status",
+        "21-test execution",
+        "model environment and source freeze",
+        "preservation of invalid evidence commit 0d35656b360b4b0d04a28812079f18de8a03a9af"
+      ],
+      "required_corrections": [
+        "evidence-derived replay PASS and negative tests",
+        "compute FRE RNG reconciliation and frozen-reference recomputation",
+        "image-wide unresolved exposure and future image disjointness",
+        "bounded untracked-source classification and hashing",
+        "always-on semantic schema validation"
+      ],
+      "gpu_work_performed": false,
+      "disposition": "B23_0_CORRECTION_AUTHORIZED_B23_1_NOT_AUTHORIZED"
     }
   ],
   "replacement_requirements": {

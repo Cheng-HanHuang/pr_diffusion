@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any, Generic, Mapping, Sequence, TypeVar
 
 
-PROTOCOL_VERSION = "b23.0-v1"
+PROTOCOL_VERSION = "b23.0-v2"
 SEED_DERIVATION_VERSION = "b23-sha256-v1"
 
 ParentName = TypeVar("ParentName", bound=str)
@@ -235,9 +235,38 @@ def calibrated_work(raw_counts: Mapping[str, int], weights: Mapping[str, float])
         if not isinstance(count, int) or isinstance(count, bool) or count < 0:
             raise ProtocolError(f"raw count {name!r} must be a non-negative integer")
         weight = float(weights.get(name, 0.0))
-        if not math.isfinite(weight) or weight < 0:
-            raise ProtocolError(f"weight {name!r} must be finite and non-negative")
+        if not math.isfinite(weight) or (count and weight <= 0) or weight < 0:
+            raise ProtocolError(
+                f"weight {name!r} must be finite and strictly positive when count is nonzero"
+            )
         total += count * weight
+    return total
+
+
+def _coupled_work(blocks: Sequence[Mapping[str, Any]]) -> float:
+    names: set[str] = set()
+    total = 0.0
+    for block in blocks:
+        required = {"operation_type", "count", "measured_weight_seconds", "definition_sha256"}
+        missing = sorted(required - set(block))
+        if missing:
+            raise ProtocolError(f"coupled operation block missing fields: {missing}")
+        name = block["operation_type"]
+        count = block["count"]
+        weight = block["measured_weight_seconds"]
+        digest = block["definition_sha256"]
+        if not isinstance(name, str) or not name or name in names:
+            raise ProtocolError("coupled operation types must be unique non-empty strings")
+        names.add(name)
+        if not isinstance(count, int) or isinstance(count, bool) or count < 0:
+            raise ProtocolError("coupled operation count must be a non-negative integer")
+        if not isinstance(weight, (int, float)) or isinstance(weight, bool) or not math.isfinite(weight):
+            raise ProtocolError("coupled operation weight must be finite")
+        if weight < 0 or (count and weight <= 0):
+            raise ProtocolError("a nonzero coupled operation needs a strictly positive measured weight")
+        if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ProtocolError("coupled operation definition needs a SHA-256 identity")
+        total += count * float(weight)
     return total
 
 
@@ -260,11 +289,17 @@ def fre_values(
     measured_weights: Mapping[str, float],
     gpu_active_seconds: float,
     paired_reference_median_seconds: float,
+    policy_coupled_operations: Sequence[Mapping[str, Any]] = (),
+    reference_coupled_operations: Sequence[Mapping[str, Any]] = (),
 ) -> dict[str, float]:
     """Return work-, time-, and claim-FRE under already frozen weights."""
 
-    policy_work = calibrated_work(policy_counts, measured_weights)
-    reference_work = calibrated_work(reference_counts, measured_weights)
+    policy_work = calibrated_work(policy_counts, measured_weights) + _coupled_work(
+        policy_coupled_operations
+    )
+    reference_work = calibrated_work(reference_counts, measured_weights) + _coupled_work(
+        reference_coupled_operations
+    )
     if reference_work <= 0:
         raise ProtocolError("Fresh1 calibrated reference work must be positive")
     if not math.isfinite(gpu_active_seconds) or gpu_active_seconds < 0:
@@ -289,7 +324,10 @@ def validate_compute_ledger(ledger: Mapping[str, Any]) -> None:
         "image_id",
         "measurement_id",
         "parent_or_policy_id",
+        "hardware_identity",
         "raw_counts",
+        "coupled_operation_blocks",
+        "optimizer_iterations_by_type",
         "rng_streams",
         "branches",
         "timing",
@@ -301,14 +339,87 @@ def validate_compute_ledger(ledger: Mapping[str, Any]) -> None:
     if missing:
         raise ProtocolError(f"compute ledger missing fields: {missing}")
     _validate_raw_counts(ledger["raw_counts"])
+    optimizer_by_type = ledger["optimizer_iterations_by_type"]
+    if not isinstance(optimizer_by_type, Mapping) or any(
+        not isinstance(name, str) or not name or not isinstance(count, int)
+        or isinstance(count, bool) or count < 0
+        for name, count in optimizer_by_type.items()
+    ):
+        raise ProtocolError("optimizer_iterations_by_type must map names to non-negative integers")
+    if ledger["raw_counts"]["optimizer_iterations"] != sum(optimizer_by_type.values()):
+        raise ProtocolError("aggregate optimizer iterations do not reconcile by type")
+
+    streams = ledger["rng_streams"]
+    if not isinstance(streams, Sequence) or isinstance(streams, (str, bytes)):
+        raise ProtocolError("rng_streams must be an array")
+    stream_names: set[str] = set()
+    rng_total = 0
+    for stream in streams:
+        if not isinstance(stream, Mapping):
+            raise ProtocolError("each RNG stream must be an object")
+        name = stream.get("name")
+        if not isinstance(name, str) or not name or name in stream_names:
+            raise ProtocolError("RNG stream names must be unique and non-empty")
+        stream_names.add(name)
+        for field in ("derived_seed", "draw_calls", "values_drawn"):
+            value = stream.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise ProtocolError(f"rng_streams.{field} must be a non-negative integer")
+        if not isinstance(stream.get("device"), str) or not stream["device"]:
+            raise ProtocolError("RNG stream device identity is required")
+        rng_total += stream["values_drawn"]
+    if ledger["raw_counts"]["rng_draws"] != rng_total:
+        raise ProtocolError("aggregate RNG draws do not reconcile to unique named streams")
+
     branches = ledger["branches"]
-    for name in ("max_live", "retained", "terminal_candidates"):
+    for name in ("total_created", "max_live", "retained", "terminal_candidates"):
         if not isinstance(branches.get(name), int) or branches[name] < 0:
             raise ProtocolError(f"branches.{name} must be a non-negative integer")
+    for field, count_field in (
+        ("branch_ids", "total_created"),
+        ("retained_branch_ids", "retained"),
+        ("terminal_branch_ids", "terminal_candidates"),
+    ):
+        values = branches.get(field)
+        if not isinstance(values, list) or len(values) != len(set(values)):
+            raise ProtocolError(f"branches.{field} must contain unique IDs")
+        if len(values) != branches[count_field] or any(not isinstance(x, str) or not x for x in values):
+            raise ProtocolError(f"branches.{field} does not reconcile with {count_field}")
+    all_ids = set(branches["branch_ids"])
+    retained_ids = set(branches["retained_branch_ids"])
+    terminal_ids = set(branches["terminal_branch_ids"])
+    if not terminal_ids <= retained_ids <= all_ids:
+        raise ProtocolError("terminal and retained candidates must be nested subsets")
+    if not (branches["terminal_candidates"] <= branches["retained"] <= branches["total_created"]):
+        raise ProtocolError("branch candidate counts are inconsistent")
+    if branches["max_live"] > branches["total_created"]:
+        raise ProtocolError("max_live cannot exceed total_created")
     for name in ("gpu_active_seconds", "wall_seconds"):
         value = ledger["timing"].get(name)
         if not isinstance(value, (int, float)) or not math.isfinite(value) or value < 0:
             raise ProtocolError(f"timing.{name} must be finite and non-negative")
+    if ledger["timing"]["gpu_active_seconds"] > ledger["timing"]["wall_seconds"]:
+        raise ProtocolError("GPU-active seconds cannot exceed wall seconds")
+    if not isinstance(ledger["timing"].get("timer_method"), str) or not ledger["timing"]["timer_method"]:
+        raise ProtocolError("timing.timer_method is required")
+    memory = ledger["memory_bytes"]
+    for name in ("peak_allocated", "peak_reserved"):
+        if not isinstance(memory.get(name), int) or isinstance(memory[name], bool) or memory[name] < 0:
+            raise ProtocolError(f"memory_bytes.{name} must be a non-negative integer")
+    if memory["peak_allocated"] > memory["peak_reserved"]:
+        raise ProtocolError("peak allocated memory cannot exceed peak reserved memory")
+    overhead = ledger["overhead_seconds"]
+    if not isinstance(overhead, Mapping):
+        raise ProtocolError("overhead_seconds must be an object")
+    for name, value in overhead.items():
+        if not isinstance(name, str) or not name or not isinstance(value, (int, float)) \
+                or isinstance(value, bool) or not math.isfinite(value) or value < 0:
+            raise ProtocolError("overhead entries must be named finite non-negative numbers")
+    if sum(overhead.values()) > ledger["timing"]["wall_seconds"] + 1e-12:
+        raise ProtocolError("declared overhead cannot exceed wall time")
+
+    coupled = ledger["coupled_operation_blocks"]
+    _coupled_work(coupled)
     fre = ledger["fre"]
     status = fre.get("status")
     if status not in {"UNCALIBRATED", "CALIBRATED"}:
@@ -316,15 +427,70 @@ def validate_compute_ledger(ledger: Mapping[str, Any]) -> None:
     if status == "UNCALIBRATED":
         if ledger.get("atomic_weights"):
             raise ProtocolError("uncalibrated ledgers must not carry atomic weights")
+        if any(ledger["raw_counts"].values()) or any(block["count"] for block in coupled):
+            raise ProtocolError("nonzero operations require measured weights before validation")
+        if ledger["hardware_identity"] is not None or fre.get("reference") is not None:
+            raise ProtocolError("not-run uncalibrated ledgers must not claim hardware/reference identities")
         if any(fre.get(name) is not None for name in ("work_FRE", "time_FRE", "claim_FRE")):
             raise ProtocolError("uncalibrated FRE values must be null")
     else:
-        calibrated_work(ledger["raw_counts"], ledger.get("atomic_weights", {}))
+        hardware = ledger["hardware_identity"]
+        reference = fre.get("reference")
+        if not isinstance(hardware, Mapping) or not isinstance(reference, Mapping):
+            raise ProtocolError("calibrated ledgers require hardware and frozen reference identities")
+        for identity in (hardware, reference):
+            if not all(isinstance(identity.get(key), str) and identity[key] for key in ("identity_id", "inventory_sha256")):
+                raise ProtocolError("hardware/reference identity and inventory hash are required")
+            digest = identity["inventory_sha256"]
+            if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ProtocolError("hardware/reference inventory identity must be a SHA-256")
+        if hardware["identity_id"] != reference["identity_id"]:
+            raise ProtocolError("policy and paired reference hardware identities differ")
+        if hardware["inventory_sha256"] != reference["inventory_sha256"]:
+            raise ProtocolError("policy and paired reference hardware inventories differ")
+        for key in ("reference_ledger_sha256", "weight_registry_sha256"):
+            value = reference.get(key)
+            if not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
+                raise ProtocolError(f"frozen reference {key} is missing or invalid")
+        _validate_raw_counts(reference.get("raw_counts", {}))
+        weights = ledger.get("atomic_weights", {})
+        if not isinstance(weights, Mapping) or set(weights) - set(RAW_COUNT_FIELDS):
+            raise ProtocolError("atomic weights may name only fixed raw operation counters")
+        reference_blocks = reference.get("coupled_operation_blocks", [])
+        _coupled_work(reference_blocks)
+        policy_block_map = {block["operation_type"]: block for block in coupled}
+        reference_block_map = {block["operation_type"]: block for block in reference_blocks}
+        if set(policy_block_map) != set(reference_block_map):
+            raise ProtocolError("policy/reference coupled operation registries differ")
+        for name in policy_block_map:
+            policy_block = policy_block_map[name]
+            reference_block = reference_block_map[name]
+            if policy_block["definition_sha256"] != reference_block["definition_sha256"] or not math.isclose(
+                float(policy_block["measured_weight_seconds"]),
+                float(reference_block["measured_weight_seconds"]),
+                rel_tol=0.0,
+                abs_tol=0.0,
+            ):
+                raise ProtocolError("policy/reference coupled operation definitions or weights differ")
+        reference_seconds = reference.get("gpu_active_seconds")
+        if not isinstance(reference_seconds, (int, float)) or isinstance(reference_seconds, bool) \
+                or not math.isfinite(reference_seconds) or reference_seconds <= 0:
+            raise ProtocolError("paired frozen reference GPU-active seconds must be finite and positive")
+        expected = fre_values(
+            policy_counts=ledger["raw_counts"],
+            reference_counts=reference["raw_counts"],
+            measured_weights=weights,
+            gpu_active_seconds=ledger["timing"]["gpu_active_seconds"],
+            paired_reference_median_seconds=reference_seconds,
+            policy_coupled_operations=coupled,
+            reference_coupled_operations=reference_blocks,
+        )
         values = [fre.get(name) for name in ("work_FRE", "time_FRE", "claim_FRE")]
-        if not all(isinstance(value, (int, float)) and value >= 0 for value in values):
-            raise ProtocolError("calibrated FRE values must be non-negative numbers")
-        if not math.isclose(fre["claim_FRE"], max(fre["work_FRE"], fre["time_FRE"])):
-            raise ProtocolError("claim_FRE must equal max(work_FRE, time_FRE)")
+        if not all(isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value >= 0 for value in values):
+            raise ProtocolError("calibrated FRE values must be finite non-negative numbers")
+        for key in ("work_FRE", "time_FRE", "claim_FRE"):
+            if not math.isclose(float(fre[key]), expected[key], rel_tol=1e-12, abs_tol=1e-12):
+                raise ProtocolError(f"supplied {key} does not match recomputed frozen-reference value")
 
 
 def validate_replay_report(report: Mapping[str, Any]) -> None:
@@ -345,14 +511,129 @@ def validate_replay_report(report: Mapping[str, Any]) -> None:
     missing = sorted(required - set(report))
     if missing:
         raise ProtocolError(f"replay report missing fields: {missing}")
-    if report["eligibility"] not in {"BITWISE", "TOLERANCE_QUALIFIED"}:
+    if report["eligibility"] not in {"BITWISE", "TOLERANCE_QUALIFIED", "UNDETERMINED"}:
         raise ProtocolError("invalid replay eligibility")
     if report["verdict"] not in {"PASS", "FAIL", "NOT_RUN"}:
         raise ProtocolError("invalid replay verdict")
-    if report["verdict"] == "PASS" and not (
-        report["operation_count_reconciled"] and report["rng_draws_reconciled"]
+    if report["verdict"] == "NOT_RUN":
+        if report["eligibility"] != "UNDETERMINED":
+            raise ProtocolError("an unexecuted replay must have UNDETERMINED eligibility")
+        return
+    if report["verdict"] != "PASS":
+        return
+    runs = report["native_run_ids"]
+    if not isinstance(runs, list) or len(runs) < 3 or len(set(runs)) != len(runs):
+        raise ProtocolError("a passing replay needs at least three unique native runs")
+    if not isinstance(report["wrapper_run_id"], str) or not report["wrapper_run_id"]:
+        raise ProtocolError("a passing replay needs a non-null wrapper run")
+    for section in ("native_repeatability_envelope", "wrapper_comparison"):
+        comparison = report.get(section)
+        if not isinstance(comparison, Mapping):
+            raise ProtocolError(f"{section} is missing")
+        for metric in (
+            "max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta",
+            "measurement_loss_delta", "trace_max_abs_err",
+        ):
+            value = comparison.get(metric)
+            if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+                raise ProtocolError(f"passing replay requires finite {section}.{metric}")
+        if not isinstance(comparison.get("tensor_hash_equal"), bool):
+            raise ProtocolError(f"passing replay requires {section}.tensor_hash_equal")
+    hash_pairs = (
+        ("native_operation_counts_sha256", "wrapper_operation_counts_sha256"),
+        ("native_rng_ledger_sha256", "wrapper_rng_ledger_sha256"),
+    )
+    for native_key, wrapper_key in hash_pairs:
+        values = (report.get(native_key), report.get(wrapper_key))
+        if any(not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value) for value in values):
+            raise ProtocolError("passing replay requires valid operation and RNG evidence hashes")
+        if values[0] != values[1]:
+            raise ProtocolError("operation/RNG evidence hashes must reconcile exactly")
+    for native_key, wrapper_key in (
+        ("native_tensor_sha256s", "wrapper_tensor_sha256"),
+        ("native_trace_sha256s", "wrapper_trace_sha256"),
     ):
+        native_hashes = report.get(native_key)
+        wrapper_hash = report.get(wrapper_key)
+        if not isinstance(native_hashes, list) or len(native_hashes) != len(runs):
+            raise ProtocolError("passing replay needs one tensor/trace evidence hash per native run")
+        all_hashes = [*native_hashes, wrapper_hash]
+        if any(not isinstance(value, str) or len(value) != 64 or any(c not in "0123456789abcdef" for c in value) for value in all_hashes):
+            raise ProtocolError("passing replay tensor/trace evidence hashes are missing or invalid")
+    if report.get("operation_count_reconciled") is not True or report.get("rng_draws_reconciled") is not True:
         raise ProtocolError("a passing replay must reconcile operation and RNG counts")
+    serialization = report.get("serialization_resume_check")
+    if serialization == "NOT_APPLICABLE":
+        reason = report.get("serialization_not_applicable_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ProtocolError("NOT_APPLICABLE serialization requires a justification")
+    elif serialization != "PASS":
+        raise ProtocolError("passing replay requires serialization PASS or justified NOT_APPLICABLE")
+    if report["eligibility"] == "UNDETERMINED":
+        raise ProtocolError("a passing replay cannot have UNDETERMINED eligibility")
+    if report["eligibility"] == "BITWISE":
+        for native_key, wrapper_key in (
+            ("native_tensor_sha256s", "wrapper_tensor_sha256"),
+            ("native_trace_sha256s", "wrapper_trace_sha256"),
+        ):
+            if any(value != report[wrapper_key] for value in report[native_key]):
+                raise ProtocolError("BITWISE requires matching native and wrapper tensor/trace hashes")
+        for section in ("native_repeatability_envelope", "wrapper_comparison"):
+            comparison = report[section]
+            if comparison["tensor_hash_equal"] is not True:
+                raise ProtocolError("BITWISE requires matching tensor hashes")
+            if any(float(comparison[key]) != 0.0 for key in (
+                "max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta",
+                "measurement_loss_delta", "trace_max_abs_err",
+            )):
+                raise ProtocolError("BITWISE requires zero declared tensor and trace deltas")
+
+
+def validate_future_split_registry(
+    rows: Sequence[Mapping[str, Any]], exposed_image_ids: set[str]
+) -> None:
+    """Fail closed if a future row reuses any image exposed before B23."""
+
+    required = {
+        "registry_version", "split", "row_id", "image_id", "measurement_id",
+        "measurement_seed", "solver_base_seed", "assigned_before_run",
+        "pre_b23_exposure_checked", "source_manifest_sha256",
+    }
+    allowed_splits = {
+        "DEV-SCREEN", "DEV-MECH", "DEV-NATURAL", "CAL-B2", "TEST-AUDIT",
+        "TEST-PROSPECTIVE", "B23.1-SMOKE-1", "B23.1-SMOKE-4",
+    }
+    keys: set[tuple[str, int]] = set()
+    for row in rows:
+        missing = sorted(required - set(row))
+        if missing:
+            raise ProtocolError(f"future-registry row missing fields: {missing}")
+        image_id = row.get("image_id")
+        if row.get("registry_version") != "b23.future-split.v1":
+            raise ProtocolError("invalid future-registry version")
+        if row.get("split") not in allowed_splits:
+            raise ProtocolError("invalid future-registry split")
+        if not isinstance(image_id, str) or len(image_id) != 5 or not image_id.isdigit():
+            raise ProtocolError("future-registry image_id must contain five digits")
+        for field in ("row_id", "measurement_seed", "solver_base_seed"):
+            value = row.get(field)
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                raise ProtocolError(f"future-registry {field} must be a non-negative integer")
+        if not isinstance(row.get("measurement_id"), str) or not row["measurement_id"]:
+            raise ProtocolError("future-registry measurement identity is required")
+        digest = row.get("source_manifest_sha256")
+        if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ProtocolError("future-registry source manifest needs a SHA-256")
+        if image_id in exposed_image_ids:
+            raise ProtocolError(
+                f"future registry image {image_id} is in PRE_B23_EXPOSURE; measurement/seed cannot override exclusion"
+            )
+        key = (row["split"], row["row_id"])
+        if key in keys:
+            raise ProtocolError(f"duplicate future-registry row identity: {key}")
+        keys.add(key)
+        if row.get("assigned_before_run") is not True or row.get("pre_b23_exposure_checked") is not True:
+            raise ProtocolError("future-registry rows must be assigned and exposure-checked before run")
 
 
 def _tensor_fingerprint(tensor: Any) -> dict[str, Any]:
