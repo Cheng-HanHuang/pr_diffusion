@@ -1,0 +1,24 @@
+{
+  "b23_1_authorized": false,
+  "b23_2_authorized": false,
+  "failures": [],
+  "gpu_work_performed": false,
+  "primary_gate_results": {
+    "10_replay_and_rng": "PROCEDURE_AND_NAMED_STREAM_DERIVATION_VALIDATED; GPU_REPLAY_NOT_RUN",
+    "11_b23_1_smoke_manifests": "ONE_IMAGE_AND_FOUR_IMAGE_TEMPLATES_EMPTY_AS_REQUIRED",
+    "12_b23_1_dry_run_commands": "TEMPLATES_RENDERED; ZERO_EXECUTABLE_GPU_COMMANDS",
+    "13_recommendation": "AUTHORIZE_B23_1_AFTER_PLANNER_SIGNOFF",
+    "1_execution_branch_and_head": "PASS",
+    "2_pr_or_commit_list": "PRE_RUN_HEAD_RECORDED; POST_RUN_EVIDENCE_COMMIT_PENDING",
+    "3_branch_stack_recommendation": "KEEP draft execution PR based on codex/post-b22-reliability-plan; do not rewrite planning PR #36",
+    "4_pac_source_environment_hardware_inventory": "PASS",
+    "5_unresolved_identity_gaps": "NONE",
+    "6_exposure_coverage": "328 images; 328 rows; 100 resolved rows; 990 unresolved tag mentions; 228 image-wide unknown rows",
+    "7_parent_semantics": "FOUR_NATIVE_PARENTS_FROZEN",
+    "8_typed_api": "NATIVE_STATE_MODULE_ADAPTER_CONTRACT_VALIDATED",
+    "9_compute_and_fre": "RAW_LEDGER_AND_FORMULAS_VALIDATED; NUMERIC_WEIGHTS_INTENTIONALLY_UNMEASURED"
+  },
+  "schema_version": "b23.gate-decision.v1",
+  "stage": "B23.0",
+  "verdict": "PASS_RECOMMEND_PLANNER_REVIEW"
+}
