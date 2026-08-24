@@ -1,0 +1,15 @@
+{
+  "classification_counts": {
+    "CACHE": 22,
+    "DATASET": 348,
+    "IMPORTABLE_SOURCE": 2,
+    "OTHER_ARTIFACT": 13,
+    "OUTPUT": 112
+  },
+  "hashed_importable_source_count": 2,
+  "importable_source_count": 2,
+  "inventory_sha256": "b7646b7e18e5ffe4f9bc4ae9a71b990a84574254b2d528180f8e4fbe7f50dab6",
+  "path_count": 497,
+  "status": "PASS",
+  "unresolved_importable_source_count": 0
+}

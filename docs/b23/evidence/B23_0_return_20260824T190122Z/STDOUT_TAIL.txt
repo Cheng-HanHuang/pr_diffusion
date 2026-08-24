@@ -1,0 +1,63 @@
+timestamp=20260824T190122Z
+repo=/egr/research-pac/huang248/pr_diffusion_b23
+output_root=/egr/research-pac/huang248/outputs/pr_diffusion/b23
+python=/egr/research-pac/huang248/conda-envs/daps/bin/python
+PYTHONPATH=/egr/research-pac/huang248/pr_diffusion_b23
+CUDA_VISIBLE_DEVICES=<empty>
+gpu_work_performed=NO
+step_start=unit_tests
+step_pass=unit_tests
+step_start=repository_validation
+{
+  "checks": {
+    "configs": {
+      "count": 7,
+      "format": "JSON_SUBSET_OF_YAML",
+      "status": "PASS"
+    },
+    "correction_ledger": {
+      "invalidated_evidence_commit": "0d35656b360b4b0d04a28812079f18de8a03a9af",
+      "status": "PASS"
+    },
+    "exposure_manifest": {
+      "image_wide_unknown_exposure_rows": 228,
+      "images": 328,
+      "rows": 328,
+      "truly_resolved_measurement_rows": 100,
+      "unresolved_measurement_tag_rows": 0
+    },
+    "future_registry": {
+      "rows": 0,
+      "status": "EMPTY_AND_EXPOSED_IMAGE_DISJOINT"
+    },
+    "pac_path_policy": {
+      "root": "/egr/research-pac/huang248",
+      "status": "PASS"
+    },
+    "required_files": {
+      "count": 23,
+      "status": "PASS"
+    },
+    "schemas": {
+      "custom_validator_scope": "ALL_ASSERTION_KEYWORDS_PRESENT_IN_B23_SCHEMAS",
+      "status": "PASS",
+      "validation_modes": [
+        "CUSTOM_DRAFT2020_SUBSET_EQUIVALENT"
+      ]
+    },
+    "smoke_registries": {
+      "rows": 0,
+      "status": "EMPTY_AS_REQUIRED"
+    }
+  },
+  "gpu_work_performed": false,
+  "schema_version": "b23.zero-gpu-validation.v1",
+  "status": "PASS"
+}
+step_pass=repository_validation
+step_start=b23_1_dry_render
+{"commands": 0, "output": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_dry_run_20260824T190122Z.json", "status": "DRY_RUN_ONLY"}
+step_pass=b23_1_dry_render
+step_start=pac_evidence_collection
+{"capsule": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_0_return_20260824T190122Z", "exposure_images": 328, "failures": 0, "status": "PASS_RECOMMEND_PLANNER_REVIEW"}
+step_pass=pac_evidence_collection
