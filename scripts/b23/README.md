@@ -12,4 +12,8 @@ transparent extracted evidence and a safety-checked archive smaller than 5 MiB, 
 non-force push to `codex/b23-execution`. It refuses a dirty worktree or a changed remote head.
 It also refuses publication unless the exact four-row zero-GPU prerequisite ledger is all PASS.
 
-None of these files authorizes B23.1 or contains an experiment launcher.
+The later `run_b23_1a_b.sh` entrypoint is separately authorized by the 2026-08-24 decision and is
+not part of B23.0. It accepts only an exact pushed pre-run head and runs the bounded B23.1A/B graph:
+five locked inputs, four ordered parent replays, pre-wrapper tolerance freezes, coupled compute
+calibration, four-image smoke, donor classification, and return packaging. It hard-stops before
+B23.2, large panels, B24, or adaptive schedules.

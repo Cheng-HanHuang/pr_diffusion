@@ -1,0 +1,123 @@
+{
+  "schema_version": "b23.b23-1a-b-execution.v1",
+  "status": "AUTHORIZED_PRERUN_FROZEN",
+  "authorization": {
+    "decision_date_utc": "2026-08-24",
+    "accepted_b23_0_head": "3829d52e6489ec5c90d5bc0ce404253e71131fda",
+    "authorized_stages": ["B23.1A", "B23.1B"],
+    "gpu_work_authorized": true,
+    "authorized_work": [
+      "bounded native replay",
+      "trace instrumentation",
+      "compute microbenchmarks",
+      "four-image heterogeneous smoke",
+      "donor compatibility classification"
+    ],
+    "unauthorized_work": [
+      "B23.2",
+      "large panels",
+      "B24",
+      "adaptive schedules"
+    ]
+  },
+  "registry": {
+    "combined": "manifests/b23/b23_1_signed_registry.csv",
+    "one_image": "manifests/b23/b23_1_one_image_smoke.signed.csv",
+    "four_image": "manifests/b23/b23_1_four_image_smoke.signed.csv",
+    "pre_b23_exposure": "manifests/b23/PRE_B23_EXPOSURE.csv",
+    "pre_b23_exposure_sha256": "c6cc3b13a3d5dd0f6ba251e20242e684a2df0d205998cc0372d17bb3cbd33862",
+    "selection_rule": "minimum SHA-256 rank within preregistered official-validation ID strata after image-level PRE_B23_EXPOSURE exclusion; no image content or outcome inspected"
+  },
+  "problem": {
+    "dataset": "FFHQ official validation IDs 60000--69999",
+    "resolution": 256,
+    "operator": "oversampled Fourier phase retrieval",
+    "oversample": 2.0,
+    "sigma_y": 0.05,
+    "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "execution": {
+    "parent_order": ["Fresh1", "LF-v1", "NP-1", "SITCOM-1"],
+    "native_repeats": 3,
+    "wrapper_repeats": 1,
+    "replay_gpu": 0,
+    "smoke_gpus": [0, 1, 2, 3],
+    "max_parent_trajectories": 32,
+    "expected_replay_parent_trajectories": 16,
+    "expected_smoke_parent_trajectories": 16,
+    "expected_measurement_generations": 5,
+    "terminal_candidates_per_parent_run": 1,
+    "overwrite_policy": "REFUSE",
+    "parent_failure_policy": "STOP_BEFORE_NEXT_PARENT",
+    "wrapper_failure_policy": "PRESERVE_AND_STOP",
+    "smoke_gate": "ALL_FOUR_REPLAY_REPORTS_PASS",
+    "donor_gate": "REPLAY_EVIDENCE_ONLY_NO_NEW_PARENT_TRAJECTORY"
+  },
+  "expected_operation_formulas": {
+    "Fresh1": {
+      "annealing_transitions": 400,
+      "diffusion_substeps_per_transition": 5,
+      "mcmc_iterations_per_transition": 100,
+      "terminal_candidates": 1,
+      "source_of_truth": "pinned DAPS sampler.py, cores/scheduler.py, cores/mcmc.py, and frozen Hydra configs; runtime counters must equal the source-derived formula"
+    },
+    "LF-v1": {
+      "inherits": "Fresh1",
+      "lf_active_rule": "step / native_annealing_scheduler.num_steps <= 0.35",
+      "lf_fft2_per_active_step": 1,
+      "lf_ifft2_per_active_step": 1,
+      "terminal_candidates": 1
+    },
+    "NP-1": {
+      "diffusion_transitions": 999,
+      "soft_candidate_steps": 300,
+      "soft_candidates": 5,
+      "hard_candidate_steps": 699,
+      "hard_candidates": 1,
+      "denoiser_forwards": 2200,
+      "fresh_random_proposals": 1900,
+      "terminal_candidates": 1
+    },
+    "SITCOM-1": {
+      "annealing_transitions": 200,
+      "diffusion_substeps_per_transition": 5,
+      "lgvd_iterations_per_transition": 100,
+      "denoiser_forwards": 1000,
+      "lgvd_optimizer_iterations": 20000,
+      "forward_renoising_draws": 200,
+      "terminal_candidates": 1
+    }
+  },
+  "replay": {
+    "minimum_native_repeats": 3,
+    "native_before_wrapper": true,
+    "freeze_before_wrapper": true,
+    "bitwise_rule": "all native tensor and trace hashes match; every declared delta is zero",
+    "tolerance_floor_policy": {
+      "status": "FORMULA_FROZEN_VALUES_MEASURED_AFTER_NATIVE_BEFORE_WRAPPER",
+      "rule": "For each metric, numerical_floor = machine_epsilon(dtype) * max(1, declared_metric_scale) * declared_reduction_depth; record dtype, scale, reduction depth, evaluated value, and freeze SHA-256.",
+      "arbitrary_constants_allowed": false
+    },
+    "serialization": "PASS at a valid native boundary or justified NOT_APPLICABLE",
+    "determinism_audit": "COMPLETE or JUSTIFIED_UNAVAILABLE",
+    "operation_and_rng_reconciliation": "EXACT"
+  },
+  "compute": {
+    "timer_method": "paired CUDA events with explicit synchronize plus monotonic wall clock",
+    "calibration_unit": "one complete frozen one-terminal native parent entrypoint, including model load and all inseparable parent-internal operations",
+    "excluded_warmup_iterations": 0,
+    "measured_iterations_per_parent": 3,
+    "paired_blocks": 3,
+    "atomic_or_coupled_rule": "Every nonzero operation is assigned either an isolated measured atomic weight or one non-overlapping typed coupled-block weight; no guessed weight or double counting.",
+    "fresh1_reference": "same replay image, GPU 0, same frozen stack; three native cycles interleave Fresh1, LF-v1, NP-1, and SITCOM-1",
+    "justification": "The native parents expose complete source-faithful entrypoints, but no common sound boundary that isolates every internal operation without changing scheduler, optimizer, proposal-set, RNG, or model-load semantics. Each full native entrypoint is therefore measured as one typed non-overlapping coupled block; exact internal raw counts remain separately audited."
+  },
+  "donor_classes": [
+    "NATIVE-REPLAYED",
+    "DAPS-NATIVE-DONOR",
+    "ADAPTER-QUALIFIED-DONOR",
+    "BASELINE-ONLY",
+    "REJECTED-PROTOTYPE"
+  ],
+  "stop_after": "B23.1_RETURN_PENDING_PLANNER_REVIEW"
+}

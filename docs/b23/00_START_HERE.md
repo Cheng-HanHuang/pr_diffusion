@@ -61,5 +61,11 @@ archive is `docs/b23/evidence/capsules/B23_0_return_20260824T190122Z.tar.gz` wit
 the invalid return preserved in `B23_0_CORRECTION_LEDGER.md`, remains immutable and cannot authorize
 later stages.
 
-Requested decision: planner sign-off of B23.0. This repository status is a request, not
-self-authorization. B23.1 remains **NOT AUTHORIZED** until separate explicit planner/user approval.
+The planner/user accepted B23.0 sign-off on 2026-08-24 and separately authorized **B23.1A/B only**:
+bounded native replay, trace instrumentation, compute microbenchmarks, the four-image heterogeneous
+smoke, and donor compatibility classification. The signed pre-run contract is
+`configs/b23/b23_1a_b_execution.yaml`; its one-image and four-image registries are
+`manifests/b23/b23_1_{one,four}_image_smoke.signed.csv`.
+
+B23.2, large panels, B24, and adaptive schedules remain **NOT AUTHORIZED**. B23.1 execution must
+stop at `B23.1_RETURN_PENDING_PLANNER_REVIEW`; authorization does not promote any donor or schedule.

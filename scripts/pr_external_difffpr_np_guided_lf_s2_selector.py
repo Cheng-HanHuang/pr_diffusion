@@ -148,6 +148,7 @@ def reconstruct_with_selector_stat(
     score_reg_lambda_schedule: str,
     score_huber_delta: float,
     log_every: int,
+    trace_callback=None,
 ) -> Tuple[torch.Tensor, Dict[str, object]]:
     """Reconstruct and accumulate trajectory selector features.
 
@@ -274,6 +275,21 @@ def reconstruct_with_selector_stat(
 
         x_prev = cand_x0s[winner_idx]
         eps_prev = cand_eps[winner_idx]
+
+        if trace_callback is not None:
+            trace_callback(
+                step_index=i,
+                timestep=t_int,
+                next_timestep=t_next_int,
+                candidate_count=k,
+                winner_index=winner_idx,
+                projection_applied=projection_applied,
+                selected_x0=x_prev,
+                selected_epsilon=eps_prev,
+                selected_score=float(final_scores[winner_idx].detach().cpu().item()),
+                selected_lf_mse=float(cand_lf_mse[winner_idx]),
+                selected_full_mse=float(cand_full_mse[winner_idx]),
+            )
 
         if log_every > 0 and (i + 1) % log_every == 0:
             print(

@@ -1,14 +1,24 @@
-# B23.1 native replay runbook — preparation only
+# B23.1A/B authorized bounded replay runbook
 
 ## Authorization stop
 
-This runbook is non-executable preparation. B23.1 GPU work requires both:
+The two required decisions are now recorded:
 
-1. planner/user sign-off on the completed B23.0 post-run evidence commit; and
-2. a second explicit user authorization for B23.1.
+1. B23.0 sign-off accepted on final status head `3829d52e6489ec5c90d5bc0ce404253e71131fda`;
+2. B23.1A/B-only GPU authorization received on 2026-08-24.
 
-Neither condition is currently recorded. Do not assign GPUs, populate the smoke registry, or replace
-placeholders in command templates.
+The authorization is bounded by `configs/b23/b23_1a_b_execution.yaml`. B23.2, large panels, B24,
+and adaptive schedules remain closed.
+
+## Signed selection
+
+- replay image: `65082`;
+- four-image smoke: `61492`, `62959`, `66821`, `68142`;
+- selection: minimum SHA-256 rank after image-level exposure exclusion, with one selection in each
+  of four FFHQ-validation ID strata; no image content or method outcome was inspected;
+- canonical signed registry: `manifests/b23/b23_1_signed_registry.csv`.
+
+The earlier header-only templates and dry render remain preserved as B23.0 historical artifacts.
 
 ## Required pre-run freeze after authorization
 
@@ -18,7 +28,7 @@ placeholders in command templates.
 - expected raw operation counts and terminal candidates;
 - native-repeat count, complete-or-justified-unavailable deterministic-flag audit, pre-wrapper
   tolerance-freeze record identity, per-metric numerical floors, and replay comparison fields;
-- atomic microbenchmark plan and maximum authorized GPU budget;
+- typed atomic-or-coupled microbenchmark plan and maximum authorized GPU budget;
 - exact commands, output roots, refusal-to-overwrite behavior, and stop rules;
 - pushed pre-run commit before a GPU is reached.
 
@@ -32,7 +42,8 @@ For Fresh1, LF-v1, NP-1, then SITCOM-1:
 3. run the trace wrapper;
 4. reconcile intermediate tensors, final metrics, exact operation counts, and every named RNG draw;
 5. test serialization/resume only at a valid native boundary;
-6. microbenchmark nonzero atomic operations and freeze weights;
+6. microbenchmark every nonzero operation as an isolated atomic unit where sound, or as an explicit
+   non-overlapping typed coupled block where isolation would change native semantics, then freeze weights;
 7. record `PASS`, `FAIL`, or `BASELINE-ONLY` without changing the parent.
 
 Only after all four native wrappers pass may the four-image heterogeneous smoke run.
@@ -49,20 +60,25 @@ Only after all four native wrappers pass may the four-image heterogeneous smoke 
 
 Do not force NP or SITCOM through an adapter to make H0 pass.
 
-## Dry-run rendering
+## Authorized execution entrypoint
 
-The B23.0 command is safe because it emits documentation only:
+The pushed pre-run commit is executed with:
 
 ```text
-CUDA_VISIBLE_DEVICES='' /egr/research-pac/huang248/conda-envs/daps/bin/python \
-  scripts/b23/render_b23_1_dry_runs.py \
+bash scripts/b23/run_b23_1a_b.sh \
   --repo /egr/research-pac/huang248/pr_diffusion_b23 \
-  --output /egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_dry_run_<timestamp>.json
+  --output-root /egr/research-pac/huang248/outputs/pr_diffusion/b23 \
+  --expected-head <PUSHED_B23_1_PRERUN_SHA> \
+  --gpus "0 1 2 3"
 ```
 
-With the registry empty, the output has `authorized=false`, `commands=[]`, four non-executable
-parent templates, and explicit blockers. Exact executable commands do not exist until a signed row,
-measured cost expectations, and B23.1 authorization exist.
+The entrypoint refuses a dirty worktree, wrong branch/head, changed exposure manifest, duplicate or
+exposed smoke image, non-derived seed, missing frozen environment, unexpected trajectory count,
+wrapper execution before the tolerance freeze, parent replay failure, or overwrite. It packages
+summary JSON and terminal reconstructions while leaving large raw DAPS trajectories on PAC under
+their indexed and hashed paths.
+
+The old `render_b23_1_dry_runs.py` output remains a B23.0 record and is not the authorized launcher.
 
 ## B23.1 gates
 
