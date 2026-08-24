@@ -50,17 +50,16 @@ in `ARTIFACT_MANIFEST.tsv`.
 ## Current recommendation
 
 The planner reviewed execution head `718998098cde1d8051e29e8d50d1285a04ca6ee9` with verdict
-`REVISE_BEFORE_SIGN_OFF`. The prior zero-GPU PAC execution remains accepted and preserved: pre-run
-commit `4cf026d834650b90a1bfc6b8951a69500d190b21`, evidence commit
-`241551d92c8402521dc970947b54a10b4b0a726a`, 62/62 tests, and return timestamp
-`20260811T031927Z`.
+`REVISE_BEFORE_SIGN_OFF`. The authorized contract closeout is now complete: corrective pre-run
+commit `77f964c7cd6034246f6e2b60e599e0582c001c95`, post-run evidence commit
+`abee0f914943ec47f22bd8a23f9393db8c2c0a71`, 69/69 PAC tests, all four fail-closed steps
+`PASS/0`, zero GPU work, and return timestamp `20260824T190122Z`.
 
-Current extracted evidence is at `docs/b23/evidence/B23_0_return_20260811T031927Z/`; its transport
-archive is `docs/b23/evidence/capsules/B23_0_return_20260811T031927Z.tar.gz` with SHA-256
-`f18219334ca8313b5445847e9caf37787f6c43358b71dcde13f0f19a26e8a1a4`. Prior evidence, including
-the invalid return preserved in `B23_0_CORRECTION_LEDGER.md`, remains immutable.
+Current extracted evidence is at `docs/b23/evidence/B23_0_return_20260824T190122Z/`; its transport
+archive is `docs/b23/evidence/capsules/B23_0_return_20260824T190122Z.tar.gz` with SHA-256
+`fdbe5fc3cc3c17fb2086c788240a8b67be099746b4ee20f347b1fe5ec88f368c`. Prior evidence, including
+the invalid return preserved in `B23_0_CORRECTION_LEDGER.md`, remains immutable and cannot authorize
+later stages.
 
 Requested decision: planner sign-off of B23.0. This repository status is a request, not
-self-authorization. One bounded zero-GPU contract-closeout rerun is pending for tolerance-qualified
-replay and calibrated timing. B23.1 remains **NOT AUTHORIZED** until separate explicit planner/user
-approval.
+self-authorization. B23.1 remains **NOT AUTHORIZED** until separate explicit planner/user approval.
