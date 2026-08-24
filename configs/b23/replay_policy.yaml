@@ -1,5 +1,5 @@
 {
-  "schema_version": "b23.replay-policy.v1",
+  "schema_version": "b23.replay-policy.v2",
   "authorization": {
     "b23_0_gpu_budget": 0,
     "b23_1_gpu_authorized": false,
@@ -17,7 +17,13 @@
     "minimum_native_repeats": 3,
     "run_unchanged_native_first": true,
     "freeze_tolerance_before_wrapper": true,
-    "numerical_floor": "declare from dtype and metric scale in the pre-run evidence commit",
+    "tolerance_freeze_identity_required": true,
+    "freeze_record_excludes_wrapper_run": true,
+    "numerical_floors": {
+      "required_for_each_metric": ["max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta", "measurement_loss_delta", "trace_max_abs_err"],
+      "declaration_rule": "derive from dtype and metric scale and freeze before the wrapper; B23.0 supplies no numerical values"
+    },
+    "wrapper_acceptance_rule": "For every numeric comparison, abs(wrapper delta) <= abs(frozen native envelope) + declared numerical floor.",
     "operation_count_exact": true,
     "rng_draw_reconciliation_exact": true
   },
@@ -26,7 +32,12 @@
     "tolerance_qualified": "Use the frozen native repeatability envelope plus a predeclared numerical floor.",
     "cross_hardware_bitwise_required": false
   },
-  "determinism_audit": ["torch.use_deterministic_algorithms", "torch.backends.cudnn.deterministic", "torch.backends.cudnn.benchmark", "CUBLAS_WORKSPACE_CONFIG"],
+  "determinism_audit": {
+    "required_fields": ["torch.use_deterministic_algorithms", "torch.backends.cudnn.deterministic", "torch.backends.cudnn.benchmark", "CUBLAS_WORKSPACE_CONFIG"],
+    "allowed_states": ["COMPLETE", "JUSTIFIED_UNAVAILABLE"],
+    "complete_rule": "Every field is non-null; record UNSET for an audited but unset CUBLAS_WORKSPACE_CONFIG.",
+    "unavailable_rule": "A non-empty reason is mandatory."
+  },
   "required_comparison_metrics": ["tensor_sha256", "max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta", "measurement_loss_delta", "intermediate_trace_delta", "raw_operation_counts", "named_rng_draws"],
   "stop_conditions": ["native identity mismatch", "native repeatability envelope not frozen", "wrapper outside envelope", "operation-count mismatch", "RNG-draw mismatch", "hidden candidate or retry", "NaN or nontermination"]
 }

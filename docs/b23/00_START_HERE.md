@@ -49,11 +49,11 @@ in `ARTIFACT_MANIFEST.tsv`.
 
 ## Current recommendation
 
-The planner reviewed execution head `5096dc02d9a6ecd6a8615d25f026433adf660e5e` with verdict
-`REVISE_BEFORE_SIGNOFF`. The authorized zero-GPU correction is frozen at pre-run commit
-`4cf026d834650b90a1bfc6b8951a69500d190b21`; its PAC suite completed 62/62 tests and all four
-fail-closed steps at return timestamp `20260811T031927Z`. Post-run evidence commit
-`241551d92c8402521dc970947b54a10b4b0a726a` reports `PASS_RECOMMEND_PLANNER_REVIEW`.
+The planner reviewed execution head `718998098cde1d8051e29e8d50d1285a04ca6ee9` with verdict
+`REVISE_BEFORE_SIGN_OFF`. The prior zero-GPU PAC execution remains accepted and preserved: pre-run
+commit `4cf026d834650b90a1bfc6b8951a69500d190b21`, evidence commit
+`241551d92c8402521dc970947b54a10b4b0a726a`, 62/62 tests, and return timestamp
+`20260811T031927Z`.
 
 Current extracted evidence is at `docs/b23/evidence/B23_0_return_20260811T031927Z/`; its transport
 archive is `docs/b23/evidence/capsules/B23_0_return_20260811T031927Z.tar.gz` with SHA-256
@@ -61,4 +61,6 @@ archive is `docs/b23/evidence/capsules/B23_0_return_20260811T031927Z.tar.gz` wit
 the invalid return preserved in `B23_0_CORRECTION_LEDGER.md`, remains immutable.
 
 Requested decision: planner sign-off of B23.0. This repository status is a request, not
-self-authorization. B23.1 remains **NOT AUTHORIZED** until separate explicit planner/user approval.
+self-authorization. One bounded zero-GPU contract-closeout rerun is pending for tolerance-qualified
+replay and calibrated timing. B23.1 remains **NOT AUTHORIZED** until separate explicit planner/user
+approval.

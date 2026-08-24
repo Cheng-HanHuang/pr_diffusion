@@ -27,6 +27,7 @@ class RepositoryContractTests(unittest.TestCase):
             )
         )
         self.assertNotIn("atomic_weights", example)
+        self.assertEqual(example["schema_version"], "b23.compute-ledger.v2")
         validate_compute_ledger(example)
 
     def test_replay_not_run_example_is_valid(self) -> None:
@@ -36,6 +37,7 @@ class RepositoryContractTests(unittest.TestCase):
             )
         )
         validate_replay_report(example)
+        self.assertEqual(example["schema_version"], "b23.replay-report.v3")
         self.assertEqual(example["verdict"], "NOT_RUN")
 
     def test_exposure_manifest_unique(self) -> None:

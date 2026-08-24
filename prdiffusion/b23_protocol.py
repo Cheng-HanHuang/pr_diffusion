@@ -16,8 +16,30 @@ from pathlib import Path
 from typing import Any, Generic, Mapping, Sequence, TypeVar
 
 
-PROTOCOL_VERSION = "b23.0-v2"
+PROTOCOL_VERSION = "b23.0-v3"
 SEED_DERIVATION_VERSION = "b23-sha256-v1"
+
+REPLAY_NUMERIC_METRICS = (
+    "max_abs_err",
+    "mean_abs_err",
+    "relative_l2_err",
+    "raw_psnr_delta",
+    "measurement_loss_delta",
+    "trace_max_abs_err",
+)
+
+PLACEHOLDER_TIMER_METHODS = {
+    "NOTRUN",
+    "NONE",
+    "NULL",
+    "NA",
+    "N/A",
+    "TBD",
+    "TODO",
+    "UNKNOWN",
+    "UNAVAILABLE",
+    "PLACEHOLDER",
+}
 
 ParentName = TypeVar("ParentName", bound=str)
 
@@ -338,6 +360,8 @@ def validate_compute_ledger(ledger: Mapping[str, Any]) -> None:
     missing = sorted(required - set(ledger))
     if missing:
         raise ProtocolError(f"compute ledger missing fields: {missing}")
+    if ledger["schema_version"] != "b23.compute-ledger.v2":
+        raise ProtocolError("compute ledger must use b23.compute-ledger.v2")
     _validate_raw_counts(ledger["raw_counts"])
     optimizer_by_type = ledger["optimizer_iterations_by_type"]
     if not isinstance(optimizer_by_type, Mapping) or any(
@@ -476,6 +500,26 @@ def validate_compute_ledger(ledger: Mapping[str, Any]) -> None:
         if not isinstance(reference_seconds, (int, float)) or isinstance(reference_seconds, bool) \
                 or not math.isfinite(reference_seconds) or reference_seconds <= 0:
             raise ProtocolError("paired frozen reference GPU-active seconds must be finite and positive")
+        executed_work = any(ledger["raw_counts"].values()) or any(
+            block["count"] for block in coupled
+        )
+        if executed_work:
+            if ledger["timing"]["gpu_active_seconds"] <= 0:
+                raise ProtocolError(
+                    "executed calibrated work requires strictly positive GPU-active time"
+                )
+            if ledger["timing"]["wall_seconds"] <= 0:
+                raise ProtocolError(
+                    "executed calibrated work requires strictly positive wall time"
+                )
+            timer_method = ledger["timing"]["timer_method"]
+            normalized_timer = "".join(
+                character for character in timer_method.upper() if character.isalnum()
+            )
+            if normalized_timer in PLACEHOLDER_TIMER_METHODS:
+                raise ProtocolError(
+                    "executed calibrated work requires a real non-placeholder timer method"
+                )
         expected = fre_values(
             policy_counts=ledger["raw_counts"],
             reference_counts=reference["raw_counts"],
@@ -502,6 +546,7 @@ def validate_replay_report(report: Mapping[str, Any]) -> None:
         "wrapper_run_id",
         "eligibility",
         "determinism_audit",
+        "tolerance_qualification",
         "native_repeatability_envelope",
         "wrapper_comparison",
         "operation_count_reconciled",
@@ -511,13 +556,49 @@ def validate_replay_report(report: Mapping[str, Any]) -> None:
     missing = sorted(required - set(report))
     if missing:
         raise ProtocolError(f"replay report missing fields: {missing}")
+    if report["schema_version"] != "b23.replay-report.v3":
+        raise ProtocolError("replay report must use b23.replay-report.v3")
     if report["eligibility"] not in {"BITWISE", "TOLERANCE_QUALIFIED", "UNDETERMINED"}:
         raise ProtocolError("invalid replay eligibility")
     if report["verdict"] not in {"PASS", "FAIL", "NOT_RUN"}:
         raise ProtocolError("invalid replay verdict")
+    audit = report["determinism_audit"]
+    if not isinstance(audit, Mapping):
+        raise ProtocolError("determinism_audit must be an object")
+    audit_status = audit.get("audit_status")
+    if audit_status not in {"COMPLETE", "JUSTIFIED_UNAVAILABLE"}:
+        raise ProtocolError(
+            "determinism audit must be COMPLETE or JUSTIFIED_UNAVAILABLE"
+        )
+    if audit_status == "COMPLETE":
+        if audit.get("unavailable_reason") is not None:
+            raise ProtocolError("a complete determinism audit cannot claim unavailability")
+        for field in (
+            "torch_deterministic_algorithms",
+            "cudnn_deterministic",
+            "cudnn_benchmark",
+            "flags_change_native_parent",
+        ):
+            if not isinstance(audit.get(field), bool):
+                raise ProtocolError(f"complete determinism audit requires boolean {field}")
+        if not isinstance(audit.get("cublas_workspace_config"), str) or not audit[
+            "cublas_workspace_config"
+        ].strip():
+            raise ProtocolError(
+                "complete determinism audit requires CUBLAS_WORKSPACE_CONFIG evidence; use UNSET when absent"
+            )
+    else:
+        reason = audit.get("unavailable_reason")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ProtocolError(
+                "JUSTIFIED_UNAVAILABLE determinism audit requires a reason"
+            )
+
     if report["verdict"] == "NOT_RUN":
         if report["eligibility"] != "UNDETERMINED":
             raise ProtocolError("an unexecuted replay must have UNDETERMINED eligibility")
+        if report["tolerance_qualification"] is not None:
+            raise ProtocolError("an unexecuted replay cannot carry a tolerance freeze")
         return
     if report["verdict"] != "PASS":
         return
@@ -530,10 +611,7 @@ def validate_replay_report(report: Mapping[str, Any]) -> None:
         comparison = report.get(section)
         if not isinstance(comparison, Mapping):
             raise ProtocolError(f"{section} is missing")
-        for metric in (
-            "max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta",
-            "measurement_loss_delta", "trace_max_abs_err",
-        ):
+        for metric in REPLAY_NUMERIC_METRICS:
             value = comparison.get(metric)
             if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
                 raise ProtocolError(f"passing replay requires finite {section}.{metric}")
@@ -571,6 +649,40 @@ def validate_replay_report(report: Mapping[str, Any]) -> None:
         raise ProtocolError("passing replay requires serialization PASS or justified NOT_APPLICABLE")
     if report["eligibility"] == "UNDETERMINED":
         raise ProtocolError("a passing replay cannot have UNDETERMINED eligibility")
+    tolerance = report["tolerance_qualification"]
+    if report["eligibility"] == "TOLERANCE_QUALIFIED":
+        if not isinstance(tolerance, Mapping):
+            raise ProtocolError(
+                "TOLERANCE_QUALIFIED PASS requires a pre-wrapper tolerance freeze identity"
+            )
+        freeze_hash = tolerance.get("freeze_record_sha256")
+        if not isinstance(freeze_hash, str) or len(freeze_hash) != 64 or any(
+            character not in "0123456789abcdef" for character in freeze_hash
+        ):
+            raise ProtocolError("tolerance freeze identity must be a SHA-256")
+        if tolerance.get("frozen_before_wrapper") is not True:
+            raise ProtocolError("tolerance envelope must be frozen before the wrapper run")
+        if tolerance.get("wrapper_run_id_at_freeze") is not None:
+            raise ProtocolError("pre-wrapper tolerance freeze cannot include a wrapper run")
+        frozen_runs = tolerance.get("frozen_native_run_ids")
+        if frozen_runs != runs:
+            raise ProtocolError("tolerance freeze native runs do not match the replay report")
+        floors = tolerance.get("numerical_floors")
+        if not isinstance(floors, Mapping) or set(floors) != set(REPLAY_NUMERIC_METRICS):
+            raise ProtocolError("every replay comparison metric needs one declared numerical floor")
+        for metric in REPLAY_NUMERIC_METRICS:
+            floor = floors[metric]
+            if not isinstance(floor, (int, float)) or isinstance(floor, bool) \
+                    or not math.isfinite(floor) or floor < 0:
+                raise ProtocolError(f"numerical floor for {metric} must be finite and non-negative")
+            native_bound = abs(float(report["native_repeatability_envelope"][metric]))
+            wrapper_delta = abs(float(report["wrapper_comparison"][metric]))
+            if wrapper_delta > native_bound + float(floor):
+                raise ProtocolError(
+                    f"wrapper {metric} exceeds the frozen native envelope plus numerical floor"
+                )
+    elif tolerance is not None:
+        raise ProtocolError("BITWISE replay must not masquerade as tolerance-qualified")
     if report["eligibility"] == "BITWISE":
         for native_key, wrapper_key in (
             ("native_tensor_sha256s", "wrapper_tensor_sha256"),
@@ -582,10 +694,7 @@ def validate_replay_report(report: Mapping[str, Any]) -> None:
             comparison = report[section]
             if comparison["tensor_hash_equal"] is not True:
                 raise ProtocolError("BITWISE requires matching tensor hashes")
-            if any(float(comparison[key]) != 0.0 for key in (
-                "max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta",
-                "measurement_loss_delta", "trace_max_abs_err",
-            )):
+            if any(float(comparison[key]) != 0.0 for key in REPLAY_NUMERIC_METRICS):
                 raise ProtocolError("BITWISE requires zero declared tensor and trace deltas")
 
 

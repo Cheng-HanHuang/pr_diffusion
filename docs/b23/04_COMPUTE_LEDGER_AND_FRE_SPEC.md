@@ -64,6 +64,14 @@ and evidence hashes. It rejects supplied values that differ from the recomputati
 reconciles optimizer totals by type, RNG totals by unique named stream, branch/candidate identities,
 timing, memory, and overhead. `claim_FRE` is never a cheaper choice between work and time.
 
+Schema `b23.compute-ledger.v2` also fails closed on calibrated timing. If a calibrated ledger has
+any nonzero atomic counter or coupled-operation count, its GPU-active seconds and wall seconds must
+both be finite and strictly positive, and `timer_method` must identify a real measurement method.
+`NOT_RUN`, `UNKNOWN`, `UNAVAILABLE`, `TBD`, `N/A`, and equivalent placeholder spellings are invalid
+for executed calibrated work. In particular, a ledger with a nonzero denoiser count,
+`gpu_active_seconds=0`, and `timer_method=NOT_RUN` is rejected even if its supplied FRE fields are
+otherwise arithmetically self-consistent.
+
 ## Gates
 
 - B1: hard per-image work-FRE `<=1.10`, paired median time-FRE `<=1.10`, q90 time-FRE `<=1.20`,
@@ -79,4 +87,5 @@ cost points remain separately labeled and cannot support H1/H2.
 
 The uncalibrated example has full zero-valued raw fields, null FRE values, no atomic weights, and
 status `UNCALIBRATED`. Unit tests validate arithmetic on synthetic measured weights without freezing
-those test numbers as scientific weights.
+those test numbers as scientific weights. The uncalibrated, all-zero example may retain
+`timer_method=NOT_RUN` because it records no executed work and makes no calibrated claim.

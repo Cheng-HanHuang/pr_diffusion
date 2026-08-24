@@ -43,3 +43,19 @@ collection. Packaging and publication must stop if any row is absent or nonzero.
 - Scope: B23.0 correction only. GPU work, B23.1, registry population, B23.2, Track B, and Track C
   remain unauthorized.
 - GPU work performed for this planner review/correction: no.
+
+## Planner contract-closeout revision at reviewed head `718998098cde1d8051e29e8d50d1285a04ca6ee9`
+
+- Planner verdict: `REVISE_BEFORE_SIGN_OFF`.
+- Accepted and preserved: correct ancestry/draft PR state, pre-run commit `4cf026d8`, evidence commit
+  `241551d9`, zero-GPU 62/62 PAC tests, capsule `20260811T031927Z`, exposure/source/schema/compute
+  corrections, and all earlier correction history.
+- Required bounded closeout: tolerance-qualified replay must identify a pre-wrapper frozen envelope
+  and per-metric numerical floors, mechanically remain inside envelope plus floor, and carry a
+  complete or justified-unavailable deterministic audit; executed calibrated work must have
+  strictly positive GPU-active/wall timing and a non-placeholder timer method; negative tests must
+  reject the supplied out-of-envelope and zero-GPU/`NOT_RUN` counterexamples.
+- No numerical tolerance or calibration result may be invented in B23.0.
+- Scope: B23.0 contract closeout only. GPU work, B23.1, registry population, B23.2, large panels,
+  Track B, and Track C remain unauthorized.
+- GPU work performed for this planner review/correction: no.

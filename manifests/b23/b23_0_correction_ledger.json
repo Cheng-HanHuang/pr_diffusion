@@ -49,6 +49,30 @@
       ],
       "gpu_work_performed": false,
       "disposition": "B23_0_CORRECTION_AUTHORIZED_B23_1_NOT_AUTHORIZED"
+    },
+    {
+      "entry_id": "planner_revise_before_sign_off_71899809",
+      "reviewed_head": "718998098cde1d8051e29e8d50d1285a04ca6ee9",
+      "classification": "PLANNER_REVISE_BEFORE_SIGN_OFF",
+      "accepted_evidence": [
+        "correct branch ancestry and draft PR 37 state",
+        "pre-run commit 4cf026d834650b90a1bfc6b8951a69500d190b21",
+        "evidence commit 241551d92c8402521dc970947b54a10b4b0a726a",
+        "zero-GPU PAC execution with 62 of 62 tests passing",
+        "capsule B23_0_return_20260811T031927Z and SHA-256 f18219334ca8313b5445847e9caf37787f6c43358b71dcde13f0f19a26e8a1a4",
+        "prior exposure source schema compute corrections and preserved correction history"
+      ],
+      "required_corrections": [
+        "pre-wrapper frozen-tolerance identity and per-metric numerical floors",
+        "mechanical wrapper envelope-plus-floor acceptance",
+        "complete or justified-unavailable deterministic-flag audit",
+        "strictly positive executed calibrated GPU-active and wall timing",
+        "non-placeholder timer method for executed calibrated work",
+        "negative rejection tests for supplied replay and timing counterexamples"
+      ],
+      "numerical_tolerances_invented_in_b23_0": false,
+      "gpu_work_performed": false,
+      "disposition": "B23_0_CONTRACT_CLOSEOUT_AUTHORIZED_B23_1_NOT_AUTHORIZED"
     }
   ],
   "replacement_requirements": {

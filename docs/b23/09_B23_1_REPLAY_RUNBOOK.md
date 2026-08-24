@@ -16,7 +16,8 @@ placeholders in command templates.
 - immutable parent configs and exact worktree/source/model/environment hashes;
 - derived measurement, parent, module, and adapter RNG seeds;
 - expected raw operation counts and terminal candidates;
-- native-repeat count, deterministic-flag audit, and replay comparison fields;
+- native-repeat count, complete-or-justified-unavailable deterministic-flag audit, pre-wrapper
+  tolerance-freeze record identity, per-metric numerical floors, and replay comparison fields;
 - atomic microbenchmark plan and maximum authorized GPU budget;
 - exact commands, output roots, refusal-to-overwrite behavior, and stop rules;
 - pushed pre-run commit before a GPU is reached.
@@ -26,7 +27,8 @@ placeholders in command templates.
 For Fresh1, LF-v1, NP-1, then SITCOM-1:
 
 1. run unchanged native repeats on the one-image smoke row;
-2. freeze bitwise eligibility or tolerance envelope;
+2. freeze bitwise eligibility or write and hash the tolerance envelope/floor record before any
+   wrapper run;
 3. run the trace wrapper;
 4. reconcile intermediate tensors, final metrics, exact operation counts, and every named RNG draw;
 5. test serialization/resume only at a valid native boundary;

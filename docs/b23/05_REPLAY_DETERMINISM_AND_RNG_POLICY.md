@@ -14,7 +14,8 @@ For each parent in B23.1:
 2. record output hashes, intermediate traces, scalar metrics, raw operation counts, and RNG ledgers;
 3. determine bitwise eligibility from the native repeats;
 4. if needed, freeze native max/mean absolute error, relative L2 error, trace deltas, raw-PSNR delta,
-   and measurement-loss delta plus a declared dtype/scale numerical floor;
+   and measurement-loss delta plus one declared dtype/scale numerical floor per metric in an
+   immutable freeze record whose SHA-256 identity excludes any wrapper run;
 5. only then run the wrapper on the same row;
 6. require wrapper error inside the frozen envelope and exact operation/RNG reconciliation.
 
@@ -24,6 +25,19 @@ non-null wrapper run, complete finite native-envelope and wrapper-comparison val
 evidence hashes that reconcile exactly, exact operation/RNG reconciliation, and serialization
 `PASS` or a documented `NOT_APPLICABLE`. Merely setting reconciliation booleans is insufficient.
 `BITWISE` additionally requires matching tensor hashes and zero tensor, scalar, and trace deltas.
+
+For `TOLERANCE_QUALIFIED`, the report uses schema `b23.replay-report.v3` and must name the SHA-256
+of the pre-wrapper freeze record, reproduce the exact native-run IDs frozen there, assert that the
+wrapper run was absent at freeze time, and declare a finite nonnegative floor for each of the six
+numeric comparison metrics. The validator mechanically requires
+
+```text
+abs(wrapper metric) <= abs(frozen native envelope metric) + declared numerical floor
+```
+
+for every metric. A missing freeze identity, incomplete floor map, or any arbitrarily large
+out-of-envelope wrapper value is a hard failure. B23.0 defines and tests this rule with synthetic
+values only; it does not invent or freeze any scientific tolerance.
 
 ## Deterministic-flag audit
 
@@ -36,6 +50,11 @@ Record current and tested settings for:
 
 Do not force a flag when it changes the frozen parent or makes its native path invalid. Report that
 effect and retain the native algorithm.
+
+A replay report must mark this audit either `COMPLETE` or `JUSTIFIED_UNAVAILABLE`. `COMPLETE`
+requires non-null values for every audited flag; an audited but unset `CUBLAS_WORKSPACE_CONFIG` is
+recorded explicitly as `UNSET`. `JUSTIFIED_UNAVAILABLE` requires a non-empty reason. A partial audit
+cannot support a replay `PASS` merely because the reconciliation booleans are true.
 
 ## Named RNG streams
 
@@ -69,6 +88,7 @@ parent exposes no sound boundary, report `NOT_APPLICABLE`; do not manufacture on
 
 ## Stops
 
-Hidden retry/candidate randomness, counter drift, serialization mismatch, wrapper error outside the
-native envelope, NaN, or nontermination is a replay failure. Preserve the failure and stop; do not
-change a seed or parent to obtain a pass.
+Hidden retry/candidate randomness, counter drift, serialization mismatch, missing pre-wrapper
+tolerance-freeze identity, incomplete deterministic-flag audit, wrapper error outside the frozen
+native envelope plus its declared numerical floor, NaN, or nontermination is a replay failure.
+Preserve the failure and stop; do not change a seed or parent to obtain a pass.

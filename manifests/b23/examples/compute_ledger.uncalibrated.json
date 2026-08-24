@@ -1,5 +1,5 @@
 {
-  "schema_version": "b23.compute-ledger.v1",
+  "schema_version": "b23.compute-ledger.v2",
   "experiment_id": "B23_0_SCHEMA_EXAMPLE",
   "image_id": "SYNTHETIC",
   "measurement_id": "SYNTHETIC",

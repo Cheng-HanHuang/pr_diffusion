@@ -646,8 +646,8 @@ def main() -> int:
         ),
         "7_parent_semantics": "FOUR_NATIVE_PARENTS_FROZEN",
         "8_typed_api": "NATIVE_STATE_MODULE_ADAPTER_CONTRACT_VALIDATED",
-        "9_compute_and_fre": "RAW_LEDGER_AND_FORMULAS_VALIDATED; NUMERIC_WEIGHTS_INTENTIONALLY_UNMEASURED",
-        "10_replay_and_rng": "PROCEDURE_AND_NAMED_STREAM_DERIVATION_VALIDATED; GPU_REPLAY_NOT_RUN",
+        "9_compute_and_fre": "RAW_LEDGER_FRE_AND_CALIBRATED_TIMING_CONTRACT_VALIDATED; ZERO_TIME_NOT_RUN_COUNTEREXAMPLE_REJECTED; NUMERIC_WEIGHTS_INTENTIONALLY_UNMEASURED",
+        "10_replay_and_rng": "PRE_WRAPPER_TOLERANCE_FREEZE_FLOOR_AND_DETERMINISM_CONTRACT_VALIDATED; OUT_OF_ENVELOPE_COUNTEREXAMPLE_REJECTED; GPU_REPLAY_NOT_RUN",
         "11_b23_1_smoke_manifests": "ONE_IMAGE_AND_FOUR_IMAGE_TEMPLATES_EMPTY_AS_REQUIRED",
         "12_b23_1_dry_run_commands": "TEMPLATES_RENDERED; ZERO_EXECUTABLE_GPU_COMMANDS",
         "13_recommendation": "AUTHORIZE_B23_1_AFTER_PLANNER_SIGNOFF" if not failures else "REVISE_B23_0",
@@ -690,6 +690,13 @@ files are hashed; any unresolved importable source is a hard stop.
 
 Numeric atomic-operation weights are intentionally absent: B23.1 microbenchmarks must measure and
 freeze them before any hybrid execution. B23.1 and B23.2 remain unauthorized.
+
+Replay schema `b23.replay-report.v3` requires a pre-wrapper tolerance-freeze SHA-256 identity, the
+exact frozen native-run set, one declared numerical floor per numeric comparison, mechanical
+envelope-plus-floor acceptance, and a complete or explicitly justified-unavailable deterministic
+audit. Compute schema `b23.compute-ledger.v2` rejects executed calibrated atomic/coupled work with
+nonpositive GPU-active or wall time or a placeholder timer method. The B23.0 tests use synthetic
+values only: no numerical tolerance, atomic weight, or calibration result is scientifically frozen.
 
 The fail-closed wrapper records the repository tests, contract validator, dry renderer, and PAC
 collector in `ZERO_GPU_STEP_RESULTS.tsv`. The evidence publisher independently requires all four

@@ -22,6 +22,17 @@ SHA_A = "a" * 64
 SHA_B = "b" * 64
 
 
+def numerical_floors(value: float = 0.0) -> dict[str, float]:
+    return {
+        "max_abs_err": value,
+        "mean_abs_err": value,
+        "relative_l2_err": value,
+        "raw_psnr_delta": value,
+        "measurement_loss_delta": value,
+        "trace_max_abs_err": value,
+    }
+
+
 def replay_pass() -> dict:
     comparison = {
         "max_abs_err": 0.1,
@@ -33,7 +44,7 @@ def replay_pass() -> dict:
         "tensor_hash_equal": False,
     }
     return {
-        "schema_version": "b23.replay-report.v2",
+        "schema_version": "b23.replay-report.v3",
         "experiment_id": "test",
         "parent_id": "Fresh1",
         "native_run_ids": ["n1", "n2", "n3"],
@@ -41,12 +52,21 @@ def replay_pass() -> dict:
         "eligibility": "TOLERANCE_QUALIFIED",
         "eligibility_rationale": "three native runs established a finite envelope",
         "determinism_audit": {
+            "audit_status": "COMPLETE",
+            "unavailable_reason": None,
             "torch_deterministic_algorithms": False,
             "cudnn_deterministic": False,
             "cudnn_benchmark": True,
-            "cublas_workspace_config": None,
+            "cublas_workspace_config": "UNSET",
             "flags_change_native_parent": False,
             "notes": [],
+        },
+        "tolerance_qualification": {
+            "freeze_record_sha256": SHA_A,
+            "frozen_before_wrapper": True,
+            "wrapper_run_id_at_freeze": None,
+            "frozen_native_run_ids": ["n1", "n2", "n3"],
+            "numerical_floors": numerical_floors(0.0),
         },
         "native_repeatability_envelope": copy.deepcopy(comparison),
         "wrapper_comparison": copy.deepcopy(comparison),
@@ -72,7 +92,7 @@ def calibrated_ledger() -> dict:
     counts["denoiser_forward"] = 2
     reference_counts = dict(counts)
     return {
-        "schema_version": "b23.compute-ledger.v1",
+        "schema_version": "b23.compute-ledger.v2",
         "experiment_id": "test",
         "image_id": "70000",
         "measurement_id": "meas-new",
@@ -125,6 +145,12 @@ class ReplayNegativeTests(unittest.TestCase):
     def test_valid_evidence_derived_pass(self) -> None:
         validate_replay_report(replay_pass())
 
+    def test_declared_floor_can_cover_small_wrapper_excess(self) -> None:
+        value = replay_pass()
+        value["wrapper_comparison"]["max_abs_err"] = 0.100001
+        value["tolerance_qualification"]["numerical_floors"]["max_abs_err"] = 0.000001
+        validate_replay_report(value)
+
     def test_two_native_runs_rejected(self) -> None:
         self.assertRejected(lambda x: x.update(native_run_ids=["n1", "n2"]))
 
@@ -149,6 +175,7 @@ class ReplayNegativeTests(unittest.TestCase):
     def test_bitwise_nonzero_delta_rejected(self) -> None:
         def mutate(value):
             value["eligibility"] = "BITWISE"
+            value["tolerance_qualification"] = None
             value["wrapper_tensor_sha256"] = SHA_A
             value["wrapper_trace_sha256"] = SHA_A
             for section in ("native_repeatability_envelope", "wrapper_comparison"):
@@ -159,11 +186,40 @@ class ReplayNegativeTests(unittest.TestCase):
             value["wrapper_comparison"]["trace_max_abs_err"] = 1e-9
         self.assertRejected(mutate)
 
+    def test_valid_bitwise_requirements_preserved(self) -> None:
+        value = replay_pass()
+        value["eligibility"] = "BITWISE"
+        value["tolerance_qualification"] = None
+        value["wrapper_tensor_sha256"] = SHA_A
+        value["wrapper_trace_sha256"] = SHA_A
+        for section in ("native_repeatability_envelope", "wrapper_comparison"):
+            value[section]["tensor_hash_equal"] = True
+            for key in numerical_floors():
+                value[section][key] = 0.0
+        validate_replay_report(value)
+
     def test_not_run_cannot_be_tolerance_qualified(self) -> None:
         value = replay_pass()
         value["verdict"] = "NOT_RUN"
         with self.assertRaises(ProtocolError):
             validate_replay_report(value)
+
+    def test_out_of_frozen_envelope_rejected(self) -> None:
+        def mutate(value):
+            value["wrapper_comparison"]["raw_psnr_delta"] = 1.0e30
+        self.assertRejected(mutate)
+
+    def test_missing_tolerance_freeze_identity_rejected(self) -> None:
+        self.assertRejected(
+            lambda x: x["tolerance_qualification"].update(
+                freeze_record_sha256=None
+            )
+        )
+
+    def test_incomplete_pass_determinism_audit_rejected(self) -> None:
+        self.assertRejected(
+            lambda x: x["determinism_audit"].update(cudnn_benchmark=None)
+        )
 
 
 class ComputeNegativeTests(unittest.TestCase):
@@ -197,6 +253,21 @@ class ComputeNegativeTests(unittest.TestCase):
 
     def test_nonfinite_timing_rejected(self) -> None:
         self.assertRejected(lambda x: x["timing"].update(wall_seconds=math.inf))
+
+    def test_executed_calibrated_work_rejects_not_run_zero_gpu_timing(self) -> None:
+        def mutate(value):
+            value["timing"].update(
+                gpu_active_seconds=0.0,
+                wall_seconds=2.5,
+                timer_method="NOT_RUN",
+            )
+            value["fre"].update(time_FRE=0.0, claim_FRE=1.0)
+        self.assertRejected(mutate)
+
+    def test_executed_calibrated_work_rejects_placeholder_timer(self) -> None:
+        self.assertRejected(
+            lambda x: x["timing"].update(timer_method="NOT_RUN")
+        )
 
     def test_memory_consistency_rejected(self) -> None:
         self.assertRejected(lambda x: x["memory_bytes"].update(peak_allocated=21))

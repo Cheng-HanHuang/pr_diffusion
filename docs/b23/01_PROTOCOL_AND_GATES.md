@@ -49,8 +49,11 @@ checkout and `b19_solver_integration` are read-only evidence.
 9. Four distinct native state types are retained; no universal tensor semantics are assumed.
 10. Raw compute, RNG, branch, candidate, memory, and timing ledgers validate.
 11. FRE arithmetic tests pass, while numeric atomic weights remain absent until measured.
-12. Replay schemas, deterministic-flag audit, seed vectors, and CPU serialization tests pass.
-13. Dry rendering emits zero executable GPU commands and all B23.1/B23.2 authorization flags are false.
+12. Replay schemas, complete-or-justified-unavailable deterministic-flag audit, pre-wrapper
+    tolerance-freeze identity/floors, envelope-bound negative tests, seed vectors, and CPU
+    serialization tests pass.
+13. Executed calibrated work has positive GPU-active/wall timing and a non-placeholder timer method.
+14. Dry rendering emits zero executable GPU commands and all B23.1/B23.2 authorization flags are false.
 
 Every item appears in the B23.0 `GATE_DECISION.json` and final `PLANNER_RETURN`.
 
@@ -64,6 +67,9 @@ Stop and preserve the partial capsule if any of these occurs:
 - a proposed new split cannot be proven disjoint from pre-B23 exposure;
 - a B23.0 subprocess initializes CUDA or reaches a GPU;
 - an operation, RNG draw, retry, branch, or terminal candidate would be hidden;
+- a tolerance-qualified wrapper lacks a pre-wrapper freeze identity, exceeds any frozen envelope
+  plus floor, or has an incomplete and unjustified deterministic-flag audit;
+- executed calibrated work reports zero GPU-active/wall time or a placeholder timer method;
 - a schema/config/manifest/test is incomplete, duplicated, corrupt, or non-finite;
 - progress would require a schedule candidate or scientific amendment.
 
