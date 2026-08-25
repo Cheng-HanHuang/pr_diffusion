@@ -47,6 +47,15 @@
       "completed_parent_trajectories": 1,
       "cause": "Pinned DAPS data.py consumes one torch.randn_like setup call in DiffusionData.get_data even with sigma=0, so the complete process count is 40402 rather than 40401.",
       "resolution": "Recover the exact hash-frozen completed trajectory with CUDA hidden and execute only the remaining 31 trajectories."
+    },
+    {
+      "id": "return_capsule_completeness_revision_20260825T051021Z",
+      "affected_archive_sha256": "5283300b77a6bca1b9c14b158724d5fe24eb8aed27390bf1db4c8608b7287ae8",
+      "scientific_execution_status": "PASS",
+      "gpu_work_performed": false,
+      "parent_trajectories_performed": 0,
+      "cause": "The first return packager copied only JSON under the current run root, omitting FINAL_STATUS.tsv and support JSON retained under the recovered Fresh1 source root.",
+      "resolution": "Preserve the original return, transport the final prerequisite ledger and recovered timing/trace/input evidence, re-hash the external raw trajectory with CUDA hidden, and repackage without executing any parent."
     }
   ],
   "registry": {

@@ -91,6 +91,23 @@
         "total_process_rng_calls": 40402
       },
       "resolution": "Freeze all returned identities, recover the exact completed trajectory with CUDA hidden, re-derive all 1200 compact tensor hashes from the raw trajectory on CPU, and execute only the remaining 31 trajectories so the cumulative authorized maximum remains 32."
+    },
+    {
+      "id": "return_capsule_completeness_revision_20260825T051021Z",
+      "affected_archive": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_return_20260825T051021Z.tar.gz",
+      "affected_archive_sha256": "5283300b77a6bca1b9c14b158724d5fe24eb8aed27390bf1db4c8608b7287ae8",
+      "scientific_execution_status": "PASS",
+      "transport_status": "REVISE_CAPSULE_BEFORE_SIGNOFF",
+      "gpu_work_performed": false,
+      "parent_trajectories_performed": 0,
+      "omissions": [
+        "run/FINAL_STATUS.tsv",
+        "run/replay/fresh1/native_0/cuda_timing.json",
+        "run/replay/fresh1/native_0/native_trace.json",
+        "run/replay/fresh1/native_0/input/input_manifest.json"
+      ],
+      "cause": "The first return packager copied only JSON beneath the current run root. FINAL_STATUS.tsv is non-JSON, and the accepted Fresh1 native_0 evidence was retained beneath its frozen recovery source.",
+      "resolution": "Preserve the original archive, copy and hash the omitted bounded evidence, re-hash the external 943 MB raw trajectory on CPU, and create a new timestamped capsule without launching any GPU or parent process."
     }
   ]
 }

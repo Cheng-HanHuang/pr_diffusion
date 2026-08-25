@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import importlib.util
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -170,6 +172,42 @@ class B231PrerunTests(unittest.TestCase):
         self.assertIn("replay_fresh1_native_0_recovered", text)
         self.assertIn('if [[ "$repeat" -eq 0 && "$parent" == "Fresh1" ]]', text)
         self.assertNotIn('--output-root "$RUN_ROOT/inputs"', text)
+
+    def test_packager_requires_complete_pass_status(self) -> None:
+        path = REPO / "scripts/b23/package_b23_1_return.py"
+        spec = importlib.util.spec_from_file_location("b23_package", path)
+        self.assertIsNotNone(spec)
+        self.assertIsNotNone(spec.loader)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory() as directory:
+            status = Path(directory) / "FINAL_STATUS.tsv"
+            status.write_text(
+                "step\tstatus\trc\n"
+                + "".join(f"{step}\tPASS\t0\n" for step in module.EXPECTED_FINAL_STEPS),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                len(module.validate_final_status(status)),
+                len(module.EXPECTED_FINAL_STEPS),
+            )
+            status.write_text(
+                status.read_text(encoding="utf-8").replace(
+                    "donor_classification\tPASS\t0",
+                    "donor_classification\tFAIL\t1",
+                ),
+                encoding="utf-8",
+            )
+            with self.assertRaises(ValueError):
+                module.validate_final_status(status)
+
+    def test_packager_transports_recovered_support_evidence(self) -> None:
+        source = (REPO / "scripts/b23/package_b23_1_return.py").read_text()
+        self.assertIn('"input/input_manifest.json": expected["input_manifest_sha256"]', source)
+        self.assertIn('"cuda_timing.json": expected["timing_sha256"]', source)
+        self.assertIn('"native_trace.json": expected["trace_sha256"]', source)
+        self.assertIn('copy(run_root / "FINAL_STATUS.tsv"', source)
+        self.assertIn('"gpu_work_performed_during_packaging": False', source)
 
 
 if __name__ == "__main__":

@@ -57,6 +57,12 @@ trace, input-manifest, terminal-sample hashes, and 943,734,389-byte raw trajecto
 the execution config and append-only correction ledger. Recovery additionally recomputes all 1,200
 recorded tensor hashes from the raw trajectory on CPU before accepting it.
 
+The return capsule must transport `FINAL_STATUS.tsv` and the recovered run's timing, compact trace,
+input manifest, and available frozen runtime config/log. The 943 MB raw trajectory remains on PAC,
+but the packager re-hashes it and records its path, size, and digest in
+`RECOVERY_ARTIFACT_INDEX.json`. Repackaging an already-completed run is evidence-only, uses CUDA
+hidden, and must not launch any parent trajectory.
+
 ## Required pre-run freeze after authorization
 
 - signed one-image and four-image registries, disjoint from `PRE_B23_EXPOSURE.csv`;
