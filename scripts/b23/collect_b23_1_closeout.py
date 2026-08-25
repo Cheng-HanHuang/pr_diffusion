@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import shutil
+import tarfile
 from collections import Counter
 from pathlib import Path
 
@@ -74,6 +75,39 @@ def validate_internal_checksums(source: Path) -> int:
     if seen != actual:
         raise ValueError(f"source checksum coverage mismatch: missing={sorted(actual-seen)} extra={sorted(seen-actual)}")
     return len(rows)
+
+
+def validate_source_archive(source: Path, archive: Path) -> int:
+    observed: set[str] = set()
+    with tarfile.open(archive, "r:gz") as handle:
+        members = handle.getmembers()
+        for member in members:
+            path = Path(member.name)
+            if path.is_absolute() or ".." in path.parts or member.issym() or member.islnk():
+                raise ValueError(f"unsafe accepted archive member: {member.name}")
+            if path.parts[0] != source.name:
+                raise ValueError(f"accepted archive root changed: {member.name}")
+            if member.isdir():
+                continue
+            if not member.isfile():
+                raise ValueError(f"unsupported accepted archive member: {member.name}")
+            relative = Path(*path.parts[1:]).as_posix()
+            if not relative or relative in observed:
+                raise ValueError(f"duplicate or empty accepted archive path: {member.name}")
+            extracted = source / relative
+            stream = handle.extractfile(member)
+            if stream is None or not extracted.is_file() or extracted.is_symlink():
+                raise ValueError(f"accepted archive member is absent from extracted source: {relative}")
+            digest = hashlib.sha256()
+            for block in iter(lambda: stream.read(1024 * 1024), b""):
+                digest.update(block)
+            if digest.hexdigest() != sha256_file(extracted) or member.size != extracted.stat().st_size:
+                raise ValueError(f"accepted archive/extracted-source mismatch: {relative}")
+            observed.add(relative)
+    extracted_files = {path.relative_to(source).as_posix() for path in source.rglob("*") if path.is_file()}
+    if observed != extracted_files:
+        raise ValueError("accepted archive and extracted source have different file sets")
+    return len(observed)
 
 
 def validate_final_status(path: Path) -> int:
@@ -248,6 +282,7 @@ def main() -> int:
     packaging = read_json(source / "PACKAGING_IDENTITY.json")
     if packaging.get("execution_acceptance_repo_head") != SCIENTIFIC_HEAD or packaging.get("packaging_repository", {}).get("head") != PACKAGING_HEAD:
         raise ValueError("reviewed scientific or packaging head changed")
+    archive_member_count = validate_source_archive(source, archive)
     checksum_count = validate_internal_checksums(source)
     status_count = validate_final_status(source / "run/FINAL_STATUS.tsv")
     run_summary, records = summarize_runs(source)
@@ -270,6 +305,7 @@ def main() -> int:
         "reviewed_scientific_head": SCIENTIFIC_HEAD, "reviewed_packaging_head": PACKAGING_HEAD,
         "closeout_pre_run_commit": args.pre_run_head, "source_capsule": source.name,
         "source_archive_path": str(archive), "source_archive_sha256": SOURCE_ARCHIVE_SHA256,
+        "source_archive_regular_members_verified": archive_member_count,
         "source_internal_checksums_verified": checksum_count, "scientific_final_steps_verified": status_count,
         "gpu_work_performed_during_scientific_execution": True,
         "gpu_work_performed_during_evidence_closeout": False,

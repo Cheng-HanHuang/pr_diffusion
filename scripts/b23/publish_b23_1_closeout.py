@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import shutil
 import subprocess
@@ -14,6 +15,14 @@ from pathlib import Path
 
 BRANCH = "codex/b23-execution"
 STEPS = ("unit_tests", "repository_validation", "accepted_evidence_validation")
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def git(repo: Path, *args: str) -> str:
@@ -53,6 +62,11 @@ def main() -> int:
     repo, capsule = args.repo.resolve(), args.capsule.resolve()
     archive = capsule.with_suffix(".tar.gz")
     sidecar = Path(str(archive) + ".sha256")
+    if not archive.is_file() or not sidecar.is_file():
+        raise ValueError("compact archive and SHA-256 sidecar are both required")
+    sidecar_fields = sidecar.read_text(encoding="utf-8").strip().split()
+    if sidecar_fields != [sha256_file(archive), archive.name]:
+        raise ValueError("compact archive SHA-256 sidecar mismatch")
     validate_steps(capsule / "ZERO_GPU_STEP_RESULTS.tsv")
     validate_archive(archive)
     decision = json.loads((capsule / "GATE_DECISION.json").read_text(encoding="utf-8"))
