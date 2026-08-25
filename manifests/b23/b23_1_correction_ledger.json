@@ -1,0 +1,113 @@
+{
+  "schema_version": "b23.b23-1-correction-ledger.v1",
+  "append_only": true,
+  "entries": [
+    {
+      "id": "preflight_exposure_digest_stop_20260825T012447Z",
+      "invalidated_pre_run_head": "6e3e08eba2621f903bd33cd8d818442a34158318",
+      "bootstrap_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/bootstrap/B23_1A_B_20260825T012447Z.log",
+      "failed_step_log_name": "prerun_validate.log",
+      "failed_step_log_location": "Retained on PAC under the failed B23_1_run_<runner timestamp>/logs directory; the exact run-root path was not included in the returned terminal excerpt.",
+      "stopped_step": "prerun_validate",
+      "gpu_work_performed": false,
+      "input_generation_performed": false,
+      "parent_trajectory_count": 0,
+      "observed_error": "PRE_B23_EXPOSURE identity changed after smoke selection",
+      "cause": "The signed rows referenced the pre-closeout byte identity c6cc3b13a3d5dd0f6ba251e20242e684a2df0d205998cc0372d17bb3cbd33862 instead of the accepted B23.0 closeout manifest identity a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288.",
+      "selection_revalidation": {
+        "exposed_image_count": 328,
+        "selected_image_intersection": [],
+        "replay_image": "65082",
+        "smoke_images": ["61492", "62959", "66821", "68142"],
+        "selection_changed": false
+      },
+      "resolution": "Freeze the accepted closeout manifest digest in the execution config and all three signed registries; preserve every image, measurement ID, and seed."
+    },
+    {
+      "id": "fresh1_native_seed_range_stop_20260825T015257Z",
+      "invalidated_pre_run_head": "5f937c26ab67783ff810b51070bf34cb8a9b3a07",
+      "bootstrap_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/bootstrap/B23_1A_B_corrected_20260825T015256Z.log",
+      "failed_step_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/replay/fresh1/native_0/parent.log",
+      "failed_timing_record": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/replay/fresh1/native_0/cuda_timing.json",
+      "stopped_step": "replay_fresh1_native_0",
+      "gpu_work_performed": true,
+      "completed_measurement_generations": 5,
+      "completed_parent_trajectories": 0,
+      "failed_parent": "Fresh1",
+      "failed_mode": "native",
+      "failed_repeat_index": 0,
+      "canonical_parent_seed": 92870567330106893,
+      "invalid_native_seed": 92870567330106893,
+      "corrected_native_entrypoint_seed": 4157394445,
+      "observed_error": "ValueError: Seed must be between 0 and 2**32 - 1",
+      "runtime_before_stop": {
+        "gpu_active_seconds": 138.752390625,
+        "wall_seconds": 139.3135333955288,
+        "denoiser_calls": 0,
+        "rng_calls": 0,
+        "parent_trajectory_completed": false
+      },
+      "resolution": "Preserve the canonical 63-bit seed, pass canonical_parent_seed modulo 2**32 to every legacy native entrypoint, record both identities, reject adapted collisions, and reuse rather than regenerate the five validated inputs."
+    },
+    {
+      "id": "fresh1_rng_setup_audit_stop_20260825T025410Z",
+      "invalidated_pre_run_head": "45c6b6107e2bf2b100eac6b771ea0d1004f19a20",
+      "bootstrap_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/bootstrap/B23_1A_B_seedfix_20260825T025409Z.log",
+      "failed_step_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/logs/replay_fresh1_native_0.log",
+      "native_parent_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0/parent.log",
+      "timing_record": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0/cuda_timing.json",
+      "recoverable_partial_run": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0",
+      "stopped_step": "replay_fresh1_native_0_post_run_rng_audit",
+      "gpu_work_performed": true,
+      "completed_measurement_generations": 0,
+      "completed_parent_trajectories": 1,
+      "failed_parent": "Fresh1",
+      "failed_mode": "native",
+      "failed_repeat_index": 0,
+      "observed_error": "Fresh1 runtime RNG-call mismatch: observed=40402 expected=40401",
+      "runtime": {
+        "gpu_active_seconds": 674.6646875,
+        "wall_seconds": 675.0885044969618,
+        "timer_method": "CUDA_EVENTS_SYNCHRONIZED_PLUS_PERF_COUNTER",
+        "torch_randn_calls": 1,
+        "torch_randn_like_calls": 40401,
+        "trace_step_count": 400,
+        "terminal_samples": 1,
+        "raw_trajectory_bytes": 943734389
+      },
+      "returned_identities": {
+        "input_manifest_sha256": "2d465eab05c6d52b9c04c26f2ada8cdc8bdaab3ab4a4ef9f1abc5bc4c4e1d578",
+        "timing_sha256": "eeed137b90518470360e1dda5d069da0592efc3771c4a1dc389373ab93ba5552",
+        "trace_sha256": "63cc0bfe297f5f0645edb45eb0d5bed7a6d96004f1c4f95158e9332f719fc3a7",
+        "terminal_sample_sha256": "10e7e26ba06e3b2348d82284910e52ebcd8f2587d2a5af24a835082c3bc4df28"
+      },
+      "cause": "The pinned DAPS DiffusionData.get_data implementation executes torch.randn_like(data) * sigma even when sigma=0. The process-wide counter therefore includes one deterministic-effect-free but RNG-state-advancing dataset setup call in addition to the 40401 stochastic trajectory calls.",
+      "corrected_formula": {
+        "dataset_zero_sigma_setup_rng_calls": 1,
+        "native_start_rng_calls": 1,
+        "mcmc_rng_calls": 40000,
+        "forward_renoising_rng_calls": 400,
+        "stochastic_trajectory_rng_calls": 40401,
+        "total_process_rng_calls": 40402
+      },
+      "resolution": "Freeze all returned identities, recover the exact completed trajectory with CUDA hidden, re-derive all 1200 compact tensor hashes from the raw trajectory on CPU, and execute only the remaining 31 trajectories so the cumulative authorized maximum remains 32."
+    },
+    {
+      "id": "return_capsule_completeness_revision_20260825T051021Z",
+      "affected_archive": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_return_20260825T051021Z.tar.gz",
+      "affected_archive_sha256": "5283300b77a6bca1b9c14b158724d5fe24eb8aed27390bf1db4c8608b7287ae8",
+      "scientific_execution_status": "PASS",
+      "transport_status": "REVISE_CAPSULE_BEFORE_SIGNOFF",
+      "gpu_work_performed": false,
+      "parent_trajectories_performed": 0,
+      "omissions": [
+        "run/FINAL_STATUS.tsv",
+        "run/replay/fresh1/native_0/cuda_timing.json",
+        "run/replay/fresh1/native_0/native_trace.json",
+        "run/replay/fresh1/native_0/input/input_manifest.json"
+      ],
+      "cause": "The first return packager copied only JSON beneath the current run root. FINAL_STATUS.tsv is non-JSON, and the accepted Fresh1 native_0 evidence was retained beneath its frozen recovery source.",
+      "resolution": "Preserve the original archive, copy and hash the omitted bounded evidence, re-hash the external 943 MB raw trajectory on CPU, and create a new timestamped capsule without launching any GPU or parent process."
+    }
+  ]
+}

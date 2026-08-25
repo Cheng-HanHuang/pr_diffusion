@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cheng-HanHuang/pr_diffusion/schemas/b23/future_split_registry.schema.json",
+  "title": "B23 future split registry",
+  "x-b23-split-minimum-size": {
+    "DEV-SCREEN": 600,
+    "DEV-MECH": 60,
+    "DEV-NATURAL": 120,
+    "CAL-B2": 150,
+    "TEST-AUDIT": 250,
+    "TEST-PROSPECTIVE": 150,
+    "B23.1-SMOKE-1": 1,
+    "B23.1-SMOKE-4": 4
+  },
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["registry_version", "split", "row_id", "image_id", "measurement_id", "measurement_seed", "solver_base_seed", "assigned_before_run", "pre_b23_exposure_checked", "source_manifest_sha256"],
+    "properties": {
+      "registry_version": {"const": "b23.future-split.v1"},
+      "split": {"enum": ["DEV-SCREEN", "DEV-MECH", "DEV-NATURAL", "CAL-B2", "TEST-AUDIT", "TEST-PROSPECTIVE", "B23.1-SMOKE-1", "B23.1-SMOKE-4"]},
+      "row_id": {"type": "integer", "minimum": 0},
+      "image_id": {"type": "string", "pattern": "^[0-9]{5}$"},
+      "measurement_id": {"type": "string", "minLength": 1},
+      "measurement_seed": {"type": "integer", "minimum": 0},
+      "solver_base_seed": {"type": "integer", "minimum": 0},
+      "assigned_before_run": {"const": true},
+      "pre_b23_exposure_checked": {"const": true},
+      "source_manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      "notes": {"type": "string"}
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "b23.parent-freeze.v1",
+  "parent_id": "Fresh1",
+  "status": "FROZEN_NATIVE_PARENT_B23_0",
+  "native_family": "DAPS",
+  "source": {
+    "entrypoint": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps/posterior_sample.py",
+    "sampler": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps/sampler.py",
+    "upstream_commit": "e7a77d094167084faed19b599b96673b7bb11447",
+    "tracked_worktree_patch_sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69",
+    "tracked_worktree_patch_bytes": 18095,
+    "source_snapshot": "/egr/research-pac/huang248/outputs/pr_diffusion/checkpoints/B21_source_snapshot_20260727_040208",
+    "source_snapshot_patch": "daps/local.patch"
+  },
+  "environment": {
+    "name": "daps",
+    "python": "/egr/research-pac/huang248/conda-envs/daps/bin/python",
+    "observed_python": "3.11.15",
+    "observed_torch": "2.10.0+cu128"
+  },
+  "problem": {
+    "dataset": "FFHQ",
+    "resolution": 256,
+    "operator": "oversampled Fourier phase retrieval",
+    "oversample": 2.0,
+    "sigma_y": 0.05,
+    "measurement_preprocessing": "raw locked tensor; no clipping",
+    "normalization": "DAPS native FFHQ pixel-DDPM path"
+  },
+  "model": {
+    "hydra_name": "ffhq256ddpm",
+    "checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "scheduler": {
+    "sampler_hydra_name": "edm_daps",
+    "annealing_steps": 400,
+    "diffusion_steps_per_anneal": 5,
+    "lf_enabled": false,
+    "hio_enabled": false,
+    "batch_size": 1,
+    "num_runs": 1
+  },
+  "historical_reference": {
+    "benchmark_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401",
+    "measurement_panel_seed_and_tag": 5401,
+    "measurement_derivation": "sha256('B21.5-fresh-measurement:{panel_seed}:{image_id}') first 8 bytes big-endian modulo (2^63-1)",
+    "trajectory_seed_derivation": "seed1 = 22000 + frozen panel row_id",
+    "terminal_candidates": 1,
+    "retained_artifacts": ["panel/panel_manifest.tsv", "measurements/fresh_measurement_manifest_meas5401.json", "manifest.tsv", "analysis_theta0.7/fresh2_final_summary.json"]
+  },
+  "native_state": {
+    "type": "DAPSNativeState",
+    "coordinate": "annealing sigma and DAPS annealing index",
+    "payload_contract": ["current noisy iterate", "post-prior x0hat", "post-measurement x0y", "annealing scheduler state", "named RNG state"]
+  },
+  "native_module_boundaries": ["prior prediction", "measurement-conditioned optimization", "post-measurement x0y", "renoising transition", "trace/output"],
+  "b23_seed_policy": "Use configs/b23/replay_policy.yaml and a future signed split registry; no B23.1 seeds are assigned in B23.0."
+}

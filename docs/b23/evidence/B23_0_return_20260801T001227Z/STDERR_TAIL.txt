@@ -1,0 +1,26 @@
+test_exposure_manifest_unique (test_contracts.RepositoryContractTests.test_exposure_manifest_unique) ... ok
+test_false_pass_evidence_is_permanently_invalidated (test_contracts.RepositoryContractTests.test_false_pass_evidence_is_permanently_invalidated) ... ok
+test_future_registries_are_empty (test_contracts.RepositoryContractTests.test_future_registries_are_empty) ... ok
+test_json_compatible_yaml_configs (test_contracts.RepositoryContractTests.test_json_compatible_yaml_configs) ... ok
+test_no_schedule_candidates_or_gpu_authorization (test_contracts.RepositoryContractTests.test_no_schedule_candidates_or_gpu_authorization) ... ok
+test_replay_not_run_example_is_valid (test_contracts.RepositoryContractTests.test_replay_not_run_example_is_valid) ... ok
+test_uncalibrated_ledger_has_no_invented_weights (test_contracts.RepositoryContractTests.test_uncalibrated_ledger_has_no_invented_weights) ... ok
+test_zero_gpu_wrapper_is_repo_bound_and_fail_closed (test_contracts.RepositoryContractTests.test_zero_gpu_wrapper_is_repo_bound_and_fail_closed) ... ok
+test_archive_validator_rejects_oversize (test_packaging.PackagingSafetyTests.test_archive_validator_rejects_oversize) ... ok
+test_exact_manifest_can_resolve_seeded_unknown_measurement (test_packaging.PackagingSafetyTests.test_exact_manifest_can_resolve_seeded_unknown_measurement) ... ok
+test_publisher_accepts_exact_zero_gpu_step_ledger (test_packaging.PackagingSafetyTests.test_publisher_accepts_exact_zero_gpu_step_ledger) ... ok
+test_publisher_rejects_failed_zero_gpu_step (test_packaging.PackagingSafetyTests.test_publisher_rejects_failed_zero_gpu_step) ... ok
+test_schemas_are_draft_2020_12 (test_packaging.PackagingSafetyTests.test_schemas_are_draft_2020_12) ... ok
+test_calibrated_work_and_fre (test_protocol.LedgerTests.test_calibrated_work_and_fre) ... ok
+test_nonzero_unmeasured_operation_rejected (test_protocol.LedgerTests.test_nonzero_unmeasured_operation_rejected) ... ok
+test_unknown_counter_rejected (test_protocol.LedgerTests.test_unknown_counter_rejected) ... ok
+test_frozen_seed_vector (test_protocol.SeedTests.test_frozen_seed_vector) ... ok
+test_invalid_seed_identity_rejected (test_protocol.SeedTests.test_invalid_seed_identity_rejected) ... ok
+test_named_streams_are_isolated (test_protocol.SeedTests.test_named_streams_are_isolated) ... ok
+test_payload_contract_is_not_generic_x (test_protocol.StateSerializationTests.test_payload_contract_is_not_generic_x) ... ok
+test_synthetic_tensor_round_trip (test_protocol.StateSerializationTests.test_synthetic_tensor_round_trip) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 1.961s
+
+OK

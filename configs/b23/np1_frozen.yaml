@@ -1,0 +1,58 @@
+{
+  "schema_version": "b23.parent-freeze.v1",
+  "parent_id": "NP-1",
+  "status": "FROZEN_NATIVE_PARENT_B23_0",
+  "native_family": "DiffFPR-guided noise proposal and ranking",
+  "source": {
+    "repository_entrypoint": "scripts/b22/run_b22_1_np_smoke.py",
+    "policy_entrypoint": "scripts/pr_external_difffpr_np_guided_lf_s2_selector.py",
+    "repository_revision_floor": "ba78c06e0c5eac0c915263e4faed0b262d5e917a",
+    "difffpr_root": "/egr/research-pac/huang248/external/DiffFPR",
+    "difffpr_commit": "a45ffe58f18fed8a63d3446600424e2b08733524",
+    "difffpr_tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "environment": {
+    "name": "prdiff_ffhq",
+    "python": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+    "observed_python": "3.11.15",
+    "observed_torch": "2.11.0+cu128"
+  },
+  "problem": {
+    "dataset": "FFHQ",
+    "resolution": 256,
+    "operator": "oversampled Fourier phase retrieval",
+    "oversample": 2.0,
+    "sigma_y": 0.05,
+    "measurement_preprocessing": "load exact locked raw tensor, verify identity, clamp_min(0) in memory only",
+    "measurement_regeneration": false
+  },
+  "model": {
+    "guided_preset": "difffpr_ffhq_10m",
+    "guided_strict": true,
+    "checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "policy": {
+    "variant": "np_canonical_soft5_hard1",
+    "config_tag": "lf",
+    "num_steps": 1000,
+    "soft_candidates": 5,
+    "hard_candidates": 1,
+    "score_mode": "lf",
+    "score_radius": 0.6,
+    "score_huber_delta": 0.05,
+    "score_regularization_lambda": 0.0,
+    "projection_start": 300,
+    "projection_radius": 0.2,
+    "projection_radius_schedule": "300:0.2",
+    "historical_seed": 100,
+    "terminal_candidates": 1
+  },
+  "native_state": {
+    "type": "NoisePickingNativeState",
+    "coordinate": "DiffFPR diffusion timestep",
+    "payload_contract": ["current noisy sample", "proposal set", "denoised proposal estimates", "measurement-side scores", "selected proposal", "late projection state", "named RNG state"]
+  },
+  "native_module_boundaries": ["proposal generation", "proposal denoising", "measurement-side scoring", "stable selection", "optional late LF magnitude projection", "diffusion transition"],
+  "semantic_guard": "All five soft proposals, score evaluations, stable selection, projection, and RNG draws belong to NP-1 cost and semantics."
+}

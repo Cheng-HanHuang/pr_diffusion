@@ -1,0 +1,42 @@
+{
+  "reports": [
+    {
+      "all_declared_deltas_zero": true,
+      "eligibility": "BITWISE",
+      "native_runs": 3,
+      "parent_id": "Fresh1",
+      "report_sha256": "e40815a50fb1a356eeaf548f9decbc8e0771372f37b7ce98ed0986b28a25dc21",
+      "verdict": "PASS",
+      "wrapper_runs": 1
+    },
+    {
+      "all_declared_deltas_zero": true,
+      "eligibility": "BITWISE",
+      "native_runs": 3,
+      "parent_id": "LF-v1",
+      "report_sha256": "627d50f14f6379070e6e909ea59d6fb52f8be6442f3a08758aee9fe4c5a1bbba",
+      "verdict": "PASS",
+      "wrapper_runs": 1
+    },
+    {
+      "all_declared_deltas_zero": true,
+      "eligibility": "BITWISE",
+      "native_runs": 3,
+      "parent_id": "NP-1",
+      "report_sha256": "e0b7995af5d5d59980645d5687e04988db47aa8fbccc6f14516c5af1b2a9e80b",
+      "verdict": "PASS",
+      "wrapper_runs": 1
+    },
+    {
+      "all_declared_deltas_zero": true,
+      "eligibility": "BITWISE",
+      "native_runs": 3,
+      "parent_id": "SITCOM-1",
+      "report_sha256": "eb3d026ed9ea09f7fcc60532819c7066c625f0390538ccb3b60f5b2d187a31a8",
+      "verdict": "PASS",
+      "wrapper_runs": 1
+    }
+  ],
+  "schema_version": "b23.replay-summary.v1",
+  "status": "PASS"
+}

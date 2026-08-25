@@ -1,0 +1,40 @@
+test_contracts (unittest.loader._FailedTest.test_contracts) ... ERROR
+test_archive_validator_rejects_oversize (test_packaging.PackagingSafetyTests.test_archive_validator_rejects_oversize) ... ok
+test_exact_manifest_can_resolve_seeded_unknown_measurement (test_packaging.PackagingSafetyTests.test_exact_manifest_can_resolve_seeded_unknown_measurement) ... ok
+test_schemas_are_draft_2020_12 (test_packaging.PackagingSafetyTests.test_schemas_are_draft_2020_12) ... ok
+test_protocol (unittest.loader._FailedTest.test_protocol) ... ERROR
+
+======================================================================
+ERROR: test_contracts (unittest.loader._FailedTest.test_contracts)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_contracts
+Traceback (most recent call last):
+  File "/egr/research-pac/huang248/conda-envs/daps/lib/python3.11/unittest/loader.py", line 419, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/egr/research-pac/huang248/conda-envs/daps/lib/python3.11/unittest/loader.py", line 362, in _get_module_from_name
+    __import__(name)
+  File "/egr/research-pac/huang248/pr_diffusion_b23/tests/b23/test_contracts.py", line 8, in <module>
+    from prdiffusion.b23_protocol import validate_compute_ledger, validate_replay_report
+ModuleNotFoundError: No module named 'prdiffusion'
+
+
+======================================================================
+ERROR: test_protocol (unittest.loader._FailedTest.test_protocol)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_protocol
+Traceback (most recent call last):
+  File "/egr/research-pac/huang248/conda-envs/daps/lib/python3.11/unittest/loader.py", line 419, in _find_test_path
+    module = self._get_module_from_name(name)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/egr/research-pac/huang248/conda-envs/daps/lib/python3.11/unittest/loader.py", line 362, in _get_module_from_name
+    __import__(name)
+  File "/egr/research-pac/huang248/pr_diffusion_b23/tests/b23/test_protocol.py", line 7, in <module>
+    from prdiffusion.b23_protocol import (
+ModuleNotFoundError: No module named 'prdiffusion'
+
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.034s
+
+FAILED (errors=2)

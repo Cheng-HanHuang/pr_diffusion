@@ -1,0 +1,63 @@
+{
+  "adaptive_schedules_authorized": false,
+  "b23_1_return_recommendation": "CONTINUE DAPS-NATIVE ONLY UNDER NARROWED CLAIM",
+  "b23_2_authorized": false,
+  "cross_family_adapter_qualified_donor_count": 0,
+  "cross_family_h0": "FAIL",
+  "h0_failure_reason": "Zero NP/SITCOM cross-family adapters qualified.",
+  "heterogeneous_smoke_audit": {
+    "parent_runs": 16,
+    "status": "PASS",
+    "terminal_candidates_per_run": 1,
+    "unique_images": [
+      "61492",
+      "62959",
+      "66821",
+      "68142"
+    ]
+  },
+  "rows": [
+    {
+      "adapter": "identity",
+      "classification": "DAPS-NATIVE-DONOR",
+      "operation_id": "Fresh1.complete_native_sequence",
+      "reason": "same typed DAPS state and frozen native module sequence replayed",
+      "source_parent": "Fresh1",
+      "target_family": "DAPS"
+    },
+    {
+      "adapter": "identity",
+      "classification": "DAPS-NATIVE-DONOR",
+      "operation_id": "LF-v1.early_lf_then_native_sequence",
+      "reason": "same typed DAPS state; LF intervention and ordinary late DAPS replayed together",
+      "source_parent": "LF-v1",
+      "target_family": "DAPS"
+    },
+    {
+      "adapter": null,
+      "classification": "BASELINE-ONLY",
+      "operation_id": "NP-1.proposal_ranking_projection",
+      "reason": "native replay passed, but a DAPS/SITCOM boundary would discard proposal-set, scheduler, and RNG semantics; no lossless adapter was demonstrated",
+      "source_parent": "NP-1",
+      "target_family": "cross-family"
+    },
+    {
+      "adapter": null,
+      "classification": "BASELINE-ONLY",
+      "operation_id": "SITCOM-1.triple_consistency_block",
+      "reason": "native replay passed, but LGVD optimizer state and forward-noised coordinate have no qualified DAPS/NP adapter",
+      "source_parent": "SITCOM-1",
+      "target_family": "cross-family"
+    },
+    {
+      "adapter": "historical lossy clean-estimate handoff",
+      "classification": "REJECTED-PROTOTYPE",
+      "operation_id": "historical.NP_to_SITCOM_direct_handoff",
+      "reason": "preserved negative evidence; direct handoff violates native-state semantics",
+      "source_parent": "NP-1",
+      "target_family": "SITCOM-1"
+    }
+  ],
+  "schema_version": "b23.donor-compatibility.v1",
+  "status": "PASS"
+}

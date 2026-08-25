@@ -1,0 +1,54 @@
+timestamp=20260825T194434Z
+repo=/egr/research-pac/huang248/pr_diffusion_b23
+source_capsule=/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_return_20260825T184922Z
+source_archive=/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_return_20260825T184922Z.tar.gz
+pre_run_commit=4d77e7d478c5562626e13c7f0fd71e09a953fba9
+CUDA_VISIBLE_DEVICES=<empty>
+gpu_work_performed_during_correction=NO
+{
+  "checks": {
+    "configs": {
+      "count": 7,
+      "format": "JSON_SUBSET_OF_YAML",
+      "status": "PASS"
+    },
+    "correction_ledger": {
+      "invalidated_evidence_commit": "0d35656b360b4b0d04a28812079f18de8a03a9af",
+      "status": "PASS"
+    },
+    "exposure_manifest": {
+      "image_wide_unknown_exposure_rows": 228,
+      "images": 328,
+      "rows": 328,
+      "truly_resolved_measurement_rows": 100,
+      "unresolved_measurement_tag_rows": 0
+    },
+    "future_registry": {
+      "rows": 0,
+      "status": "EMPTY_AND_EXPOSED_IMAGE_DISJOINT"
+    },
+    "pac_path_policy": {
+      "root": "/egr/research-pac/huang248",
+      "status": "PASS"
+    },
+    "required_files": {
+      "count": 23,
+      "status": "PASS"
+    },
+    "schemas": {
+      "custom_validator_scope": "ALL_ASSERTION_KEYWORDS_PRESENT_IN_B23_SCHEMAS",
+      "status": "PASS",
+      "validation_modes": [
+        "CUSTOM_DRAFT2020_SUBSET_EQUIVALENT"
+      ]
+    },
+    "smoke_registries": {
+      "rows": 0,
+      "status": "EMPTY_AS_REQUIRED"
+    }
+  },
+  "gpu_work_performed": false,
+  "schema_version": "b23.zero-gpu-validation.v1",
+  "status": "PASS"
+}
+{"artifact_manifest_rows": 34, "capsule": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_closeout_return_20260825T194434Z", "cross_family_h0": "FAIL", "gpu_work_performed": false, "status": "PASS", "trajectories": 32}

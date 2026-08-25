@@ -1,0 +1,60 @@
+{
+  "schema_version": "b23.parent-freeze.v1",
+  "parent_id": "SITCOM-1",
+  "status": "FROZEN_NATIVE_PARENT_B23_0",
+  "native_family": "official SITCOM-ODE step-wise triple consistency",
+  "source": {
+    "repository_entrypoint": "scripts/b22/run_b22_1_sitcom_smoke.py",
+    "official_root": "/egr/research-pac/huang248/external/SITCOM_ODE",
+    "official_entrypoint": "/egr/research-pac/huang248/external/SITCOM_ODE/posterior_sample.py",
+    "official_commit": "275ab67efbd8146bffca20155171ba6be1169c09",
+    "inventory_tracked_worktree_patch_sha256": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e",
+    "effective_text_source_difference": "Path(dir).mkdir() -> Path(dir).mkdir(parents=True, exist_ok=True); output-directory robustness only",
+    "historical_handoff_prototype_is_native_parent": false
+  },
+  "environment": {
+    "name": "sitcom_ode_bw",
+    "python": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python",
+    "observed_python": "3.11.15",
+    "observed_torch": "2.10.0+cu128"
+  },
+  "problem": {
+    "dataset": "FFHQ",
+    "resolution": 256,
+    "operator": "oversampled Fourier phase retrieval",
+    "oversample": 2.0,
+    "sigma_y": 0.05,
+    "measurement_preprocessing": "exact raw locked tensor; no clipping",
+    "measurement_regeneration": false
+  },
+  "model": {
+    "family": "FFHQ DDPM",
+    "checkpoint_relative_to_official_root": "checkpoint/ffhq256.pt",
+    "cross_checked_repository_checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "cross_checked_checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "policy": {
+    "annealing_steps": 200,
+    "annealing_schedule": "linear",
+    "annealing_sigma_max": 100.0,
+    "annealing_sigma_min": 0.1,
+    "diffusion_steps": 5,
+    "diffusion_schedule": "linear",
+    "diffusion_sigma_min": 0.01,
+    "lgvd_optimizer_steps": 100,
+    "lgvd_learning_rate": 0.00005,
+    "lgvd_learning_rate_min_ratio": 0.01,
+    "lgvd_tau": 0.01,
+    "timestep": "poly-7",
+    "historical_seed": 43,
+    "num_runs": 1,
+    "terminal_candidates": 1
+  },
+  "native_state": {
+    "type": "SITCOMNativeState",
+    "coordinate": "SITCOM annealing sigma, diffusion substep, and LGVD optimizer iteration",
+    "payload_contract": ["annealed noisy state", "LGVD optimization input", "optimizer state", "model-consistent estimate", "measurement-consistent estimate", "forward-noised transition", "named RNG state"]
+  },
+  "native_module_boundaries": ["LGVD input optimization with network gradients", "model-consistent estimate", "measurement consistency correction", "forward noising", "annealing transition"],
+  "semantic_guard": "A late truncation is not an eligible donor until native replay, adapter validity, and module replay pass."
+}

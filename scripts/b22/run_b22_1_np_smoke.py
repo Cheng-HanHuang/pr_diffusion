@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -100,6 +102,20 @@ def main() -> None:
     )
 
     torch.cuda.reset_peak_memory_stats(device)
+    trace_path_raw = os.environ.get("B23_TRACE_PATH", "").strip()
+    trace_rows = []
+
+    def trace_callback(**values):
+        selected_x0 = values.pop("selected_x0")
+        selected_epsilon = values.pop("selected_epsilon")
+        trace_rows.append(
+            {
+                **values,
+                "selected_x0_sha256": tensor_content_sha256(selected_x0),
+                "selected_epsilon_sha256": tensor_content_sha256(selected_epsilon),
+            }
+        )
+
     run_start = time.perf_counter()
     reconstruction, selector_stats = selector.reconstruct_with_selector_stat(
         measurement_np,
@@ -118,6 +134,7 @@ def main() -> None:
         score_reg_lambda_schedule=method["score_reg_lambda_schedule"],
         score_huber_delta=float(method["score_huber_delta"]),
         log_every=int(method["log_every"]),
+        trace_callback=trace_callback if trace_path_raw else None,
     )
     torch.cuda.synchronize(device)
     reconstruction_s = time.perf_counter() - run_start
@@ -125,6 +142,22 @@ def main() -> None:
     validate_reconstruction(reconstruction)
     metrics = metric_pair(reconstruction, gt)
     memory = cuda_memory_snapshot(device)
+
+    if trace_path_raw:
+        trace_payload = {
+            "schema_version": "b23.np-native-trace.v1",
+            "parent_id": "NP-1",
+            "image_id": manifest["image_id"],
+            "seed": int(method["seed"]),
+            "steps": trace_rows,
+            "step_count": len(trace_rows),
+            "denoiser_forwards_expected": 2200,
+            "fresh_random_proposals_expected": 1900,
+            "terminal_candidates": 1,
+        }
+        encoded = json.dumps(trace_payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
+        trace_payload["canonical_payload_sha256"] = hashlib.sha256(encoded.encode()).hexdigest()
+        write_json(trace_path_raw, trace_payload)
 
     tensor_path = method_dir / "reconstruction.pt"
     png_path = method_dir / "reconstruction.png"

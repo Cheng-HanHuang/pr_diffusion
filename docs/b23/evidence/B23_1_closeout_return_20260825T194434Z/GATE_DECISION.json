@@ -1,0 +1,13 @@
+{
+  "adaptive_schedules_authorized": false,
+  "b23_2_authorized": false,
+  "b24_authorized": false,
+  "cross_family_h0": "FAIL",
+  "gpu_work_performed_during_evidence_closeout": false,
+  "large_panels_authorized": false,
+  "qualified_np_sitcom_adapters": 0,
+  "recommendation": "CONTINUE DAPS-NATIVE ONLY UNDER NARROWED CLAIM",
+  "schema_version": "b23.closeout-gate-decision.v1",
+  "scientific_execution_accepted": true,
+  "verdict": "PASS_RECOMMEND_B23_1A_B_SIGNOFF_ONLY"
+}

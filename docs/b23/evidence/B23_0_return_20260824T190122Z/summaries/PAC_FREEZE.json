@@ -1,0 +1,159 @@
+{
+  "collected_at_utc": "20260824T190122Z",
+  "copied_evidence": [
+    {
+      "bytes": 85239,
+      "copy": "selected_diagnostics/fresh_measurement_manifest_meas5401.json",
+      "sha256": "675b123fac237be05d0fcd5deee35dbb971ea9925f1d99294462517ecf4e0d81",
+      "source": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements/fresh_measurement_manifest_meas5401.json"
+    },
+    {
+      "bytes": 16847,
+      "copy": "selected_diagnostics/panel_manifest.tsv",
+      "sha256": "5cfdbf69ac0e19e80e6e8dc00e953a3e69804dc11d16870e511cc1a33045d808",
+      "source": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/panel/panel_manifest.tsv"
+    },
+    {
+      "bytes": 18955,
+      "copy": "selected_diagnostics/manifest.tsv",
+      "sha256": "e190991f2bb8ef2bc1d8a72ba6cf5898bf3a395dac4e51212257420741191a3d",
+      "source": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/manifest.tsv"
+    },
+    {
+      "bytes": 18955,
+      "copy": "selected_diagnostics/active_manifest.tsv",
+      "sha256": "e190991f2bb8ef2bc1d8a72ba6cf5898bf3a395dac4e51212257420741191a3d",
+      "source": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/active_manifest.tsv"
+    },
+    {
+      "bytes": 16847,
+      "copy": "selected_diagnostics/panel_manifest_checked.tsv",
+      "sha256": "5cfdbf69ac0e19e80e6e8dc00e953a3e69804dc11d16870e511cc1a33045d808",
+      "source": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/panel_manifest_checked.tsv"
+    },
+    {
+      "bytes": 3506,
+      "copy": "selected_diagnostics/fresh2_final_summary.json",
+      "sha256": "8b8262bcd338138f48d7565bc91062559ab5c9efe97f5124e0a6b461b2e581f9",
+      "source": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/fresh2_final_summary.json"
+    },
+    {
+      "bytes": 3279,
+      "copy": "selected_diagnostics/b22_3_visual_failure_taxonomy.csv",
+      "sha256": "8ce3c52d08b1dd8ca0028ec1b2660bdcefa2ceca5cdb38720ca7d65f6f8f3931",
+      "source": "/egr/research-pac/huang248/pr_diffusion_b23/docs/b22/b22_3_visual_failure_taxonomy.csv"
+    }
+  ],
+  "cuda_visible_devices_for_python_probes": "",
+  "dataset": {
+    "bounded_check": "directory existence only; no recursive scan",
+    "path": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024"
+  },
+  "environments": {
+    "daps": {
+      "cuda_initialized": false,
+      "cuda_visible": "",
+      "executable": "/egr/research-pac/huang248/conda-envs/daps/bin/python",
+      "numpy": "1.26.4",
+      "pillow": "10.3.0",
+      "python": "3.11.15",
+      "scipy": "1.13.1",
+      "torch": "2.10.0+cu128",
+      "torch_cuda": "12.8"
+    },
+    "prdiff_ffhq": {
+      "cuda_initialized": false,
+      "cuda_visible": "",
+      "executable": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+      "numpy": "2.4.6",
+      "pillow": "12.1.1",
+      "python": "3.11.15",
+      "scipy": "1.17.1",
+      "torch": "2.11.0+cu128",
+      "torch_cuda": "12.8"
+    },
+    "sitcom_ode_bw": {
+      "cuda_initialized": false,
+      "cuda_visible": "",
+      "executable": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python",
+      "numpy": "1.26.4",
+      "pillow": "10.3.0",
+      "python": "3.11.15",
+      "scipy": "1.10.1",
+      "torch": "2.10.0+cu128",
+      "torch_cuda": "12.8"
+    }
+  },
+  "gpu_work_performed": false,
+  "hardware_inventory_only": [
+    "NVIDIA RTX PRO 6000 Blackwell Server Edition, 580.126.20, 97887 MiB",
+    "NVIDIA RTX PRO 6000 Blackwell Server Edition, 580.126.20, 97887 MiB",
+    "NVIDIA RTX PRO 6000 Blackwell Server Edition, 580.126.20, 97887 MiB",
+    "NVIDIA RTX PRO 6000 Blackwell Server Edition, 580.126.20, 97887 MiB"
+  ],
+  "model": {
+    "bytes": 374417833,
+    "path": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "repository": {
+    "accepted_plan_snapshot": "ed4f46e8f116648eda76d387388d762d7cb8f3d7",
+    "execution_branch": "codex/b23-execution",
+    "execution_head_before_evidence": "77f964c7cd6034246f6e2b60e599e0582c001c95",
+    "frozen_b22_base": "ba78c06e0c5eac0c915263e4faed0b262d5e917a",
+    "planning_head_is_ancestor": true,
+    "planning_head_used": "d1119e37fa688ac07f48ffc87ce19b13dbfb1c27",
+    "worktree_clean_before_collection": true
+  },
+  "schema_version": "b23.pac-freeze.v1",
+  "sitcom_checkpoint": {
+    "path": "/egr/research-pac/huang248/external/SITCOM_ODE/checkpoint/ffhq256.pt",
+    "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "snapshot_daps_patch": {
+    "path": "/egr/research-pac/huang248/outputs/pr_diffusion/checkpoints/B21_source_snapshot_20260727_040208/daps/local.patch",
+    "sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69"
+  },
+  "sources": {
+    "daps": {
+      "dirty_status_lines": 292,
+      "expected_head": "e7a77d094167084faed19b599b96673b7bb11447",
+      "expected_tracked_worktree_diff_sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69",
+      "head": "e7a77d094167084faed19b599b96673b7bb11447",
+      "path": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps",
+      "tracked_worktree_diff_sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69"
+    },
+    "difffpr": {
+      "dirty_status_lines": 0,
+      "expected_head": "a45ffe58f18fed8a63d3446600424e2b08733524",
+      "expected_tracked_worktree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "head": "a45ffe58f18fed8a63d3446600424e2b08733524",
+      "path": "/egr/research-pac/huang248/external/DiffFPR",
+      "tracked_worktree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "historical": {
+      "dirty_status_lines": 75,
+      "expected_head": "0c3c2ec972a50d462b37af7742011ed2a2c5a20a",
+      "expected_tracked_worktree_diff_sha256": "b57536b4d8c7b89b6ed7fcc5deaba55087b09d6494f5c93f390d6f218e16ca9c",
+      "head": "0c3c2ec972a50d462b37af7742011ed2a2c5a20a",
+      "path": "/egr/research-pac/huang248/pr_diffusion_b19_solver",
+      "tracked_worktree_diff_sha256": "b57536b4d8c7b89b6ed7fcc5deaba55087b09d6494f5c93f390d6f218e16ca9c"
+    },
+    "np_sitcom_fork": {
+      "dirty_status_lines": 7,
+      "expected_head": "52f2c37e587576d02e2b27ac971e247f2899fc5e",
+      "expected_tracked_worktree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "head": "52f2c37e587576d02e2b27ac971e247f2899fc5e",
+      "path": "/egr/research-pac/huang248/external/SITCOM_ODE_npsitcom",
+      "tracked_worktree_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "official_sitcom": {
+      "dirty_status_lines": 29,
+      "expected_head": "275ab67efbd8146bffca20155171ba6be1169c09",
+      "expected_tracked_worktree_diff_sha256": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e",
+      "head": "275ab67efbd8146bffca20155171ba6be1169c09",
+      "path": "/egr/research-pac/huang248/external/SITCOM_ODE",
+      "tracked_worktree_diff_sha256": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e"
+    }
+  }
+}

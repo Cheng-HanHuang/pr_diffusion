@@ -1,0 +1,20 @@
+{
+  "schema_version": "b23.pac-paths.v1",
+  "root": "/egr/research-pac/huang248",
+  "execution_worktree": "/egr/research-pac/huang248/pr_diffusion_b23",
+  "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b23",
+  "historical_checkout": "/egr/research-pac/huang248/pr_diffusion_b19_solver",
+  "older_checkout": "/egr/research-pac/huang248/pr_diffusion_repo",
+  "ffhq_data": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024",
+  "ffhq_model": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+  "official_sitcom": "/egr/research-pac/huang248/external/SITCOM_ODE",
+  "np_sitcom_fork": "/egr/research-pac/huang248/external/SITCOM_ODE_npsitcom",
+  "difffpr": "/egr/research-pac/huang248/external/DiffFPR",
+  "b21_benchmark": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401",
+  "b21_source_snapshot": "/egr/research-pac/huang248/outputs/pr_diffusion/checkpoints/B21_source_snapshot_20260727_040208",
+  "python": {
+    "daps": "/egr/research-pac/huang248/conda-envs/daps/bin/python",
+    "prdiff_ffhq": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+    "sitcom_ode_bw": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python"
+  }
+}

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -136,17 +137,49 @@ def main() -> None:
         torch.cuda.reset_peak_memory_stats(device)
         run_start = time.perf_counter()
         x_start = sampler.get_start(gt)
+        trace_path_raw = os.environ.get("B23_TRACE_PATH", "").strip()
         reconstruction = sampler.sample(
             model,
             x_start,
             operator,
             measurement,
             evaluator=None,
-            record=False,
+            record=bool(trace_path_raw),
             verbose=False,
         )
         torch.cuda.synchronize(device)
         reconstruction_s = time.perf_counter() - run_start
+
+        if trace_path_raw:
+            trajectory = sampler.trajectory
+            trace_rows = []
+            tensor_names = sorted(trajectory.tensor_data)
+            value_names = sorted(trajectory.value_data)
+            expected_steps = int(method["anneal_steps"])
+            for index in range(expected_steps):
+                row = {"step_index": index}
+                for name in tensor_names:
+                    row[f"{name}_sha256"] = tensor_content_sha256(
+                        trajectory.tensor_data[name][index]
+                    )
+                for name in value_names:
+                    value = trajectory.value_data[name][index]
+                    row[name] = float(value.detach().cpu().item()) if torch.is_tensor(value) else float(value)
+                trace_rows.append(row)
+            trace_payload = {
+                "schema_version": "b23.sitcom-native-trace.v1",
+                "parent_id": "SITCOM-1",
+                "image_id": manifest["image_id"],
+                "seed": seed,
+                "steps": trace_rows,
+                "step_count": len(trace_rows),
+                "denoiser_forwards_expected": int(method["anneal_steps"]) * int(method["diff_steps"]),
+                "lgvd_optimizer_iterations_expected": int(method["anneal_steps"]) * int(method["lgvd_steps"]),
+                "terminal_candidates": 1,
+            }
+            encoded = json.dumps(trace_payload, sort_keys=True, separators=(",", ":"), allow_nan=False)
+            trace_payload["canonical_payload_sha256"] = hashlib.sha256(encoded.encode()).hexdigest()
+            write_json(trace_path_raw, trace_payload)
     finally:
         os.chdir(old_cwd)
 

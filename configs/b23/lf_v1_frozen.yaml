@@ -1,0 +1,41 @@
+{
+  "schema_version": "b23.parent-freeze.v1",
+  "parent_id": "LF-v1",
+  "status": "FROZEN_NATIVE_PARENT_B23_0",
+  "native_family": "DAPS_WITH_EARLY_LF_MAGNITUDE_GUIDANCE",
+  "inherits": "configs/b23/fresh1_frozen.yaml",
+  "source": {
+    "entrypoint": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps/posterior_sample.py",
+    "sampler": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps/sampler.py",
+    "upstream_commit": "e7a77d094167084faed19b599b96673b7bb11447",
+    "tracked_worktree_patch_sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69",
+    "captured_patch": "docs/b21/patches/daps_b20_lf_guidance.patch",
+    "semantic_audit": "docs/b21/b21_1_lf_patch_capture.md"
+  },
+  "guidance": {
+    "insertion_state": "post-measurement-update x0y",
+    "domain": "centered 2-D Fourier magnitude",
+    "phase": "preserve current x0y Fourier phase",
+    "target": "locked measurement magnitude",
+    "radius_fraction": 0.12,
+    "base_alpha": 0.50,
+    "active_fraction_of_annealing_steps": 0.35,
+    "decay": "alpha_step = base_alpha * max(0, 1 - step / (active_fraction * annealing_steps))",
+    "ordinary_daps_after_active_window": true
+  },
+  "scheduler": {
+    "annealing_steps": 400,
+    "diffusion_steps_per_anneal": 5,
+    "hio_enabled": false,
+    "batch_size": 1,
+    "num_runs": 1
+  },
+  "measurement_preprocessing": "raw locked tensor; DAPS native path",
+  "native_state": {
+    "type": "DAPSNativeState",
+    "coordinate": "annealing sigma and DAPS annealing index",
+    "extra_trace_fields": ["lf_alpha_step", "lf_radius_fraction", "lf_fft_count"]
+  },
+  "non_novelty_boundary": "LF early then ordinary DAPS late is this frozen parent control, not a new B23 schedule.",
+  "b23_seed_policy": "Use the same isolated replay seed stream policy as Fresh1; no B23.1 seeds are assigned in B23.0."
+}

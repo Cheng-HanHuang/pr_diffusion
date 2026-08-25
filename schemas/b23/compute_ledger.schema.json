@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cheng-HanHuang/pr_diffusion/schemas/b23/compute_ledger.schema.json",
+  "title": "B23 per-image compute ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "image_id",
+    "measurement_id",
+    "parent_or_policy_id",
+    "hardware_identity",
+    "raw_counts",
+    "coupled_operation_blocks",
+    "optimizer_iterations_by_type",
+    "rng_streams",
+    "branches",
+    "timing",
+    "memory_bytes",
+    "overhead_seconds",
+    "fre"
+  ],
+  "properties": {
+    "schema_version": {"const": "b23.compute-ledger.v2"},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "image_id": {"type": "string", "minLength": 1},
+    "measurement_id": {"type": "string", "minLength": 1},
+    "parent_or_policy_id": {"type": "string", "minLength": 1},
+    "hardware_identity": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["identity_id", "inventory_sha256"],
+      "properties": {
+        "identity_id": {"type": "string", "minLength": 1},
+        "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "raw_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "denoiser_forward", "denoiser_backward", "denoiser_jvp", "denoiser_vjp",
+        "measurement_forward", "measurement_adjoint", "measurement_jvp", "measurement_vjp",
+        "fft", "projection", "correction", "optimizer_iterations",
+        "state_conversion", "renoising", "random_proposals", "rng_draws"
+      ],
+      "properties": {
+        "denoiser_forward": {"$ref": "#/$defs/count"},
+        "denoiser_backward": {"$ref": "#/$defs/count"},
+        "denoiser_jvp": {"$ref": "#/$defs/count"},
+        "denoiser_vjp": {"$ref": "#/$defs/count"},
+        "measurement_forward": {"$ref": "#/$defs/count"},
+        "measurement_adjoint": {"$ref": "#/$defs/count"},
+        "measurement_jvp": {"$ref": "#/$defs/count"},
+        "measurement_vjp": {"$ref": "#/$defs/count"},
+        "fft": {"$ref": "#/$defs/count"},
+        "projection": {"$ref": "#/$defs/count"},
+        "correction": {"$ref": "#/$defs/count"},
+        "optimizer_iterations": {"$ref": "#/$defs/count"},
+        "state_conversion": {"$ref": "#/$defs/count"},
+        "renoising": {"$ref": "#/$defs/count"},
+        "random_proposals": {"$ref": "#/$defs/count"},
+        "rng_draws": {"$ref": "#/$defs/count"}
+      }
+    },
+    "coupled_operation_blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["operation_type", "count", "measured_weight_seconds", "definition_sha256"],
+        "properties": {
+          "operation_type": {"type": "string", "minLength": 1},
+          "count": {"$ref": "#/$defs/count"},
+          "measured_weight_seconds": {"$ref": "#/$defs/nonnegative"},
+          "definition_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "optimizer_iterations_by_type": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/count"}
+    },
+    "rng_streams": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "derived_seed", "draw_calls", "values_drawn", "device"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "derived_seed": {"type": "integer", "minimum": 0},
+          "draw_calls": {"$ref": "#/$defs/count"},
+          "values_drawn": {"$ref": "#/$defs/count"},
+          "device": {"type": "string", "minLength": 1},
+          "draw_shapes": {"type": "array", "items": {"type": "array", "items": {"type": "integer", "minimum": 0}}},
+          "dtypes": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "branch_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "resume_state_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    },
+    "branches": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total_created", "max_live", "retained", "terminal_candidates", "branch_ids", "retained_branch_ids", "terminal_branch_ids"],
+      "properties": {
+        "total_created": {"$ref": "#/$defs/count"},
+        "max_live": {"$ref": "#/$defs/count"},
+        "retained": {"$ref": "#/$defs/count"},
+        "terminal_candidates": {"$ref": "#/$defs/count"},
+        "branch_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "retained_branch_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "terminal_branch_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gpu_active_seconds", "wall_seconds", "timer_method"],
+      "properties": {
+        "gpu_active_seconds": {"$ref": "#/$defs/nonnegative"},
+        "wall_seconds": {"$ref": "#/$defs/nonnegative"},
+        "timer_method": {"type": "string", "minLength": 1}
+      }
+    },
+    "memory_bytes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["peak_allocated", "peak_reserved"],
+      "properties": {
+        "peak_allocated": {"$ref": "#/$defs/count"},
+        "peak_reserved": {"$ref": "#/$defs/count"}
+      }
+    },
+    "overhead_seconds": {
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/nonnegative"}
+    },
+    "atomic_weights": {
+      "description": "Absent until B23.1 microbenchmarks freeze measured median GPU-active costs.",
+      "type": "object",
+      "additionalProperties": {"$ref": "#/$defs/nonnegative"}
+    },
+    "fre": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "work_FRE", "time_FRE", "claim_FRE", "reference"],
+      "properties": {
+        "status": {"enum": ["UNCALIBRATED", "CALIBRATED"]},
+        "work_FRE": {"type": ["number", "null"], "minimum": 0},
+        "time_FRE": {"type": ["number", "null"], "minimum": 0},
+        "claim_FRE": {"type": ["number", "null"], "minimum": 0},
+        "reference": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["identity_id", "inventory_sha256", "reference_id", "reference_ledger_sha256", "weight_registry_sha256", "raw_counts", "coupled_operation_blocks", "gpu_active_seconds"],
+          "properties": {
+            "identity_id": {"type": "string", "minLength": 1},
+            "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "reference_id": {"type": "string", "minLength": 1},
+            "reference_ledger_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "weight_registry_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "raw_counts": {"$ref": "#/properties/raw_counts"},
+            "coupled_operation_blocks": {"$ref": "#/properties/coupled_operation_blocks"},
+            "gpu_active_seconds": {"$ref": "#/$defs/nonnegative"}
+          }
+        }
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "count": {"type": "integer", "minimum": 0},
+    "nonnegative": {"type": "number", "minimum": 0}
+  }
+}

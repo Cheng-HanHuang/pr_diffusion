@@ -1,0 +1,116 @@
+{
+  "benchmark_valid": true,
+  "cost": {
+    "mean_arm2_over_arm1_wall_ratio": 1.0077034596535757,
+    "mean_observed_full_run_equivalents": 2.0,
+    "median_arm2_over_arm1_wall_ratio": 1.0,
+    "total_fresh2_wall_seconds_per_image": {
+      "max": 833.0,
+      "mean": 312.64,
+      "median": 333.0,
+      "min": 115.0,
+      "q05": 117.95,
+      "q10": 119.0,
+      "q25": 136.75,
+      "q75": 382.25,
+      "q90": 460.60000000000014,
+      "q95": 614.1999999999999
+    },
+    "trajectory1_wall_seconds": {
+      "max": 395.0,
+      "mean": 156.14,
+      "median": 170.5,
+      "min": 57.0,
+      "q05": 59.0,
+      "q10": 59.0,
+      "q25": 68.5,
+      "q75": 182.5,
+      "q90": 232.60000000000014,
+      "q95": 312.15
+    },
+    "trajectory2_wall_seconds": {
+      "max": 448.0,
+      "mean": 156.5,
+      "median": 160.0,
+      "min": 56.0,
+      "q05": 58.0,
+      "q10": 59.0,
+      "q25": 65.5,
+      "q75": 184.0,
+      "q90": 231.00000000000017,
+      "q95": 310.1
+    }
+  },
+  "deployment_support_statement": true,
+  "descriptive_support_checks": {
+    "rescues_at_least_5": true,
+    "selected_good25_at_least_90": true,
+    "selected_oracle_gap_at_most_2": true,
+    "selector_harms_at_most_1": true
+  },
+  "incremental_and_selector": {
+    "candidate_good25_discordant_rows": 19,
+    "fresh2_harms_over_fresh1": 0,
+    "fresh2_rescues_over_fresh1": 12,
+    "selected_oracle_gap": 0,
+    "trajectory2_accept_fraction": 0.21,
+    "trajectory2_accepts": 21
+  },
+  "integrity_gates": {
+    "100_distinct_images": true,
+    "100_distinct_measurement_files": true,
+    "100_distinct_measurement_hashes": true,
+    "200_complete_finite_trajectory_metrics": true,
+    "complete_100_rows": true,
+    "frozen_seed_schedule_matches": true,
+    "no_failed_row_dropped": true,
+    "offline_selected_psnr_complete": true,
+    "outside_excluded_panels": true,
+    "panel_checksum_matches": true
+  },
+  "interpretation": "This panel is estimation-only. Report the observed reliability and uncertainty without retuning. Failure of the descriptive support statement does not authorize detector, fallback, or restart-count search on this panel.",
+  "panel": {
+    "independent_images": 100,
+    "locked_measurements": 100,
+    "panel_manifest_sha256": "5cfdbf69ac0e19e80e6e8dc00e953a3e69804dc11d16870e511cc1a33045d808",
+    "trajectory_outputs": 200
+  },
+  "policy": {
+    "ann_steps": 400,
+    "conditional_fallback": false,
+    "diff_steps": 5,
+    "hio_enabled": false,
+    "lf_enabled": false,
+    "restart_budget": 2,
+    "theta": 0.7
+  },
+  "primary": {
+    "fresh1_good25": 80,
+    "fresh2_oracle_any_good25": 92,
+    "fresh2_selected_bad25": 8,
+    "fresh2_selected_good25": 92,
+    "selected_good25_interval_95": {
+      "estimate": 0.92,
+      "lower_95": 0.86,
+      "method": "deterministic percentile bootstrap of Bernoulli image units",
+      "repetitions": 100000,
+      "seed": 5401,
+      "upper_95": 0.97
+    },
+    "selected_good25_rate": 0.92,
+    "selected_psnr": {
+      "max": 33.22148513793945,
+      "mean": 29.29851544380188,
+      "median": 30.89926242828369,
+      "min": 6.359695911407471,
+      "q05": 15.860295009613038,
+      "q10": 28.087967491149904,
+      "q25": 29.930197715759277,
+      "q75": 31.60984516143799,
+      "q90": 32.300866317749026,
+      "q95": 32.62527713775635
+    }
+  },
+  "question": "What is the prospective reliability of the frozen two-restart DAPS policy on 100 disjoint official FFHQ validation images?",
+  "status": "final_prospective_estimation"
+}

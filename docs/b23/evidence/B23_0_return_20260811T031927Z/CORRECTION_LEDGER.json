@@ -1,0 +1,67 @@
+{
+  "schema_version": "b23.correction-ledger.v1",
+  "policy": "append-only; preserved failures cannot authorize later stages",
+  "entries": [
+    {
+      "entry_id": "bootstrap_git_identity_stop",
+      "observed_window_utc": "before 20260731T174838Z",
+      "classification": "NON_SCIENTIFIC_BOOTSTRAP_STOP",
+      "return_code": 5,
+      "cause": "worktree-local git user.name/user.email were absent",
+      "gpu_work_performed": false,
+      "disposition": "RESOLVED_WITH_WORKTREE_LOCAL_IDENTITY"
+    },
+    {
+      "entry_id": "false_pass_20260731T174838Z",
+      "timestamp_utc": "20260731T174838Z",
+      "pre_run_commit": "78b32319dd49719c0ffa7bdcc0b358b5d13317cd",
+      "evidence_commit": "0d35656b360b4b0d04a28812079f18de8a03a9af",
+      "archive_sha256": "57552c104153aa4c7a6e7cb0da901fc5b5726124753ace82c5a04eef29d1cadd",
+      "classification": "FALSE_PASS_PUBLICATION",
+      "observed_failures": [
+        "test_contracts import failed: ModuleNotFoundError prdiffusion",
+        "test_protocol import failed: ModuleNotFoundError prdiffusion"
+      ],
+      "root_causes": [
+        "PAC unit tests lacked repository import context",
+        "grouped shell sequence masked an earlier nonzero return code"
+      ],
+      "gpu_work_performed": false,
+      "disposition": "INVALID_AS_B23_0_PASS_PRESERVED"
+    },
+    {
+      "entry_id": "planner_revise_before_signoff_5096dc02",
+      "reviewed_head": "5096dc02d9a6ecd6a8615d25f026433adf660e5e",
+      "classification": "PLANNER_REVISE_BEFORE_SIGNOFF",
+      "accepted_evidence": [
+        "corrected fail-closed PAC execution",
+        "ancestry and zero-GPU status",
+        "21-test execution",
+        "model environment and source freeze",
+        "preservation of invalid evidence commit 0d35656b360b4b0d04a28812079f18de8a03a9af"
+      ],
+      "required_corrections": [
+        "evidence-derived replay PASS and negative tests",
+        "compute FRE RNG reconciliation and frozen-reference recomputation",
+        "image-wide unresolved exposure and future image disjointness",
+        "bounded untracked-source classification and hashing",
+        "always-on semantic schema validation"
+      ],
+      "gpu_work_performed": false,
+      "disposition": "B23_0_CORRECTION_AUTHORIZED_B23_1_NOT_AUTHORIZED"
+    }
+  ],
+  "replacement_requirements": {
+    "later_timestamp": true,
+    "later_pre_run_commit": true,
+    "required_ordered_zero_gpu_steps": [
+      "unit_tests",
+      "repository_validation",
+      "b23_1_dry_render",
+      "pac_evidence_collection"
+    ],
+    "all_return_codes_zero": true,
+    "planner_return_blocked_until_corrected_capsule_review": true,
+    "b23_1_authorized": false
+  }
+}

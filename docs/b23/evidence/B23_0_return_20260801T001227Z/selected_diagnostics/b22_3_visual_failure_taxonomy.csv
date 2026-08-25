@@ -1,0 +1,17 @@
+image_id,primary_visual_class,mechanism_level,method_specific_interpretation,scientific_note
+60140,orientation_180_selector_miss,selector,SITCOM-4S selected an upside-down candidate while SITCOM-oracle4 is correctly oriented and good25,Severe selector miss rather than candidate-generation failure
+61252,quality_floor_blur_noise,candidate_generation,NP-8-RS and NP-oracle8 remain structurally correct but below good25 while Fresh2 is clean,No NP selector remedy exists in the frozen eight-candidate population
+61669,structured_twin_circular_basin,candidate_generation,All NP candidates collapse to a circular ghosted basin while Fresh2 and SITCOM-4S are good,Method-specific NP candidate-generation failure on complex headgear/background
+62739,borderline_quality_floor,candidate_generation,SITCOM-4S and oracle4 are both below 25 while Fresh2 and NP-8-RS only narrowly pass,Difficult image rather than a meaningful SITCOM selector failure
+62908,orientation_180_ambiguity,candidate_generation_or_symmetry,Fresh2 and SITCOM-4S return upside-down solutions while NP-8-RS is correctly oriented,Strong cross-method complementarity driven by orientation ambiguity
+64518,marginal_threshold_selector_miss,selector,SITCOM-4S is 24.80 dB and oracle4 is 25.01 dB with visually similar outputs,Threshold-level selector miss not a catastrophic failure
+65003,high_complexity_shared_prior_collapse,candidate_generation,Fresh2 SITCOM-4S and NP-8-RS all produce severe structured chromatic/twin artifacts,Only failure shared by all three executable multi-run methods
+65269,np_selector_quality_miss,selector,NP-8-RS selects a blurrier 24.37 dB candidate while NP-oracle8 reaches 27.75 dB,Single NP threshold-level selector miss
+65365,structured_twin_ghost,candidate_generation,Fresh2 contains a strong secondary upside-down face while SITCOM-4S and NP-8-RS are clean,Fresh2 basin failure rescued by both alternative families
+65553,chromatic_illumination_overlay,candidate_generation,Fresh2 preserves the subject but has a severe color/illumination overlay while SITCOM-4S and NP-8-RS are clean,Fresh2 chromatic failure rather than orientation ambiguity
+66591,structured_twin_ghost,candidate_generation,SITCOM-4S and oracle4 remain ghosted while Fresh2 and NP-8-RS are clean,SITCOM population-level candidate-generation failure
+66715,orientation_180_ambiguity,candidate_generation_or_symmetry,Fresh2 is upside-down while SITCOM-4S and NP-8-RS are correctly oriented,Alternative populations resolve the DAPS orientation basin
+66889,chromatic_twin_overlay,candidate_generation,Fresh2 shows a strong colored secondary-face overlay while SITCOM-4S and NP-8-RS are clean,Fresh2 chromatic/structured basin failure
+67293,structured_twin_ghost,candidate_generation,Fresh2 is heavily ghosted while SITCOM-4S and NP-8-RS reconstruct the correct face,Fresh2 structured basin failure
+67520,quality_floor_blur_noise,candidate_generation,SITCOM and NP populations remain structurally correct but too blurred/noisy while Fresh2 is clean,Shared non-DAPS quality-floor case without a good candidate in either population
+68539,orientation_180_ambiguity,candidate_generation_or_symmetry,Fresh2 is upside-down while SITCOM-4S and NP-8-RS are correctly oriented,Third Fresh2 raw orientation failure in the frozen panel

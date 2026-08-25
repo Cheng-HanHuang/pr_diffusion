@@ -1,0 +1,28 @@
+{
+  "adaptive_schedules_used": false,
+  "b23_2_authorized": false,
+  "images": [
+    "61492",
+    "62959",
+    "65082",
+    "66821",
+    "68142"
+  ],
+  "mode_counts": {
+    "native": 12,
+    "smoke": 16,
+    "wrapper": 4
+  },
+  "parent_counts": {
+    "Fresh1": 8,
+    "LF-v1": 8,
+    "NP-1": 8,
+    "SITCOM-1": 8
+  },
+  "physical_trajectories_in_accepted_run": 31,
+  "recovered_accepted_trajectories": 1,
+  "schema_version": "b23.run-summary.v1",
+  "status": "PASS",
+  "terminal_candidates_per_run": 1,
+  "total_trajectories": 32
+}

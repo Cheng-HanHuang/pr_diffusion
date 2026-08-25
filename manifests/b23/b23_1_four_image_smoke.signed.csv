@@ -1,0 +1,5 @@
+registry_version,split,row_id,image_id,measurement_id,measurement_seed,solver_base_seed,assigned_before_run,pre_b23_exposure_checked,source_manifest_sha256,notes
+b23.future-split.v1,B23.1-SMOKE-4,0,61492,b23m-20260824-01,6271898210789345257,2274330163279472729,true,true,a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288,Outcome-free minimum SHA-256 rank in ID stratum 60000--62499
+b23.future-split.v1,B23.1-SMOKE-4,1,62959,b23m-20260824-02,4888746696116243263,1530642064569270176,true,true,a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288,Outcome-free minimum SHA-256 rank in ID stratum 62500--64999
+b23.future-split.v1,B23.1-SMOKE-4,2,66821,b23m-20260824-03,7894281570853830948,721083212544932440,true,true,a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288,Outcome-free minimum SHA-256 rank in ID stratum 65000--67499
+b23.future-split.v1,B23.1-SMOKE-4,3,68142,b23m-20260824-04,8363498490262298474,642279654447266060,true,true,a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288,Outcome-free minimum SHA-256 rank in ID stratum 67500--69999

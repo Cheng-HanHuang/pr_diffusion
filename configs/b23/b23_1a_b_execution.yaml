@@ -1,0 +1,192 @@
+{
+  "schema_version": "b23.b23-1a-b-execution.v1",
+  "status": "AUTHORIZED_PRERUN_FROZEN",
+  "authorization": {
+    "decision_date_utc": "2026-08-24",
+    "accepted_b23_0_head": "3829d52e6489ec5c90d5bc0ce404253e71131fda",
+    "authorized_stages": ["B23.1A", "B23.1B"],
+    "gpu_work_authorized": true,
+    "authorized_work": [
+      "bounded native replay",
+      "trace instrumentation",
+      "compute microbenchmarks",
+      "four-image heterogeneous smoke",
+      "donor compatibility classification"
+    ],
+    "unauthorized_work": [
+      "B23.2",
+      "large panels",
+      "B24",
+      "adaptive schedules"
+    ]
+  },
+  "correction_history": [
+    {
+      "id": "preflight_exposure_digest_stop_20260825T012447Z",
+      "invalidated_pre_run_head": "6e3e08eba2621f903bd33cd8d818442a34158318",
+      "stopped_step": "prerun_validate",
+      "gpu_work_performed": false,
+      "cause": "The signed rows referenced the pre-closeout byte identity of PRE_B23_EXPOSURE.csv instead of the accepted B23.0 closeout manifest identity.",
+      "resolution": "Recompute selection and image-level disjointness against the accepted closeout manifest, preserve the same five outcome-free selections, and freeze its SHA-256."
+    },
+    {
+      "id": "fresh1_native_seed_range_stop_20260825T015257Z",
+      "invalidated_pre_run_head": "5f937c26ab67783ff810b51070bf34cb8a9b3a07",
+      "stopped_step": "replay_fresh1_native_0",
+      "gpu_work_performed": true,
+      "completed_measurement_generations": 5,
+      "completed_parent_trajectories": 0,
+      "cause": "The canonical 63-bit B23 seed was passed directly to the legacy NumPy RandomState seed API, which accepts only uint32 values.",
+      "resolution": "Freeze native_entrypoint_seed = canonical_parent_seed modulo 2**32 for every parent, record both identities, and validate/reuse the five existing locked inputs."
+    },
+    {
+      "id": "fresh1_rng_setup_audit_stop_20260825T025410Z",
+      "invalidated_pre_run_head": "45c6b6107e2bf2b100eac6b771ea0d1004f19a20",
+      "stopped_step": "replay_fresh1_native_0_post_run_rng_audit",
+      "gpu_work_performed": true,
+      "completed_parent_trajectories": 1,
+      "cause": "Pinned DAPS data.py consumes one torch.randn_like setup call in DiffusionData.get_data even with sigma=0, so the complete process count is 40402 rather than 40401.",
+      "resolution": "Recover the exact hash-frozen completed trajectory with CUDA hidden and execute only the remaining 31 trajectories."
+    },
+    {
+      "id": "return_capsule_completeness_revision_20260825T051021Z",
+      "affected_archive_sha256": "5283300b77a6bca1b9c14b158724d5fe24eb8aed27390bf1db4c8608b7287ae8",
+      "scientific_execution_status": "PASS",
+      "gpu_work_performed": false,
+      "parent_trajectories_performed": 0,
+      "cause": "The first return packager copied only JSON under the current run root, omitting FINAL_STATUS.tsv and support JSON retained under the recovered Fresh1 source root.",
+      "resolution": "Preserve the original return, transport the final prerequisite ledger and recovered timing/trace/input evidence, re-hash the external raw trajectory with CUDA hidden, and repackage without executing any parent."
+    }
+  ],
+  "registry": {
+    "combined": "manifests/b23/b23_1_signed_registry.csv",
+    "one_image": "manifests/b23/b23_1_one_image_smoke.signed.csv",
+    "four_image": "manifests/b23/b23_1_four_image_smoke.signed.csv",
+    "pre_b23_exposure": "manifests/b23/PRE_B23_EXPOSURE.csv",
+    "pre_b23_exposure_sha256": "a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288",
+    "selection_rule": "minimum SHA-256 rank within preregistered official-validation ID strata after image-level PRE_B23_EXPOSURE exclusion; no image content or outcome inspected"
+  },
+  "problem": {
+    "dataset": "FFHQ official validation IDs 60000--69999",
+    "resolution": 256,
+    "operator": "oversampled Fourier phase retrieval",
+    "oversample": 2.0,
+    "sigma_y": 0.05,
+    "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "execution": {
+    "parent_order": ["Fresh1", "LF-v1", "NP-1", "SITCOM-1"],
+    "native_repeats": 3,
+    "wrapper_repeats": 1,
+    "replay_gpu": 0,
+    "smoke_gpus": [0, 1, 2, 3],
+    "max_parent_trajectories": 32,
+    "expected_replay_parent_trajectories": 16,
+    "expected_smoke_parent_trajectories": 16,
+    "expected_measurement_generations": 5,
+    "completed_measurement_generations_before_corrective_run": 5,
+    "expected_new_measurement_generations": 0,
+    "completed_parent_trajectories_before_rng_accounting_correction": 1,
+    "expected_recovered_parent_trajectories": 1,
+    "expected_new_parent_trajectories": 31,
+    "recoverable_execution_head": "45c6b6107e2bf2b100eac6b771ea0d1004f19a20",
+    "required_recovery_source": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0",
+    "recovery_identifiers": {
+      "input_manifest_sha256": "2d465eab05c6d52b9c04c26f2ada8cdc8bdaab3ab4a4ef9f1abc5bc4c4e1d578",
+      "timing_sha256": "eeed137b90518470360e1dda5d069da0592efc3771c4a1dc389373ab93ba5552",
+      "trace_sha256": "63cc0bfe297f5f0645edb45eb0d5bed7a6d96004f1c4f95158e9332f719fc3a7",
+      "terminal_sample_sha256": "10e7e26ba06e3b2348d82284910e52ebcd8f2587d2a5af24a835082c3bc4df28",
+      "raw_trajectory_bytes": 943734389
+    },
+    "required_reuse_input_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/inputs",
+    "terminal_candidates_per_parent_run": 1,
+    "overwrite_policy": "REFUSE",
+    "parent_failure_policy": "STOP_BEFORE_NEXT_PARENT",
+    "wrapper_failure_policy": "PRESERVE_AND_STOP",
+    "smoke_gate": "ALL_FOUR_REPLAY_REPORTS_PASS",
+    "donor_gate": "REPLAY_EVIDENCE_ONLY_NO_NEW_PARENT_TRAJECTORY"
+  },
+  "expected_operation_formulas": {
+    "Fresh1": {
+      "dataset_zero_sigma_setup_rng_calls": 1,
+      "dataset_zero_sigma_setup_source": "pinned DAPS data.py DiffusionData.get_data executes torch.randn_like(data) * sigma even when sigma=0",
+      "annealing_transitions": 400,
+      "diffusion_substeps_per_transition": 5,
+      "mcmc_iterations_per_transition": 100,
+      "native_start_rng_calls": 1,
+      "mcmc_rng_calls": 40000,
+      "forward_renoising_rng_calls": 400,
+      "stochastic_trajectory_rng_calls": 40401,
+      "total_process_rng_calls": 40402,
+      "terminal_candidates": 1,
+      "source_of_truth": "pinned DAPS sampler.py, cores/scheduler.py, cores/mcmc.py, and frozen Hydra configs; runtime counters must equal the source-derived formula"
+    },
+    "LF-v1": {
+      "inherits": "Fresh1",
+      "lf_active_rule": "step / native_annealing_scheduler.num_steps <= 0.35",
+      "lf_fft2_per_active_step": 1,
+      "lf_ifft2_per_active_step": 1,
+      "terminal_candidates": 1
+    },
+    "NP-1": {
+      "diffusion_transitions": 999,
+      "soft_candidate_steps": 300,
+      "soft_candidates": 5,
+      "hard_candidate_steps": 699,
+      "hard_candidates": 1,
+      "denoiser_forwards": 2200,
+      "fresh_random_proposals": 1900,
+      "terminal_candidates": 1
+    },
+    "SITCOM-1": {
+      "annealing_transitions": 200,
+      "diffusion_substeps_per_transition": 5,
+      "lgvd_iterations_per_transition": 100,
+      "denoiser_forwards": 1000,
+      "lgvd_optimizer_iterations": 20000,
+      "forward_renoising_draws": 200,
+      "terminal_candidates": 1
+    }
+  },
+  "replay": {
+    "minimum_native_repeats": 3,
+    "native_before_wrapper": true,
+    "freeze_before_wrapper": true,
+    "bitwise_rule": "all native tensor and trace hashes match; every declared delta is zero",
+    "tolerance_floor_policy": {
+      "status": "FORMULA_FROZEN_VALUES_MEASURED_AFTER_NATIVE_BEFORE_WRAPPER",
+      "rule": "For each metric, numerical_floor = machine_epsilon(dtype) * max(1, declared_metric_scale) * declared_reduction_depth; record dtype, scale, reduction depth, evaluated value, and freeze SHA-256.",
+      "arbitrary_constants_allowed": false
+    },
+    "serialization": "PASS at a valid native boundary or justified NOT_APPLICABLE",
+    "determinism_audit": "COMPLETE or JUSTIFIED_UNAVAILABLE",
+    "operation_and_rng_reconciliation": "EXACT"
+  },
+  "native_seed_adapter": {
+    "canonical_parent_seed": "b23-sha256-v1 63-bit derived seed",
+    "native_entrypoint_seed": "canonical_parent_seed modulo 2**32",
+    "native_range": [0, 4294967295],
+    "reason": "All frozen native entrypoints call legacy NumPy RandomState seeding and therefore require uint32-compatible seeds.",
+    "collision_policy": "STOP if adapted parent seeds collide within one signed input row",
+    "seed_semantics_changed": false
+  },
+  "compute": {
+    "timer_method": "paired CUDA events with explicit synchronize plus monotonic wall clock",
+    "calibration_unit": "one complete frozen one-terminal native parent entrypoint, including model load and all inseparable parent-internal operations",
+    "excluded_warmup_iterations": 0,
+    "measured_iterations_per_parent": 3,
+    "paired_blocks": 2,
+    "recovered_native_samples": 1,
+    "atomic_or_coupled_rule": "Every nonzero operation is assigned either an isolated measured atomic weight or one non-overlapping typed coupled-block weight; no guessed weight or double counting.",
+    "fresh1_reference": "same replay image, GPU 0, same frozen stack; two complete interleaved cycles plus the exact recovered Fresh1 sample leading the first partial cycle",
+    "justification": "The native parents expose complete source-faithful entrypoints, but no common sound boundary that isolates every internal operation without changing scheduler, optimizer, proposal-set, RNG, or model-load semantics. Each full native entrypoint is therefore measured as one typed non-overlapping coupled block; exact internal raw counts remain separately audited."
+  },
+  "donor_classes": [
+    "NATIVE-REPLAYED",
+    "DAPS-NATIVE-DONOR",
+    "ADAPTER-QUALIFIED-DONOR",
+    "BASELINE-ONLY",
+    "REJECTED-PROTOTYPE"
+  ],
+  "stop_after": "B23.1_RETURN_PENDING_PLANNER_REVIEW"
+}

@@ -1,0 +1,50 @@
+{
+  "hardware_identity": {
+    "calibration_gpu": 0,
+    "cuda_visible_devices": "0",
+    "device_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "inventory_sha256": "e0f7f472ad4c31e9858d23889ec1c4acb82d71ba5e3bcf7955599c398df4bf94",
+    "schema_version": "b23.hardware-identity.v1",
+    "timer_method": "CUDA_EVENTS_SYNCHRONIZED_PLUS_PERF_COUNTER"
+  },
+  "ledgers": [
+    {
+      "claim_FRE": 1.0,
+      "gpu_active_seconds": 622.609625,
+      "ledger_sha256": "466742d96ca9b9d5793b432c3e58421cdad1ae9db2481ae1b11d7cdbd8950cb4",
+      "parent_id": "Fresh1",
+      "time_FRE": 0.9228430604647587,
+      "wall_seconds": 622.9027933143079,
+      "work_FRE": 1.0
+    },
+    {
+      "claim_FRE": 0.9309305965417081,
+      "gpu_active_seconds": 544.2316875,
+      "ledger_sha256": "7f345061ac2fb0ca073d57bae8fdc85456d6346f12dc65fd43031ebbaf376461",
+      "parent_id": "LF-v1",
+      "time_FRE": 0.8066698874023994,
+      "wall_seconds": 544.5416474938393,
+      "work_FRE": 0.9309305965417081
+    },
+    {
+      "claim_FRE": 0.40478839719916415,
+      "gpu_active_seconds": 255.12178125,
+      "ledger_sha256": "1655b9d6a3e16213e850a64508741094ea25983076e246eca1d8a3baab16638f",
+      "parent_id": "NP-1",
+      "time_FRE": 0.3781460419921563,
+      "wall_seconds": 255.45212268829346,
+      "work_FRE": 0.40478839719916415
+    },
+    {
+      "claim_FRE": 0.3185550275669349,
+      "gpu_active_seconds": 162.70234375,
+      "ledger_sha256": "05b3e1c430713e128c4edc211b55f15469e2de09fc1071d2e2c63b41053e2194",
+      "parent_id": "SITCOM-1",
+      "time_FRE": 0.24116030787516207,
+      "wall_seconds": 162.9960938487202,
+      "work_FRE": 0.3185550275669349
+    }
+  ],
+  "schema_version": "b23.compute-summary.v1",
+  "status": "PASS"
+}

@@ -1,0 +1,24 @@
+{
+  "exact_measurement_rows": 240,
+  "future_split_registry_rows": 0,
+  "historical_bounded_scan": {
+    "bytes_read": 3331071,
+    "files_inspected": 446,
+    "id_mentions_added": 2100
+  },
+  "image_count": 328,
+  "policy": "uncertain measurement identity excludes all measurements for that image",
+  "row_count": 429,
+  "sha256": "c16f6cac2acb5d07deab1821b7ebc29d0609e746e061242ca5f48d3123ecb0ca",
+  "targeted_sources": [
+    "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements/fresh_measurement_manifest_meas5401.json",
+    "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/panel/panel_manifest.tsv",
+    "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/manifest.tsv",
+    "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/active_manifest.tsv",
+    "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/panel_manifest_checked.tsv",
+    "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/fresh2_final_summary.json",
+    "/egr/research-pac/huang248/pr_diffusion_b23/docs/b22/b22_3_visual_failure_taxonomy.csv"
+  ],
+  "targeted_sources_missing": [],
+  "unknown_all_measurement_rows": 189
+}

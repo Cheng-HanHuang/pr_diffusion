@@ -1,0 +1,14 @@
+{
+  "schema_version": "b23.exposure-sources.v1",
+  "policy": "Any uncertain item is exposed. Exact PAC manifests override neither exposure nor evidence; they add more rows and exact measurement IDs.",
+  "sources": [
+    {"stage": "PRE_B19", "kind": "fixed_early_panel", "path": "/egr/research-pac/huang248/outputs/pr_diffusion/phase_retrieval_20260411/splits/ffhq_available25.txt", "required": false},
+    {"stage": "B19_B20", "kind": "bounded_repository_docs_configs_and_manifests", "path": "/egr/research-pac/huang248/pr_diffusion_b19_solver", "required": true},
+    {"stage": "BRANCH_A_B", "kind": "bounded_repository_docs_configs_and_manifests", "path": "/egr/research-pac/huang248/pr_diffusion_b19_solver", "required": true},
+    {"stage": "B21", "kind": "locked_panel_and_measurement_manifests", "path": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401", "required": true},
+    {"stage": "B21_SOURCE", "kind": "source_snapshot_index", "path": "/egr/research-pac/huang248/outputs/pr_diffusion/checkpoints/B21_source_snapshot_20260727_040208", "required": true},
+    {"stage": "B22", "kind": "repository_configs_docs_and_fixed_panel", "path": "/egr/research-pac/huang248/pr_diffusion_b23", "required": true},
+    {"stage": "MANUAL", "kind": "failure_taxonomy_and_atlas", "path": "docs/b22/b22_3_visual_failure_taxonomy.csv", "required": true}
+  ],
+  "pac_collector": "scripts/b23/collect_b23_0_pac_evidence.py"
+}

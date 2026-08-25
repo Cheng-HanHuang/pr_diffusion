@@ -1,0 +1,10 @@
+{
+  "schema_version": "b23.smoke-template.v1",
+  "status": "UNPOPULATED_NOT_AUTHORIZED",
+  "authorization_required": "B23.0 planner/user sign-off plus separate B23.1 GPU authorization",
+  "one_image_smoke": {"registry_rows": [], "required_count": 1, "parents": ["Fresh1", "LF-v1", "NP-1", "SITCOM-1"]},
+  "four_image_heterogeneous_smoke": {"registry_rows": [], "required_count": 4, "selection_rule": "preregistered new images disjoint from PRE_B23_EXPOSURE; categories may be assigned only by the authorized protocol"},
+  "gpu_commands": [],
+  "dry_run_renderer": "scripts/b23/render_b23_1_dry_runs.py",
+  "note": "B23.0 defines structure only; it assigns no images, measurements, seeds, GPUs, or schedules."
+}

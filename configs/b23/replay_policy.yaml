@@ -1,0 +1,43 @@
+{
+  "schema_version": "b23.replay-policy.v2",
+  "authorization": {
+    "b23_0_gpu_budget": 0,
+    "b23_1_gpu_authorized": false,
+    "b23_2_schedule_authorized": false
+  },
+  "seed_derivation": {
+    "version": "b23-sha256-v1",
+    "algorithm": "SHA-256 over canonical JSON fields; first 8 bytes big-endian masked to 63 bits",
+    "required_fields": ["base_seed", "stream_name", "image_id", "measurement_id", "parent_id", "branch_id", "draw_index"],
+    "named_streams": ["measurement_noise", "native_start_noise", "diffusion_transition", "np_proposals", "adapter_renoise", "optimizer_stochasticity", "diagnostic_only"],
+    "isolation_rule": "Every stream has an independent derived seed; adding a module cannot shift unrelated streams.",
+    "future_registry_required": true
+  },
+  "native_repeatability": {
+    "minimum_native_repeats": 3,
+    "run_unchanged_native_first": true,
+    "freeze_tolerance_before_wrapper": true,
+    "tolerance_freeze_identity_required": true,
+    "freeze_record_excludes_wrapper_run": true,
+    "numerical_floors": {
+      "required_for_each_metric": ["max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta", "measurement_loss_delta", "trace_max_abs_err"],
+      "declaration_rule": "derive from dtype and metric scale and freeze before the wrapper; B23.0 supplies no numerical values"
+    },
+    "wrapper_acceptance_rule": "For every numeric comparison, abs(wrapper delta) <= abs(frozen native envelope) + declared numerical floor.",
+    "operation_count_exact": true,
+    "rng_draw_reconciliation_exact": true
+  },
+  "eligibility": {
+    "bitwise": "Only when repeated native runs on the pinned host have equal tensor/checkpoint hashes.",
+    "tolerance_qualified": "Use the frozen native repeatability envelope plus a predeclared numerical floor.",
+    "cross_hardware_bitwise_required": false
+  },
+  "determinism_audit": {
+    "required_fields": ["torch.use_deterministic_algorithms", "torch.backends.cudnn.deterministic", "torch.backends.cudnn.benchmark", "CUBLAS_WORKSPACE_CONFIG"],
+    "allowed_states": ["COMPLETE", "JUSTIFIED_UNAVAILABLE"],
+    "complete_rule": "Every field is non-null; record UNSET for an audited but unset CUBLAS_WORKSPACE_CONFIG.",
+    "unavailable_rule": "A non-empty reason is mandatory."
+  },
+  "required_comparison_metrics": ["tensor_sha256", "max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta", "measurement_loss_delta", "intermediate_trace_delta", "raw_operation_counts", "named_rng_draws"],
+  "stop_conditions": ["native identity mismatch", "native repeatability envelope not frozen", "wrapper outside envelope", "operation-count mismatch", "RNG-draw mismatch", "hidden candidate or retry", "NaN or nontermination"]
+}

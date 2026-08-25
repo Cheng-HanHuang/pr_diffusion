@@ -1,0 +1,43 @@
+{
+  "schema_version": "b23.evidence-closeout-contract.v1",
+  "project": "Cheng-HanHuang/pr_diffusion",
+  "stage": "B23.1A/B",
+  "verdict_received": "REVISE_EVIDENCE_CLOSEOUT_ONLY",
+  "reviewed_scientific_head": "3ffb237818e1bfa4921b3f4f8bc9a3bd24b7e406",
+  "reviewed_packaging_head": "fad055d40d5bd0eaf4c9471359177c321958d2d7",
+  "accepted_source_capsule": "B23_1_return_20260825T184922Z",
+  "accepted_source_archive_sha256": "5731e6b0c20be940ae8a1e8b1326b3668111f2291550280bfeb0013408257469",
+  "accepted_science": {
+    "parent_trajectories": 32,
+    "native_trajectories": 12,
+    "wrapper_trajectories": 4,
+    "smoke_trajectories": 16,
+    "bitwise_replay_reports": 4,
+    "compute_ledgers": 4,
+    "recovered_fresh1_trajectories": 1
+  },
+  "gate_outcome": {
+    "cross_family_h0": "FAIL",
+    "qualified_np_sitcom_adapters": 0,
+    "narrowed_recommendation": "CONTINUE DAPS-NATIVE ONLY UNDER NARROWED CLAIM",
+    "b23_2_authorized": false
+  },
+  "authorized_correction": [
+    "zero-GPU repository validation",
+    "compact review summaries",
+    "PAC artifact manifest",
+    "B23.1 checkpoint report",
+    "compact protocol-shaped capsule",
+    "draft PR #37 metadata update"
+  ],
+  "unauthorized": [
+    "parent process",
+    "measurement generation",
+    "reconstruction",
+    "GPU work",
+    "B23.2",
+    "B24 execution",
+    "large panel",
+    "adaptive schedule"
+  ]
+}

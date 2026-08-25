@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cheng-HanHuang/pr_diffusion/schemas/b23/replay_report.schema.json",
+  "title": "B23 native-parent replay report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "experiment_id", "parent_id", "native_run_ids", "wrapper_run_id",
+    "eligibility", "determinism_audit", "tolerance_qualification", "native_repeatability_envelope",
+    "wrapper_comparison", "native_tensor_sha256s", "wrapper_tensor_sha256",
+    "native_trace_sha256s", "wrapper_trace_sha256", "operation_count_reconciled",
+    "rng_draws_reconciled", "serialization_resume_check",
+    "serialization_not_applicable_reason", "verdict", "failure_reasons"
+  ],
+  "properties": {
+    "schema_version": {"const": "b23.replay-report.v3"},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "parent_id": {"enum": ["Fresh1", "LF-v1", "NP-1", "SITCOM-1"]},
+    "native_run_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+    "wrapper_run_id": {"type": ["string", "null"]},
+    "eligibility": {"enum": ["BITWISE", "TOLERANCE_QUALIFIED", "UNDETERMINED"]},
+    "eligibility_rationale": {"type": "string"},
+    "determinism_audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["audit_status", "unavailable_reason", "torch_deterministic_algorithms", "cudnn_deterministic", "cudnn_benchmark", "cublas_workspace_config", "flags_change_native_parent"],
+      "properties": {
+        "audit_status": {"enum": ["COMPLETE", "JUSTIFIED_UNAVAILABLE"]},
+        "unavailable_reason": {"type": ["string", "null"]},
+        "torch_deterministic_algorithms": {"type": ["boolean", "null"]},
+        "cudnn_deterministic": {"type": ["boolean", "null"]},
+        "cudnn_benchmark": {"type": ["boolean", "null"]},
+        "cublas_workspace_config": {"type": ["string", "null"]},
+        "flags_change_native_parent": {"type": ["boolean", "null"]},
+        "notes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "tolerance_qualification": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["freeze_record_sha256", "frozen_before_wrapper", "wrapper_run_id_at_freeze", "frozen_native_run_ids", "numerical_floors"],
+      "properties": {
+        "freeze_record_sha256": {"$ref": "#/$defs/sha256"},
+        "frozen_before_wrapper": {"type": "boolean"},
+        "wrapper_run_id_at_freeze": {"type": "null"},
+        "frozen_native_run_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "numerical_floors": {"$ref": "#/$defs/numerical_floors"}
+      }
+    },
+    "native_repeatability_envelope": {"$ref": "#/$defs/comparison"},
+    "wrapper_comparison": {"$ref": "#/$defs/comparison"},
+    "native_tensor_sha256s": {"type": "array", "items": {"$ref": "#/$defs/sha256"}},
+    "wrapper_tensor_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "native_trace_sha256s": {"type": "array", "items": {"$ref": "#/$defs/sha256"}},
+    "wrapper_trace_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "native_operation_counts_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "wrapper_operation_counts_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "operation_count_reconciled": {"type": "boolean"},
+    "native_rng_ledger_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "wrapper_rng_ledger_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "rng_draws_reconciled": {"type": "boolean"},
+    "serialization_resume_check": {"enum": ["PASS", "FAIL", "NOT_APPLICABLE", "NOT_RUN"]},
+    "serialization_not_applicable_reason": {"type": ["string", "null"]},
+    "verdict": {"enum": ["PASS", "FAIL", "NOT_RUN"]},
+    "failure_reasons": {"type": "array", "items": {"type": "string"}}
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "floor": {"type": "number", "minimum": 0},
+    "numerical_floors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta", "measurement_loss_delta", "trace_max_abs_err"],
+      "properties": {
+        "max_abs_err": {"$ref": "#/$defs/floor"},
+        "mean_abs_err": {"$ref": "#/$defs/floor"},
+        "relative_l2_err": {"$ref": "#/$defs/floor"},
+        "raw_psnr_delta": {"$ref": "#/$defs/floor"},
+        "measurement_loss_delta": {"$ref": "#/$defs/floor"},
+        "trace_max_abs_err": {"$ref": "#/$defs/floor"}
+      }
+    },
+    "metric": {"type": ["number", "null"], "minimum": 0},
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_abs_err", "mean_abs_err", "relative_l2_err", "raw_psnr_delta", "measurement_loss_delta", "trace_max_abs_err", "tensor_hash_equal"],
+      "properties": {
+        "max_abs_err": {"$ref": "#/$defs/metric"},
+        "mean_abs_err": {"$ref": "#/$defs/metric"},
+        "relative_l2_err": {"$ref": "#/$defs/metric"},
+        "raw_psnr_delta": {"type": ["number", "null"]},
+        "measurement_loss_delta": {"type": ["number", "null"]},
+        "trace_max_abs_err": {"$ref": "#/$defs/metric"},
+        "tensor_hash_equal": {"type": ["boolean", "null"]}
+      }
+    }
+  }
+}
