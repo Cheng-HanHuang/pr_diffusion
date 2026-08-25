@@ -1,2 +1,2 @@
 registry_version,split,row_id,image_id,measurement_id,measurement_seed,solver_base_seed,assigned_before_run,pre_b23_exposure_checked,source_manifest_sha256,notes
-b23.future-split.v1,B23.1-SMOKE-1,0,65082,b23m-20260824-00,3769748744777442834,5016031019992725667,true,true,c6cc3b13a3d5dd0f6ba251e20242e684a2df0d205998cc0372d17bb3cbd33862,Outcome-free minimum SHA-256 rank for B23.1A replay; no image inspection
+b23.future-split.v1,B23.1-SMOKE-1,0,65082,b23m-20260824-00,3769748744777442834,5016031019992725667,true,true,a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288,Outcome-free minimum SHA-256 rank for B23.1A replay; no image inspection

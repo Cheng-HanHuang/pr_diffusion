@@ -44,6 +44,7 @@ def main() -> int:
         "manifests/b23/b23_1_signed_registry.csv",
         "manifests/b23/b23_1_one_image_smoke.signed.csv",
         "manifests/b23/b23_1_four_image_smoke.signed.csv",
+        "manifests/b23/b23_1_correction_ledger.json",
         "manifests/b23/PRE_B23_EXPOSURE.csv",
     ):
         copy(repo / relative, capsule / relative)

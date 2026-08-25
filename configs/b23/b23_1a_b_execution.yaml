@@ -20,12 +20,22 @@
       "adaptive schedules"
     ]
   },
+  "correction_history": [
+    {
+      "id": "preflight_exposure_digest_stop_20260825T012447Z",
+      "invalidated_pre_run_head": "6e3e08eba2621f903bd33cd8d818442a34158318",
+      "stopped_step": "prerun_validate",
+      "gpu_work_performed": false,
+      "cause": "The signed rows referenced the pre-closeout byte identity of PRE_B23_EXPOSURE.csv instead of the accepted B23.0 closeout manifest identity.",
+      "resolution": "Recompute selection and image-level disjointness against the accepted closeout manifest, preserve the same five outcome-free selections, and freeze its SHA-256."
+    }
+  ],
   "registry": {
     "combined": "manifests/b23/b23_1_signed_registry.csv",
     "one_image": "manifests/b23/b23_1_one_image_smoke.signed.csv",
     "four_image": "manifests/b23/b23_1_four_image_smoke.signed.csv",
     "pre_b23_exposure": "manifests/b23/PRE_B23_EXPOSURE.csv",
-    "pre_b23_exposure_sha256": "c6cc3b13a3d5dd0f6ba251e20242e684a2df0d205998cc0372d17bb3cbd33862",
+    "pre_b23_exposure_sha256": "a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288",
     "selection_rule": "minimum SHA-256 rank within preregistered official-validation ID strata after image-level PRE_B23_EXPOSURE exclusion; no image content or outcome inspected"
   },
   "problem": {

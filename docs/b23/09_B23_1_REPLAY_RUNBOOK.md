@@ -20,6 +20,14 @@ and adaptive schedules remain closed.
 
 The earlier header-only templates and dry render remain preserved as B23.0 historical artifacts.
 
+The first authorized launch at pre-run head `6e3e08eba2621f903bd33cd8d818442a34158318`
+stopped in CUDA-hidden `prerun_validate` before input generation because its signed rows carried the
+pre-closeout byte identity of `PRE_B23_EXPOSURE.csv`. The accepted closeout manifest has the same
+328 exposed image identities but SHA-256 `a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288`.
+Recomputation preserves all five selected images and proves zero intersection. The false start and
+correction are preserved in `manifests/b23/b23_1_correction_ledger.json`; GPU work performed was
+`NO` and the parent-trajectory count was zero.
+
 ## Required pre-run freeze after authorization
 
 - signed one-image and four-image registries, disjoint from `PRE_B23_EXPOSURE.csv`;

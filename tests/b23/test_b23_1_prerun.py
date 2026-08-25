@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import subprocess
 import sys
@@ -44,6 +45,27 @@ class B231PrerunTests(unittest.TestCase):
         validate_future_split_registry(typed, self.exposed)
         self.assertEqual(len(self.rows), 5)
         self.assertFalse({row["image_id"] for row in self.rows} & self.exposed)
+
+    def test_accepted_closeout_exposure_identity_is_frozen(self) -> None:
+        exposure_path = REPO / "manifests/b23/PRE_B23_EXPOSURE.csv"
+        observed = hashlib.sha256(exposure_path.read_bytes()).hexdigest()
+        self.assertEqual(
+            observed,
+            "a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288",
+        )
+        self.assertEqual(self.config["registry"]["pre_b23_exposure_sha256"], observed)
+        self.assertEqual({row["source_manifest_sha256"] for row in self.rows}, {observed})
+
+    def test_preflight_false_start_is_preserved_as_zero_gpu(self) -> None:
+        ledger = json.loads(
+            (REPO / "manifests/b23/b23_1_correction_ledger.json").read_text()
+        )
+        entry = ledger["entries"][-1]
+        self.assertEqual(entry["invalidated_pre_run_head"], "6e3e08eba2621f903bd33cd8d818442a34158318")
+        self.assertFalse(entry["gpu_work_performed"])
+        self.assertFalse(entry["input_generation_performed"])
+        self.assertEqual(entry["parent_trajectory_count"], 0)
+        self.assertFalse(entry["selection_revalidation"]["selection_changed"])
 
     def test_selection_and_seed_derivation_reproduce(self) -> None:
         result = subprocess.run(

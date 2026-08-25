@@ -1,0 +1,27 @@
+{
+  "schema_version": "b23.b23-1-correction-ledger.v1",
+  "append_only": true,
+  "entries": [
+    {
+      "id": "preflight_exposure_digest_stop_20260825T012447Z",
+      "invalidated_pre_run_head": "6e3e08eba2621f903bd33cd8d818442a34158318",
+      "bootstrap_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/bootstrap/B23_1A_B_20260825T012447Z.log",
+      "failed_step_log_name": "prerun_validate.log",
+      "failed_step_log_location": "Retained on PAC under the failed B23_1_run_<runner timestamp>/logs directory; the exact run-root path was not included in the returned terminal excerpt.",
+      "stopped_step": "prerun_validate",
+      "gpu_work_performed": false,
+      "input_generation_performed": false,
+      "parent_trajectory_count": 0,
+      "observed_error": "PRE_B23_EXPOSURE identity changed after smoke selection",
+      "cause": "The signed rows referenced the pre-closeout byte identity c6cc3b13a3d5dd0f6ba251e20242e684a2df0d205998cc0372d17bb3cbd33862 instead of the accepted B23.0 closeout manifest identity a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288.",
+      "selection_revalidation": {
+        "exposed_image_count": 328,
+        "selected_image_intersection": [],
+        "replay_image": "65082",
+        "smoke_images": ["61492", "62959", "66821", "68142"],
+        "selection_changed": false
+      },
+      "resolution": "Freeze the accepted closeout manifest digest in the execution config and all three signed registries; preserve every image, measurement ID, and seed."
+    }
+  ]
+}
