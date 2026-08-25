@@ -3,7 +3,8 @@ set -euo pipefail
 
 # B24.0 zero-GPU closeout. This script never invokes a model or nvidia-smi.
 # It creates the isolated PAC worktree, imports the exact populated PRE_B23
-# registry, runs pure-CPU tests/validation, and dry-renders future manifests.
+# registry, runs pure-CPU tests/validation, dry-renders future manifests, then
+# commits/pushes only PRE_B24 plus compact zero-GPU evidence.
 
 ROOT=/egr/research-pac/huang248
 CONTROL="$ROOT/pr_diffusion_b23"
@@ -39,25 +40,31 @@ step() {
 
 short "B24_0_CLOSEOUT|zero_gpu=YES|runroot=$RUNROOT"
 
-[ -d "$CONTROL/.git" ] || git -C "$CONTROL" rev-parse --git-dir >/dev/null
+# Read-only verification of the B23 worktree plus shared-repository fetch/worktree metadata.
+git -C "$CONTROL" rev-parse --git-dir >/dev/null
 [ ! -e "$B24WT" ] || { short "STOP|B24 worktree already exists:$B24WT"; exit 20; }
 [ -f "$PRE23" ] || { short "STOP|missing populated PRE_B23:$PRE23"; exit 21; }
 ACTUAL_PRE23=$(sha256sum "$PRE23" | awk '{print $1}')
 [ "$ACTUAL_PRE23" = "$PRE23_SHA" ] || { short "STOP|PRE_B23_SHA|$ACTUAL_PRE23"; exit 22; }
+[ -z "$(git -C "$CONTROL" status --short --untracked-files=no)" ] || {
+  short "STOP|B23 tracked worktree is dirty; do not use it as B24 control repo"; exit 23;
+}
 
 step fetch_b24 git -C "$CONTROL" fetch origin codex/b23-execution "$BRANCH"
 REMOTE_BASE=$(git -C "$CONTROL" rev-parse origin/codex/b23-execution)
-[ "$REMOTE_BASE" = "$BASE" ] || { short "STOP|remote_b23_head=$REMOTE_BASE|expected=$BASE"; exit 23; }
+[ "$REMOTE_BASE" = "$BASE" ] || { short "STOP|remote_b23_head=$REMOTE_BASE|expected=$BASE"; exit 24; }
 step ancestry git -C "$CONTROL" merge-base --is-ancestor "$BASE" "origin/$BRANCH"
 
 if git -C "$CONTROL" show-ref --verify --quiet "refs/heads/$BRANCH"; then
   short "STOP|local branch already exists; refusing ambiguous worktree reuse:$BRANCH"
-  exit 24
+  exit 25
 fi
 step add_worktree git -C "$CONTROL" worktree add -b "$BRANCH" "$B24WT" "origin/$BRANCH"
 
 cd "$B24WT"
 HEAD=$(git rev-parse HEAD)
+REMOTE_HEAD=$(git rev-parse "origin/$BRANCH")
+[ "$HEAD" = "$REMOTE_HEAD" ] || { short "STOP|new worktree head does not equal fetched remote head"; exit 26; }
 short "WORKTREE|head=$HEAD|branch=$(git branch --show-current)"
 
 step compile "$PY" -m py_compile \
@@ -77,6 +84,8 @@ step render256 env CUDA_VISIBLE_DEVICES= "$PY" scripts/b24/render_b24_baseline_m
   --count 256 --out "$RUNROOT/B24_2_baseline_256.future.json"
 step control_dry64 env CUDA_VISIBLE_DEVICES= bash scripts/b24/launch_b24_nohup.sh \
   --stage B24.0 --manifest "$RUNROOT/B24_2_baseline_64.future.json" --mode serial --dry-run
+step control_dry256 env CUDA_VISIBLE_DEVICES= bash scripts/b24/launch_b24_nohup.sh \
+  --stage B24.0 --manifest "$RUNROOT/B24_2_baseline_256.future.json" --mode batched --dry-run
 
 PRE24_SHA=$(sha256sum manifests/b24/PRE_B24_EXPOSURE.csv | awk '{print $1}')
 PRE24_COUNT=$(tail -n +2 manifests/b24/PRE_B24_EXPOSURE.csv | wc -l | tr -d ' ')
@@ -88,7 +97,12 @@ cat >"$RUNROOT/B24_0_CHECKPOINT.json" <<EOF
   "schema_version": 1,
   "stage": "B24.0",
   "gpu_work_performed": false,
+  "model_work_performed": false,
+  "measurement_generation_performed": false,
+  "reconstruction_performed": false,
+  "scientific_screening_rows_populated": false,
   "worktree_head_before_generated_exposure": "$HEAD",
+  "required_base": "$BASE",
   "pre_b23_sha256": "$PRE23_SHA",
   "pre_b24_sha256": "$PRE24_SHA",
   "pre_b24_row_count": $PRE24_COUNT,
@@ -98,9 +112,40 @@ cat >"$RUNROOT/B24_0_CHECKPOINT.json" <<EOF
 }
 EOF
 
-step generated_status git status --short
+EVDIR="docs/b24/evidence/B24_0_closeout_$STAMP"
+mkdir -p "$EVDIR"
+cp "$RUNROOT/B24_0_CHECKPOINT.json" "$EVDIR/B24_0_CHECKPOINT.json"
+cp "$RESULTS" "$EVDIR/ZERO_GPU_STEP_RESULTS.tsv"
+cat >"$EVDIR/README.md" <<EOF
+# B24.0 zero-GPU closeout
 
-short "READY_FOR_COMMIT|PRE_B24=$PRE24_SHA|rows=$PRE24_COUNT"
-short "NOTE|Do not launch B24.1/B24.2. Commit only PRE_B24 plus compact B24.0 closeout evidence after review."
+- PAC run root: \`$RUNROOT\`
+- source B24 head: \`$HEAD\`
+- populated PRE_B23 SHA-256: \`$PRE23_SHA\`
+- PRE_B24 SHA-256: \`$PRE24_SHA\`
+- PRE_B24 rows: \`$PRE24_COUNT\`
+- GPU/model/measurement/reconstruction work: **NO**
+- future B24.1/B24.2 authorization: **NO**
+
+Full log and future dry-rendered manifests remain on PAC and are not scientific results.
+EOF
+
+# Before staging, the only repo changes may be PRE_B24 and this exact evidence directory.
+UNEXPECTED=$(git status --porcelain | awk -v ev="$EVDIR/" '
+  $2 == "manifests/b24/PRE_B24_EXPOSURE.csv" {next}
+  index($2, ev) == 1 {next}
+  {print}
+')
+[ -z "$UNEXPECTED" ] || { short "STOP|unexpected repo changes"; printf '%s\n' "$UNEXPECTED"; exit 27; }
+
+git add manifests/b24/PRE_B24_EXPOSURE.csv "$EVDIR"
+step staged_diff git diff --cached --check
+step commit git commit -m "B24.0: publish exposure freeze and zero-GPU closeout"
+FINAL_HEAD=$(git rev-parse HEAD)
+step push git push origin "HEAD:refs/heads/$BRANCH"
+
+short "B24_0_COMPLETE|head=$FINAL_HEAD|pre_b24_sha256=$PRE24_SHA|rows=$PRE24_COUNT|gpu_work=NO"
+short "EVIDENCE|$EVDIR"
 short "RESULTS|$RESULTS"
 short "LOG|$LOG"
+short "STOP|B24.1_AND_B24.2_NOT_AUTHORIZED"
