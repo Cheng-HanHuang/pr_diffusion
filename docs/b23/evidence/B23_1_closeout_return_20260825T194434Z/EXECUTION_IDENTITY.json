@@ -1,0 +1,15 @@
+{
+  "closeout_pre_run_commit": "4d77e7d478c5562626e13c7f0fd71e09a953fba9",
+  "gpu_work_performed_during_evidence_closeout": false,
+  "gpu_work_performed_during_scientific_execution": true,
+  "reviewed_packaging_head": "fad055d40d5bd0eaf4c9471359177c321958d2d7",
+  "reviewed_scientific_head": "3ffb237818e1bfa4921b3f4f8bc9a3bd24b7e406",
+  "schema_version": "b23.closeout-execution-identity.v1",
+  "scientific_final_steps_verified": 29,
+  "source_archive_path": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_return_20260825T184922Z.tar.gz",
+  "source_archive_regular_members_verified": 301,
+  "source_archive_sha256": "5731e6b0c20be940ae8a1e8b1326b3668111f2291550280bfeb0013408257469",
+  "source_capsule": "B23_1_return_20260825T184922Z",
+  "source_internal_checksums_verified": 300,
+  "stage": "B23.1A/B"
+}
