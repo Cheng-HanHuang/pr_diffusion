@@ -50,7 +50,9 @@ ACTUAL_PRE23=$(sha256sum "$PRE23" | awk '{print $1}')
   short "STOP|B23 tracked worktree is dirty; do not use it as B24 control repo"; exit 23;
 }
 
-step fetch_b24 git -C "$CONTROL" fetch origin codex/b23-execution "$BRANCH"
+step fetch_b24 git -C "$CONTROL" fetch origin \
+  "+refs/heads/codex/b23-execution:refs/remotes/origin/codex/b23-execution" \
+  "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
 REMOTE_BASE=$(git -C "$CONTROL" rev-parse origin/codex/b23-execution)
 [ "$REMOTE_BASE" = "$BASE" ] || { short "STOP|remote_b23_head=$REMOTE_BASE|expected=$BASE"; exit 24; }
 step ancestry git -C "$CONTROL" merge-base --is-ancestor "$BASE" "origin/$BRANCH"
