@@ -21,3 +21,9 @@ locked inputs without regenerating them. It also requires `--recover-fresh1-nati
 completed Fresh1 native-0 partial run rejected by the incomplete 40,401-vs-40,402 RNG formula.
 Recovery is zero-GPU, so only the other 31 authorized trajectories execute. It hard-stops before
 B23.2, large panels, B24, or adaptive schedules.
+
+`run_b23_1_evidence_closeout.sh` is the later evidence-only closeout path. It hides CUDA, validates
+the already accepted full capsule, creates compact summaries and a PAC artifact manifest, packages
+a small protocol-shaped transport, and optionally publishes only the extracted review evidence.
+It contains no call to the B23.1 parent runner or input generator. Cross-family H0 is frozen as
+failed with zero qualified NP/SITCOM adapters, and B23.2 remains closed.

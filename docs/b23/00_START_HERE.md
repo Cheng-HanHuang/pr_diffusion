@@ -2,12 +2,15 @@
 
 ## Status and boundary
 
-B23.0 is the only authorized stage. Its GPU budget is zero. This branch freezes repository and PAC
-identities, native parent semantics, leakage controls, typed interfaces, compute accounting,
-replay/RNG policy, evidence packaging, and dry-run-only B23.1 preparation.
+B23.0 is signed off. The bounded B23.1A/B scientific execution is accepted at
+`3ffb237818e1bfa4921b3f4f8bc9a3bd24b7e406`, with repaired packaging at
+`fad055d40d5bd0eaf4c9471359177c321958d2d7`. The only open work is a zero-GPU evidence-publication
+closeout that validates and summarizes those immutable results; it must not launch a parent,
+generate a measurement, or reconstruct an image.
 
-B23.1 replay, B23.2 schedules, large panels, Track B, and Track C remain unauthorized. Nothing in
-`docs/b23`, `configs/b23`, or `scripts/b23` grants that authorization.
+Cross-family H0 failed: zero NP/SITCOM adapters qualified. B23.2, B24 execution, large panels, and
+adaptive schedules remain unauthorized. Nothing in `docs/b23`, `configs/b23`, or `scripts/b23`
+promotes a donor, defines an adaptive schedule, or grants later-stage authorization.
 
 The execution branch is `codex/b23-execution`, created from operational handoff
 `d1119e37fa688ac07f48ffc87ce19b13dbfb1c27`. That handoff descends from accepted scientific plan
@@ -30,17 +33,17 @@ The execution branch is `codex/b23-execution`, created from operational handoff
 Machine-readable contracts are under `configs/b23`, `manifests/b23`, and `schemas/b23`. Protocol
 primitives are in `prdiffusion/b23_protocol.py`; tests are under `tests/b23`.
 
-## B23.0 checkpoint sequence
+## Evidence checkpoint sequence
 
-1. Push the reviewable pre-run freeze commit to `codex/b23-execution`.
+1. Push the reviewable evidence-closeout pre-run commit to `codex/b23-execution`.
 2. Create or update only the clean PAC worktree at
    `/egr/research-pac/huang248/pr_diffusion_b23`.
-3. Run `scripts/b23/run_b23_0_zero_gpu.sh` with `CUDA_VISIBLE_DEVICES` cleared and the explicit
+3. Run `scripts/b23/run_b23_1_evidence_closeout.sh` with `CUDA_VISIBLE_DEVICES` cleared and the explicit
    `/egr/research-pac/huang248/conda-envs/daps/bin/python`.
 4. Preserve full logs and the extracted capsule under
    `/egr/research-pac/huang248/outputs/pr_diffusion/b23`.
-5. Commit the transparent evidence and the explicitly approved, size-capped `.tar.gz` exception;
-   push without force to the execution branch.
+5. Commit the extracted compact summaries, checkpoint report, and PAC artifact manifest; keep the
+   compact `.tar.gz` transport on PAC and push the evidence commit without force.
 6. Return the exact protocol `PLANNER_RETURN` and stop for planner/user sign-off.
 
 The archive is transport, not the scientific database. The same critical files remain extracted in
@@ -49,11 +52,9 @@ in `ARTIFACT_MANIFEST.tsv`.
 
 ## Current recommendation
 
-The planner reviewed execution head `718998098cde1d8051e29e8d50d1285a04ca6ee9` with verdict
-`REVISE_BEFORE_SIGN_OFF`. The authorized contract closeout is now complete: corrective pre-run
-commit `77f964c7cd6034246f6e2b60e599e0582c001c95`, post-run evidence commit
-`abee0f914943ec47f22bd8a23f9393db8c2c0a71`, 69/69 PAC tests, all four fail-closed steps
-`PASS/0`, zero GPU work, and return timestamp `20260824T190122Z`.
+The planner accepted all 32 B23.1A/B trajectories, four BITWISE replay reports, calibrated compute
+ledgers, the recovered Fresh1 trajectory, the four-image smoke, and donor classifications. The
+current verdict is `REVISE_EVIDENCE_CLOSEOUT_ONLY`; scientific execution must not be rerun.
 
 Current extracted evidence is at `docs/b23/evidence/B23_0_return_20260824T190122Z/`; its transport
 archive is `docs/b23/evidence/capsules/B23_0_return_20260824T190122Z.tar.gz` with SHA-256
@@ -61,11 +62,11 @@ archive is `docs/b23/evidence/capsules/B23_0_return_20260824T190122Z.tar.gz` wit
 the invalid return preserved in `B23_0_CORRECTION_LEDGER.md`, remains immutable and cannot authorize
 later stages.
 
-The planner/user accepted B23.0 sign-off on 2026-08-24 and separately authorized **B23.1A/B only**:
-bounded native replay, trace instrumentation, compute microbenchmarks, the four-image heterogeneous
-smoke, and donor compatibility classification. The signed pre-run contract is
-`configs/b23/b23_1a_b_execution.yaml`; its one-image and four-image registries are
-`manifests/b23/b23_1_{one,four}_image_smoke.signed.csv`.
+The accepted full transport is `B23_1_return_20260825T184922Z.tar.gz`, SHA-256
+`5731e6b0c20be940ae8a1e8b1326b3668111f2291550280bfeb0013408257469`. The closeout contract is
+`manifests/b23/b23_1_evidence_closeout_contract.json`. The compact capsule and exact evidence commit
+remain pending the zero-GPU PAC publication run.
 
-B23.2, large panels, B24, and adaptive schedules remain **NOT AUTHORIZED**. B23.1 execution must
-stop at `B23.1_RETURN_PENDING_PLANNER_REVIEW`; authorization does not promote any donor or schedule.
+The scientific conclusion is intentionally narrower than the original cross-family hypothesis:
+`CONTINUE DAPS-NATIVE ONLY UNDER NARROWED CLAIM`. B23.2 remains **CLOSED** pending a separate planner
+decision; the present closeout cannot authorize it.
