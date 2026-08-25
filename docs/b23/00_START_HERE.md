@@ -4,9 +4,9 @@
 
 B23.0 is signed off. The bounded B23.1A/B scientific execution is accepted at
 `3ffb237818e1bfa4921b3f4f8bc9a3bd24b7e406`, with repaired packaging at
-`fad055d40d5bd0eaf4c9471359177c321958d2d7`. The only open work is a zero-GPU evidence-publication
-closeout that validates and summarizes those immutable results; it must not launch a parent,
-generate a measurement, or reconstruct an image.
+`fad055d40d5bd0eaf4c9471359177c321958d2d7`. Its zero-GPU evidence-publication closeout is complete
+at evidence commit `d158d05a3b85c0eb23524a5e0ab3c81eaf286145`; it launched no parent, generated no
+measurement, reconstructed no image, and performed no correction GPU work.
 
 Cross-family H0 failed: zero NP/SITCOM adapters qualified. B23.2, B24 execution, large panels, and
 adaptive schedules remain unauthorized. Nothing in `docs/b23`, `configs/b23`, or `scripts/b23`
@@ -33,7 +33,7 @@ The execution branch is `codex/b23-execution`, created from operational handoff
 Machine-readable contracts are under `configs/b23`, `manifests/b23`, and `schemas/b23`. Protocol
 primitives are in `prdiffusion/b23_protocol.py`; tests are under `tests/b23`.
 
-## Evidence checkpoint sequence
+## Completed evidence checkpoint sequence
 
 1. Push the reviewable evidence-closeout pre-run commit to `codex/b23-execution`.
 2. Create or update only the clean PAC worktree at
@@ -54,7 +54,9 @@ in `ARTIFACT_MANIFEST.tsv`.
 
 The planner accepted all 32 B23.1A/B trajectories, four BITWISE replay reports, calibrated compute
 ledgers, the recovered Fresh1 trajectory, the four-image smoke, and donor classifications. The
-current verdict is `REVISE_EVIDENCE_CLOSEOUT_ONLY`; scientific execution must not be rerun.
+evidence-only correction used pre-run commit `4d77e7d478c5562626e13c7f0fd71e09a953fba9` and evidence
+commit `d158d05a3b85c0eb23524a5e0ab3c81eaf286145`. The PAC closeout recorded 87/87 tests and all three
+zero-GPU steps `PASS/0`. Scientific execution was not rerun.
 
 Current extracted evidence is at `docs/b23/evidence/B23_0_return_20260824T190122Z/`; its transport
 archive is `docs/b23/evidence/capsules/B23_0_return_20260824T190122Z.tar.gz` with SHA-256
@@ -64,9 +66,15 @@ later stages.
 
 The accepted full transport is `B23_1_return_20260825T184922Z.tar.gz`, SHA-256
 `5731e6b0c20be940ae8a1e8b1326b3668111f2291550280bfeb0013408257469`. The closeout contract is
-`manifests/b23/b23_1_evidence_closeout_contract.json`. The compact capsule and exact evidence commit
-remain pending the zero-GPU PAC publication run.
+`manifests/b23/b23_1_evidence_closeout_contract.json`. The extracted compact evidence is at
+`docs/b23/evidence/B23_1_closeout_return_20260825T194434Z/`; its PAC transport archive is
+`/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_closeout_return_20260825T194434Z.tar.gz`
+with SHA-256 `1d434faab58c8e1590196a1b585113bc998e190b8b9d3775f6427a0728c8b9a2`.
 
 The scientific conclusion is intentionally narrower than the original cross-family hypothesis:
 `CONTINUE DAPS-NATIVE ONLY UNDER NARROWED CLAIM`. B23.2 remains **CLOSED** pending a separate planner
 decision; the present closeout cannot authorize it.
+
+Current recommendation: `PASS_RECOMMEND_B23_1A_B_SIGNOFF_ONLY`. Return to the planner and stop;
+do not begin B23.2, B24 execution, a large panel, or an adaptive schedule without a new explicit
+authorization.
