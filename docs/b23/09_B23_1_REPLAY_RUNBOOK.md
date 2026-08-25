@@ -36,6 +36,27 @@ denoiser call completed. The correction preserves the canonical seed and freezes
 use `--reuse-inputs` to validate and reuse the five existing measurements instead of regenerating
 them. This partial run is also preserved in the correction ledger.
 
+The following launch completed Fresh1 native repeat 0, including its 400-step native trace, but the
+post-run audit rejected 40,402 observed RNG calls against an incomplete 40,401 source formula. The
+pinned DAPS `DiffusionData.get_data(size, sigma=0)` implementation still calls
+`torch.randn_like(data)` before multiplying by zero. Fresh1 and LF-v1 therefore have 40,402
+process-wide RNG calls: one zero-sigma dataset-setup call plus 40,401 stochastic trajectory calls
+(one native start, 40,000 Langevin, 400 forward re-noising). The setup call advances the unchanged
+native global stream and is part of exact replay accounting even though it does not perturb the
+image tensor.
+
+The correction must pass that exact partial directory through `--recover-fresh1-native0`. Recovery
+validates the locked input, successful CUDA timing, terminal sample, raw trajectory, 400-step trace,
+seed, and hashes with CUDA hidden. It references that trajectory in the new return and runs only the
+remaining 31 parent trajectories; it must never rerun the completed trajectory.
+
+The frozen recovery source is
+`/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0`
+at physical execution head `45c6b6107e2bf2b100eac6b771ea0d1004f19a20`. Its returned timing, compact
+trace, input-manifest, terminal-sample hashes, and 943,734,389-byte raw trajectory size are frozen in
+the execution config and append-only correction ledger. Recovery additionally recomputes all 1,200
+recorded tensor hashes from the raw trajectory on CPU before accepting it.
+
 ## Required pre-run freeze after authorization
 
 - signed one-image and four-image registries, disjoint from `PRE_B23_EXPOSURE.csv`;

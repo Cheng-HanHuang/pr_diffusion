@@ -38,6 +38,15 @@
       "completed_parent_trajectories": 0,
       "cause": "The canonical 63-bit B23 seed was passed directly to the legacy NumPy RandomState seed API, which accepts only uint32 values.",
       "resolution": "Freeze native_entrypoint_seed = canonical_parent_seed modulo 2**32 for every parent, record both identities, and validate/reuse the five existing locked inputs."
+    },
+    {
+      "id": "fresh1_rng_setup_audit_stop_20260825T025410Z",
+      "invalidated_pre_run_head": "45c6b6107e2bf2b100eac6b771ea0d1004f19a20",
+      "stopped_step": "replay_fresh1_native_0_post_run_rng_audit",
+      "gpu_work_performed": true,
+      "completed_parent_trajectories": 1,
+      "cause": "Pinned DAPS data.py consumes one torch.randn_like setup call in DiffusionData.get_data even with sigma=0, so the complete process count is 40402 rather than 40401.",
+      "resolution": "Recover the exact hash-frozen completed trajectory with CUDA hidden and execute only the remaining 31 trajectories."
     }
   ],
   "registry": {
@@ -68,6 +77,18 @@
     "expected_measurement_generations": 5,
     "completed_measurement_generations_before_corrective_run": 5,
     "expected_new_measurement_generations": 0,
+    "completed_parent_trajectories_before_rng_accounting_correction": 1,
+    "expected_recovered_parent_trajectories": 1,
+    "expected_new_parent_trajectories": 31,
+    "recoverable_execution_head": "45c6b6107e2bf2b100eac6b771ea0d1004f19a20",
+    "required_recovery_source": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0",
+    "recovery_identifiers": {
+      "input_manifest_sha256": "2d465eab05c6d52b9c04c26f2ada8cdc8bdaab3ab4a4ef9f1abc5bc4c4e1d578",
+      "timing_sha256": "eeed137b90518470360e1dda5d069da0592efc3771c4a1dc389373ab93ba5552",
+      "trace_sha256": "63cc0bfe297f5f0645edb45eb0d5bed7a6d96004f1c4f95158e9332f719fc3a7",
+      "terminal_sample_sha256": "10e7e26ba06e3b2348d82284910e52ebcd8f2587d2a5af24a835082c3bc4df28",
+      "raw_trajectory_bytes": 943734389
+    },
     "required_reuse_input_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/inputs",
     "terminal_candidates_per_parent_run": 1,
     "overwrite_policy": "REFUSE",
@@ -78,9 +99,16 @@
   },
   "expected_operation_formulas": {
     "Fresh1": {
+      "dataset_zero_sigma_setup_rng_calls": 1,
+      "dataset_zero_sigma_setup_source": "pinned DAPS data.py DiffusionData.get_data executes torch.randn_like(data) * sigma even when sigma=0",
       "annealing_transitions": 400,
       "diffusion_substeps_per_transition": 5,
       "mcmc_iterations_per_transition": 100,
+      "native_start_rng_calls": 1,
+      "mcmc_rng_calls": 40000,
+      "forward_renoising_rng_calls": 400,
+      "stochastic_trajectory_rng_calls": 40401,
+      "total_process_rng_calls": 40402,
       "terminal_candidates": 1,
       "source_of_truth": "pinned DAPS sampler.py, cores/scheduler.py, cores/mcmc.py, and frozen Hydra configs; runtime counters must equal the source-derived formula"
     },
@@ -138,9 +166,10 @@
     "calibration_unit": "one complete frozen one-terminal native parent entrypoint, including model load and all inseparable parent-internal operations",
     "excluded_warmup_iterations": 0,
     "measured_iterations_per_parent": 3,
-    "paired_blocks": 3,
+    "paired_blocks": 2,
+    "recovered_native_samples": 1,
     "atomic_or_coupled_rule": "Every nonzero operation is assigned either an isolated measured atomic weight or one non-overlapping typed coupled-block weight; no guessed weight or double counting.",
-    "fresh1_reference": "same replay image, GPU 0, same frozen stack; three native cycles interleave Fresh1, LF-v1, NP-1, and SITCOM-1",
+    "fresh1_reference": "same replay image, GPU 0, same frozen stack; two complete interleaved cycles plus the exact recovered Fresh1 sample leading the first partial cycle",
     "justification": "The native parents expose complete source-faithful entrypoints, but no common sound boundary that isolates every internal operation without changing scheduler, optimizer, proposal-set, RNG, or model-load semantics. Each full native entrypoint is therefore measured as one typed non-overlapping coupled block; exact internal raw counts remain separately audited."
   },
   "donor_classes": [

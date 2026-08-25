@@ -88,6 +88,21 @@ class B231PrerunTests(unittest.TestCase):
             entry["canonical_parent_seed"] % (2 ** 32),
         )
 
+    def test_completed_rng_audit_stop_is_recovered_not_rerun(self) -> None:
+        ledger = json.loads(
+            (REPO / "manifests/b23/b23_1_correction_ledger.json").read_text()
+        )
+        entry = next(
+            value for value in ledger["entries"]
+            if value["id"] == "fresh1_rng_setup_audit_stop_20260825T025410Z"
+        )
+        self.assertEqual(entry["invalidated_pre_run_head"], "45c6b6107e2bf2b100eac6b771ea0d1004f19a20")
+        self.assertTrue(entry["gpu_work_performed"])
+        self.assertEqual(entry["completed_parent_trajectories"], 1)
+        self.assertEqual(entry["runtime"]["trace_step_count"], 400)
+        self.assertEqual(entry["corrected_formula"]["total_process_rng_calls"], 40402)
+        self.assertIn("recover the exact completed trajectory", entry["resolution"])
+
     def test_selection_and_seed_derivation_reproduce(self) -> None:
         result = subprocess.run(
             [sys.executable, str(REPO / "scripts/b23/validate_b23_1_prerun.py"), "--repo", str(REPO)],
@@ -115,6 +130,34 @@ class B231PrerunTests(unittest.TestCase):
         self.assertEqual(execution["terminal_candidates_per_parent_run"], 1)
         self.assertEqual(execution["completed_measurement_generations_before_corrective_run"], 5)
         self.assertEqual(execution["expected_new_measurement_generations"], 0)
+        self.assertEqual(execution["completed_parent_trajectories_before_rng_accounting_correction"], 1)
+        self.assertEqual(execution["expected_recovered_parent_trajectories"], 1)
+        self.assertEqual(execution["expected_new_parent_trajectories"], 31)
+        self.assertEqual(execution["recoverable_execution_head"], "45c6b6107e2bf2b100eac6b771ea0d1004f19a20")
+        self.assertEqual(
+            execution["required_recovery_source"],
+            "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0",
+        )
+        self.assertEqual(execution["recovery_identifiers"]["raw_trajectory_bytes"], 943734389)
+        self.assertEqual(self.config["compute"]["paired_blocks"], 2)
+        self.assertEqual(self.config["compute"]["recovered_native_samples"], 1)
+
+    def test_daps_zero_sigma_setup_draw_is_explicit(self) -> None:
+        formula = self.config["expected_operation_formulas"]["Fresh1"]
+        self.assertEqual(formula["dataset_zero_sigma_setup_rng_calls"], 1)
+        self.assertEqual(formula["stochastic_trajectory_rng_calls"], 40401)
+        self.assertEqual(formula["total_process_rng_calls"], 40402)
+        self.assertEqual(
+            formula["native_start_rng_calls"]
+            + formula["mcmc_rng_calls"]
+            + formula["forward_renoising_rng_calls"],
+            formula["stochastic_trajectory_rng_calls"],
+        )
+        source = (REPO / "scripts/b23/run_b23_1_parent.py").read_text()
+        self.assertIn('"dataset_zero_sigma_setup": 1', source)
+        self.assertIn('"total": 40402', source)
+        self.assertIn('runtime_counters["torch_randn_calls"] != 1', source)
+        self.assertIn('runtime_counters["torch_randn_like_calls"] != 40401', source)
 
     def test_no_adaptive_schedule_in_launcher(self) -> None:
         text = (REPO / "scripts/b23/run_b23_1a_b.sh").read_text()
@@ -123,6 +166,9 @@ class B231PrerunTests(unittest.TestCase):
         self.assertIn("b23_2_authorized=NO", text)
         self.assertIn("--reuse-inputs", text)
         self.assertIn("--validate-existing", text)
+        self.assertIn("--recover-fresh1-native0", text)
+        self.assertIn("replay_fresh1_native_0_recovered", text)
+        self.assertIn('if [[ "$repeat" -eq 0 && "$parent" == "Fresh1" ]]', text)
         self.assertNotIn('--output-root "$RUN_ROOT/inputs"', text)
 
 

@@ -17,5 +17,7 @@ not part of B23.0. It accepts only an exact pushed pre-run head and runs the bou
 five locked inputs, four ordered parent replays, pre-wrapper tolerance freezes, coupled compute
 calibration, four-image smoke, donor classification, and return packaging. After the preserved
 seed-range false start, the entrypoint requires `--reuse-inputs` and validates the five existing
-locked inputs without regenerating them. It hard-stops before B23.2, large panels, B24, or adaptive
-schedules.
+locked inputs without regenerating them. It also requires `--recover-fresh1-native0` for the exact
+completed Fresh1 native-0 partial run rejected by the incomplete 40,401-vs-40,402 RNG formula.
+Recovery is zero-GPU, so only the other 31 authorized trajectories execute. It hard-stops before
+B23.2, large panels, B24, or adaptive schedules.

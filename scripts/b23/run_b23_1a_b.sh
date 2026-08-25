@@ -7,6 +7,7 @@ OUTPUT_ROOT=""
 EXPECTED_HEAD=""
 GPUS="0 1 2 3"
 REUSE_INPUTS=""
+RECOVER_FRESH1_NATIVE0=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -15,12 +16,13 @@ while [[ $# -gt 0 ]]; do
     --expected-head) EXPECTED_HEAD="$2"; shift 2 ;;
     --gpus) GPUS="$2"; shift 2 ;;
     --reuse-inputs) REUSE_INPUTS="$2"; shift 2 ;;
+    --recover-fresh1-native0) RECOVER_FRESH1_NATIVE0="$2"; shift 2 ;;
     *) echo "[STOP] unknown argument: $1" >&2; exit 2 ;;
   esac
 done
 
-[[ -n "$REPO" && -n "$OUTPUT_ROOT" && -n "$EXPECTED_HEAD" && -n "$REUSE_INPUTS" ]] || {
-  echo "[STOP] --repo, --output-root, --expected-head, and --reuse-inputs are required" >&2; exit 2;
+[[ -n "$REPO" && -n "$OUTPUT_ROOT" && -n "$EXPECTED_HEAD" && -n "$REUSE_INPUTS" && -n "$RECOVER_FRESH1_NATIVE0" ]] || {
+  echo "[STOP] --repo, --output-root, --expected-head, --reuse-inputs, and --recover-fresh1-native0 are required" >&2; exit 2;
 }
 REPO=$(cd "$REPO" && pwd)
 mkdir -p "$OUTPUT_ROOT"
@@ -30,6 +32,19 @@ REUSE_INPUTS=$(cd "$REUSE_INPUTS" && pwd)
 case "$REUSE_INPUTS" in
   "$OUTPUT_ROOT"/B23_1_run_*/inputs) ;;
   *) echo "[STOP] reuse-input root escaped a prior B23.1 run: $REUSE_INPUTS" >&2; exit 2 ;;
+esac
+[[ -d "$RECOVER_FRESH1_NATIVE0" ]] || {
+  echo "[STOP] recovery source is missing: $RECOVER_FRESH1_NATIVE0" >&2; exit 2;
+}
+RECOVER_FRESH1_NATIVE0=$(cd "$RECOVER_FRESH1_NATIVE0" && pwd)
+EXPECTED_RECOVERY="$OUTPUT_ROOT/B23_1_run_20260825T025410Z/replay/fresh1/native_0"
+[[ "$RECOVER_FRESH1_NATIVE0" == "$EXPECTED_RECOVERY" ]] || {
+  echo "[STOP] recovery source identity mismatch: observed=$RECOVER_FRESH1_NATIVE0 expected=$EXPECTED_RECOVERY" >&2
+  exit 2
+}
+case "$RECOVER_FRESH1_NATIVE0" in
+  "$OUTPUT_ROOT"/B23_1_run_*/replay/fresh1/native_0) ;;
+  *) echo "[STOP] recovery source escaped prior Fresh1 native-0 output: $RECOVER_FRESH1_NATIVE0" >&2; exit 2 ;;
 esac
 read -r -a GPU_ARRAY <<< "$GPUS"
 [[ ${#GPU_ARRAY[@]} -eq 4 ]] || { echo "[STOP] exactly four authorized GPU indices are required" >&2; exit 2; }
@@ -82,11 +97,23 @@ run_step reuse_inputs_validate env CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECO
   --output-json "$RUN_ROOT/REUSED_INPUTS_IDENTITY.json"
 INPUTS_ROOT="$REUSE_INPUTS"
 
+# The previous corrected attempt completed this native trajectory and then
+# rejected it during the post-run RNG audit. Recover it with CUDA hidden; never
+# execute a 33rd parent trajectory to replace it.
+run_step replay_fresh1_native_0_recovered env CUDA_VISIBLE_DEVICES="" PYTHONPATH="$REPO" \
+  "$DAPS_PY" "$REPO/scripts/b23/run_b23_1_parent.py" \
+  --repo "$REPO" --inputs "$INPUTS_ROOT" --output "$RUN_ROOT/replay/fresh1/native_0" \
+  --parent Fresh1 --mode native --repeat-index 0 --split B23.1-SMOKE-1 --row-id 0 \
+  --recover-from "$RECOVER_FRESH1_NATIVE0"
+
 parent_key() { printf '%s' "$1" | tr '[:upper:]-' '[:lower:]_'; }
 # Three interleaved native cycles put every parent measurement next to the
 # Fresh1 reference on the same pinned GPU while preserving native-before-wrapper.
 for repeat in 0 1 2; do
   for parent in Fresh1 LF-v1 NP-1 SITCOM-1; do
+    if [[ "$repeat" -eq 0 && "$parent" == "Fresh1" ]]; then
+      continue
+    fi
     key=$(parent_key "$parent")
     base="$RUN_ROOT/replay/$key"
     out="$base/native_$repeat"

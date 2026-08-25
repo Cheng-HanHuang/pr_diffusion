@@ -48,6 +48,49 @@
         "parent_trajectory_completed": false
       },
       "resolution": "Preserve the canonical 63-bit seed, pass canonical_parent_seed modulo 2**32 to every legacy native entrypoint, record both identities, reject adapted collisions, and reuse rather than regenerate the five validated inputs."
+    },
+    {
+      "id": "fresh1_rng_setup_audit_stop_20260825T025410Z",
+      "invalidated_pre_run_head": "45c6b6107e2bf2b100eac6b771ea0d1004f19a20",
+      "bootstrap_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/bootstrap/B23_1A_B_seedfix_20260825T025409Z.log",
+      "failed_step_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/logs/replay_fresh1_native_0.log",
+      "native_parent_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0/parent.log",
+      "timing_record": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0/cuda_timing.json",
+      "recoverable_partial_run": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T025410Z/replay/fresh1/native_0",
+      "stopped_step": "replay_fresh1_native_0_post_run_rng_audit",
+      "gpu_work_performed": true,
+      "completed_measurement_generations": 0,
+      "completed_parent_trajectories": 1,
+      "failed_parent": "Fresh1",
+      "failed_mode": "native",
+      "failed_repeat_index": 0,
+      "observed_error": "Fresh1 runtime RNG-call mismatch: observed=40402 expected=40401",
+      "runtime": {
+        "gpu_active_seconds": 674.6646875,
+        "wall_seconds": 675.0885044969618,
+        "timer_method": "CUDA_EVENTS_SYNCHRONIZED_PLUS_PERF_COUNTER",
+        "torch_randn_calls": 1,
+        "torch_randn_like_calls": 40401,
+        "trace_step_count": 400,
+        "terminal_samples": 1,
+        "raw_trajectory_bytes": 943734389
+      },
+      "returned_identities": {
+        "input_manifest_sha256": "2d465eab05c6d52b9c04c26f2ada8cdc8bdaab3ab4a4ef9f1abc5bc4c4e1d578",
+        "timing_sha256": "eeed137b90518470360e1dda5d069da0592efc3771c4a1dc389373ab93ba5552",
+        "trace_sha256": "63cc0bfe297f5f0645edb45eb0d5bed7a6d96004f1c4f95158e9332f719fc3a7",
+        "terminal_sample_sha256": "10e7e26ba06e3b2348d82284910e52ebcd8f2587d2a5af24a835082c3bc4df28"
+      },
+      "cause": "The pinned DAPS DiffusionData.get_data implementation executes torch.randn_like(data) * sigma even when sigma=0. The process-wide counter therefore includes one deterministic-effect-free but RNG-state-advancing dataset setup call in addition to the 40401 stochastic trajectory calls.",
+      "corrected_formula": {
+        "dataset_zero_sigma_setup_rng_calls": 1,
+        "native_start_rng_calls": 1,
+        "mcmc_rng_calls": 40000,
+        "forward_renoising_rng_calls": 400,
+        "stochastic_trajectory_rng_calls": 40401,
+        "total_process_rng_calls": 40402
+      },
+      "resolution": "Freeze all returned identities, recover the exact completed trajectory with CUDA hidden, re-derive all 1200 compact tensor hashes from the raw trajectory on CPU, and execute only the remaining 31 trajectories so the cumulative authorized maximum remains 32."
     }
   ]
 }
