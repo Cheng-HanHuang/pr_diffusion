@@ -144,6 +144,7 @@ def main() -> int:
         if ranked_pick(f"B23.1A:smoke4:stratum{index}:v1", pool) != expected:
             raise ValueError(f"smoke stratum {index} selection is not reproducible")
 
+    native_seed_records = []
     for index, row in enumerate(rows):
         expected_measurement = derive_seed(
             23100,
@@ -163,6 +164,31 @@ def main() -> int:
             raise ValueError(f"row {index} measurement seed is not derived by b23-sha256-v1")
         if int(row["solver_base_seed"]) != expected_solver:
             raise ValueError(f"row {index} solver seed is not derived by b23-sha256-v1")
+        adapted = []
+        for parent in PARENTS:
+            canonical_seed = derive_seed(
+                int(row["solver_base_seed"]),
+                stream_name="native_start_noise",
+                image_id=row["image_id"],
+                measurement_id=row["measurement_id"],
+                parent_id=parent,
+                branch_id="root",
+                draw_index=0,
+            )
+            native_seed = canonical_seed % (2 ** 32)
+            if not 0 <= native_seed <= (2 ** 32 - 1):
+                raise ValueError("native seed adapter produced a value outside uint32")
+            adapted.append(native_seed)
+            native_seed_records.append({
+                "split": row["split"],
+                "row_id": int(row["row_id"]),
+                "image_id": row["image_id"],
+                "parent_id": parent,
+                "canonical_parent_seed": canonical_seed,
+                "native_entrypoint_seed": native_seed,
+            })
+        if len(set(adapted)) != len(PARENTS):
+            raise ValueError(f"adapted native parent-seed collision in signed row {index}")
 
     head = git(repo, "rev-parse", "HEAD")
     branch = git(repo, "branch", "--show-current")
@@ -187,6 +213,8 @@ def main() -> int:
         "image_level_disjoint": not bool({row["image_id"] for row in rows} & exposed),
         "pre_b23_exposure_sha256": exposure_sha,
         "max_parent_trajectories": execution["max_parent_trajectories"],
+        "native_seed_adapter": "canonical_parent_seed modulo 2**32",
+        "native_seed_records": native_seed_records,
         "next_stop": config["stop_after"],
     }
     if args.pac:

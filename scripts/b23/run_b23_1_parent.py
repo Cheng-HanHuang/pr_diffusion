@@ -336,7 +336,7 @@ def main() -> int:
     if len(matches) != 1:
         raise RuntimeError(f"signed input row not found: split={args.split} row={args.row_id}")
     item = matches[0]
-    seed = derive_seed(
+    canonical_seed = derive_seed(
         int(item["solver_base_seed"]),
         stream_name="native_start_noise",
         image_id=item["image_id"],
@@ -345,6 +345,9 @@ def main() -> int:
         branch_id="root",
         draw_index=0,
     )
+    seed = canonical_seed % (2 ** 32)
+    if not 0 <= seed <= (2 ** 32 - 1):
+        raise RuntimeError("native seed adapter did not produce a uint32-compatible value")
     env = os.environ.copy()
     if env.get("CUDA_VISIBLE_DEVICES", "") == "":
         raise RuntimeError("CUDA_VISIBLE_DEVICES must name exactly one authorized physical GPU")
@@ -409,6 +412,7 @@ def main() -> int:
                 "draw_calls": 40401,
                 "branch_id": "root",
                 "actual_seed": seed,
+                "canonical_parent_seed": canonical_seed,
             },
         ]
     elif args.parent == "NP-1":
@@ -429,6 +433,7 @@ def main() -> int:
                 "draw_calls": 1901,
                 "branch_id": "root",
                 "actual_seed": seed,
+                "canonical_parent_seed": canonical_seed,
             },
         ]
     else:
@@ -448,6 +453,7 @@ def main() -> int:
                 "draw_calls": 20201,
                 "branch_id": "root",
                 "actual_seed": seed,
+                "canonical_parent_seed": canonical_seed,
             },
         ]
     operation_path = run_dir / "operation_counts.json"
@@ -476,7 +482,9 @@ def main() -> int:
         "row_id": args.row_id,
         "image_id": item["image_id"],
         "measurement_id": item["measurement_id"],
-        "derived_parent_seed": seed,
+        "derived_parent_seed": canonical_seed,
+        "native_entrypoint_seed": seed,
+        "native_seed_adapter": "canonical_parent_seed modulo 2**32",
         "gpu_work_performed": True,
         "terminal_candidates": 1,
         "b23_2_authorized": False,

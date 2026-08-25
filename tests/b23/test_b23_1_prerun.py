@@ -60,12 +60,33 @@ class B231PrerunTests(unittest.TestCase):
         ledger = json.loads(
             (REPO / "manifests/b23/b23_1_correction_ledger.json").read_text()
         )
-        entry = ledger["entries"][-1]
+        entry = next(
+            value for value in ledger["entries"]
+            if value["id"] == "preflight_exposure_digest_stop_20260825T012447Z"
+        )
         self.assertEqual(entry["invalidated_pre_run_head"], "6e3e08eba2621f903bd33cd8d818442a34158318")
         self.assertFalse(entry["gpu_work_performed"])
         self.assertFalse(entry["input_generation_performed"])
         self.assertEqual(entry["parent_trajectory_count"], 0)
         self.assertFalse(entry["selection_revalidation"]["selection_changed"])
+
+    def test_seed_range_stop_and_uint32_adapter_are_frozen(self) -> None:
+        ledger = json.loads(
+            (REPO / "manifests/b23/b23_1_correction_ledger.json").read_text()
+        )
+        entry = next(
+            value for value in ledger["entries"]
+            if value["id"] == "fresh1_native_seed_range_stop_20260825T015257Z"
+        )
+        self.assertTrue(entry["gpu_work_performed"])
+        self.assertEqual(entry["completed_measurement_generations"], 5)
+        self.assertEqual(entry["completed_parent_trajectories"], 0)
+        self.assertEqual(entry["canonical_parent_seed"], 92870567330106893)
+        self.assertEqual(entry["corrected_native_entrypoint_seed"], 4157394445)
+        self.assertEqual(
+            entry["corrected_native_entrypoint_seed"],
+            entry["canonical_parent_seed"] % (2 ** 32),
+        )
 
     def test_selection_and_seed_derivation_reproduce(self) -> None:
         result = subprocess.run(
@@ -79,6 +100,12 @@ class B231PrerunTests(unittest.TestCase):
         self.assertTrue(payload["image_level_disjoint"])
         self.assertEqual(payload["replay_image"], "65082")
         self.assertEqual(payload["smoke_images"], ["61492", "62959", "66821", "68142"])
+        replay_fresh = next(
+            row for row in payload["native_seed_records"]
+            if row["image_id"] == "65082" and row["parent_id"] == "Fresh1"
+        )
+        self.assertEqual(replay_fresh["canonical_parent_seed"], 92870567330106893)
+        self.assertEqual(replay_fresh["native_entrypoint_seed"], 4157394445)
 
     def test_trajectory_budget_is_bounded(self) -> None:
         execution = self.config["execution"]
@@ -86,12 +113,17 @@ class B231PrerunTests(unittest.TestCase):
         self.assertEqual(execution["expected_smoke_parent_trajectories"], 16)
         self.assertEqual(execution["max_parent_trajectories"], 32)
         self.assertEqual(execution["terminal_candidates_per_parent_run"], 1)
+        self.assertEqual(execution["completed_measurement_generations_before_corrective_run"], 5)
+        self.assertEqual(execution["expected_new_measurement_generations"], 0)
 
     def test_no_adaptive_schedule_in_launcher(self) -> None:
         text = (REPO / "scripts/b23/run_b23_1a_b.sh").read_text()
         self.assertNotIn("B23.2_PREREGISTRATION", text)
         self.assertNotIn("schedule_candidates", text)
         self.assertIn("b23_2_authorized=NO", text)
+        self.assertIn("--reuse-inputs", text)
+        self.assertIn("--validate-existing", text)
+        self.assertNotIn('--output-root "$RUN_ROOT/inputs"', text)
 
 
 if __name__ == "__main__":

@@ -28,6 +28,16 @@
       "gpu_work_performed": false,
       "cause": "The signed rows referenced the pre-closeout byte identity of PRE_B23_EXPOSURE.csv instead of the accepted B23.0 closeout manifest identity.",
       "resolution": "Recompute selection and image-level disjointness against the accepted closeout manifest, preserve the same five outcome-free selections, and freeze its SHA-256."
+    },
+    {
+      "id": "fresh1_native_seed_range_stop_20260825T015257Z",
+      "invalidated_pre_run_head": "5f937c26ab67783ff810b51070bf34cb8a9b3a07",
+      "stopped_step": "replay_fresh1_native_0",
+      "gpu_work_performed": true,
+      "completed_measurement_generations": 5,
+      "completed_parent_trajectories": 0,
+      "cause": "The canonical 63-bit B23 seed was passed directly to the legacy NumPy RandomState seed API, which accepts only uint32 values.",
+      "resolution": "Freeze native_entrypoint_seed = canonical_parent_seed modulo 2**32 for every parent, record both identities, and validate/reuse the five existing locked inputs."
     }
   ],
   "registry": {
@@ -56,6 +66,9 @@
     "expected_replay_parent_trajectories": 16,
     "expected_smoke_parent_trajectories": 16,
     "expected_measurement_generations": 5,
+    "completed_measurement_generations_before_corrective_run": 5,
+    "expected_new_measurement_generations": 0,
+    "required_reuse_input_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/inputs",
     "terminal_candidates_per_parent_run": 1,
     "overwrite_policy": "REFUSE",
     "parent_failure_policy": "STOP_BEFORE_NEXT_PARENT",
@@ -111,6 +124,14 @@
     "serialization": "PASS at a valid native boundary or justified NOT_APPLICABLE",
     "determinism_audit": "COMPLETE or JUSTIFIED_UNAVAILABLE",
     "operation_and_rng_reconciliation": "EXACT"
+  },
+  "native_seed_adapter": {
+    "canonical_parent_seed": "b23-sha256-v1 63-bit derived seed",
+    "native_entrypoint_seed": "canonical_parent_seed modulo 2**32",
+    "native_range": [0, 4294967295],
+    "reason": "All frozen native entrypoints call legacy NumPy RandomState seeding and therefore require uint32-compatible seeds.",
+    "collision_policy": "STOP if adapted parent seeds collide within one signed input row",
+    "seed_semantics_changed": false
   },
   "compute": {
     "timer_method": "paired CUDA events with explicit synchronize plus monotonic wall clock",

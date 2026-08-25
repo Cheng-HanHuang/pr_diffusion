@@ -6,6 +6,7 @@ REPO=""
 OUTPUT_ROOT=""
 EXPECTED_HEAD=""
 GPUS="0 1 2 3"
+REUSE_INPUTS=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -13,16 +14,23 @@ while [[ $# -gt 0 ]]; do
     --output-root) OUTPUT_ROOT="$2"; shift 2 ;;
     --expected-head) EXPECTED_HEAD="$2"; shift 2 ;;
     --gpus) GPUS="$2"; shift 2 ;;
+    --reuse-inputs) REUSE_INPUTS="$2"; shift 2 ;;
     *) echo "[STOP] unknown argument: $1" >&2; exit 2 ;;
   esac
 done
 
-[[ -n "$REPO" && -n "$OUTPUT_ROOT" && -n "$EXPECTED_HEAD" ]] || {
-  echo "[STOP] --repo, --output-root, and --expected-head are required" >&2; exit 2;
+[[ -n "$REPO" && -n "$OUTPUT_ROOT" && -n "$EXPECTED_HEAD" && -n "$REUSE_INPUTS" ]] || {
+  echo "[STOP] --repo, --output-root, --expected-head, and --reuse-inputs are required" >&2; exit 2;
 }
 REPO=$(cd "$REPO" && pwd)
 mkdir -p "$OUTPUT_ROOT"
 OUTPUT_ROOT=$(cd "$OUTPUT_ROOT" && pwd)
+[[ -d "$REUSE_INPUTS" ]] || { echo "[STOP] reuse-input root is missing: $REUSE_INPUTS" >&2; exit 2; }
+REUSE_INPUTS=$(cd "$REUSE_INPUTS" && pwd)
+case "$REUSE_INPUTS" in
+  "$OUTPUT_ROOT"/B23_1_run_*/inputs) ;;
+  *) echo "[STOP] reuse-input root escaped a prior B23.1 run: $REUSE_INPUTS" >&2; exit 2 ;;
+esac
 read -r -a GPU_ARRAY <<< "$GPUS"
 [[ ${#GPU_ARRAY[@]} -eq 4 ]] || { echo "[STOP] exactly four authorized GPU indices are required" >&2; exit 2; }
 [[ $(printf '%s\n' "${GPU_ARRAY[@]}" | sort -u | wc -l) -eq 4 ]] || {
@@ -68,9 +76,11 @@ run_step prerun_validate env CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 P
   --repo "$REPO" --expected-head "$EXPECTED_HEAD" --pac \
   --output-json "$RUN_ROOT/PRERUN_VALIDATION.json"
 
-run_step prepare_inputs env CUDA_VISIBLE_DEVICES="${GPU_ARRAY[0]}" PYTHONPATH="$REPO" \
+run_step reuse_inputs_validate env CUDA_VISIBLE_DEVICES="" PYTHONDONTWRITEBYTECODE=1 PYTHONPATH="$REPO" \
   "$DAPS_PY" "$REPO/scripts/b23/prepare_b23_1_inputs.py" \
-  --repo "$REPO" --output-root "$RUN_ROOT/inputs" --device cuda:0
+  --repo "$REPO" --validate-existing "$REUSE_INPUTS" \
+  --output-json "$RUN_ROOT/REUSED_INPUTS_IDENTITY.json"
+INPUTS_ROOT="$REUSE_INPUTS"
 
 parent_key() { printf '%s' "$1" | tr '[:upper:]-' '[:lower:]_'; }
 # Three interleaved native cycles put every parent measurement next to the
@@ -82,7 +92,7 @@ for repeat in 0 1 2; do
     out="$base/native_$repeat"
     run_step "replay_${key}_native_$repeat" env CUDA_VISIBLE_DEVICES="${GPU_ARRAY[0]}" PYTHONPATH="$REPO" \
       "$DAPS_PY" "$REPO/scripts/b23/run_b23_1_parent.py" \
-      --repo "$REPO" --inputs "$RUN_ROOT/inputs" --output "$out" \
+      --repo "$REPO" --inputs "$INPUTS_ROOT" --output "$out" \
       --parent "$parent" --mode native --repeat-index "$repeat" --split B23.1-SMOKE-1 --row-id 0
   done
 done
@@ -98,7 +108,7 @@ for parent in Fresh1 LF-v1 NP-1 SITCOM-1; do
     "${native_args[@]}" --output "$base/TOLERANCE_FREEZE.json"
   run_step "replay_${key}_wrapper" env CUDA_VISIBLE_DEVICES="${GPU_ARRAY[0]}" PYTHONPATH="$REPO" \
     "$DAPS_PY" "$REPO/scripts/b23/run_b23_1_parent.py" \
-    --repo "$REPO" --inputs "$RUN_ROOT/inputs" --output "$base/wrapper" \
+    --repo "$REPO" --inputs "$INPUTS_ROOT" --output "$base/wrapper" \
     --parent "$parent" --mode wrapper --repeat-index 0 --split B23.1-SMOKE-1 --row-id 0
   run_step "analyze_${key}" env CUDA_VISIBLE_DEVICES="" PYTHONPATH="$REPO" \
     "$DAPS_PY" "$REPO/scripts/b23/b23_1_replay_evidence.py" analyze \
@@ -119,7 +129,7 @@ for row in 0 1 2 3; do
       key=$(parent_key "$parent")
       CUDA_VISIBLE_DEVICES="$gpu" PYTHONPATH="$REPO" \
         "$DAPS_PY" "$REPO/scripts/b23/run_b23_1_parent.py" \
-        --repo "$REPO" --inputs "$RUN_ROOT/inputs" \
+        --repo "$REPO" --inputs "$INPUTS_ROOT" \
         --output "$RUN_ROOT/smoke/row${row}/$key" \
         --parent "$parent" --mode smoke --repeat-index 0 --split B23.1-SMOKE-4 --row-id "$row"
     done

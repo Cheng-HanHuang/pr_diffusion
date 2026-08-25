@@ -28,6 +28,14 @@ Recomputation preserves all five selected images and proves zero intersection. T
 correction are preserved in `manifests/b23/b23_1_correction_ledger.json`; GPU work performed was
 `NO` and the parent-trajectory count was zero.
 
+The next launch at pre-run head `5f937c26ab67783ff810b51070bf34cb8a9b3a07` passed preflight
+and generated all five locked inputs, then stopped before the first Fresh1 random draw because the
+canonical 63-bit seed exceeded the legacy NumPy RandomState uint32 range. No parent trajectory or
+denoiser call completed. The correction preserves the canonical seed and freezes
+`native_entrypoint_seed = canonical_parent_seed modulo 2**32` for every parent. The next launch must
+use `--reuse-inputs` to validate and reuse the five existing measurements instead of regenerating
+them. This partial run is also preserved in the correction ledger.
+
 ## Required pre-run freeze after authorization
 
 - signed one-image and four-image registries, disjoint from `PRE_B23_EXPOSURE.csv`;
@@ -77,6 +85,7 @@ bash scripts/b23/run_b23_1a_b.sh \
   --repo /egr/research-pac/huang248/pr_diffusion_b23 \
   --output-root /egr/research-pac/huang248/outputs/pr_diffusion/b23 \
   --expected-head <PUSHED_B23_1_PRERUN_SHA> \
+  --reuse-inputs /egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/inputs \
   --gpus "0 1 2 3"
 ```
 

@@ -46,13 +46,114 @@ def find_image(root: Path, image_id: str) -> Path:
     return hits[0].resolve()
 
 
+def torch_load(path: Path):
+    import torch
+    try:
+        return torch.load(path, map_location="cpu", weights_only=False)
+    except TypeError:
+        return torch.load(path, map_location="cpu")
+
+
+def validate_existing(repo: Path, input_root: Path, output_json: Path | None) -> int:
+    import torch
+
+    config = json.loads((repo / "configs/b23/b23_1a_b_execution.yaml").read_text())
+    required_root = Path(config["execution"]["required_reuse_input_root"]).resolve()
+    if input_root != required_root:
+        raise RuntimeError(
+            f"reuse-input root mismatch: observed={input_root} required={required_root}"
+        )
+    registry = repo / config["registry"]["combined"]
+    with registry.open(newline="", encoding="utf-8") as handle:
+        signed_rows = list(csv.DictReader(handle))
+    combined_path = input_root / "INPUTS.json"
+    if not combined_path.is_file():
+        raise FileNotFoundError(combined_path)
+    combined = json.loads(combined_path.read_text(encoding="utf-8"))
+    rows = combined.get("rows")
+    if (
+        combined.get("schema_version") != "b23.b23-1-inputs.v1"
+        or combined.get("status") != "PASS"
+        or combined.get("selection_performed_during_generation") is not False
+        or combined.get("registry_sha256") != sha256_file(registry)
+        or not isinstance(rows, list)
+        or len(rows) != 5
+        or len(signed_rows) != 5
+    ):
+        raise RuntimeError("existing B23.1 input-set identity or cardinality is invalid")
+    signed_by_key = {(row["split"], row["row_id"]): row for row in signed_rows}
+    observed_keys = set()
+    for item in rows:
+        key = (item["split"], str(item["row_id"]))
+        if key in observed_keys or key not in signed_by_key:
+            raise RuntimeError(f"unexpected or duplicate existing input row: {key}")
+        observed_keys.add(key)
+        signed = signed_by_key[key]
+        for field in signed:
+            if str(item[field]) != signed[field]:
+                raise RuntimeError(f"existing input row changed signed field {field}: {key}")
+        source = Path(item["ground_truth_source_path"])
+        gt_path = Path(item["ground_truth_tensor_path"])
+        measurement_path = Path(item["measurement_path"])
+        for path in (source, gt_path, measurement_path):
+            if not path.is_file():
+                raise FileNotFoundError(path)
+        if sha256_file(source) != item["ground_truth_source_sha256"]:
+            raise RuntimeError(f"ground-truth source file changed: {source}")
+        if sha256_file(measurement_path) != item["measurement_file_sha256"]:
+            raise RuntimeError(f"measurement file changed: {measurement_path}")
+        gt_payload = torch_load(gt_path)
+        ground_truth = gt_payload.get("ground_truth") if isinstance(gt_payload, dict) else None
+        measurement_payload = torch_load(measurement_path)
+        measurement = (
+            measurement_payload.get("measurement")
+            if isinstance(measurement_payload, dict)
+            else measurement_payload
+        )
+        if not torch.is_tensor(ground_truth) or not torch.is_tensor(measurement):
+            raise RuntimeError(f"existing input tensors are missing: {key}")
+        if tensor_sha256(ground_truth) != item["ground_truth_tensor_sha256"]:
+            raise RuntimeError(f"ground-truth tensor changed: {key}")
+        if tensor_sha256(measurement) != item["measurement_tensor_sha256"]:
+            raise RuntimeError(f"measurement tensor changed: {key}")
+        if list(measurement.shape) != item["measurement_shape"] or str(measurement.dtype) != item["measurement_dtype"]:
+            raise RuntimeError(f"measurement tensor schema changed: {key}")
+        if not torch.isfinite(ground_truth).all() or not torch.isfinite(measurement).all():
+            raise RuntimeError(f"existing input contains a nonfinite tensor: {key}")
+    if observed_keys != set(signed_by_key):
+        raise RuntimeError("existing input set omitted a signed row")
+    result = {
+        "schema_version": "b23.b23-1-reused-input-validation.v1",
+        "status": "PASS",
+        "gpu_work_performed": False,
+        "input_generation_performed": False,
+        "reuse_input_root": str(input_root),
+        "inputs_json_sha256": sha256_file(combined_path),
+        "registry_sha256": sha256_file(registry),
+        "rows": len(rows),
+        "measurement_file_sha256s": [item["measurement_file_sha256"] for item in rows],
+        "measurement_tensor_sha256s": [item["measurement_tensor_sha256"] for item in rows],
+    }
+    encoded = json.dumps(result, indent=2, sort_keys=True) + "\n"
+    if output_json:
+        output_json.parent.mkdir(parents=True, exist_ok=True)
+        output_json.write_text(encoded, encoding="utf-8")
+    print(encoded, end="")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, required=True)
-    parser.add_argument("--output-root", type=Path, required=True)
+    destination = parser.add_mutually_exclusive_group(required=True)
+    destination.add_argument("--output-root", type=Path)
+    destination.add_argument("--validate-existing", type=Path)
+    parser.add_argument("--output-json", type=Path)
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     repo = args.repo.resolve()
+    if args.validate_existing:
+        return validate_existing(repo, args.validate_existing.resolve(), args.output_json)
     output = args.output_root.resolve()
     if output.exists():
         raise FileExistsError(f"refusing to overwrite input root: {output}")

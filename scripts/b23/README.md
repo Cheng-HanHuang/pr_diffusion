@@ -15,5 +15,7 @@ It also refuses publication unless the exact four-row zero-GPU prerequisite ledg
 The later `run_b23_1a_b.sh` entrypoint is separately authorized by the 2026-08-24 decision and is
 not part of B23.0. It accepts only an exact pushed pre-run head and runs the bounded B23.1A/B graph:
 five locked inputs, four ordered parent replays, pre-wrapper tolerance freezes, coupled compute
-calibration, four-image smoke, donor classification, and return packaging. It hard-stops before
-B23.2, large panels, B24, or adaptive schedules.
+calibration, four-image smoke, donor classification, and return packaging. After the preserved
+seed-range false start, the entrypoint requires `--reuse-inputs` and validates the five existing
+locked inputs without regenerating them. It hard-stops before B23.2, large panels, B24, or adaptive
+schedules.

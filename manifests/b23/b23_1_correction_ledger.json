@@ -22,6 +22,32 @@
         "selection_changed": false
       },
       "resolution": "Freeze the accepted closeout manifest digest in the execution config and all three signed registries; preserve every image, measurement ID, and seed."
+    },
+    {
+      "id": "fresh1_native_seed_range_stop_20260825T015257Z",
+      "invalidated_pre_run_head": "5f937c26ab67783ff810b51070bf34cb8a9b3a07",
+      "bootstrap_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/bootstrap/B23_1A_B_corrected_20260825T015256Z.log",
+      "failed_step_log": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/replay/fresh1/native_0/parent.log",
+      "failed_timing_record": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T015257Z/replay/fresh1/native_0/cuda_timing.json",
+      "stopped_step": "replay_fresh1_native_0",
+      "gpu_work_performed": true,
+      "completed_measurement_generations": 5,
+      "completed_parent_trajectories": 0,
+      "failed_parent": "Fresh1",
+      "failed_mode": "native",
+      "failed_repeat_index": 0,
+      "canonical_parent_seed": 92870567330106893,
+      "invalid_native_seed": 92870567330106893,
+      "corrected_native_entrypoint_seed": 4157394445,
+      "observed_error": "ValueError: Seed must be between 0 and 2**32 - 1",
+      "runtime_before_stop": {
+        "gpu_active_seconds": 138.752390625,
+        "wall_seconds": 139.3135333955288,
+        "denoiser_calls": 0,
+        "rng_calls": 0,
+        "parent_trajectory_completed": false
+      },
+      "resolution": "Preserve the canonical 63-bit seed, pass canonical_parent_seed modulo 2**32 to every legacy native entrypoint, record both identities, reject adapted collisions, and reuse rather than regenerate the five validated inputs."
     }
   ]
 }

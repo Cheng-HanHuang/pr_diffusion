@@ -162,7 +162,13 @@ def freeze(args) -> int:
     runs = load_runs(args.native_dir)
     if len(runs) != 3 or {run["repeat_index"] for run in runs} != {0, 1, 2}:
         raise ValueError("freeze requires exactly native repeats 0, 1, and 2")
-    identity = {(run["parent_id"], run["image_id"], run["measurement_id"], run["derived_parent_seed"]) for run in runs}
+    identity = {
+        (
+            run["parent_id"], run["image_id"], run["measurement_id"],
+            run["derived_parent_seed"], run["native_entrypoint_seed"],
+        )
+        for run in runs
+    }
     if len(identity) != 1 or any(run["mode"] != "native" or run["status"] != "PASS" for run in runs):
         raise ValueError("native repeat identities or statuses differ")
     tensors = [load_tensor(Path(run["reconstruction_path"])) for run in runs]
@@ -210,6 +216,9 @@ def freeze(args) -> int:
         "parent_id": runs[0]["parent_id"],
         "image_id": runs[0]["image_id"],
         "native_run_ids": [f"{run['parent_id']}-native-{run['repeat_index']}" for run in runs],
+        "canonical_parent_seed": runs[0]["derived_parent_seed"],
+        "native_entrypoint_seed": runs[0]["native_entrypoint_seed"],
+        "native_seed_adapter": runs[0]["native_seed_adapter"],
         "native_tensor_sha256s": [run["reconstruction_sha256"] for run in runs],
         "native_trace_sha256s": [run["trace_sha256"] for run in runs],
         "native_operation_counts_sha256": runs[0]["operation_counts_sha256"],
