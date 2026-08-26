@@ -152,6 +152,17 @@ def main() -> int:
             smoke.child_spec("SITCOM", repo, item, None, image_dir / "sitcom", rep, int(seed), args.gpu)
             for rep, seed in enumerate(row["sitcom_solver_seeds"])
         ]
+        # child_spec is intentionally reused from B24.1 for numerical identity;
+        # correct its B24.1-only provenance label before any SITCOM process starts.
+        for spec in sitcom_specs:
+            manifest_path = Path(spec["run_dir"]) / "input/input_manifest.json"
+            manifest_value = read_json(manifest_path)
+            manifest_value["selection_rule"] = (
+                "B24.2 deterministic unexposed FFHQ screen row; manifest-frozen image/measurement/solver seeds"
+            )
+            manifest_value["selection_uses_method_outcome"] = False
+            manifest_value["b24_stage"] = "B24.2_64"
+            write_atomic(manifest_path, manifest_value)
         sitcom = smoke.run_group(sitcom_specs, 4, args.gpu, image_dir / "sitcom_memory.tsv")
         write_atomic(image_dir / "SITCOM_GROUP.json", sitcom)
 
