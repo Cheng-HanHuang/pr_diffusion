@@ -5,6 +5,10 @@ One shard is fixed to one physical GPU. Images are sequential within the shard;
 for each image the four DAPS candidates run concurrently, followed by the four
 SITCOM candidates concurrently. This is exactly the scheduling form validated
 by B24.1, not solver-internal batching.
+
+With --resume, only atomically completed rows whose manifest/row/seed identity
+matches the frozen tranche are reused. Any incomplete row directory is preserved
+under partial_attempts before that row is retried from its frozen input seed.
 """
 from __future__ import annotations
 
@@ -51,6 +55,7 @@ def read_json(path: Path):
 
 
 def write_atomic(path: Path, value) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + f".tmp.{os.getpid()}")
     tmp.write_text(json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
     os.replace(tmp, path)
@@ -72,6 +77,27 @@ def run_logged(command, *, cwd: Path, env: dict[str, str], log: Path) -> None:
         raise RuntimeError(f"command failed rc={result.returncode}; see {log}")
 
 
+def validate_completed_row(completion: dict, row: dict, *, manifest_file_sha: str, shard: int, gpu: int) -> None:
+    expected = {
+        "status": "PASS",
+        "stage": "B24.2_64",
+        "manifest_file_sha256": manifest_file_sha,
+        "shard_id": shard,
+        "gpu_id": gpu,
+        "row_index": int(row["row_index"]),
+        "image_id": str(row["image_id"]).zfill(5),
+        "measurement_seed": int(row["measurement_seed"]),
+        "daps_solver_seeds": [int(x) for x in row["daps_solver_seeds"]],
+        "sitcom_solver_seeds": [int(x) for x in row["sitcom_solver_seeds"]],
+    }
+    for key, value in expected.items():
+        if completion.get(key) != value:
+            raise RuntimeError(
+                f"resume completion identity mismatch for row {row['row_index']} field {key}: "
+                f"observed={completion.get(key)!r} expected={value!r}"
+            )
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--manifest", type=Path, required=True)
@@ -79,6 +105,7 @@ def main() -> int:
     ap.add_argument("--gpu", type=int, choices=range(4), required=True)
     ap.add_argument("--repo", type=Path, default=REPO_ROOT)
     ap.add_argument("--output-root", type=Path, required=True)
+    ap.add_argument("--resume", action="store_true")
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -99,19 +126,59 @@ def main() -> int:
         raise RuntimeError(f"expected 16 rows in shard {args.shard}, got {len(selected)}")
 
     out = args.output_root.resolve()
-    if out.exists():
+    if out.exists() and not args.resume:
         raise FileExistsError(out)
-    out.mkdir(parents=True)
-    (out / "logs").mkdir()
+    if not out.exists() and args.resume:
+        raise FileNotFoundError(f"resume output root does not exist: {out}")
+    if not out.exists():
+        out.mkdir(parents=True)
+    (out / "logs").mkdir(exist_ok=True)
     manifest_file_sha = sha256_file(args.manifest)
     b24_head = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
     smoke = load_smoke_module(repo)
 
     shard_start = time.perf_counter()
     completed = 0
+    reused_completed = 0
+    newly_completed = 0
+    preserved_partial = []
     for row in selected:
         image_id = str(row["image_id"]).zfill(5)
         image_dir = out / f"row{int(row['row_index']):03d}_{image_id}"
+        completion_path = image_dir / "IMAGE_COMPLETE.json"
+
+        if args.resume and completion_path.is_file():
+            completion = read_json(completion_path)
+            validate_completed_row(
+                completion, row, manifest_file_sha=manifest_file_sha,
+                shard=args.shard, gpu=args.gpu,
+            )
+            completed += 1
+            reused_completed += 1
+            print(
+                f"IMAGE_REUSE|shard={args.shard}|row={row['row_index']}|image={image_id}|"
+                f"class={completion['class_label']}|daps={float(completion['daps_best_psnr_raw_rgb_db']):.4f}|"
+                f"sitcom={float(completion['sitcom_best_psnr_raw_rgb_db']):.4f}",
+                flush=True,
+            )
+            continue
+
+        if image_dir.exists():
+            if not args.resume:
+                raise FileExistsError(image_dir)
+            partial_root = out / "partial_attempts"
+            partial_root.mkdir(exist_ok=True)
+            stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+            destination = partial_root / f"{image_dir.name}.pre_resume_{stamp}"
+            if destination.exists():
+                raise FileExistsError(destination)
+            image_dir.rename(destination)
+            preserved_partial.append(str(destination))
+            print(
+                f"PARTIAL_PRESERVED|shard={args.shard}|row={row['row_index']}|image={image_id}|path={destination}",
+                flush=True,
+            )
+
         image_dir.mkdir()
         image_start = time.perf_counter()
         print(f"IMAGE_START|shard={args.shard}|row={row['row_index']}|image={image_id}", flush=True)
@@ -205,6 +272,7 @@ def main() -> int:
         }
         write_atomic(image_dir / "IMAGE_COMPLETE.json", completion)
         completed += 1
+        newly_completed += 1
         print(
             f"IMAGE_COMPLETE|shard={args.shard}|row={row['row_index']}|image={image_id}|class={completion['class_label']}|"
             f"daps={completion['daps_best_psnr_raw_rgb_db']:.4f}|sitcom={completion['sitcom_best_psnr_raw_rgb_db']:.4f}|"
@@ -222,6 +290,10 @@ def main() -> int:
         "manifest_file_sha256": manifest_file_sha,
         "row_count": len(selected),
         "completed": completed,
+        "resume": bool(args.resume),
+        "reused_completed": reused_completed,
+        "newly_completed": newly_completed,
+        "preserved_partial_attempts": preserved_partial,
         "shard_wall_seconds": time.perf_counter() - shard_start,
     }
     write_atomic(out / "SHARD_COMPLETE.json", summary)
