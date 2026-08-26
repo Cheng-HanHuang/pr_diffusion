@@ -166,8 +166,10 @@ cat >"$EVDIR/README.md" <<EOF
 Full log and future dry-rendered manifests remain on PAC and are not scientific results.
 EOF
 
-# Before staging, the only repo changes may be PRE_B24 and this exact evidence directory.
-UNEXPECTED=$(git status --porcelain | awk -v ev="$EVDIR/" '
+# Before staging, the only repo changes may be PRE_B24 and files in this exact
+# evidence directory. --untracked-files=all is required so Git does not collapse
+# an entirely new subtree to the parent entry "?? docs/b24/evidence/".
+UNEXPECTED=$(git status --porcelain --untracked-files=all | awk -v ev="$EVDIR/" '
   $2 == "manifests/b24/PRE_B24_EXPOSURE.csv" {next}
   index($2, ev) == 1 {next}
   {print}
