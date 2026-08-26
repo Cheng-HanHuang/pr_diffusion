@@ -26,6 +26,8 @@ For each screened image: one measurement seed is frozen before outcomes; one loc
 
 The union oracle is diagnostic and counts all eight trajectories.
 
+Historical B22 `SITCOM-4S` is **not** the B24 SITCOM-4 reference: B22 restores one post-model RNG state and consumes a sequential four-trajectory RNG stream. B24 requires four independently preregistered SITCOM-1 solver seeds. Any batched B24 implementation must therefore prove equivalence to the four independent serial reference trajectories rather than to historical `SITCOM-4S`.
+
 ## Serial/batched equivalence gate (future B24.1)
 
 The same exposed images, measurements, canonical seeds, source state, and terminal candidate semantics must be used in serial and batched modes. Freeze before results:
@@ -44,7 +46,9 @@ Bitwise equality supersedes the envelope when obtained. A failed envelope cannot
 
 Record PyTorch peak allocated/reserved MiB, B24-process `nvidia-smi` MiB, whole-device free/used MiB samples, GPU-active time, wall time, images/hour, and terminal candidates/hour.
 
-Hard ceiling is 52,452 MiB for the B24 worker. Normal target is 48,000 MiB. Before launch, at least 52,096 MiB (48,000 + 4,096 reserve) must be free on the explicitly assigned GPU. This is a fit gate, not dynamic GPU selection.
+B24 worker hard ceiling is **61,440 MiB = 60.0 GiB**. The highest normal target is **57,344 MiB = 56.0 GiB**. B24.1 benchmarks fixed **48/52/56 GiB** target tiers and selects the *lowest* tier that attains the best stable serial/batched-equivalent throughput. Extra currently-free VRAM is not itself a reason to choose a larger tier.
+
+For the 56 GiB normal target, at least **61,440 MiB** must be free immediately before launch: 57,344 MiB target plus 4,096 MiB device reserve. Lower benchmark tiers use the same 4,096 MiB reserve rule. This is a fit gate on the explicitly assigned GPU, not dynamic GPU selection. Other lab jobs may coexist or arrive later when memory permits; B24 never kills them and stops if its own process crosses the hard ceiling or if device occupancy makes continued operation unsafe.
 
 ## Atomic completion and resume
 
@@ -69,6 +73,6 @@ Never store full DAPS trajectories in the B24 scale sweep. Retain metrics, hashe
 
 ## Immediate-stop conditions
 
-Stop on B24 source ancestry mismatch; source HEAD/tree/index/diff mismatch; model/environment identity mismatch; populated PRE-B23 exposure SHA mismatch or fewer than 328 inherited images; PRE-B24 exposure below 333 unique images or missing any required B23.1 image; future-reserve overlap; seed collision; shard overlap/omission; completed-record hash mismatch; unrecorded retry or silent regeneration; B24-worker memory above 52,452 MiB, OOM, or pre-launch fit failure; serial/batched disagreement; or any runtime path that lets clean ground truth affect early branch dropping, allocation, survival, or routing.
+Stop on B24 source ancestry mismatch; source HEAD/tree/index/diff mismatch; model/environment identity mismatch; populated PRE-B23 exposure SHA mismatch or fewer than 328 inherited images; PRE-B24 exposure below 333 unique images or missing any required B23.1 image; future-reserve overlap; seed collision; shard overlap/omission; completed-record hash mismatch; unrecorded retry or silent regeneration; B24-worker memory above **61,440 MiB**, OOM, pre-launch fit failure, or unsafe occupancy; serial/batched disagreement; or any runtime path that lets clean ground truth affect early branch dropping, allocation, survival, or routing.
 
 B24.0 itself must stop before any model/GPU command.
