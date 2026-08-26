@@ -32,6 +32,42 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
   "$REPO/scripts/b24/run_b24_1_method_smoke.py" \
   "$REPO/scripts/b24/analyze_b24_1_smoke.py"
 
+# B23.1 generated the five locked inputs in an earlier corrective run and then
+# reused them for the accepted scientific execution. Resolve that retained root
+# from the signed B23 execution contract instead of guessing a run timestamp.
+B23_INPUT_ROOT=$("$PY" - "$REPO/configs/b23/b23_1a_b_execution.yaml" <<'PY'
+import json
+import sys
+from pathlib import Path
+cfg = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+print(cfg["execution"]["required_reuse_input_root"])
+PY
+)
+B23_INPUTS="$B23_INPUT_ROOT/INPUTS.json"
+[[ -f "$B23_INPUTS" ]] || {
+  echo "STOP|signed_b23_inputs_missing|root=$B23_INPUT_ROOT|inputs=$B23_INPUTS"; exit 6;
+}
+
+STAMP=$(date -u +%Y%m%dT%H%M%SZ)
+RUNROOT="$OUTROOT/B24_1_smoke_$STAMP"
+mkdir -p "$RUNROOT/logs" "$RUNROOT/pids"
+printf '%s\n' "$HEAD" > "$RUNROOT/B24_HEAD.txt"
+printf '%s\n' "$RUNROOT" > "$OUTROOT/B24_1_LATEST_RUN.txt"
+
+# Fail closed on the exact five-row B23.1 locked-input identity. CUDA is hidden:
+# this validates existing files/tensor hashes only and performs no generation.
+CUDA_VISIBLE_DEVICES="" "$PY" "$REPO/scripts/b23/prepare_b23_1_inputs.py" \
+  --repo "$REPO" \
+  --validate-existing "$B23_INPUT_ROOT" \
+  --output-json "$RUNROOT/B23_INPUT_VALIDATION.json" \
+  > "$RUNROOT/logs/b23_input_validation.log" 2>&1 || {
+    echo "STOP|signed_b23_input_validation_failed|log=$RUNROOT/logs/b23_input_validation.log"
+    tail -80 "$RUNROOT/logs/b23_input_validation.log" || true
+    exit 7
+  }
+INPUTS_SHA=$(sha256sum "$B23_INPUTS" | awk '{print $1}')
+echo "B23_INPUTS_VALIDATED|root=$B23_INPUT_ROOT|sha256=$INPUTS_SHA"
+
 check_gpu() {
   local gpu="$1" expected="$2"
   local row uuid free
@@ -47,20 +83,14 @@ check_gpu() {
 check_gpu 0 GPU-8c9c6250-7b65-20d8-5c81-d6cb618810c3
 check_gpu 1 GPU-883c037a-34d2-48c4-467f-9a352fd8fdff
 
-STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-RUNROOT="$OUTROOT/B24_1_smoke_$STAMP"
-mkdir -p "$RUNROOT/logs" "$RUNROOT/pids"
-printf '%s\n' "$HEAD" > "$RUNROOT/B24_HEAD.txt"
-printf '%s\n' "$RUNROOT" > "$OUTROOT/B24_1_LATEST_RUN.txt"
-
 nohup env PYTHONPATH="$PYTHONPATH" "$PY" "$REPO/scripts/b24/run_b24_1_method_smoke.py" \
-  --method DAPS --gpu "$DAPS_GPU" --image-id 65082 --repo "$REPO" --output "$RUNROOT/daps" \
+  --method DAPS --gpu "$DAPS_GPU" --image-id 65082 --repo "$REPO" --inputs "$B23_INPUTS" --output "$RUNROOT/daps" \
   > "$RUNROOT/logs/daps.log" 2>&1 &
 DAPS_PID=$!
 printf '%s\n' "$DAPS_PID" > "$RUNROOT/pids/daps.pid"
 
 nohup env PYTHONPATH="$PYTHONPATH" "$PY" "$REPO/scripts/b24/run_b24_1_method_smoke.py" \
-  --method SITCOM --gpu "$SITCOM_GPU" --image-id 65082 --repo "$REPO" --output "$RUNROOT/sitcom" \
+  --method SITCOM --gpu "$SITCOM_GPU" --image-id 65082 --repo "$REPO" --inputs "$B23_INPUTS" --output "$RUNROOT/sitcom" \
   > "$RUNROOT/logs/sitcom.log" 2>&1 &
 SITCOM_PID=$!
 printf '%s\n' "$SITCOM_PID" > "$RUNROOT/pids/sitcom.pid"
@@ -70,6 +100,9 @@ cat > "$RUNROOT/LAUNCH.json" <<EOF
   "stage": "B24.1",
   "b24_head": "$HEAD",
   "image_id": "65082",
+  "accepted_b23_input_root": "$B23_INPUT_ROOT",
+  "accepted_b23_inputs_path": "$B23_INPUTS",
+  "accepted_b23_inputs_sha256": "$INPUTS_SHA",
   "daps_gpu": $DAPS_GPU,
   "daps_pid": $DAPS_PID,
   "sitcom_gpu": $SITCOM_GPU,
