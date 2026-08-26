@@ -2,9 +2,9 @@
 set -euo pipefail
 
 # B24.0 zero-GPU closeout. This script never invokes a model or nvidia-smi.
-# It creates the isolated PAC worktree, imports the exact populated PRE_B23
-# registry, runs pure-CPU tests/validation, dry-renders future manifests, then
-# commits/pushes only PRE_B24 plus compact zero-GPU evidence.
+# It creates or safely resumes the isolated PAC worktree, imports the exact
+# populated PRE_B23 registry, runs pure-CPU tests/validation, dry-renders future
+# manifests, then commits/pushes only PRE_B24 plus compact zero-GPU evidence.
 
 ROOT=/egr/research-pac/huang248
 CONTROL="$ROOT/pr_diffusion_b23"
@@ -14,7 +14,7 @@ BRANCH=codex/b24-bestof4-failure-sweep
 BASE=27505e6328157ac9296c95dc5e611cbeef80de98
 PRE23="$CONTROL/manifests/b23/PRE_B23_EXPOSURE.csv"
 PRE23_SHA=a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288
-PY="$ROOT/conda-envs/daps/bin/python"
+PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
 
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 RUNROOT="$OUTROOT/B24_0_closeout_$STAMP"
@@ -42,7 +42,7 @@ short "B24_0_CLOSEOUT|zero_gpu=YES|runroot=$RUNROOT"
 
 # Read-only verification of the B23 worktree plus shared-repository fetch/worktree metadata.
 git -C "$CONTROL" rev-parse --git-dir >/dev/null
-[ ! -e "$B24WT" ] || { short "STOP|B24 worktree already exists:$B24WT"; exit 20; }
+[ -x "$PY" ] || { short "STOP|missing prdiff_ffhq python:$PY"; exit 19; }
 [ -f "$PRE23" ] || { short "STOP|missing populated PRE_B23:$PRE23"; exit 21; }
 ACTUAL_PRE23=$(sha256sum "$PRE23" | awk '{print $1}')
 [ "$ACTUAL_PRE23" = "$PRE23_SHA" ] || { short "STOP|PRE_B23_SHA|$ACTUAL_PRE23"; exit 22; }
@@ -56,18 +56,49 @@ step fetch_b24 git -C "$CONTROL" fetch origin \
 REMOTE_BASE=$(git -C "$CONTROL" rev-parse origin/codex/b23-execution)
 [ "$REMOTE_BASE" = "$BASE" ] || { short "STOP|remote_b23_head=$REMOTE_BASE|expected=$BASE"; exit 24; }
 step ancestry git -C "$CONTROL" merge-base --is-ancestor "$BASE" "origin/$BRANCH"
+REMOTE_HEAD=$(git -C "$CONTROL" rev-parse "origin/$BRANCH")
 
-if git -C "$CONTROL" show-ref --verify --quiet "refs/heads/$BRANCH"; then
-  short "STOP|local branch already exists; refusing ambiguous worktree reuse:$BRANCH"
-  exit 25
+# Idempotent recovery is allowed only for the exact clean B24 worktree/branch.
+# Never delete, reset, rebase, or force-update a partial worktree.
+if [ -e "$B24WT" ]; then
+  git -C "$B24WT" rev-parse --git-dir >/dev/null 2>&1 || {
+    short "STOP|existing B24 path is not a git worktree:$B24WT"; exit 20;
+  }
+  WT_BRANCH=$(git -C "$B24WT" branch --show-current)
+  [ "$WT_BRANCH" = "$BRANCH" ] || {
+    short "STOP|existing B24 worktree branch=$WT_BRANCH|expected=$BRANCH"; exit 25;
+  }
+  [ -z "$(git -C "$B24WT" status --porcelain)" ] || {
+    short "STOP|existing B24 worktree is not clean; preserve and inspect:$B24WT"; exit 26;
+  }
+  WT_HEAD=$(git -C "$B24WT" rev-parse HEAD)
+  git -C "$B24WT" merge-base --is-ancestor "$WT_HEAD" "$REMOTE_HEAD" || {
+    short "STOP|existing B24 head is not an ancestor of remote|local=$WT_HEAD|remote=$REMOTE_HEAD"; exit 27;
+  }
+  if [ "$WT_HEAD" != "$REMOTE_HEAD" ]; then
+    step fast_forward_existing git -C "$B24WT" merge --ff-only "origin/$BRANCH"
+  else
+    printf 'reuse_worktree\tPASS\t0\n' >>"$RESULTS"
+    short "PASS|reuse_worktree"
+  fi
+else
+  if git -C "$CONTROL" show-ref --verify --quiet "refs/heads/$BRANCH"; then
+    short "STOP|local B24 branch exists without expected worktree; preserve and inspect:$BRANCH"
+    exit 28
+  fi
+  step add_worktree git -C "$CONTROL" worktree add -b "$BRANCH" "$B24WT" "origin/$BRANCH"
 fi
-step add_worktree git -C "$CONTROL" worktree add -b "$BRANCH" "$B24WT" "origin/$BRANCH"
 
 cd "$B24WT"
 HEAD=$(git rev-parse HEAD)
 REMOTE_HEAD=$(git rev-parse "origin/$BRANCH")
-[ "$HEAD" = "$REMOTE_HEAD" ] || { short "STOP|new worktree head does not equal fetched remote head"; exit 26; }
+[ "$HEAD" = "$REMOTE_HEAD" ] || { short "STOP|B24 worktree head does not equal fetched remote head"; exit 29; }
 short "WORKTREE|head=$HEAD|branch=$(git branch --show-current)"
+
+# Standalone scripts must import this checkout, not an unrelated installed copy.
+export PYTHONPATH="$B24WT${PYTHONPATH:+:$PYTHONPATH}"
+step import_probe env CUDA_VISIBLE_DEVICES= "$PY" -c \
+  'import pathlib, prdiffusion.b24_protocol as p; print(pathlib.Path(p.__file__).resolve())'
 
 step compile "$PY" -m py_compile \
   prdiffusion/b24_protocol.py \
@@ -76,7 +107,8 @@ step compile "$PY" -m py_compile \
   scripts/b24/validate_b24_0.py \
   scripts/b24/run_b24_worker.py
 
-step tests env CUDA_VISIBLE_DEVICES= "$PY" -m unittest tests.b24.test_b24_protocol
+# Discovery avoids requiring tests/b24 to be an importable Python package.
+step tests env CUDA_VISIBLE_DEVICES= "$PY" -m unittest discover -s tests/b24 -p 'test_*.py'
 step exposure env CUDA_VISIBLE_DEVICES= "$PY" scripts/b24/build_pre_b24_exposure.py \
   --pre-b23 "$PRE23" --out manifests/b24/PRE_B24_EXPOSURE.csv
 step validate env CUDA_VISIBLE_DEVICES= "$PY" scripts/b24/validate_b24_0.py
@@ -123,6 +155,8 @@ cat >"$EVDIR/README.md" <<EOF
 
 - PAC run root: \`$RUNROOT\`
 - source B24 head: \`$HEAD\`
+- control Python: \`$PY\`
+- checkout import root: \`$B24WT\`
 - populated PRE_B23 SHA-256: \`$PRE23_SHA\`
 - PRE_B24 SHA-256: \`$PRE24_SHA\`
 - PRE_B24 rows: \`$PRE24_COUNT\`
@@ -138,7 +172,7 @@ UNEXPECTED=$(git status --porcelain | awk -v ev="$EVDIR/" '
   index($2, ev) == 1 {next}
   {print}
 ')
-[ -z "$UNEXPECTED" ] || { short "STOP|unexpected repo changes"; printf '%s\n' "$UNEXPECTED"; exit 27; }
+[ -z "$UNEXPECTED" ] || { short "STOP|unexpected repo changes"; printf '%s\n' "$UNEXPECTED"; exit 30; }
 
 git add manifests/b24/PRE_B24_EXPOSURE.csv "$EVDIR"
 step staged_diff git diff --cached --check
