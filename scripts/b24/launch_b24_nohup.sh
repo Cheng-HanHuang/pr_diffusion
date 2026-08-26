@@ -7,7 +7,8 @@ set -euo pipefail
 ROOT=/egr/research-pac/huang248
 REPO="$ROOT/pr_diffusion_b24"
 OUTROOT="$ROOT/outputs/pr_diffusion/b24"
-PY="$ROOT/conda-envs/daps/bin/python"
+PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
+export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 usage() {
   echo "usage: $0 --stage B24.0|B24.1|B24.2 --manifest PATH --mode serial|batched [--dry-run]" >&2
@@ -29,6 +30,7 @@ done
 
 [ -n "$STAGE" ] && [ -n "$MANIFEST" ] && [ -n "$MODE" ] || { usage; exit 2; }
 [ "$MODE" = serial ] || [ "$MODE" = batched ] || { echo "STOP: bad mode" >&2; exit 2; }
+[ -x "$PY" ] || { echo "STOP: missing prdiff_ffhq python: $PY" >&2; exit 2; }
 
 if [ "$STAGE" = "B24.0" ] && [ "$DRY" -ne 1 ]; then
   echo "STOP: B24.0 permits dry rendering only" >&2
