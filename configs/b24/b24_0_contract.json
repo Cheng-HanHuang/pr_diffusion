@@ -1,10 +1,11 @@
 {
-  "schema_version": 1,
-  "stage": "B24.0",
-  "gpu_authorized": false,
+  "schema_version": 2,
+  "stage": "B24.0_SIGNED_OFF_B24.1_AUTHORIZED",
+  "gpu_authorized": true,
   "repository": {
     "full_name": "Cheng-HanHuang/pr_diffusion",
     "required_ancestry_head": "27505e6328157ac9296c95dc5e611cbeef80de98",
+    "b24_0_signed_off_head": "0ed429cf579ec201c1f9b3dbd6c531f46a4e3ea3",
     "branch": "codex/b24-bestof4-failure-sweep",
     "draft_pr_base": "codex/b23-execution"
   },
@@ -17,13 +18,15 @@
     "daps": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps",
     "sitcom": "/egr/research-pac/huang248/external/SITCOM_ODE",
     "npsitcom": "/egr/research-pac/huang248/external/SITCOM_ODE_npsitcom",
-    "pre_b23_exposure": "/egr/research-pac/huang248/pr_diffusion_b23/manifests/b23/PRE_B23_EXPOSURE.csv"
+    "b23_accepted_inputs": "/egr/research-pac/huang248/outputs/pr_diffusion/b23/B23_1_run_20260825T051021Z/inputs/INPUTS.json",
+    "pre_b24_exposure": "/egr/research-pac/huang248/pr_diffusion_b24/manifests/b24/PRE_B24_EXPOSURE.csv"
   },
   "frozen_inputs": {
     "ffhq_model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
     "pre_b23_exposure_sha256": "a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288",
-    "pre_b23_unique_images": 328,
-    "required_b23_1_image_wide_exclusions": ["65082", "61492", "62959", "66821", "68142"]
+    "pre_b24_exposure_sha256": "d475c9c29b4f6ab2839ae21f4b19e33a52fa46f2fd7f0a6a7c5fff491e4b3068",
+    "pre_b24_unique_images": 333,
+    "b24_1_smoke_image_id": "65082"
   },
   "sources": {
     "daps": {
@@ -46,18 +49,9 @@
     }
   },
   "environments": {
-    "daps": {
-      "path": "/egr/research-pac/huang248/conda-envs/daps",
-      "package_set_sha256": "8d58352d0858ac02e39a0701abeb2e65623f205fcfe27ef0f210b8571800a7ad"
-    },
-    "sitcom_ode_bw": {
-      "path": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw",
-      "package_set_sha256": "96a52055561b88f66a25bb1bf09974ab828d394d291830453bd49d2a8d2fe34c"
-    },
-    "prdiff_ffhq": {
-      "path": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq",
-      "package_set_sha256": "ee361da9717975ac61a766891d91d1ac0a4c8fc9d2b3f7cf96168a9ee10cae5f"
-    }
+    "control": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+    "daps": "/egr/research-pac/huang248/conda-envs/daps/bin/python",
+    "sitcom": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python"
   },
   "baseline": {
     "primary_metric": "raw_orientation_rgb_psnr_db",
@@ -66,12 +60,8 @@
     "additional_metrics": ["ssim", "lpips"],
     "daps_replicates": 4,
     "sitcom_replicates": 4,
-    "classes": {
-      "A": "DAPS4_GOOD25_AND_SITCOM4_GOOD25",
-      "B": "DAPS4_FAIL25_AND_SITCOM4_GOOD25",
-      "C": "DAPS4_GOOD25_AND_SITCOM4_FAIL25",
-      "D": "DAPS4_FAIL25_AND_SITCOM4_FAIL25"
-    }
+    "best_of_four_is_protocol_matching_not_novelty": true,
+    "historical_b22_sitcom4s_is_valid_b24_sitcom4": false
   },
   "allocation": {
     "global_domain": "B24_FFHQ_GLOBAL_V1",
@@ -89,21 +79,19 @@
     "measurement_domain": "B24_MEASUREMENT_SEED_V1",
     "solver_domain": "B24_SOLVER_SEED_V1",
     "canonical_bits": 63,
+    "native_solver_seed_adapter": "canonical_seed_mod_2**32",
     "solver_replicates_per_method": 4
   },
   "resource_policy": {
     "gpu_model": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
     "physical_gpu_total_memory_mib": 97887,
     "driver": "580.126.20",
-    "worker_hard_ceiling_mib": 61440,
-    "worker_hard_ceiling_gib": 60.0,
-    "worker_normal_target_mib": 57344,
-    "worker_normal_target_gib": 56.0,
-    "b24_1_benchmark_target_mib": [49152, 53248, 57344],
-    "b24_1_benchmark_target_gib": [48.0, 52.0, 56.0],
-    "benchmark_selection_rule": "choose the lowest target tier achieving the best stable serial/batched-equivalent throughput; never allocate extra VRAM solely because it is available",
+    "worker_hard_ceiling_mib": 52452,
+    "worker_hard_ceiling_interpretation": "integer MiB ceiling below 55 decimal GB",
+    "worker_normal_target_mib": 48000,
     "device_reserve_mib": 4096,
-    "minimum_free_before_normal_launch_mib": 61440,
+    "minimum_free_before_launch_mib": 52096,
+    "b24_1_concurrency_planning_budget_mib": 44000,
     "coexistence_with_other_lab_jobs": true,
     "dynamic_gpu_selection": false,
     "kill_other_processes": false,
@@ -114,10 +102,11 @@
       "3": "GPU-7d65c050-d7e8-5a6b-ee38-1d72d7a5696a"
     }
   },
-  "future_stages_authorized": {
-    "B24.1": false,
-    "B24.2": false,
-    "method_development": false,
-    "heldout_method_execution": false
+  "authorization": {
+    "B24.0": "SIGNED_OFF_BY_PLANNER",
+    "B24.1": "AUTHORIZED_EXPOSED_IMAGE_EQUIVALENCE_MEMORY_THROUGHPUT_SMOKE_ONLY",
+    "B24.2": "CONDITIONAL_NEXT_ACTION_AFTER_B24.1_PASS_NOT_YET_EXECUTABLE",
+    "method_development": "NOT_AUTHORIZED",
+    "heldout_method_execution": "NOT_AUTHORIZED"
   }
 }
