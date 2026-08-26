@@ -83,12 +83,13 @@ Hardware is four NVIDIA RTX PRO 6000 Blackwell Server Edition GPUs. B24 uses exp
 
 The user confirmed coexistence with other lab jobs is allowed when VRAM permits. Freeze:
 
-- B24 worker hard ceiling: **52,452 MiB** (55 decimal GB rounded down in MiB);
-- B24 normal target: **48,000 MiB**;
-- pre-launch fit requirement: requested B24 target plus **4,096 MiB device reserve** must be free;
+- B24 worker hard ceiling: **61,440 MiB = 60.0 GiB**;
+- highest normal operating target: **57,344 MiB = 56.0 GiB**;
+- B24.1 must benchmark fixed target tiers **48/52/56 GiB** and choose the *lowest* tier attaining the best stable equivalent throughput rather than consuming spare VRAM automatically;
+- at the 56 GiB target, pre-launch free memory must be at least **61,440 MiB** (56 GiB target + 4 GiB device reserve);
 - both PyTorch peak allocated/reserved memory and whole-device `nvidia-smi` process memory are recorded.
 
-Other lab jobs may start later. B24 does not evict them. OOM, B24-process hard-cap violation, source mismatch, or serial/batched disagreement is an immediate scientific stop.
+The 60 GiB number is permission for a ceiling, not an instruction to allocate 60 GiB. Other lab jobs may start later when memory permits. B24 does not evict them. OOM, B24-process hard-cap violation, source mismatch, or serial/batched disagreement is an immediate scientific stop.
 
 ## Future stage gates
 
