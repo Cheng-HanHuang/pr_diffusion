@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Standalone PAC invocation must resolve the checkout-local package without
-# relying on an interactive shell's PYTHONPATH.
+# relying on an interactive shell's PYTHONPATH or current working directory.
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -24,7 +24,10 @@ from prdiffusion.b24_protocol import (
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--exposure", type=Path, default=Path("manifests/b24/PRE_B24_EXPOSURE.csv"))
+    parser.add_argument(
+        "--exposure", type=Path,
+        default=REPO_ROOT / "manifests/b24/PRE_B24_EXPOSURE.csv",
+    )
     parser.add_argument("--count", type=int, choices=(64, 256), required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
