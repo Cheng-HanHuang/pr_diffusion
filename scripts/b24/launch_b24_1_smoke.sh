@@ -7,6 +7,8 @@ REPO="$ROOT/pr_diffusion_b24"
 OUTROOT="$ROOT/outputs/pr_diffusion/b24"
 BRANCH=codex/b24-bestof4-failure-sweep
 PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
+DAPS="$ROOT/pr_diffusion_b19_solver/external/daps"
+SITCOM="$ROOT/external/SITCOM_ODE"
 DAPS_GPU=0
 SITCOM_GPU=1
 MIN_FREE=52096
@@ -31,6 +33,32 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 "$PY" -m py_compile \
   "$REPO/scripts/b24/run_b24_1_method_smoke.py" \
   "$REPO/scripts/b24/analyze_b24_1_smoke.py"
+
+verify_source() {
+  local name="$1" path="$2" exp_head="$3" exp_tree="$4" exp_index="$5" exp_diff="$6"
+  local head tree index_digest diff_digest
+  [[ -d "$path/.git" || -f "$path/.git" ]] || { echo "STOP|source_missing|name=$name|path=$path"; return 20; }
+  head=$(git -C "$path" rev-parse HEAD)
+  tree=$(git -C "$path" rev-parse 'HEAD^{tree}')
+  index_digest=$(git -C "$path" ls-files -s | sha256sum | awk '{print $1}')
+  diff_digest=$(git -C "$path" diff --binary HEAD -- . | sha256sum | awk '{print $1}')
+  [[ "$head" == "$exp_head" ]] || { echo "STOP|source_head|name=$name|observed=$head|expected=$exp_head"; return 21; }
+  [[ "$tree" == "$exp_tree" ]] || { echo "STOP|source_tree|name=$name|observed=$tree|expected=$exp_tree"; return 22; }
+  [[ "$index_digest" == "$exp_index" ]] || { echo "STOP|source_index|name=$name|observed=$index_digest|expected=$exp_index"; return 23; }
+  [[ "$diff_digest" == "$exp_diff" ]] || { echo "STOP|source_tracked_diff|name=$name|observed=$diff_digest|expected=$exp_diff"; return 24; }
+  echo "SOURCE_READY|name=$name|head=$head|tree=$tree|index_sha256=$index_digest|tracked_diff_sha256=$diff_digest"
+}
+
+verify_source DAPS "$DAPS" \
+  e7a77d094167084faed19b599b96673b7bb11447 \
+  e63f9715e4704d9cd7a43a166559496d9d94e781 \
+  d5487cdba570dbaac0c1909e549da361a0a0fc3fed81e5c13f59fa12925876b6 \
+  fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69
+verify_source SITCOM "$SITCOM" \
+  275ab67efbd8146bffca20155171ba6be1169c09 \
+  80263442e3606824a06dc003504c28da5c59c2c5 \
+  3ef63a8a29d0ba65cc642027a57ec102257fd9b387b0e9a5b4aae7f46d6a949f \
+  a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e
 
 # B23.1 generated the five locked inputs in an earlier corrective run and then
 # reused them for the accepted scientific execution. Resolve that retained root
