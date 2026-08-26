@@ -13,14 +13,44 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def validate_row(completion: dict, manifest_row: dict, manifest_sha: str) -> None:
+    expected = {
+        "status": "PASS",
+        "stage": "B24.2_64",
+        "manifest_file_sha256": manifest_sha,
+        "shard_id": int(manifest_row["shard_id"]),
+        "gpu_id": int(manifest_row["gpu_id"]),
+        "row_index": int(manifest_row["row_index"]),
+        "image_id": str(manifest_row["image_id"]).zfill(5),
+        "measurement_seed": int(manifest_row["measurement_seed"]),
+        "daps_solver_seeds": [int(x) for x in manifest_row["daps_solver_seeds"]],
+        "sitcom_solver_seeds": [int(x) for x in manifest_row["sitcom_solver_seeds"]],
+    }
+    for key, value in expected.items():
+        if completion.get(key) != value:
+            raise RuntimeError(
+                f"completion identity mismatch row={manifest_row['row_index']} field={key}: "
+                f"observed={completion.get(key)!r} expected={value!r}"
+            )
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--runroot", type=Path, required=True)
     args = ap.parse_args()
     root = args.runroot.resolve()
+    manifest_path = root / "B24_2_baseline_64.json"
+    if not manifest_path.is_file():
+        raise FileNotFoundError(manifest_path)
+    manifest = read_json(manifest_path)
+    manifest_rows = manifest.get("rows")
+    if not isinstance(manifest_rows, list) or len(manifest_rows) != 64:
+        raise RuntimeError("bad 64-row manifest")
+    import hashlib
+    h=hashlib.sha256(); h.update(manifest_path.read_bytes()); manifest_sha=h.hexdigest()
 
-    shard_rows = []
-    completions = []
+    shard_summaries = []
+    by_row = {}
     for shard in range(4):
         sroot = root / f"shard{shard}"
         summary_path = sroot / "SHARD_COMPLETE.json"
@@ -30,29 +60,35 @@ def main() -> int:
         summary = read_json(summary_path)
         if summary.get("status") != "PASS" or int(summary.get("completed", -1)) != 16:
             raise RuntimeError(f"bad shard summary: {summary_path}")
-        shard_rows.append(summary)
+        if summary.get("manifest_file_sha256") != manifest_sha:
+            raise RuntimeError(f"shard manifest SHA mismatch: {summary_path}")
+        shard_summaries.append(summary)
         for path in sorted(sroot.glob("row*/IMAGE_COMPLETE.json")):
             row = read_json(path)
-            if row.get("status") != "PASS":
-                raise RuntimeError(f"non-PASS image completion: {path}")
-            completions.append(row)
+            idx = int(row["row_index"])
+            if idx in by_row:
+                raise RuntimeError(f"duplicate completed row {idx}")
+            by_row[idx] = row
 
-    if len(completions) != 64:
-        raise RuntimeError(f"expected 64 image completions, got {len(completions)}")
-    row_ids = [int(r["row_index"]) for r in completions]
-    image_ids = [r["image_id"] for r in completions]
-    if sorted(row_ids) != list(range(64)) or len(set(image_ids)) != 64:
-        raise RuntimeError("row/image coverage mismatch")
-    manifest_shas = {r["manifest_file_sha256"] for r in completions}
-    heads = {r["b24_head"] for r in completions}
-    if len(manifest_shas) != 1 or len(heads) != 1:
-        raise RuntimeError("mixed manifest/head identities across 64-image tranche")
+    if sorted(by_row) != list(range(64)):
+        raise RuntimeError(f"row coverage mismatch: {sorted(by_row)}")
+    completions=[]
+    for manifest_row in manifest_rows:
+        idx=int(manifest_row["row_index"])
+        completion=by_row[idx]
+        validate_row(completion, manifest_row, manifest_sha)
+        completions.append(completion)
+
+    image_ids=[r["image_id"] for r in completions]
+    if len(set(image_ids)) != 64:
+        raise RuntimeError("duplicate image in completed 64")
+    heads=sorted({str(r["b24_head"]) for r in completions})
 
     counts = Counter(r["class_label"] for r in completions)
     if set(counts) - {"A", "B", "C", "D"}:
         raise RuntimeError(f"unknown class labels: {counts}")
     prevalence = {c: counts.get(c, 0) / 64.0 for c in "ABCD"}
-    max_shard_wall = max(float(r["shard_wall_seconds"]) for r in shard_rows)
+    max_shard_wall = max(float(r["shard_wall_seconds"]) for r in shard_summaries)
     throughput = 64.0 / (max_shard_wall / 3600.0)
 
     daps_group = [float(r["daps_group_wall_seconds"]) for r in completions]
@@ -60,28 +96,25 @@ def main() -> int:
     image_wall = [float(r["image_wall_seconds"]) for r in completions]
     daps_psnr = [float(r["daps_best_psnr_raw_rgb_db"]) for r in completions]
     sitcom_psnr = [float(r["sitcom_best_psnr_raw_rgb_db"]) for r in completions]
+    naive_n100 = {c: (100.0 / prevalence[c] if prevalence[c] > 0 else None) for c in "ABCD"}
+    naive_n200 = {c: (200.0 / prevalence[c] if prevalence[c] > 0 else None) for c in "ABCD"}
 
-    naive_n100 = {
-        c: (100.0 / prevalence[c] if prevalence[c] > 0 else None)
-        for c in "ABCD"
-    }
-    naive_n200 = {
-        c: (200.0 / prevalence[c] if prevalence[c] > 0 else None)
-        for c in "ABCD"
-    }
     payload = {
-        "schema_version": "b24.baseline-64-summary.v1",
+        "schema_version": "b24.baseline-64-summary.v2",
         "stage": "B24.2_64",
         "status": "PASS",
         "n_images": 64,
-        "manifest_file_sha256": next(iter(manifest_shas)),
-        "b24_head": next(iter(heads)),
+        "manifest_file_sha256": manifest_sha,
+        "b24_executor_heads": heads,
+        "mixed_executor_heads_due_to_fail_closed_resume": len(heads) > 1,
+        "scientific_identity_rule": "every completion matches frozen manifest image/shard/GPU/measurement seed/DAPS seeds/SITCOM seeds",
         "class_counts": {c: counts.get(c, 0) for c in "ABCD"},
         "class_prevalence": prevalence,
         "evaluation_representation": "CANONICAL_SAVED_RGB_8BIT_RAW_ORIENTATION_V1",
         "good25_threshold_db": 25.0,
         "max_shard_wall_seconds": max_shard_wall,
-        "observed_images_per_hour_four_gpu": throughput,
+        "clean_four_gpu_throughput_proxy_images_per_hour": throughput,
+        "throughput_note": "Proxy uses the maximum final shard-summary wall time; interruption/resume downtime is reported separately in run evidence and is not treated as clean solver throughput.",
         "daps4_group_wall_seconds": {
             "mean": statistics.mean(daps_group), "median": statistics.median(daps_group), "max": max(daps_group)
         },
@@ -103,7 +136,7 @@ def main() -> int:
     out.write_text(json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n", encoding="utf-8")
     print(json.dumps({
         "status": "PASS", "class_counts": payload["class_counts"],
-        "images_per_hour": throughput, "summary": str(out),
+        "images_per_hour": throughput, "executor_heads": heads, "summary": str(out),
     }, sort_keys=True))
     return 0
 
