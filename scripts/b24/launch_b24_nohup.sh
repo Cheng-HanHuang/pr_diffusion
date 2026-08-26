@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# B24.0: only --dry-run is permitted by the checked-in worker.
-# Future authorized stages may reuse this control plane after backend enablement.
+# Generic B24 control plane. Scientific B24.2 dispatch stays fail-closed until
+# the dedicated baseline backend is committed and authorized.
 
 ROOT=/egr/research-pac/huang248
 REPO="$ROOT/pr_diffusion_b24"
@@ -31,10 +31,19 @@ done
 [ -n "$STAGE" ] && [ -n "$MANIFEST" ] && [ -n "$MODE" ] || { usage; exit 2; }
 [ "$MODE" = serial ] || [ "$MODE" = batched ] || { echo "STOP: bad mode" >&2; exit 2; }
 [ -x "$PY" ] || { echo "STOP: missing prdiff_ffhq python: $PY" >&2; exit 2; }
+[ -f "$MANIFEST" ] || { echo "STOP: manifest does not exist: $MANIFEST" >&2; exit 4; }
 
 if [ "$STAGE" = "B24.0" ] && [ "$DRY" -ne 1 ]; then
   echo "STOP: B24.0 permits dry rendering only" >&2
   exit 3
+fi
+
+# B24.1 has its own dedicated validated smoke launcher. B24.2 must use the
+# dedicated scale launcher once committed; this scaffold must not pretend to
+# launch scientific work.
+if [ "$DRY" -ne 1 ] && { [ "$STAGE" = "B24.1" ] || [ "$STAGE" = "B24.2" ]; }; then
+  echo "STOP: generic B24 control-plane scientific dispatch is disabled; use the stage-specific validated launcher" >&2
+  exit 5
 fi
 
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
