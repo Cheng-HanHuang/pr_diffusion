@@ -43,11 +43,14 @@ def tensor_sha256(value: torch.Tensor) -> str:
 def find_image(image_id: str) -> Path:
     number = int(image_id)
     folder = f"{(number // 1000) * 1000:05d}"
-    candidates = [
+    # For IDs below 1000, ``folder`` is already ``00000``.  Preserve the
+    # historical explicit ``00000`` fallback, but deduplicate equal paths
+    # before testing cardinality so one real source cannot count as two hits.
+    candidates = list(dict.fromkeys([
         FFHQ / folder / f"{number:05d}.png",
         FFHQ / "00000" / f"{number:05d}.png",
         FFHQ / f"{number:05d}.png",
-    ]
+    ]))
     hits = [p for p in candidates if p.is_file()]
     if len(hits) != 1:
         raise RuntimeError(f"expected one FFHQ source for {image_id}; candidates={candidates}; hits={hits}")
