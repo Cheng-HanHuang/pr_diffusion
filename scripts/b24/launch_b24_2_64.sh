@@ -29,8 +29,31 @@ if [[ "$LOCAL" != "$REMOTE" ]]; then
 fi
 HEAD=$(git -C "$REPO" rev-parse HEAD)
 [[ -z "$(git -C "$REPO" status --porcelain)" ]] || { echo "STOP|B24 worktree dirty after fast-forward"; exit 5; }
+
+# ``python -m`` places the current working directory first on sys.path.  The
+# launcher is commonly invoked from the sibling B23 worktree, whose valid
+# ``prdiffusion`` package would otherwise shadow B24's package and make the
+# B24-only b24_protocol submodule appear missing.  Pin cwd and verify identity.
+cd "$REPO"
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 export PYTHONDONTWRITEBYTECODE=1
+"$PY" - "$REPO" <<'PY'
+import pathlib
+import sys
+root = pathlib.Path(sys.argv[1]).resolve()
+import prdiffusion
+import prdiffusion.b24_protocol as protocol
+pkg = pathlib.Path(prdiffusion.__file__).resolve()
+mod = pathlib.Path(protocol.__file__).resolve()
+expected_pkg = root / "prdiffusion" / "__init__.py"
+expected_mod = root / "prdiffusion" / "b24_protocol.py"
+if pkg != expected_pkg or mod != expected_mod:
+    raise SystemExit(
+        f"STOP|B24_IMPORT_IDENTITY|package={pkg}|protocol={mod}|"
+        f"expected_package={expected_pkg}|expected_protocol={expected_mod}"
+    )
+print(f"B24_IMPORT_READY|package={pkg}|protocol={mod}")
+PY
 
 "$PY" -m py_compile \
   "$REPO/scripts/b24/render_b24_baseline_manifest.py" \
@@ -38,7 +61,9 @@ export PYTHONDONTWRITEBYTECODE=1
   "$REPO/scripts/b24/evaluate_b24_baseline_image.py" \
   "$REPO/scripts/b24/run_b24_2_shard.py" \
   "$REPO/scripts/b24/analyze_b24_2_64.py"
-"$PY" -m unittest discover -s "$REPO/tests/b24" -p 'test_*.py' >/dev/null
+"$PY" -m unittest discover -s tests/b24 -p 'test_*.py' >/dev/null
+
+echo "B24_TESTS_READY|suite=tests/b24"
 
 verify_source() {
   local name="$1" path="$2" exp_head="$3" exp_tree="$4" exp_index="$5" exp_diff="$6"
@@ -103,7 +128,9 @@ STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 RUNROOT="$OUTROOT/B24_2_64_$STAMP"
 mkdir -p "$RUNROOT/logs" "$RUNROOT/pids"
 MANIFEST="$RUNROOT/B24_2_baseline_64.json"
-"$PY" "$REPO/scripts/b24/render_b24_baseline_manifest.py" --count 64 --out "$MANIFEST" \
+"$PY" "$REPO/scripts/b24/render_b24_baseline_manifest.py" \
+  --exposure "$REPO/manifests/b24/PRE_B24_EXPOSURE.csv" \
+  --count 64 --out "$MANIFEST" \
   > "$RUNROOT/logs/render_manifest.log" 2>&1
 MAN_FILE_SHA=$(sha256sum "$MANIFEST" | awk '{print $1}')
 [[ "$MAN_FILE_SHA" == "$FROZEN_MAN64_FILE_SHA" ]] || {
