@@ -108,5 +108,16 @@
     "B24.2": "CONDITIONAL_NEXT_ACTION_AFTER_B24.1_PASS_NOT_YET_EXECUTABLE",
     "method_development": "NOT_AUTHORIZED",
     "heldout_method_execution": "NOT_AUTHORIZED"
+  },
+  "b24_1_execution": {
+    "smoke_image_id": "65082",
+    "daps_fixed_physical_gpu": 0,
+    "sitcom_fixed_physical_gpu": 1,
+    "serial_replicates_per_method": 4,
+    "concurrent_replay_replicates_per_method": 4,
+    "concurrent_width_selection": "largest integer 1..4 fitting 44000 MiB / max serial peak-reserved MiB",
+    "terminal_equivalence": "exact content hash required by current harness",
+    "new_measurement_generation": false,
+    "full_daps_trajectory": false
   }
 }
