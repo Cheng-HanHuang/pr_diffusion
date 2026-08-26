@@ -1,9 +1,18 @@
 from __future__ import annotations
 
 import json
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+
+# The B24 tests must import the package from this checkout even when unittest
+# is launched from the sibling B23 worktree.  ``python -m`` otherwise places
+# the caller's cwd first on sys.path, which can shadow B24 with B23's valid
+# ``prdiffusion`` package (which naturally has no b24_protocol module).
+REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from prdiffusion.b24_protocol import (
     GPU_UUIDS,
