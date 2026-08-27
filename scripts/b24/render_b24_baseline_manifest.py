@@ -21,6 +21,8 @@ from prdiffusion.b24_protocol import (
     validate_pre_b24,
 )
 
+ALLOWED_COUNTS = (64, 256, 2048)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -28,7 +30,7 @@ def main() -> int:
         "--exposure", type=Path,
         default=REPO_ROOT / "manifests/b24/PRE_B24_EXPOSURE.csv",
     )
-    parser.add_argument("--count", type=int, choices=(64, 256), required=True)
+    parser.add_argument("--count", type=int, choices=ALLOWED_COUNTS, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
 
