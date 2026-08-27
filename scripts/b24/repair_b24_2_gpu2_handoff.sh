@@ -60,8 +60,17 @@ export B24_BASELINE_MIN_FREE_MIB="$GATE_MIB"
 
 "$PY" -m py_compile scripts/b24/recover_b24_2_gpu2_handoff.py
 
-PARENT_DONE=$(find "$PARENT256/shard2" -name IMAGE_COMPLETE.json -type f 2>/dev/null | wc -l | tr -d ' ')
-NEW_DONE=$(find "$RUN2048/shard2" -name IMAGE_COMPLETE.json -type f 2>/dev/null | wc -l | tr -d ' ')
+count_completions() {
+  local dir="$1"
+  if [[ ! -d "$dir" ]]; then
+    printf '0\n'
+    return 0
+  fi
+  find "$dir" -name IMAGE_COMPLETE.json -type f -print 2>/dev/null | wc -l | tr -d ' '
+}
+
+PARENT_DONE=$(count_completions "$PARENT256/shard2")
+NEW_DONE=$(count_completions "$RUN2048/shard2")
 echo "GPU2_REPAIR_PREFLIGHT|head=$HEAD|parent256_completed=$PARENT_DONE/48|new2048_completed=$NEW_DONE/448|gate_mib=$GATE_MIB"
 
 # Preserve the original failed 2048 handoff log. The supervisor and eventual
