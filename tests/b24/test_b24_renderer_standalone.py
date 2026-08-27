@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parents[2]
 
 
 class StandaloneRendererTests(unittest.TestCase):
-    def test_renderer_works_outside_repo_without_pythonpath(self):
+    def _render(self, count: int) -> dict:
         with tempfile.TemporaryDirectory() as td:
             out = Path(td) / "manifest.json"
             env = os.environ.copy()
@@ -22,7 +22,7 @@ class StandaloneRendererTests(unittest.TestCase):
                 [
                     sys.executable,
                     str(REPO / "scripts/b24/render_b24_baseline_manifest.py"),
-                    "--count", "64",
+                    "--count", str(count),
                     "--out", str(out),
                 ],
                 cwd=td,
@@ -33,9 +33,19 @@ class StandaloneRendererTests(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(result.returncode, 0, msg=result.stdout)
-            value = json.loads(out.read_text(encoding="utf-8"))
-            self.assertEqual(value["count"], 64)
-            self.assertEqual(len(value["rows"]), 64)
+            return json.loads(out.read_text(encoding="utf-8"))
+
+    def test_renderer_works_outside_repo_without_pythonpath(self):
+        value = self._render(64)
+        self.assertEqual(value["count"], 64)
+        self.assertEqual(len(value["rows"]), 64)
+
+    def test_renderer_supports_cumulative_2048_prefix(self):
+        value = self._render(2048)
+        self.assertEqual(value["count"], 2048)
+        self.assertEqual(len(value["rows"]), 2048)
+        self.assertEqual([int(r["row_index"]) for r in value["rows"]], list(range(2048)))
+        self.assertEqual([sum(int(r["gpu_id"]) == g for r in value["rows"]) for g in range(4)], [512] * 4)
 
 
 if __name__ == "__main__":
