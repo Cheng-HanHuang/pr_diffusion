@@ -21,7 +21,7 @@ from prdiffusion.b24_protocol import (
     validate_pre_b24,
 )
 
-ALLOWED_COUNTS = (64, 256, 2048)
+ALLOWED_COUNTS = (64, 256, 2048, 6144)
 
 
 def main() -> int:
