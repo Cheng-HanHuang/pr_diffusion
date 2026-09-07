@@ -60,6 +60,19 @@ class StandaloneRendererTests(unittest.TestCase):
             [1024] * 4,
         )
 
+    def test_renderer_supports_cumulative_7424_and_preserves_6144_prefix(self):
+        parent = self._render(6144)
+        value = self._render(7424)
+        self.assertEqual(value["count"], 7424)
+        self.assertEqual(len(value["rows"]), 7424)
+        self.assertEqual(value["rows"][:6144], parent["rows"])
+        self.assertEqual([int(r["row_index"]) for r in value["rows"]], list(range(7424)))
+        self.assertEqual([sum(int(r["gpu_id"]) == g for r in value["rows"]) for g in range(4)], [1856] * 4)
+        self.assertEqual(
+            [sum(int(r["gpu_id"]) == g and int(r["row_index"]) >= 6144 for r in value["rows"]) for g in range(4)],
+            [320] * 4,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
