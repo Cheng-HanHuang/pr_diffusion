@@ -8,6 +8,7 @@ OUTROOT="$ROOT/outputs/pr_diffusion/b24"
 BRANCH=codex/b24-bestof4-failure-sweep
 PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
 LATEST7424="$OUTROOT/B24_2_7424_LATEST_RUN.txt"
+EXPECTED_PRE_B24_SHA=d475c9c29b4f6ab2839ae21f4b19e33a52fa46f2fd7f0a6a7c5fff491e4b3068
 
 [[ -x "$PY" ]] || { echo "STOP|missing_python:$PY"; exit 2; }
 [[ -f "$LATEST7424" ]] || { echo "STOP|missing_7424_pointer:$LATEST7424"; exit 2; }
@@ -38,6 +39,12 @@ HEAD=$(git -C "$REPO" rev-parse HEAD)
 
 cd "$REPO"
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+
+OBS_PRE_B24_SHA=$(sha256sum manifests/b24/PRE_B24_EXPOSURE.csv | awk '{print $1}')
+[[ "$OBS_PRE_B24_SHA" == "$EXPECTED_PRE_B24_SHA" ]] || {
+  echo "STOP|PRE_B24_sha|observed=$OBS_PRE_B24_SHA|expected=$EXPECTED_PRE_B24_SHA"; exit 4;
+}
+echo "PRE_B24_READY|sha256=$OBS_PRE_B24_SHA"
 
 "$PY" -m py_compile \
   scripts/b24/freeze_b24_7424_case_universe.py \
@@ -81,10 +88,10 @@ done
 )
 
 MAN_SHA=$(sha256sum "$RUN7424/B24_2_baseline_7424.json" | awk '{print $1}')
-"$PY" - "$FREEZE" "$RUN7424" "$HEAD" "$MAN_SHA" <<'PY'
+"$PY" - "$FREEZE" "$RUN7424" "$HEAD" "$MAN_SHA" "$OBS_PRE_B24_SHA" <<'PY'
 import hashlib,json,sys
 from pathlib import Path
-freeze=Path(sys.argv[1]); run=Path(sys.argv[2]); head=sys.argv[3]; manifest_sha=sys.argv[4]
+freeze=Path(sys.argv[1]); run=Path(sys.argv[2]); head=sys.argv[3]; manifest_sha=sys.argv[4]; exposure_sha=sys.argv[5]
 files=[
     'B24_7424_CASE_UNIVERSE.csv',
     'B24_7424_CLASS_RANKED.json',
@@ -109,6 +116,7 @@ value={
     'status':'PASS',
     'b24_head':head,
     'run7424':str(run),
+    'pre_b24_exposure_sha256':exposure_sha,
     'manifest_file_sha256':manifest_sha,
     'zero_gpu':True,
     'method_execution_performed':False,
