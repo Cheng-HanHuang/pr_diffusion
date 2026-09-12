@@ -24,7 +24,7 @@ A secondary C1 severity cohort is also frozen: the 100 class-C cases with lowest
 
 Stop baseline image collection. The next question is:
 
-> Does changing how native NP retains and allocates proposals improve recovery beyond independent NP populations at comparable compute?
+> Does changing how native NP alternatives are discarded improve recovery beyond independent NP populations at comparable compute?
 
 The machine-readable method specification is `configs/b24/b24_3_method_dev_spec.json`.
 
