@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "stage": "B24.0",
+  "gpu_work_performed": false,
+  "model_work_performed": false,
+  "measurement_generation_performed": false,
+  "reconstruction_performed": false,
+  "scientific_screening_rows_populated": false,
+  "worktree_head_before_generated_exposure": "646c8be655250d1174f1fe3476a4c591d055d26a",
+  "required_base": "27505e6328157ac9296c95dc5e611cbeef80de98",
+  "pre_b23_sha256": "a513cb4e3b79b39700ff1d623cb4b2eaf496bc2d6d0fe58bd963709e6a56d288",
+  "pre_b24_sha256": "d475c9c29b4f6ab2839ae21f4b19e33a52fa46f2fd7f0a6a7c5fff491e4b3068",
+  "pre_b24_row_count": 333,
+  "future_manifest_64_file_sha256": "23841774c7364b980e3964baed1605aaa8b6eace0370fd765a7369640ea962d7",
+  "future_manifest_256_file_sha256": "5b3f98adc0d0516d7fe1447d41878bef5d4fc705c58385b02f24dfb751beef28",
+  "future_scientific_execution_authorized": false
+}
