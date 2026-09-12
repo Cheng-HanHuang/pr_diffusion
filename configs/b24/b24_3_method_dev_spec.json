@@ -1,0 +1,211 @@
+{
+  "schema_version": "b24.method-dev-spec.v1",
+  "stage": "B24.3_METHOD_SPEC_AND_16_IMAGE_PILOT",
+  "status": "SPEC_FROZEN_ZERO_GPU_ONLY",
+  "source_screen_manifest_sha256": "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba",
+  "source_universe_csv_sha256": "4c6eeabe7d73f948ff0820a7f8c87ed091ff94100fc5def32586c5581c449f25",
+  "source_abc300_csv_sha256": "4599c2a8c1f4a5922640e0c26d2c1efce7f1996d75dcabbff2e9a1c4b427cbce",
+  "source_c1_csv_sha256": "9c04994dbd91f6a5bb04280736e4dea346c337508a89f30ae8553a42867576b6",
+  "role_policy": {
+    "strata": {
+      "A": {"source": "ABC300/A100", "development": 20, "confirmation": 80},
+      "B": {"source": "ABC300/B100", "development": 20, "confirmation": 80},
+      "C": {"source": "ABC300/C100", "development": 20, "confirmation": 80},
+      "D": {"source": "all realized D85", "development": 20, "confirmation": 65}
+    },
+    "role_rank_domain": "B24_METHOD_ROLE_V1",
+    "pilot_rank_domain": "B24_METHOD_PILOT_V1",
+    "pilot_per_stratum": 4,
+    "development_total": 80,
+    "pilot_total": 16,
+    "confirmation_total": 305,
+    "c1_policy": "C1 is secondary only. C1 images overlapping primary C100 inherit the primary C development/confirmation role. C1 images outside primary C100 are locked from method development until the main method is frozen."
+  },
+  "new_measurements": {
+    "development": {
+      "count_per_image": 1,
+      "seed_domain": "B24_METHOD_DEV_MEAS_V1",
+      "operator": "oversampled Fourier phase retrieval",
+      "resolution": 256,
+      "oversample": 2.0,
+      "sigma_y": 0.05,
+      "same_measurement_for_all_compared_methods": true
+    },
+    "confirmation": {
+      "count_per_image": 2,
+      "seed_domain": "B24_METHOD_CONFIRM_MEAS_V1",
+      "materialize_only_after_method_freeze": true,
+      "same_measurement_for_all_compared_methods": true
+    }
+  },
+  "np_parent": {
+    "identity": "NP-1",
+    "frozen_config": "configs/b23/np1_frozen.yaml",
+    "num_steps": 1000,
+    "projection_start": 300,
+    "soft_candidates": 5,
+    "hard_candidates": 1,
+    "score_mode": "lf",
+    "score_radius": 0.6,
+    "projection_radius": 0.2,
+    "projection_radius_schedule": "300:0.2",
+    "score_huber_delta": 0.05,
+    "terminal_selector_stat": "selector_post_winner_lf_mse_mean",
+    "ground_truth_runtime_use": false
+  },
+  "checkpoint_score": {
+    "name": "preprojection_trailing_lf_mse_mean32",
+    "definition": "mean of selected-state low-frequency measurement MSE over the immediately preceding 32 native transitions at the same diffusion-time window",
+    "radius": 0.6,
+    "uses_ground_truth": false,
+    "diagnostics": ["pointwise checkpoint LF MSE", "trailing-16 mean", "trailing-32 mean", "future terminal PSNR offline only"]
+  },
+  "arms": {
+    "NP1": {
+      "role": "native single-trajectory control",
+      "root_count": 1,
+      "terminal_count": 1,
+      "estimated_proposal_unet_evals": 2199,
+      "estimated_total_unet_evals_including_initial": 2200
+    },
+    "NP4_INDEPENDENT": {
+      "role": "primary compute-matched independent-population control",
+      "root_count": 4,
+      "terminal_count": 4,
+      "preprojection": "four independent NP-1 roots, k=5 for transitions 0..299",
+      "postprojection": "four independent NP-1 continuations, k=1 for transitions 300..998",
+      "clean_free_terminal_selection": "minimum selector_post_winner_lf_mse_mean; stable tie by root index",
+      "estimated_proposal_unet_evals": 8796,
+      "estimated_total_unet_evals_including_initial": 8800
+    },
+    "NP_EPP": {
+      "role": "new simpler early-population-pruning comparator",
+      "roots": 4,
+      "root_seed_domain": "B24_METHOD_NP_ROOT_V1",
+      "phase_0": {"transitions": "0..71", "live_branches": 4, "soft_candidates_per_branch": 5},
+      "checkpoint_72": {"score": "preprojection_trailing_lf_mse_mean32", "keep": 2, "stable_tie": "branch lineage"},
+      "phase_1": {"transitions": "72..147", "live_branches": 2, "soft_candidates_per_branch": 10},
+      "checkpoint_148": {"score": "preprojection_trailing_lf_mse_mean32", "keep": 1, "stable_tie": "branch lineage"},
+      "phase_2": {"transitions": "148..299", "live_branches": 1, "soft_candidates_per_branch": 20},
+      "projection_start_300": {
+        "fork_terminal_descendants": 4,
+        "fork_rng_domain": "B24_METHOD_EPP_HARD_FORK_V1",
+        "shared_parent_state": true,
+        "hard_candidates_per_descendant": 1
+      },
+      "postprojection": "four hard-phase descendants for transitions 300..998",
+      "clean_free_terminal_selection": "minimum selector_post_winner_lf_mse_mean; stable tie by descendant index",
+      "estimated_preprojection_proposal_unet_evals": 6000,
+      "estimated_postprojection_proposal_unet_evals": 2796,
+      "estimated_proposal_unet_evals": 8796,
+      "estimated_total_unet_evals_including_initial": 8800,
+      "ablation_random_prune": "same roots/checkpoints/branch counts/candidate counts; survivors chosen by B24_METHOD_RANDOM_PRUNE_V1 hash, independent of measurement",
+      "ablation_no_reallocation": "same measurement-based pruning but keep k=5 on survivors after pruning; report lower Work-FRE rather than pretending compute equality"
+    },
+    "NP_DPS": {
+      "role": "preferred main-method hypothesis: delayed proposal selection",
+      "root_count": 1,
+      "root_seed_domain": "B24_METHOD_NP_ROOT_V1/root0",
+      "greedy_prefix": {"transitions": "0..71", "live_branches": 1, "soft_candidates_per_branch": 5},
+      "delayed_windows": [
+        {
+          "expand_transition": 72,
+          "proposal_count": 5,
+          "retain_all_proposals": true,
+          "advance_transitions_after_expand": "73..147",
+          "live_branches": 5,
+          "soft_candidates_per_branch": 5,
+          "prune_before_transition": 148,
+          "keep": 1
+        },
+        {
+          "expand_transition": 148,
+          "proposal_count": 5,
+          "retain_all_proposals": true,
+          "advance_transitions_after_expand": "149..223",
+          "live_branches": 5,
+          "soft_candidates_per_branch": 5,
+          "prune_before_transition": 224,
+          "keep": 1
+        },
+        {
+          "expand_transition": 224,
+          "proposal_count": 5,
+          "retain_all_proposals": true,
+          "advance_transitions_after_expand": "225..299",
+          "live_branches": 5,
+          "soft_candidates_per_branch": 5,
+          "prune_at_projection_start": 300,
+          "keep": 1
+        }
+      ],
+      "window_prune_score": "preprojection_trailing_lf_mse_mean32",
+      "branch_rng_domain": "B24_METHOD_DPS_BRANCH_V1",
+      "projection_start_300": {
+        "fork_terminal_descendants": 4,
+        "fork_rng_domain": "B24_METHOD_DPS_HARD_FORK_V1",
+        "shared_selected_parent_state": true,
+        "hard_candidates_per_descendant": 1
+      },
+      "postprojection": "four hard-phase descendants for transitions 300..998",
+      "clean_free_terminal_selection": "minimum selector_post_winner_lf_mse_mean; stable tie by descendant index",
+      "estimated_preprojection_proposal_unet_evals": 6000,
+      "estimated_postprojection_proposal_unet_evals": 2796,
+      "estimated_proposal_unet_evals": 8796,
+      "estimated_total_unet_evals_including_initial": 8797,
+      "note": "8797 vs NP4 8800 differs only by the three additional independent-root initial model evaluations in NP4; all proposal evaluations are exactly matched."
+    },
+    "NP8_RS": {
+      "role": "historical strong project comparator",
+      "identity": "two scoring configurations x four seeds",
+      "configs": ["lf", "s2_preproj_lam001"],
+      "seed_count_per_config": 4,
+      "selector_stat": "selector_post_winner_lf_mse_mean",
+      "selector_rule": "minimum across all 8 trajectories; stable tie by config order then seed"
+    },
+    "DAPS4": {"role": "external reference candidate set; rerun on every new measurement"},
+    "SITCOM4": {"role": "pinned external reference candidate set; rerun on every new measurement"},
+    "FRESH2": {"role": "secondary historical policy derivable from preregistered DAPS pair using unchanged selector"}
+  },
+  "pilot": {
+    "images": 16,
+    "composition": {"A": 4, "B": 4, "C": 4, "D": 4},
+    "reuse_in_development": true,
+    "primary_purpose": [
+      "native branch continuation correctness",
+      "branch/RNG identity preservation",
+      "measurement-only checkpoint-score diagnostics",
+      "memory calibration for NP branching",
+      "Work-FRE / proposal-count accounting",
+      "whether measurement-based pruning destroys branches that later become strong terminals"
+    ],
+    "pilot_arms": [
+      "NP1",
+      "NP4_INDEPENDENT",
+      "NP_EPP",
+      "NP_EPP_RANDOM_PRUNE",
+      "NP_EPP_NO_REALLOCATION",
+      "NP_DPS"
+    ],
+    "external_baselines_in_pilot": "optional for engineering; mandatory on the subsequent 80-image development comparison"
+  },
+  "resource_contract": {
+    "hard_process_or_group_ceiling_mib": 52452,
+    "baseline_10240_mib_admission_gate_reuse_for_np": false,
+    "np_gpu_admission_gate": "MUST_BE_CALIBRATED_BY_ONE-PILOT-IMAGE_SMOKE_BEFORE_PARALLEL PILOT",
+    "do_not_kill_or_evict_other_jobs": true,
+    "physical_gpu_binding_required": true,
+    "report": [
+      "proposal UNet eval count",
+      "Work-FRE",
+      "GPU active time",
+      "wall time",
+      "peak torch allocated/reserved MiB",
+      "B24 process GPU MiB",
+      "whole-device free/used MiB",
+      "live branch count",
+      "terminal count"
+    ]
+  },
+  "confirmation_gate": "No confirmation measurement may be materialized and no confirmation method may run before one main method is selected and frozen from the 80-image development stage."
+}
