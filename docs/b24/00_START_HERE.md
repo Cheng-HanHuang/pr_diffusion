@@ -1,107 +1,97 @@
 # B24 start here
 
-## Current status and authorization boundary
+## Current status
 
-B24 is isolated from B23 and descends from signed-off B23.1 final head `27505e6328157ac9296c95dc5e611cbeef80de98`. B23 cross-family H0 failed: NP-1 and SITCOM-1 remain `BASELINE-ONLY` across family boundaries and no NP/SITCOM cross-family adapter qualified. B24 does not reinterpret that result.
+B24 remains isolated from B23 and descends from the signed-off B23.1 base `27505e6328157ac9296c95dc5e611cbeef80de98`. PR #37 remains untouched. B23 cross-family H0 failed; no NP/SITCOM cross-family adapter qualified, and B24 does not reinterpret that result.
 
-**B24.0 is planner-signed off** at `0ed429cf579ec201c1f9b3dbd6c531f46a4e3ea3`. Its exposure freeze has 333 rows with SHA-256 `d475c9c29b4f6ab2839ae21f4b19e33a52fa46f2fd7f0a6a7c5fff491e4b3068` and compact evidence under `docs/b24/evidence/B24_0_closeout_20260826T013106Z/`.
+The baseline-first phase is complete. Compact freeze evidence is published at `docs/b24/evidence/B24_2_7424_FREEZE_CLOSEOUT.json`.
 
-**B24.1 is authorized now:** exposed-image serial-reference versus concurrent-independent-process equivalence plus memory/throughput smoke. It may execute Fresh1 and SITCOM-1 only on already exposed B23.1 locked inputs and must not generate a new measurement.
+Final cumulative screen:
 
-B24.2 scientific screening is the conditional next action only after B24.1 passes. Method development and held-out method execution remain unauthorized.
+- 7424 deterministic screen rows;
+- A = 6925;
+- B = 107;
+- C = 307;
+- D = 85;
+- final manifest file SHA-256 `b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba`;
+- realized universe CSV SHA-256 `4c6eeabe7d73f948ff0820a7f8c87ed091ff94100fc5def32586c5581c449f25`.
 
-Separate identities:
+The primary balanced `ABC300` cohort is frozen as first 100 A/B/C cases under `B24_CLASS_RANK_V1`, CSV SHA-256 `4599c2a8c1f4a5922640e0c26d2c1efce7f1996d75dcabbff2e9a1c4b427cbce`.
 
-- branch: `codex/b24-bestof4-failure-sweep`
-- required ancestry point: `27505e6328157ac9296c95dc5e611cbeef80de98`
-- B24.0 signed head: `0ed429cf579ec201c1f9b3dbd6c531f46a4e3ea3`
-- draft PR base: `codex/b23-execution`
-- PAC worktree: `/egr/research-pac/huang248/pr_diffusion_b24`
-- PAC output root: `/egr/research-pac/huang248/outputs/pr_diffusion/b24`
+A secondary C1 severity cohort is also frozen: the 100 class-C cases with lowest pinned SITCOM-4 best raw-RGB PSNR, CSV SHA-256 `9c04994dbd91f6a5bb04280736e4dea346c337508a89f30ae8553a42867576b6`. C1 is outcome-selected and diagnostic only; it does not replace the primary hash-ranked C100.
 
-Do not modify PR #37, `/egr/research-pac/huang248/pr_diffusion_b23`, or the B23 output root. Never rebase, squash, force-push, or rewrite B24 history.
+## Next scientific question
 
-## Scientific claim
+Stop baseline image collection. The next question is:
 
-The evaluation question is whether an **NP-native batched branch-and-prune method** can recover cases where matched DAPS and SITCOM best-of-four protocols fail.
+> Does changing how native NP retains and allocates proposals improve recovery beyond independent NP populations at comparable compute?
 
-Best-of-four matching is an apples-to-apples protocol, not the novelty. The intended method novelty is NP-native proposal/branch generation, batched starts, early branch dropping, reallocation of saved compute, branch-survival decisions, where dropping occurs, and eventually clean-free terminal selection.
+The machine-readable method specification is `configs/b24/b24_3_method_dev_spec.json`.
 
-Ground truth may select the best **terminal** reconstruction during initial oracle candidate studies. Ground truth must never decide early dropping, branch allocation, survival, routing, or runtime stopping.
+Two new candidates are frozen for bounded development:
 
-## Baseline-first execution priority
+1. **NP_EPP — early population pruning.** Start four independent native NP roots, prune 4→2 at transition 72 and 2→1 at transition 148 using a measurement-only trailing-32 low-frequency MSE score, and reallocate proposal count 5→10→20 so aggregate pre-projection proposal evaluations remain compute-matched to four independent NP-1 runs. At projection start, fork the selected native state into four independent hard-phase descendants.
+2. **NP_DPS — delayed proposal selection.** Run one greedy NP root through transition 71. At transitions 72, 148, and 224, retain all five native NP proposals and advance them as five complete branches through a 76-transition delayed-selection window before pruning to one by the same measurement-only trailing-32 score. At projection start, fork the selected native state into four independent hard-phase descendants.
 
-The first expensive scientific task is the baseline screen, not method development:
+Both methods preserve complete branch state and named RNG identity. Ground truth may be used offline for terminal-oracle diagnostics only; it may not control pruning, allocation, routing, stopping, or clean-free terminal selection.
 
-1. freeze exposure and deterministic FFHQ screening order;
-2. generate one locked measurement per screened image;
-3. execute DAPS-4 and SITCOM-4 using preregistered independent solver seeds;
-4. compute raw-orientation RGB PSNR, SSIM, LPIPS and continuous per-run metrics;
-5. classify each image by the primary Good25 contract into A/B/C/D;
-6. expand cumulative screening tranches after throughput/prevalence/integrity review;
-7. discuss and freeze the NP-native branch/drop method only after useful baseline class allocation exists;
-8. do not execute our method on held-out rows before that policy is frozen.
+## Compute matching
 
-The first baseline tranche after B24.1 is 64 images. The 256-image tranche is cumulative and reuses those 64 rows. Larger tranches are cumulative prefixes of the same deterministic screen order.
+Frozen NP-1 parent: 1000 steps, projection start 300, soft/hard candidate counts 5/1, LF score radius 0.6, projection radius 0.2.
 
-## Primary classes and metrics
+- NP-1: 2199 proposal UNet evaluations + 1 initial model evaluation = 2200 approximate model evaluations.
+- four independent NP-1 runs: 8796 proposal evaluations + 4 initial evaluations = 8800.
+- NP_EPP: exactly 8796 proposal evaluations + 4 initial evaluations = 8800.
+- NP_DPS: exactly 8796 proposal evaluations + 1 initial evaluation = 8797. The three-evaluation difference from NP4 comes only from NP4's additional independent initial roots.
 
-`Good25 := raw_orientation_rgb_psnr_db >= 25.0`.
+Actual Work-FRE, GPU-active time, wall time, and memory must still be measured; proposal counts do not substitute for calibrated execution cost.
 
-- A: DAPS-4 Good25 and SITCOM-4 Good25.
-- B: only SITCOM-4 Good25.
-- C: only DAPS-4 Good25.
-- D: neither Good25.
+Historical NP-8-RS must retain its actual identity: two scoring configurations (`lf` and `s2_preproj_lam001`) × four seeds, selected by `selector_post_winner_lf_mse_mean`. It is not eight identical NP runs.
 
-Good26, Good28, SSIM, LPIPS, and every continuous per-run metric are recorded for sensitivity analysis. They do not redefine the primary classes to fill quotas.
+## Image roles
 
-Target balanced development allocation is at least 100 images per class. Prefer a second held-out 100 per class if prevalence permits. Balanced panels are not FFHQ population estimates; preserve natural-prevalence evaluation and prevalence-weighted reporting.
+Before any project-method result is observed, freeze the new method-stage roles with:
 
-## Compute accounting
+`bash scripts/b24/freeze_b24_method_roles.sh`
 
-DAPS and SITCOM are not fictitiously equal-cost:
+The role policy is:
 
-- DAPS-4-equivalent arm: at most four Fresh1-equivalent work units.
-- SITCOM-4 efficiency arm: four SITCOM-1 units, reported separately.
-- Four-terminal-candidate matching: reported separately.
-- Diagnostic union oracle `max(DAPS-4,SITCOM-4)`: eight baseline trajectories.
+- ABC300 A100: 20 development / 80 confirmation;
+- ABC300 B100: 20 development / 80 confirmation;
+- ABC300 C100: 20 development / 80 confirmation;
+- all D85: 20 development / 65 confirmation.
 
-Every scientific run reports Work-FRE, GPU-active time, wall time, terminal candidate count, and branch count. Full DAPS trajectories are prohibited in the B24 scale sweep.
+A second fixed hash selects four pilot images per stratum from the 80 development images, producing a 16-image pilot. Development images receive one new locked measurement. Confirmation images receive two new locked measurements only after the main method is selected and frozen.
 
-Historical B22 `SITCOM-4S` is not the B24 SITCOM-4 reference because it consumes one sequential four-trajectory RNG stream. B24 requires four independently preregistered SITCOM-1 seeds. B24.1 therefore compares serial and concurrent execution candidate-for-candidate under those independent seeds.
+Original A/B/C/D labels remain screening strata. New-measurement baseline outcomes must be recomputed and class transitions reported; images are never removed because they become easy.
 
-For baseline protocol engineering, B24.1 “concurrent” means independent native single-trajectory processes sharing one explicit GPU. It is throughput scheduling, not solver-internal tensor batching and not B24 method novelty.
+C1 is secondary only. C1 cases overlapping the primary C100 inherit the primary development/confirmation role. C1 cases outside primary C100 are locked from method development until the main method is frozen.
 
-## Exposure and allocation
+## Pilot scope and authorization boundary
 
-The signed PRE_B24 exposure freeze contains the 328 pre-B23 images plus B23.1 image-wide exclusions `65082`, `61492`, `62959`, `66821`, and `68142`.
+The next executable scientific stage is the **16-image development pilot**, four images per original A/B/C/D stratum, after the role manifest is frozen.
 
-Unexposed FFHQ images are assigned by domain-separated SHA-256:
+Pilot arms specified for engineering/scientific validation:
 
-- `B24_FFHQ_GLOBAL_V1` buckets 0-79: `B24_SCREEN_ELIGIBLE`;
-- buckets 80-99: `FUTURE_RESERVE`.
+- NP-1;
+- four independent NP-1 runs;
+- NP_EPP;
+- NP_EPP random-pruning ablation;
+- NP_EPP no-reallocation ablation;
+- NP_DPS.
 
-Future reserve is untouched by B24. Baseline screening uses a second deterministic hash order. Once A/B/C/D labels exist, a third domain-separated hash ranks rows within class: first 100 balanced development, next 100 held-out when available, remainder natural-prevalence/evaluation roles. PSNR magnitude or visual appeal cannot alter ranking.
+The pilot must verify native continuation, branch/RNG identity, proposal accounting, checkpoint-score behavior, and memory. DAPS-4 and pinned SITCOM-4 are mandatory on the subsequent 80-image development comparison; they may be omitted from the first engineering smoke if needed.
 
-## Corrected resource policy
+The global B24 hard process/group ceiling remains **52,452 MiB**. The baseline-specific 10,240-MiB admission gate is **not automatically valid for NP branching**. NP memory/admission must be calibrated on a one-image smoke before parallel pilot execution.
 
-Hardware is four NVIDIA RTX PRO 6000 Blackwell Server Edition GPUs. B24 uses explicit physical GPU IDs/UUIDs and never dynamically chooses another GPU or kills/evicts another process. Sharing with other lab jobs is allowed whenever memory permits.
+No confirmation measurement may be materialized and no confirmation method may run before one main method is selected and frozen from development.
 
-The accidental 60-GiB text is superseded. Freeze:
+## Repository / PAC identities
 
-- aggregate B24 worker/group hard ceiling: **52,452 MiB** (integer-MiB ceiling below 55 decimal GB);
-- normal target: **48,000 MiB**;
-- device reserve: **4,096 MiB**;
-- minimum free immediately before each launch/group: **52,096 MiB**;
-- B24.1 conservative concurrency-planning budget: **44,000 MiB**;
-- record PyTorch peak allocated/reserved memory and B24-process/whole-device `nvidia-smi` samples.
+- branch: `codex/b24-bestof4-failure-sweep`;
+- draft PR: #38;
+- PR base: `codex/b23-execution`;
+- PAC worktree: `/egr/research-pac/huang248/pr_diffusion_b24`;
+- PAC output root: `/egr/research-pac/huang248/outputs/pr_diffusion/b24`.
 
-OOM, hard-cap violation, source/input mismatch, or serial/concurrent terminal disagreement is an immediate stop.
-
-## Stage gates
-
-B24.1: **AUTHORIZED** on exposed locked input only. Exact terminal-content equality is preferred and supersedes the numerical envelope when achieved; memory must remain within the corrected policy.
-
-B24.2 64-image baseline: **CONDITIONAL NEXT ACTION AFTER B24.1 PASS**. The first 64 results are used to estimate A/B/C/D prevalence and, together with measured throughput, the total screening time required for class quotas.
-
-Read `docs/b24/01_BASELINE_SCREEN_AND_GATES.md` and `docs/b24/B24_0_SIGNOFF_B24_1_AUTHORIZATION.md` before execution.
+Never modify PR #37. Never rebase, squash, force-push, retarget, or rewrite B24 history.
