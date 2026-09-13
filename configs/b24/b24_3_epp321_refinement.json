@@ -1,0 +1,94 @@
+{
+  "schema_version": "b24.epp321-refinement-spec.v1",
+  "stage": "B24.3_EPP321_PILOT16_REFINEMENT",
+  "status": "AUTHORIZED_PILOT16_REFINEMENT_ONLY",
+  "source_pilot16_sha256": "124d3759e4fd540d2e870618dde59ff73d02cbb798d773a785296da5b140e98a",
+  "source_screen_manifest_sha256": "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba",
+  "source_authorization": "User/planner explicitly authorized one bounded Pilot16 refinement after reviewing the completed 16-image pilot diagnostics.",
+  "scientific_question": "Can more conservative NP early-population pruning retain the current EPP rescue mechanism while reducing catastrophic harms, at the same dominant NP compute as four independent NP-1 trajectories?",
+  "compute_policy": {
+    "within_np_family_primary_proxy": "UNet forward evaluations at identical model, resolution, scheduler, and measurement operator",
+    "np1_work_fre_denominator": 2200,
+    "wall_time_role": "engineering diagnostic only; not the scientific matching variable",
+    "cross_family_policy": "Do not equate one NP UNet evaluation with one DAPS or SITCOM unit. Before final cross-family claims, report/calibrate method-specific FLOPs or a defensible forward/operator-equivalent compute accounting and compare at fixed or similar compute.",
+    "headline_requirement": "A refined NP method is useful only if it improves recovery relative to established baselines/controls at fixed or similar compute; internal EPP-vs-EPP gains alone are not the final scientific endpoint."
+  },
+  "np_parent": {
+    "identity": "NP-1",
+    "frozen_config": "configs/b23/np1_frozen.yaml",
+    "num_steps": 1000,
+    "projection_start": 300,
+    "soft_candidates": 5,
+    "hard_candidates": 1,
+    "score_mode": "lf",
+    "score_radius": 0.6,
+    "projection_radius": 0.2,
+    "projection_radius_schedule": "300:0.2",
+    "score_huber_delta": 0.05,
+    "terminal_selector_stat": "selector_post_winner_lf_mse_mean",
+    "ground_truth_runtime_use": false
+  },
+  "checkpoint_score": {
+    "name": "preprojection_trailing_lf_mse_mean32",
+    "window": 32,
+    "radius": 0.6,
+    "uses_ground_truth": false,
+    "checkpoints_before_transition": [72, 148, 300]
+  },
+  "arms": {
+    "NP_EPP_321": {
+      "role": "bounded main refinement",
+      "roots": 4,
+      "phase_0": {"transitions": "0..71", "live_branches": 4, "soft_candidates_per_branch": 5},
+      "checkpoint_72": {"keep": 3, "rule": "preprojection_trailing_lf_mse_mean32"},
+      "phase_1": {"transitions": "72..147", "live_branches": 3, "soft_candidates_per_branch": 8},
+      "checkpoint_148": {"keep": 2, "rule": "preprojection_trailing_lf_mse_mean32"},
+      "phase_2": {"transitions": "148..299", "live_branches": 2, "soft_candidates_per_branch": 9},
+      "checkpoint_300": {"keep": 1, "rule": "preprojection_trailing_lf_mse_mean32"},
+      "projection_start_300": {"fork_terminal_descendants": 4, "fork_rng_domain": "B24_METHOD_EPP321_HARD_FORK_V1", "hard_candidates_per_descendant": 1},
+      "estimated_preprojection_proposal_unet_evals": 6000,
+      "estimated_postprojection_proposal_unet_evals": 2796,
+      "estimated_proposal_unet_evals": 8796,
+      "estimated_total_unet_evals_including_initial": 8800,
+      "np1_equivalent_work_fre": 4.0
+    },
+    "NP_EPP_321_RANDOM_PRUNE": {
+      "role": "matched random-survival ablation",
+      "same_schedule_and_budget_as": "NP_EPP_321",
+      "prune_rule": "B24_METHOD_EPP321_RANDOM_PRUNE_V1 domain hash; measurement-independent",
+      "estimated_proposal_unet_evals": 8796,
+      "estimated_total_unet_evals_including_initial": 8800,
+      "np1_equivalent_work_fre": 4.0
+    },
+    "NP_EPP_321_NO_REALLOCATION": {
+      "role": "pruning-without-saved-compute-reallocation ablation",
+      "same_survival_schedule_as": "NP_EPP_321",
+      "soft_candidates_per_survivor_after_pruning": 5,
+      "estimated_preprojection_proposal_unet_evals": 4100,
+      "estimated_postprojection_proposal_unet_evals": 2796,
+      "estimated_proposal_unet_evals": 6896,
+      "estimated_total_unet_evals_including_initial": 6900,
+      "np1_equivalent_work_fre": 3.1363636363636362,
+      "note": "Intentionally lower compute. Report its actual Work-FRE; do not present it as compute matched."
+    }
+  },
+  "execution_scope": {
+    "images": 16,
+    "measurements": "Reuse exactly the already-materialized frozen Pilot16 development measurements; generate no new measurement.",
+    "new_arms_only": ["NP_EPP_321", "NP_EPP_321_RANDOM_PRUNE", "NP_EPP_321_NO_REALLOCATION"],
+    "remaining_64_development_images_authorized": false,
+    "confirmation_images_authorized": false,
+    "c1_extra_exposure_authorized": false
+  },
+  "decision_context": {
+    "pilot_failure_motivation": "Current EPP can rescue a bad basin (e.g. D/30740) but can catastrophically lose a good independent root under 4->2 pruning (e.g. D/11775).",
+    "bounded_change": "Only the survival schedule and corresponding fixed-budget proposal allocation change: 4->3->2->1 at the same checkpoints 72/148/300. The measurement score, parent NP dynamics, total matched work, and terminal selector remain frozen."
+  },
+  "resource_contract": {
+    "hard_process_or_group_ceiling_mib": 52452,
+    "pilot_min_free_mib": 10240,
+    "reason_no_new_memory_calibration": "EPP321 processes branches sequentially; its largest per-branch candidate count is 9, below the already-calibrated current EPP maximum of 20, while live branch state storage is small relative to candidate activations.",
+    "do_not_kill_or_evict_other_jobs": true,
+    "physical_gpu_binding_required": true
+  }
+}
