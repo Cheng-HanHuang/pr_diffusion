@@ -1,7 +1,7 @@
 {
   "schema_version": "b24.method-dev-spec.v1",
   "stage": "B24.3_METHOD_SPEC_AND_16_IMAGE_PILOT",
-  "status": "SPEC_FROZEN_ZERO_GPU_ONLY",
+  "status": "GPU_ONE_IMAGE_AND_CONDITIONAL_PILOT16_AUTHORIZED",
   "source_screen_manifest_sha256": "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba",
   "source_universe_csv_sha256": "4c6eeabe7d73f948ff0820a7f8c87ed091ff94100fc5def32586c5581c449f25",
   "source_abc300_csv_sha256": "4599c2a8c1f4a5922640e0c26d2c1efce7f1996d75dcabbff2e9a1c4b427cbce",
@@ -206,6 +206,14 @@
       "live branch count",
       "terminal count"
     ]
+  },
+  "gpu_authorization": {
+    "one_full_method_pilot_image": true,
+    "pilot16_if_one_image_integrity_and_resource_gates_pass": true,
+    "remaining_64_development_images": false,
+    "confirmation_measurement_materialization": false,
+    "confirmation_method_execution": false,
+    "authorization_doc": "docs/b24/B24_3_GPU_AUTHORIZATION.md"
   },
   "confirmation_gate": "No confirmation measurement may be materialized and no confirmation method may run before one main method is selected and frozen from the 80-image development stage."
 }
