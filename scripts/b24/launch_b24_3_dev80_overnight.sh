@@ -7,12 +7,22 @@ REPO="$ROOT/pr_diffusion_b24"
 OUTROOT="$ROOT/outputs/pr_diffusion/b24"
 BRANCH=codex/b24-bestof4-failure-sweep
 PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
+DAPS="$ROOT/pr_diffusion_b19_solver/external/daps"
+SITCOM="$ROOT/external/SITCOM_ODE"
+MODEL="$ROOT/models/ffhq_10m.pt"
+MODEL_SHA=81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa
 ROLE_PTR="$OUTROOT/B24_METHOD_STAGE_LATEST_FREEZE.txt"
 PILOT_PTR="$OUTROOT/B24_3_PILOT16_LATEST_RUN.txt"
 EPP_PTR="$OUTROOT/B24_3_EPP321_LATEST_RUN.txt"
 PILOT_SHA=124d3759e4fd540d2e870618dde59ff73d02cbb798d773a785296da5b140e98a
 MIN_FREE_MIB=10240
 HARD_CEILING_MIB=52452
+export TORCH_HOME="$ROOT/models/torch_cache"
+mkdir -p "$TORCH_HOME"
+
+[[ -x "$PY" ]] || { echo "STOP|missing_python:$PY"; exit 2; }
+[[ -f "$MODEL" ]] || { echo "STOP|missing_model:$MODEL"; exit 2; }
+[[ "$(sha256sum "$MODEL" | awk '{print $1}')" == "$MODEL_SHA" ]] || { echo "STOP|model_sha_mismatch"; exit 2; }
 
 for p in "$ROLE_PTR" "$PILOT_PTR" "$EPP_PTR"; do
   [[ -f "$p" ]] || { echo "STOP|missing_pointer:$p"; exit 2; }
@@ -33,6 +43,30 @@ done
 [[ "$(sha256sum "$PILOT" | awk '{print $1}')" == "$PILOT_SHA" ]] || { echo "STOP|pilot_sha_mismatch"; exit 2; }
 (( MIN_FREE_MIB <= HARD_CEILING_MIB )) || { echo "STOP|min_free_exceeds_hard_ceiling"; exit 2; }
 
+verify_source() {
+  local name="$1" path="$2" exp_head="$3" exp_tree="$4" exp_index="$5" exp_diff="$6"
+  local head tree index_digest diff_digest
+  head=$(git -C "$path" rev-parse HEAD)
+  tree=$(git -C "$path" rev-parse 'HEAD^{tree}')
+  index_digest=$(git -C "$path" ls-files -s | sha256sum | awk '{print $1}')
+  diff_digest=$(git -C "$path" diff --binary HEAD -- . | sha256sum | awk '{print $1}')
+  [[ "$head" == "$exp_head" ]] || { echo "STOP|source_head|name=$name|observed=$head|expected=$exp_head"; return 21; }
+  [[ "$tree" == "$exp_tree" ]] || { echo "STOP|source_tree|name=$name|observed=$tree|expected=$exp_tree"; return 22; }
+  [[ "$index_digest" == "$exp_index" ]] || { echo "STOP|source_index|name=$name|observed=$index_digest|expected=$exp_index"; return 23; }
+  [[ "$diff_digest" == "$exp_diff" ]] || { echo "STOP|source_diff|name=$name|observed=$diff_digest|expected=$exp_diff"; return 24; }
+  echo "SOURCE_READY|name=$name|head=$head|tree=$tree"
+}
+verify_source DAPS "$DAPS" \
+  e7a77d094167084faed19b599b96673b7bb11447 \
+  e63f9715e4704d9cd7a43a166559496d9d94e781 \
+  d5487cdba570dbaac0c1909e549da361a0a0fc3fed81e5c13f59fa12925876b6 \
+  fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69
+verify_source SITCOM "$SITCOM" \
+  275ab67efbd8146bffca20155171ba6be1169c09 \
+  80263442e3606824a06dc003504c28da5c59c2c5 \
+  3ef63a8a29d0ba65cc642027a57ec102257fd9b387b0e9a5b4aae7f46d6a949f \
+  a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e
+
 "$PY" - "$PANEL" "$ROLE_SUMMARY" "$PILOTRUN" "$EPPRUN" "$EPP_SUMMARY" <<'PY'
 import hashlib,json,pathlib,sys
 panel,role_summary,pilotrun,epprun,epp_summary=map(pathlib.Path,sys.argv[1:])
@@ -52,7 +86,6 @@ for root,label in ((pilotrun,'pilot'),(epprun,'epp321')):
 print('DEV80_SOURCE_GATES_PASS')
 PY
 
-[[ -x "$PY" ]] || { echo "STOP|missing_python:$PY"; exit 2; }
 [[ -z "$(git -C "$REPO" status --porcelain)" ]] || {
   echo "STOP|B24_worktree_dirty"; git -C "$REPO" status --short; exit 3;
 }
@@ -80,7 +113,7 @@ echo "B24_3_DEV80_ZERO_GPU_TESTS_PASS|head=$HEAD"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 RUN="$OUTROOT/B24_3_dev80_overnight_${STAMP}"
 [[ ! -e "$RUN" ]] || { echo "STOP|run_exists:$RUN"; exit 5; }
-mkdir -p "$RUN/assignments"
+mkdir -p "$RUN/assignments" "$RUN/workers"
 
 "$PY" - "$PANEL" "$ROLE_SUMMARY" "$PILOTRUN" "$EPPRUN" "$RUN" "$HEAD" "$MIN_FREE_MIB" <<'PY'
 import csv,hashlib,json,pathlib,sys
@@ -105,9 +138,10 @@ def check_result(path,arm):
     expected={'NP4_INDEPENDENT':8800,'NP_EPP_321':8800,'NP_EPP_321_RANDOM_PRUNE':8800,'NP_EPP_321_NO_REALLOCATION':6900}[arm]
     if v.get('status')!='PASS' or v.get('arm')!=arm or int(v.get('total_unet_evals',-1))!=expected:
         raise SystemExit(f'bad source NP result: {p}')
+    if bool(v.get('runtime_decisions_use_ground_truth',True)) or bool(v.get('terminal_selection_uses_ground_truth',True)):
+        raise SystemExit(f'bad clean-free flags in source result: {p}')
     return str(p)
 
-# Recover all 16 Pilot16 locked inputs and NP4 results.
 pilot_manifest=readj(pilotrun/'PILOT16_MANIFEST.json')
 pilot_sources={}
 for rowdir in sorted(pilotrun.glob('workers/gpu*/row*')):
@@ -130,7 +164,6 @@ pilot_sources[image]={
 }
 if len(pilot_sources)!=16: raise SystemExit(f'expected 16 pilot sources, got {len(pilot_sources)}')
 
-# Recover all 16 EPP321 refinement source results.
 epp_sources={}
 for taskdir in sorted(epprun.glob('workers/gpu*/task*')):
     taskp=taskdir/'task.json'; summ=taskdir/'methods'/'SMOKE_COMPLETE.json'
@@ -153,7 +186,6 @@ pilot_ids={r['image_id'] for r in dev if r['pilot16']=='TRUE'}
 if len(pilot_ids)!=16 or pilot_ids!=set(pilot_sources): raise SystemExit('Pilot16 subset drift')
 dev.sort(key=lambda r:(r['class_label'],int(r['method_role_rank']),r['image_id']))
 
-# Persist the exact frozen DEV80 table before execution.
 dev_csv=run/'B24_METHOD_DEV80.csv'
 with dev_csv.open('w',newline='',encoding='utf-8') as f:
     w=csv.DictWriter(f,fieldnames=list(dev[0].keys()),lineterminator='\n'); w.writeheader(); w.writerows(dev)
@@ -166,8 +198,7 @@ for idx,row in enumerate(dev):
     sitcom=[seed63('B24_DEV80_SITCOM_SOLVER_V1',label,image,r) for r in range(4)]
     if len({x%(2**32) for x in daps})!=4 or len({x%(2**32) for x in sitcom})!=4:
         raise SystemExit(f'native seed collision: {label}/{image}')
-    source_np={}
-    source_input=None
+    source_np={}; source_input=None
     if pilot:
         source_input=pilot_sources[image]['input_manifest']
         source_np['NP4_INDEPENDENT']=pilot_sources[image]['NP4_INDEPENDENT']
