@@ -1,113 +1,101 @@
-# B24.3 method specification and bounded pilot
+# B24.3 — method specification and bounded development pilot
 
-## Status
+B24.2 baseline screening is complete at cumulative 7424 rows. The baseline class universe is frozen as A=6925, B=107, C=307, D=85. ABC300 is frozen as 100 A + 100 B + 100 C by `B24_CLASS_RANK_V1`. C1 is a secondary severity-enriched diagnostic containing the 100 class-C rows with the lowest pinned-SITCOM best-of-four PSNR; it does not redefine C.
 
-This document is the human-readable companion to `configs/b24/b24_3_method_dev_spec.json`.
+## Scientific question
 
-The baseline screen is complete and baseline image collection is closed. The next scientific question is whether changing **when native NP alternatives are discarded** improves recovery beyond independent NP populations at comparable compute.
+The next question is whether changing how native NP retains and allocates proposals improves recovery beyond independent NP populations at comparable compute.
 
-No confirmation measurement is authorized before development selects and freezes one main method.
+The frozen parent is NP-1 from `configs/b23/np1_frozen.yaml`: 1000 scheduler steps, projection start 300, five soft proposals before projection, one hard proposal after projection, LF score radius 0.6, projection radius 0.2, and post-projection mean winner LF MSE as the executable terminal selector statistic.
 
-## Image roles
+## Frozen role policy
 
-Before method execution, run `scripts/b24/freeze_b24_method_roles.sh`. The role freeze is outcome-blind with respect to all project methods and uses new domain-separated hashes.
+Before project-method execution, the primary images are split by a new fixed hash:
 
-- A100: 20 development / 80 confirmation.
-- B100: 20 development / 80 confirmation.
-- C100: 20 development / 80 confirmation.
-- D85: 20 development / 65 confirmation.
-- Pilot: four fixed development images per A/B/C/D = 16 total.
+- A100: 20 development / 80 confirmation
+- B100: 20 development / 80 confirmation
+- C100: 20 development / 80 confirmation
+- D85: 20 development / 65 confirmation
 
-Development receives one new locked measurement per image. Confirmation receives two new locked measurements per image only after the main method is frozen.
+Development total: 80. Confirmation total: 305. Pilot16: the first four hash-ranked development rows in each original screen stratum A/B/C/D.
 
-C1 remains secondary. C1 images inside primary C100 inherit the primary role; the 69 C1 images outside primary C100 are development-locked until the main method is frozen.
+Each development image gets one new deterministic locked measurement. Confirmation images remain unmaterialized until a main method is frozen; then they are intended to receive two new locked measurements per image.
 
-## Frozen NP parent
+Original A/B/C/D labels remain screening strata. New-measurement baseline outcomes may transition class and are reported rather than filtered away.
 
-Parent: NP-1 from `configs/b23/np1_frozen.yaml`.
+## Frozen candidate algorithms
 
-- 1000 diffusion steps;
-- projection start 300;
-- 5 soft candidates before projection;
-- 1 hard candidate after projection;
-- LF measurement score, radius 0.6;
-- LF projection radius 0.2;
-- no runtime ground-truth use.
+### NP_EPP — early population pruning with reallocation
 
-A pre-projection pruning score is frozen as the **trailing-32 mean selected-state LF measurement MSE** over the same diffusion-time window. Pointwise and trailing-16 variants may be logged diagnostically, but they do not control the primary pilot methods unless a later development amendment explicitly freezes such a change.
+Start four independent native NP roots using the role-manifest root seeds.
 
-## NP_EPP: early population pruning
+- transitions 0..71: 4 live roots, k=5 each;
+- before transition 72: rank by trailing-32 mean selected-state LF measurement MSE, keep 2;
+- transitions 72..147: 2 live branches, k=10 each;
+- before transition 148: rank by the same score, keep 1;
+- transitions 148..299: 1 live branch, k=20;
+- projection start 300: fork the selected complete native state into four deterministic hard-phase RNG descendants;
+- transitions 300..998: four descendants, k=1.
 
-Purpose: test whether measurement-only early allocation improves on completing every independent NP root.
+This is exactly proposal-compute matched to four independent NP-1 trajectories: 8796 proposal UNet evaluations plus four root-initial UNet evaluations = 8800 total.
 
-1. Start four independent native NP roots.
-2. Transitions 0..71: keep four roots; each uses k=5 proposals.
-3. At transition 72: rank roots by trailing-32 LF-MSE; retain two.
-4. Transitions 72..147: each survivor uses k=10 proposals.
-5. At transition 148: rank the two survivors by trailing-32 LF-MSE; retain one.
-6. Transitions 148..299: the survivor uses k=20 proposals.
-7. At projection start 300: fork the selected full native state into four deterministic independent hard-phase RNG descendants.
-8. Transitions 300..998: four descendants, k=1.
-9. Clean-free terminal output: minimum `selector_post_winner_lf_mse_mean`; terminal-oracle PSNR is diagnostic only.
+The random-pruning ablation uses the same roots/checkpoints/live counts/candidate counts but chooses survivors by the domain-separated `B24_METHOD_RANDOM_PRUNE_V1` hash, with no measurement information.
 
-This preserves 6000 pre-projection proposal evaluations and 2796 post-projection proposal evaluations: 8796 proposal evaluations total, matching four independent NP-1 trajectories. Including initial root model evaluations, both NP_EPP and NP4 use approximately 8800 model evaluations.
+The no-reallocation ablation uses the measurement-based survivors but leaves k=5 after pruning. Its lower work is reported honestly rather than pretending compute equality.
 
-Primary ablations:
+### NP_DPS — delayed proposal selection
 
-- random pruning at the same checkpoints and branch counts, using a fixed hash independent of the measurement;
-- no reallocation: measurement-based pruning remains, but survivor k stays 5 and the lower Work-FRE is reported honestly.
+Preferred main-method hypothesis.
 
-## NP_DPS: delayed proposal selection
+Start one native NP root and run ordinary greedy NP through transition 71. At designated transitions, retain all five ordinary NP proposals instead of immediately collapsing to one:
 
-Purpose: test whether NP's immediate greedy proposal discard removes alternatives that would improve after further native evolution.
+1. expand at transition 72; retain five; advance each branch greedily through 73..147; prune to one before 148;
+2. expand at 148; retain five; advance through 149..223; prune to one before 224;
+3. expand at 224; retain five; advance through 225..299; prune to one at projection start 300.
 
-1. Start one native NP root.
-2. Transitions 0..71: standard greedy NP-1.
-3. At transition 72: generate the ordinary five NP proposals but retain all five complete proposal states.
-4. Advance those five branches through transitions 73..147 using ordinary per-branch NP greedy semantics; at transition 148 prune to one by trailing-32 LF-MSE.
-5. At transition 148: expand the survivor into its five ordinary proposals; retain all five and advance through 149..223; prune to one at 224.
-6. At transition 224: repeat; advance five branches through 225..299; prune to one at projection start 300.
-7. Fork the selected full native state into four deterministic independent hard-phase RNG descendants.
-8. Transitions 300..998: four descendants, k=1.
-9. Clean-free terminal output: minimum `selector_post_winner_lf_mse_mean`; terminal-oracle PSNR is diagnostic only.
+Each inter-window branch uses the frozen k=5 native proposal rule. Pruning uses trailing-32 mean LF measurement MSE. Child RNG streams are deterministically domain-separated by `B24_METHOD_DPS_BRANCH_V1`.
 
-The delayed windows are 76 transitions each. This gives exactly 6000 pre-projection proposal evaluations and 2796 post-projection proposal evaluations = 8796 proposals total. Because DPS starts from one root rather than four independent roots, it uses three fewer initial model evaluations than NP4: approximately 8797 versus 8800 total model evaluations.
+At projection start, the selected complete state is forked to four hard-phase descendants and run through transitions 300..998. Proposal work is exactly 8796, matching NP4. Total model evaluations are 8797 rather than 8800 because NP_DPS starts from one initial root instead of four.
 
-## Comparison portfolio
+## Controls and later development comparison
 
-Initial pilot engineering/scientific arms:
+Pilot16 arms:
 
-- NP-1;
-- four independent NP-1;
-- NP_EPP;
-- NP_EPP random-pruning ablation;
-- NP_EPP no-reallocation ablation;
-- NP_DPS.
+- NP1
+- NP4_INDEPENDENT
+- NP_EPP
+- NP_EPP_RANDOM_PRUNE
+- NP_EPP_NO_REALLOCATION
+- NP_DPS
 
-Subsequent 80-image development comparison adds:
+The later 80-image development comparison also includes the historical NP-8-RS identity (two scoring configs × four seeds), and rerun DAPS-4 / pinned SITCOM-4 on the same new measurement. Fresh2 may be derived from its preregistered DAPS pair using its unchanged historical selector. LF-v1 and Branch-A/B are outside the initial portfolio.
 
-- DAPS-4 on the new locked measurement;
-- pinned SITCOM-4 on the same new locked measurement;
-- historical NP-8-RS with its actual identity: two scoring configurations × four seeds;
-- Fresh2 may be reported from a preregistered DAPS pair using its unchanged historical selector.
+## Information and accounting rules
 
-LF-v1 and Branch-A/B controllers are excluded from the initial comparison.
+No ground truth in runtime proposal retention, pruning, allocation, routing, stopping, or executable terminal selection. Checkpoint decisions use only information available at that checkpoint.
 
-## Pilot gate
+Count every evaluated proposal, including discarded proposals. Preserve branch lineage, complete native state, selected epsilon/noise, timestep, and named RNG identity.
 
-The 16-image pilot is reused in development and must verify:
+Executable final selection: minimum `selector_post_winner_lf_mse_mean`, stable tie by terminal index. Ground-truth best terminal is offline oracle reporting only. Report the selector PSNR gap.
 
-- exact branch-state continuation;
-- branch lineage and RNG identity;
-- proposal-count and Work-FRE accounting;
-- measurement-only checkpoint-score logging;
-- whether measurement-based pruning discards branches that later would have been strong terminals, assessed offline with GT only after execution;
-- GPU memory and throughput.
+Early checkpoint score is explicitly `preprojection_trailing_lf_mse_mean32`: mean selected-state LF measurement MSE over the immediately preceding 32 native transitions, radius 0.6. It is a hypothesis, not a certificate.
 
-The first GPU action should be a one-image NP branching smoke. The baseline 10,240-MiB admission gate must not be inherited blindly. The global B24 hard process/group ceiling remains 52,452 MiB.
+## Resource policy
 
-## Stop rules
+Global B24 hard process/group ceiling remains 52,452 MiB. The baseline 10,240-MiB admission gate is not assumed valid for NP branching.
 
-If the new methods do not improve on compute-matched independent NP populations on the bounded 80-image development panel, record the negative result rather than expanding an open-ended method search.
+The first one-image Pilot16 run is a full-method engineering/calibration smoke. It launches conservatively, records PyTorch peak allocated/reserved memory plus sampled B24-process and whole-device GPU memory, and derives a pilot-only admission gate from observed B24 process peak + 4096 MiB reserve, rounded upward to 1024 MiB with a 10,240-MiB floor.
 
-No confirmation measurement or confirmation method run may begin before one main method is selected and frozen.
+Report exact proposal count, total UNet count, NP1-equivalent work, wall time, GPU memory, branch count/events, terminal count, clean-free selected metrics, and oracle terminal metrics.
+
+## Current authorization
+
+The user/planner has explicitly authorized:
+
+- implementation of the frozen branching runner;
+- one full-method engineering/calibration image from the already-frozen Pilot16 on its prospectively frozen new measurement;
+- if and only if all one-image integrity/resource gates pass, the full frozen Pilot16.
+
+The calibration image is part of Pilot16 and must be reused. The remaining 64 development images and all confirmation execution remain unauthorized.
+
+See `docs/b24/B24_3_GPU_AUTHORIZATION.md`.
