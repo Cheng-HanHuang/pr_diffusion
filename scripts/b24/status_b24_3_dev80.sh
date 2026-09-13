@@ -11,7 +11,10 @@ PTR="$OUTROOT/B24_3_DEV80_LATEST_RUN.txt"
 RUN=$(cat "$PTR")
 [[ -d "$RUN" ]] || { echo "B24_3_DEV80_STATUS|state=MISSING_RUN|run=$RUN"; exit 1; }
 
-COMPLETED=$(find "$RUN/workers" -type f -name IMAGE_COMPLETE.json 2>/dev/null | wc -l)
+COMPLETED=0
+if [[ -d "$RUN/workers" ]]; then
+  COMPLETED=$(find "$RUN/workers" -type f -name IMAGE_COMPLETE.json | wc -l)
+fi
 FAILED_TASKS=0
 for g in 0 1 2 3; do
   F="$RUN/workers/gpu${g}/FAILED_TASKS.tsv"
