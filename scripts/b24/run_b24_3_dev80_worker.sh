@@ -93,14 +93,14 @@ PY
   mkdir -p "$IMGDIR/logs"
   cp "$TASKJSON" "$IMGDIR/task.json"
   ROLE_ROW="$IMGDIR/role_row.csv"
-  if ! "$CTRL_PY" - "$TASKJSON" "$ROLE_ROW" <<'PY'
+  "$CTRL_PY" - "$TASKJSON" "$ROLE_ROW" <<'PY'
 import csv,json,sys
 p=json.load(open(sys.argv[1])); row=p['role_row']
 with open(sys.argv[2],'w',newline='',encoding='utf-8') as f:
     w=csv.DictWriter(f,fieldnames=list(row.keys()),lineterminator='\n'); w.writeheader(); w.writerow(row)
 PY
-  then
-    rc=$?
+  rc=$?
+  if [[ "$rc" -ne 0 ]]; then
     printf '%s\t%s\trole_row\t%s\n' "$TASKJSON" "$IMAGE_ID" "$rc" >> "$FAILED_LIST"
     FAILED=$((FAILED+1)); continue
   fi
@@ -119,6 +119,11 @@ p=sys.argv[1]
 h=hashlib.sha256(open(p,'rb').read()).hexdigest()
 open(sys.argv[2],'w').write(json.dumps({'source_input_manifest':p,'source_manifest_sha256':h,'measurement_generation_performed':False},indent=2,sort_keys=True)+'\n')
 PY
+    rc=$?
+    if [[ "$rc" -ne 0 ]]; then
+      printf '%s\t%s\tinput_reuse_record\t%s\n' "$TASKJSON" "$IMAGE_ID" "$rc" >> "$FAILED_LIST"
+      FAILED=$((FAILED+1)); continue
+    fi
   elif [[ "$INPUT_MODE" == "GENERATE_FROZEN_DEV" ]]; then
     if ! wait_for_fit "$IMAGE_ID"; then
       printf '%s\t%s\tinput_wait\t96\n' "$TASKJSON" "$IMAGE_ID" >> "$FAILED_LIST"
