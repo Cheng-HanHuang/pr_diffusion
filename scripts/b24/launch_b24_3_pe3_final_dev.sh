@@ -58,7 +58,7 @@ echo "B24_3_PE3_ZERO_GPU_TESTS_PASS|head=$HEAD"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 RUN="$OUTROOT/B24_3_pe3_final_dev_${STAMP}"
 [[ ! -e "$RUN" ]] || { echo "STOP|run_exists:$RUN"; exit 5; }
-mkdir -p "$RUN/assignments"
+mkdir -p "$RUN/assignments" "$RUN/workers"
 
 "$PY" - "$DEV80" "$RUN" "$HEAD" <<'PY'
 import json,pathlib,sys
