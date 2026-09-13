@@ -1,0 +1,92 @@
+{
+  "schema_version": "b24.pe3-final-dev.v1",
+  "stage": "B24.3_PE3_FINAL_DEV_ONLY",
+  "status": "AUTHORIZED_DEV80_ONLY",
+  "source_authorization": "docs/b24/B24_3_PE3_FINAL_DEV_AUTHORIZATION.md",
+  "source_screen_manifest_sha256": "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba",
+  "scientific_question": "Can one final protected-explorer NP allocation preserve multiple native lineages while reallocating proposal work, improving robustness over NP4 at exactly matched NP work?",
+  "np_parent": {
+    "identity": "NP-1",
+    "frozen_config": "configs/b23/np1_frozen.yaml",
+    "num_steps": 1000,
+    "projection_start": 300,
+    "soft_candidates": 5,
+    "hard_candidates": 1,
+    "score_mode": "lf",
+    "score_radius": 0.6,
+    "projection_radius": 0.2,
+    "projection_radius_schedule": "300:0.2",
+    "score_huber_delta": 0.05,
+    "terminal_selector_stat": "selector_post_winner_lf_mse_mean",
+    "ground_truth_runtime_use": false
+  },
+  "checkpoint": {
+    "before_transition": 72,
+    "score": "preprojection_trailing_lf_mse_mean32",
+    "score_window": 32,
+    "score_radius": 0.6,
+    "later_pruning": false
+  },
+  "shared_schedule": {
+    "roots": 4,
+    "phase_0": {"transitions": "0..71", "live_branches": 4, "candidates_per_branch": 5},
+    "checkpoint_72": {"retain": 3, "drop": 1, "assign_explorer": 1, "assign_protected": 2},
+    "phase_1": {"transitions": "72..299", "explorer_candidates": 10, "protected_candidates_each": 5},
+    "projection_start_300": {
+      "preserve_native_continuations": 3,
+      "extra_explorer_forks": 1,
+      "extra_fork_rng_domain": "B24_METHOD_PE3_EXTRA_HARD_FORK_V1"
+    },
+    "phase_2": {"transitions": "300..998", "terminal_count": 4, "candidates_per_terminal": 1},
+    "proposal_unet_evals": 8796,
+    "initial_unet_evals": 4,
+    "total_unet_evals": 8800,
+    "np1_equivalent_work_fre": 4.0
+  },
+  "arms": {
+    "NP_PE3_SCORE": {
+      "checkpoint_72_role_rule": "rank all four roots by trailing32 LF MSE ascending, stable lineage tie; retain best three; explorer is best retained root; remaining two are protected",
+      "runtime_ground_truth_use": false
+    },
+    "NP_PE3_RANDOM": {
+      "checkpoint_72_role_rule": "rank all four roots by B24_METHOD_PE3_RANDOM_ROLE_V1 domain hash then lineage; first=explorer, next two=protected, fourth=dropped",
+      "random_role_domain": "B24_METHOD_PE3_RANDOM_ROLE_V1",
+      "runtime_ground_truth_use": false
+    }
+  },
+  "advancement_gate_vs_np4": {
+    "representation": "CANONICAL_SAVED_OR_QUANTIZED_RGB_8BIT_RAW_ORIENTATION_V1",
+    "median_paired_delta_db_min": 0.0,
+    "good25_count_at_least_np4": true,
+    "good25_rescues_at_least_harms": true,
+    "large_5db_rescues_at_least_harms": true,
+    "if_neither_passes": "STOP_B24_METHOD_REFINEMENT",
+    "passing_does_not_authorize_confirmation": true
+  },
+  "execution_scope": {
+    "images": 80,
+    "role": "DEVELOPMENT",
+    "measurement_policy": "Reuse exactly the completed B24.3 DEV80 locked measurements; generate zero new measurements.",
+    "new_arms_only": ["NP_PE3_SCORE", "NP_PE3_RANDOM"],
+    "confirmation_images_authorized": false,
+    "confirmation_measurements_authorized": false,
+    "c1_extra_exposure_authorized": false
+  },
+  "compute_audit": {
+    "authorized": true,
+    "input_scope": "DEV80 only",
+    "calibration_selection_domain": "B24_DEV80_FLOP_AUDIT_V1",
+    "primary_metric": "PyTorch dispatch-supported dynamic FLOPs",
+    "unsupported_operation_policy": "Report separately; do not silently count unsupported operations as zero compute.",
+    "wall_time_role": "diagnostic only",
+    "daps4_policy": "four independent DAPS1 trajectories; report 4x calibrated DAPS1 work",
+    "sitcom4_policy": "four independent SITCOM1 trajectories; report 4x calibrated SITCOM1 work",
+    "np_policy": "profile exact NP_PE3_SCORE 8800-eval protocol; within-NP work remains exact UNet-evaluation matched"
+  },
+  "resource_contract": {
+    "hard_process_or_group_ceiling_mib": 52452,
+    "min_free_mib": 10240,
+    "do_not_kill_or_evict_other_jobs": true,
+    "physical_gpu_binding_required": true
+  }
+}
