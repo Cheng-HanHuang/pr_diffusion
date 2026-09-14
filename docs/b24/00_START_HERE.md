@@ -33,85 +33,112 @@ The following development stages completed operationally:
 - full DEV80 with fresh DAPS-4 + pinned SITCOM-4 and the NP4/EPP321 portfolio;
 - final protected-explorer refinement (`NP_PE3_SCORE`, `NP_PE3_RANDOM`);
 - one development-only cross-family dispatch-supported FLOP audit;
-- final zero-GPU DEV closeout/packaging.
+- one zero-GPU DEV80 closeout capsule.
 
 ### Frozen scientific verdict
 
 `NP_EPP_321` failed to improve robustly over compute-matched NP4 on DEV80.
 
-The final PE3 arms were then evaluated under a prospectively frozen advancement gate requiring all of:
+The final PE3 arms were evaluated under a prospectively frozen advancement gate requiring all of:
 
 - median paired PSNR delta vs NP4 >= 0 dB;
 - Good25 count >= NP4;
 - Good25 rescues >= harms;
 - >=5 dB rescues >= harms.
 
-Neither PE3 arm passed. The binding decision is:
+Neither PE3 arm passed. The binding decision is accepted:
 
 `STOP_B24_METHOD_REFINEMENT`
 
-The zero-GPU closeout preserved this verdict. No confirmation image has been exposed.
+No confirmation image has been exposed.
 
-## Completed zero-GPU development closeout
+## Original zero-GPU closeout capsule
 
-The authorized closeout completed from scientific-run head
+Original run root:
 
-`c3f13963cd267094231302bf9bc8d3a6e8c754c9`
+`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_20260914T044033Z`
 
-at PAC run root
+Verified archive SHA-256:
 
-`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_20260914T044033Z`.
+`fe4ac6e0ac5c6554973cc171067f52fe0b729e6a33ded7503594fd424da3b45d`
 
-It completed all required source, test, CUDA-hidden, and artifact gates and reported:
+The original capsule is preserved unchanged. Its metrics remain valid, but one reporting-scope error was identified: `unique_good25_image_ids` was computed over all DEV80 and then described in repository prose as if those counts belonged to the 10-case shared-failure subset.
 
-- `gpu_work_performed=false`;
-- `measurement_generation_performed=false`;
-- `confirmation_exposed=false`;
-- `decision=STOP_B24_METHOD_REFINEMENT`.
+The correction does not affect any reconstruction, PSNR, Good25 label, Fresh2 comparison, PE3 gate, or stop decision.
 
-Exact authorization/spec:
+## Correct shared-failure interpretation
 
-- `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_AUTHORIZATION.md`
-- `configs/b24/b24_3_zero_gpu_closeout.json`
+The shared-failure subset is defined by:
 
-Published result summary:
+`DAPS4_ORACLE < 25 dB` and `SITCOM4_ORACLE < 25 dB`.
 
-- `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_RESULT.md`
+It contains 10 DEV images.
 
-### Historical Fresh2 closeout result
+Good25 successes / exclusive successes among the compared executable methods inside that subset are:
 
-Fresh2 used DAPS reps 0 and 1 only with its historical clean-free rule:
+- `DAPS1`: `0 / 0`;
+- `FRESH2_SELECTED`: `0 / 0`;
+- `SITCOM1`: `0 / 0`;
+- `NP4_SELECTED`: `2 / 1`;
+- `EPP321_SELECTED`: `2 / 2`;
+- `PE3_SCORE_SELECTED`: `1 / 0`;
+- `PE3_RANDOM_SELECTED`: `0 / 0`.
 
-`loss1 < loss0 - 0.7` => choose rep1, otherwise rep0.
+PE3 score's subset success is image `34587`, shared with NP4. Fresh2's globally unique Good25 success is image `17146`, which lies outside the shared-failure subset.
 
-Ground truth was not used for selection.
+Because Fresh2 selects from DAPS reps 0/1, the corrected reporting stage enforces per image:
 
-On DEV80:
+`FRESH2_SELECTED <= DAPS2_ORACLE <= DAPS4_ORACLE`.
 
-- Fresh2 Good25 = `57/80`, mean PSNR `26.1596 dB`, median `29.9255 dB`;
-- DAPS2 oracle Good25 = `59/80`;
-- Fresh2 vs DAPS1: `10/0` Good25 rescues/harms;
-- Fresh2 vs executable NP4: mean `+0.4249 dB`, median `+1.0939 dB`, Good25 rescues/harms `14/12`.
+Therefore Fresh2 cannot rescue a failure of that same DAPS4 candidate set.
 
-Fresh2 remains historical methodology and was not promoted into a new post-hoc B24 advancement candidate.
+## Current authorized stage — reporting-only successor capsule
 
-### Compute interpretation
+The planner accepted the stop decision and authorized only a zero-GPU reporting correction:
 
-Dispatch-supported dynamic FLOPs remain useful for relative accounting but are not exact total FLOPs because FFT/custom work is nonzero and implementation dependent. The closeout explicitly inventories unsupported Fourier/operator work and forbids an exact total-FLOP-equivalence claim.
+1. separate all-DEV80 uniqueness from shared-failure-subset success and exclusivity;
+2. correct the result document and PR description;
+3. add nested-oracle and subset-consistency checks;
+4. preserve the verified original capsule and publish a corrected successor.
+
+Implementation:
+
+- `configs/b24/b24_3_zero_gpu_reporting_correction.json`
+- `scripts/b24/correct_b24_3_zero_gpu_closeout.py`
+- `scripts/b24/test_b24_3_zero_gpu_reporting_correction.py`
+- `scripts/b24/launch_b24_3_zero_gpu_reporting_correction.sh`
+
+The successor performs no reconstruction, no model/operator re-evaluation, no metric recomputation, no GPU work, no measurement generation, and no confirmation exposure. It reads the already-published per-image closeout table, checks the reporting invariants, copies valid artifacts, and regenerates only the ambiguous summaries/report.
+
+### Run corrected successor
+
+```bash
+cd /egr/research-pac/huang248/pr_diffusion_b23
+
+git fetch origin \
+  '+refs/heads/codex/b24-bestof4-failure-sweep:refs/remotes/origin/codex/b24-bestof4-failure-sweep'
+
+git show \
+  origin/codex/b24-bestof4-failure-sweep:scripts/b24/launch_b24_3_zero_gpu_reporting_correction.sh \
+  | bash
+```
+
+The launcher verifies the original archive SHA-256 and sidecar, verifies all original internal checksums, hides CUDA, runs correction tests, creates a new successor directory/archive, and leaves the original capsule untouched.
 
 ## Current hard boundary
 
-B24 method refinement is stopped under the frozen gate.
+Authorized now: reporting-only zero-GPU correction of already-exposed DEV80 closeout artifacts.
 
 Not authorized:
 
 - any GPU work;
+- any reconstruction or model/operator re-evaluation;
 - any new measurement generation;
 - any of the 305 confirmation images/measurements;
 - C1-only extra exposure;
-- any further NP/EPP/PE3 method, selector, score, checkpoint, schedule, or threshold tuning;
+- any further NP/EPP/PE3/DPS method, selector, score, checkpoint, schedule, threshold, or root-budget tuning;
 - changing the frozen PE3 stop verdict;
 - merge/rebase/squash/retarget/force-push/history rewrite;
 - modification of PR #37.
 
-Confirmation remains locked unless the planner separately authorizes a new project direction.
+B24 closes as a negative development result after the corrected successor capsule is published. Any Fresh2 follow-up requires a separate prospective scientific question.
