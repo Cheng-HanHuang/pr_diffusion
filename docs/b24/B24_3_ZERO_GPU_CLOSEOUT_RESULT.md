@@ -14,13 +14,25 @@ Verified original archive SHA-256:
 
 `fe4ac6e0ac5c6554973cc171067f52fe0b729e6a33ded7503594fd424da3b45d`
 
-The original capsule is preserved unchanged. Its 10 internal checksums and archive sidecar were independently verified by the planner. A narrow reporting correction is being published as a successor capsule; no reconstruction or metric recomputation is required.
+The original capsule is preserved unchanged. Its 10 internal checksums and archive sidecar were independently verified by the planner.
 
-Scope guards remain intact:
+A reporting-only corrected successor completed successfully at:
+
+`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_corrected_20260914T060600Z`
+
+from correction head:
+
+`19d1054dcd7a73a471df08032619c05875b3d3c1`.
+
+The successor performed no reconstruction, no metric recomputation, no GPU work, no measurement generation, and no confirmation exposure. It corrected only the scope labeling of complementarity statistics.
+
+Scope guards remained intact:
 
 - `gpu_work_performed=false`;
 - `measurement_generation_performed=false`;
-- `confirmation_exposed=false`.
+- `reconstruction_performed=false`;
+- `confirmation_exposed=false`;
+- `source_capsule_preserved_unchanged=true`.
 
 The binding development decision is accepted and remains:
 
@@ -51,9 +63,9 @@ Against the DAPS4 oracle ceiling, Fresh2 remained below by mean `-2.6671 dB` and
 
 Fresh2 is historical project methodology, not a newly fit B24 method. These findings are descriptive and do not reopen B24.
 
-## Reporting correction: all-DEV80 uniqueness versus shared-failure subset
+## Final reporting correction
 
-The original closeout implementation computed `unique_good25_image_ids` over **all 80 DEV images**. The repository result text incorrectly described those global uniqueness counts as if they belonged to the 10-case shared-failure subset. This is a reporting-scope error only; it does not affect any reconstruction, PSNR, Good25 classification, Fresh2 comparison, PE3 gate, or stop decision.
+The original closeout implementation computed `unique_good25_image_ids` over **all 80 DEV images**. Repository prose had incorrectly described those global uniqueness counts as if they belonged to the 10-case shared-failure subset. This was a reporting-scope error only; it did not affect any reconstruction, PSNR, Good25 classification, Fresh2 comparison, PE3 gate, or stop decision.
 
 ### All-DEV80 unique Good25 successes
 
@@ -75,7 +87,9 @@ The subset where both fresh baseline oracle candidate sets fail Good25,
 
 `DAPS4_ORACLE < 25 dB` and `SITCOM4_ORACLE < 25 dB`,
 
-contains `10` images.
+contains exactly `10` images:
+
+`18549, 27188, 30740, 34587, 38516, 47283, 51940, 56397, 61603, 67273`.
 
 Good25 successes / exclusive successes among the compared executable methods inside this subset are:
 
@@ -95,7 +109,17 @@ Because Fresh2 selects between DAPS reps 0 and 1, the following must hold per im
 
 `FRESH2_SELECTED <= DAPS2_ORACLE <= DAPS4_ORACLE`.
 
-The corrected successor checks this inequality on all 80 images and fails closed on any violation. Therefore Fresh2 cannot rescue a failure of the same DAPS4 candidate set. Its shared-failure-subset success count is necessarily `0` here.
+The corrected successor checked this inequality on all 80 images and reported:
+
+- pass: `true`;
+- tolerance: `1e-6 dB`;
+- violation count: `0`;
+- maximum `Fresh2 - DAPS2 oracle`: `0.0 dB`;
+- maximum `DAPS2 oracle - DAPS4 oracle`: `0.0 dB`.
+
+Therefore Fresh2 cannot rescue a failure of the same DAPS4 candidate set. Its shared-failure-subset success count is necessarily `0` here.
+
+The corrected successor also verified that recomputed shared-failure membership matches `HARD_SUBSET.csv` exactly.
 
 ## Frozen NP-method result
 
@@ -125,22 +149,21 @@ Ratios to PE3_SCORE in the dispatch-supported metric are approximately DAPS1 `0.
 
 The `0.4923x` Fresh2/DAPS2 figure is **dispatch-supported FLOPs only**, not exact total computation or runtime. Unsupported Fourier/custom forward/backward work remains explicitly nonzero and separately inventoried. No exact total-FLOP equivalence is claimed.
 
-## Corrected successor capsule
+## Corrected successor artifacts
 
-The reporting-only successor is generated from the verified original capsule by:
+Final corrected reporting result:
+
+- `docs/b24/B24_3_ZERO_GPU_REPORTING_CORRECTION_RESULT.md`.
+
+Reporting-correction implementation/spec:
 
 - `configs/b24/b24_3_zero_gpu_reporting_correction.json`;
+- `docs/b24/B24_3_ZERO_GPU_REPORTING_CORRECTION.md`;
 - `scripts/b24/correct_b24_3_zero_gpu_closeout.py`;
 - `scripts/b24/test_b24_3_zero_gpu_reporting_correction.py`;
 - `scripts/b24/launch_b24_3_zero_gpu_reporting_correction.sh`.
 
-The successor preserves the original capsule unchanged, copies valid metric artifacts byte-for-byte, regenerates only the ambiguous machine-readable/reporting summaries, and adds fail-closed checks for:
-
-- `FRESH2_SELECTED <= DAPS2_ORACLE <= DAPS4_ORACLE` on all 80 images;
-- recomputed shared-failure-subset membership matching `HARD_SUBSET.csv`;
-- expected shared-failure success and exclusivity counts;
-- separation of all-DEV80 uniqueness from subset uniqueness;
-- preservation of `STOP_B24_METHOD_REFINEMENT` and locked confirmation.
+The successor capsule contains `CORRECTION_CHECKS.json` and `CORRECTION_METADATA.json`, plus corrected `COMPLEMENTARITY.json`, `B24_3_DEV_CLOSEOUT.json`, and `B24_3_DEV_CLOSEOUT.md`.
 
 ## Final conclusion
 
