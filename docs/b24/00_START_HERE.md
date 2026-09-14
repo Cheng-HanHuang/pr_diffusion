@@ -32,7 +32,8 @@ The following development stages completed operationally:
 - bounded EPP321 refinement;
 - full DEV80 with fresh DAPS-4 + pinned SITCOM-4 and the NP4/EPP321 portfolio;
 - final protected-explorer refinement (`NP_PE3_SCORE`, `NP_PE3_RANDOM`);
-- one development-only cross-family dispatch-supported FLOP audit.
+- one development-only cross-family dispatch-supported FLOP audit;
+- final zero-GPU DEV closeout/packaging.
 
 ### Frozen scientific verdict
 
@@ -49,56 +50,58 @@ Neither PE3 arm passed. The binding decision is:
 
 `STOP_B24_METHOD_REFINEMENT`
 
-No confirmation image has been exposed.
+The zero-GPU closeout preserved this verdict. No confirmation image has been exposed.
 
-## Current authorized stage — zero-GPU development closeout
+## Completed zero-GPU development closeout
 
-The user/planner authorized one combined analysis/packaging stage only:
+The authorized closeout completed from scientific-run head
 
-1. derive historical Fresh2 from the stored DEV80 DAPS trajectories using its existing clean-free exact-operator-loss selector;
-2. build DEV80 complementarity/failure-overlap tables;
-3. finish the compute audit with explicit unsupported Fourier/operator-work accounting and conservative interpretation guards;
-4. package B24 as a negative development result.
+`c3f13963cd267094231302bf9bc8d3a6e8c754c9`
 
-Exact closeout authorization/spec:
+at PAC run root
+
+`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_20260914T044033Z`.
+
+It completed all required source, test, CUDA-hidden, and artifact gates and reported:
+
+- `gpu_work_performed=false`;
+- `measurement_generation_performed=false`;
+- `confirmation_exposed=false`;
+- `decision=STOP_B24_METHOD_REFINEMENT`.
+
+Exact authorization/spec:
 
 - `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_AUTHORIZATION.md`
 - `configs/b24/b24_3_zero_gpu_closeout.json`
 
-### Historical Fresh2 rule
+Published result summary:
 
-Fresh2 uses DAPS reps 0 and 1 only. Compute exact pinned DAPS phase-retrieval `operator.loss(x,y)` for each terminal candidate and select rep 1 iff
+- `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_RESULT.md`
 
-`loss1 < loss0 - 0.7`.
+### Historical Fresh2 closeout result
 
-Otherwise retain rep 0. Ground truth is not used for selection.
+Fresh2 used DAPS reps 0 and 1 only with its historical clean-free rule:
 
-### Run closeout
+`loss1 < loss0 - 0.7` => choose rep1, otherwise rep0.
 
-Use the fail-closed synchronous launcher:
+Ground truth was not used for selection.
 
-```bash
-cd /egr/research-pac/huang248/pr_diffusion_b23
+On DEV80:
 
-git fetch origin \
-  '+refs/heads/codex/b24-bestof4-failure-sweep:refs/remotes/origin/codex/b24-bestof4-failure-sweep'
+- Fresh2 Good25 = `57/80`, mean PSNR `26.1596 dB`, median `29.9255 dB`;
+- DAPS2 oracle Good25 = `59/80`;
+- Fresh2 vs DAPS1: `10/0` Good25 rescues/harms;
+- Fresh2 vs executable NP4: mean `+0.4249 dB`, median `+1.0939 dB`, Good25 rescues/harms `14/12`.
 
-git show \
-  origin/codex/b24-bestof4-failure-sweep:scripts/b24/launch_b24_3_zero_gpu_closeout.sh \
-  | bash
-```
+Fresh2 remains historical methodology and was not promoted into a new post-hoc B24 advancement candidate.
 
-The launcher hides CUDA, verifies that the DEV80 and PE3 sources are complete and confirmation-free, runs zero-GPU tests, derives Fresh2, creates complementarity and compute-closeout artifacts, and emits a `.tar.gz` plus `.sha256`.
+### Compute interpretation
 
-Status helper after completion:
-
-```bash
-bash /egr/research-pac/huang248/pr_diffusion_b24/scripts/b24/status_b24_3_zero_gpu_closeout.sh
-```
+Dispatch-supported dynamic FLOPs remain useful for relative accounting but are not exact total FLOPs because FFT/custom work is nonzero and implementation dependent. The closeout explicitly inventories unsupported Fourier/operator work and forbids an exact total-FLOP-equivalence claim.
 
 ## Current hard boundary
 
-Authorized now: zero-GPU closeout/analysis only on already-exposed development artifacts.
+B24 method refinement is stopped under the frozen gate.
 
 Not authorized:
 
@@ -111,4 +114,4 @@ Not authorized:
 - merge/rebase/squash/retarget/force-push/history rewrite;
 - modification of PR #37.
 
-Confirmation remains locked after the closeout unless the planner separately changes project direction later; the closeout itself does not authorize that.
+Confirmation remains locked unless the planner separately authorizes a new project direction.
