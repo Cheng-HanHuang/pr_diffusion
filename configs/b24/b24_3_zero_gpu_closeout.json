@@ -1,0 +1,83 @@
+{
+  "schema_version": "b24.zero-gpu-closeout-spec.v1",
+  "status": "AUTHORIZED_ZERO_GPU_CLOSEOUT",
+  "scope": "DEV80_ONLY",
+  "confirmation_exposed": false,
+  "gpu_work_authorized": false,
+  "measurement_generation_authorized": false,
+  "fresh2": {
+    "historical_method": true,
+    "trajectory_count": 2,
+    "base_rep": 0,
+    "extra_rep": 1,
+    "selection_metric": "DAPS exact phase-retrieval operator.loss(x, y)",
+    "theta": 0.7,
+    "selection_rule": "choose rep1 iff loss1 < loss0 - theta; otherwise rep0",
+    "uses_ground_truth_for_selection": false,
+    "operator": {
+      "name": "phase_retrieval",
+      "sigma": 0.05,
+      "oversample": 2.0,
+      "input_terminal_representation": "saved DAPS terminal PNG mapped [0,1] -> [-1,1]",
+      "measurement_representation": "locked raw measurement tensor"
+    },
+    "reporting": [
+      "FRESH2_SELECTED",
+      "DAPS2_ORACLE",
+      "DAPS4_ORACLE"
+    ]
+  },
+  "complementarity": {
+    "good_threshold_db": 25.0,
+    "large_delta_db": 5.0,
+    "primary_representation": "CANONICAL_SAVED_OR_QUANTIZED_RGB_8BIT_RAW_ORIENTATION_V1",
+    "executable_methods": [
+      "DAPS1",
+      "FRESH2_SELECTED",
+      "SITCOM1",
+      "NP4_SELECTED",
+      "EPP321_SELECTED",
+      "PE3_SCORE_SELECTED",
+      "PE3_RANDOM_SELECTED"
+    ],
+    "diagnostic_oracles": [
+      "DAPS2_ORACLE",
+      "DAPS4_ORACLE",
+      "SITCOM4_ORACLE",
+      "NP4_ORACLE",
+      "EPP321_ORACLE",
+      "PE3_SCORE_ORACLE",
+      "PE3_RANDOM_ORACLE"
+    ],
+    "required_outputs": [
+      "pairwise Good25 overlap",
+      "paired PSNR deltas",
+      "failure image sets",
+      "fresh-both-baseline-oracles-fail subset",
+      "method distributions"
+    ]
+  },
+  "compute_closeout": {
+    "dispatch_supported_flop_source": "completed PE3 cross-family FLOP audit",
+    "exact_total_flop_equivalence_claimed": false,
+    "unsupported_work_policy": "inventory explicitly; never silently treat unsupported kernels as zero",
+    "np_static_fourier_inventory": {
+      "proposal_count": 8796,
+      "fourier_forward_calls_per_proposal_in_frozen_runner": 3,
+      "postprojection_branch_steps": 2796,
+      "projection_forward_fft_calls": 2796,
+      "projection_inverse_fft_calls": 2796,
+      "total_forward_fft_calls": 29184,
+      "total_inverse_fft_calls": 2796,
+      "padded_grid": [384, 384],
+      "channels": 3
+    },
+    "fresh2_extra_terminal_operator_evals": 2,
+    "fft_estimate_policy": "report implementation-independent N log2 N style work units or clearly labeled conventional estimates only"
+  },
+  "closeout_decision": {
+    "method_refinement": "STOPPED_BY_FROZEN_PE3_GATE",
+    "confirmation": "LOCKED",
+    "allowed_interpretation": "negative development result with basin-creation/complementarity diagnostics"
+  }
+}
