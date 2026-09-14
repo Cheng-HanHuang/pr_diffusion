@@ -7,19 +7,29 @@ REPO="$ROOT/pr_diffusion_b24"
 OUTROOT="$ROOT/outputs/pr_diffusion/b24"
 BRANCH=codex/b24-bestof4-failure-sweep
 DAPS_ROOT="$ROOT/pr_diffusion_b19_solver/external/daps"
-DAPS_HEAD=e7a77d094167084faed19b599b96673b7bb11447
 DAPS_PY="$ROOT/conda-envs/daps/bin/python"
 DEV_PTR="$OUTROOT/B24_3_DEV80_LATEST_RUN.txt"
 PE3_PTR="$OUTROOT/B24_3_PE3_LATEST_RUN.txt"
+
+# Freeze the exact DAPS source identity used by the accepted DEV80 launcher.
+DAPS_HEAD=e7a77d094167084faed19b599b96673b7bb11447
+DAPS_TREE=e63f9715e4704d9cd7a43a166559496d9d94e781
+DAPS_INDEX_SHA=d5487cdba570dbaac0c1909e549da361a0a0fc3fed81e5c13f59fa12925876b6
+DAPS_DIFF_SHA=fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69
 
 [[ -x "$DAPS_PY" ]] || { echo "STOP|missing_daps_python:$DAPS_PY"; exit 2; }
 [[ -d "$DAPS_ROOT" ]] || { echo "STOP|missing_daps_root:$DAPS_ROOT"; exit 2; }
 DAPS_IS_WORKTREE=$(git -C "$DAPS_ROOT" rev-parse --is-inside-work-tree 2>/dev/null || true)
 [[ "$DAPS_IS_WORKTREE" == "true" ]] || { echo "STOP|daps_not_git_worktree:$DAPS_ROOT"; exit 2; }
 DAPS_ACTUAL_HEAD=$(git -C "$DAPS_ROOT" rev-parse HEAD)
+DAPS_ACTUAL_TREE=$(git -C "$DAPS_ROOT" rev-parse 'HEAD^{tree}')
+DAPS_ACTUAL_INDEX=$(git -C "$DAPS_ROOT" ls-files -s | sha256sum | awk '{print $1}')
+DAPS_ACTUAL_DIFF=$(git -C "$DAPS_ROOT" diff --binary HEAD -- . | sha256sum | awk '{print $1}')
 [[ "$DAPS_ACTUAL_HEAD" == "$DAPS_HEAD" ]] || { echo "STOP|daps_head_drift|expected=$DAPS_HEAD|actual=$DAPS_ACTUAL_HEAD"; exit 2; }
-git -C "$DAPS_ROOT" diff --quiet || { echo "STOP|daps_tracked_worktree_diff"; exit 2; }
-git -C "$DAPS_ROOT" diff --cached --quiet || { echo "STOP|daps_index_diff"; exit 2; }
+[[ "$DAPS_ACTUAL_TREE" == "$DAPS_TREE" ]] || { echo "STOP|daps_tree_drift|expected=$DAPS_TREE|actual=$DAPS_ACTUAL_TREE"; exit 2; }
+[[ "$DAPS_ACTUAL_INDEX" == "$DAPS_INDEX_SHA" ]] || { echo "STOP|daps_index_drift|expected=$DAPS_INDEX_SHA|actual=$DAPS_ACTUAL_INDEX"; exit 2; }
+[[ "$DAPS_ACTUAL_DIFF" == "$DAPS_DIFF_SHA" ]] || { echo "STOP|daps_diff_drift|expected=$DAPS_DIFF_SHA|actual=$DAPS_ACTUAL_DIFF"; exit 2; }
+echo "DAPS_SOURCE_READY|head=$DAPS_ACTUAL_HEAD|tree=$DAPS_ACTUAL_TREE|index_sha=$DAPS_ACTUAL_INDEX|diff_sha=$DAPS_ACTUAL_DIFF"
 
 [[ -f "$DEV_PTR" && -f "$PE3_PTR" ]] || { echo "STOP|missing_source_pointer"; exit 2; }
 DEV80=$(cat "$DEV_PTR")
@@ -60,7 +70,6 @@ CUDA_VISIBLE_DEVICES="" "$DAPS_PY" -m py_compile \
   scripts/b24/test_b24_3_zero_gpu_closeout.py
 CUDA_VISIBLE_DEVICES="" "$DAPS_PY" scripts/b24/test_b24_3_zero_gpu_closeout.py
 
-# Explicitly assert that CUDA is hidden in the exact execution environment.
 CUDA_VISIBLE_DEVICES="" "$DAPS_PY" - <<'PY'
 import torch
 assert not torch.cuda.is_available(), 'CUDA unexpectedly visible in zero-GPU closeout'
@@ -92,7 +101,10 @@ cat > "$RUN/LAUNCH_IDENTITY.txt" <<EOF
 head=$HEAD
 source_dev80_run=$DEV80
 source_pe3_run=$PE3
-daps_head=$DAPS_HEAD
+daps_head=$DAPS_ACTUAL_HEAD
+daps_tree=$DAPS_ACTUAL_TREE
+daps_index_sha=$DAPS_ACTUAL_INDEX
+daps_diff_sha=$DAPS_ACTUAL_DIFF
 gpu_work=0
 measurement_generation=0
 confirmation_exposed=0
@@ -100,7 +112,6 @@ fresh2_theta=0.7
 method_refinement_decision=STOP_B24_METHOD_REFINEMENT
 EOF
 
-# Recompute checksums after LAUNCH_IDENTITY is added.
 (
   cd "$RUN"
   rm -f SHA256SUMS.txt
