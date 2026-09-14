@@ -1,0 +1,98 @@
+{
+  "schema_version": "b24.dev80-overnight-spec.v1",
+  "stage": "B24.3_DEV80_OVERNIGHT",
+  "status": "AUTHORIZED_DEVELOPMENT_ONLY",
+  "source_screen_manifest_sha256": "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba",
+  "source_pilot16_sha256": "124d3759e4fd540d2e870618dde59ff73d02cbb798d773a785296da5b140e98a",
+  "authorization": "User/planner explicitly authorized the DEV80 overnight stage after the completed EPP321 Pilot16 refinement.",
+  "scientific_question": "On all 80 frozen development images, does compute-matched NP_EPP_321 improve recovery beyond four independent NP-1 trajectories, and is the resulting NP method competitive with freshly rerun DAPS and pinned SITCOM baselines on the same locked measurements?",
+  "development_panel": {
+    "total": 80,
+    "screening_strata": {"A": 20, "B": 20, "C": 20, "D": 20},
+    "pilot16_reused": 16,
+    "new_nonpilot_development_images": 64,
+    "confirmation_images": 0
+  },
+  "measurement_policy": {
+    "pilot16": "Reuse exactly the already-materialized locked development measurement for each Pilot16 image.",
+    "remaining64": "Materialize exactly one measurement using the already-frozen dev_measurement_seed in B24_METHOD_IMAGE_ROLES.csv.",
+    "screening_measurements_reused": false,
+    "confirmation_measurements_generated": false
+  },
+  "fresh_external_baselines_all80": {
+    "DAPS4": {
+      "implementation": "Pinned B24 external DAPS implementation and frozen DAPS-1 semantics; four independent native solver seeds on each development measurement.",
+      "rep0_role": "DAPS-1 single-run reference",
+      "best_of_four_role": "GT-selected external candidate-set oracle ceiling only"
+    },
+    "SITCOM4": {
+      "implementation": "Pinned public SITCOM-ODE implementation and the exact B24 runtime configuration used by the baseline screen; four independent native solver seeds on each development measurement.",
+      "rep0_role": "SITCOM-1 single-run reference",
+      "best_of_four_role": "GT-selected external candidate-set oracle ceiling only"
+    },
+    "solver_seed_domains": {
+      "DAPS": "B24_DEV80_DAPS_SOLVER_V1",
+      "SITCOM": "B24_DEV80_SITCOM_SOLVER_V1"
+    }
+  },
+  "np_arms_all80": {
+    "NP4_INDEPENDENT": {
+      "source": "Reuse completed Pilot16 result for 16 images; execute prospectively on the remaining 64.",
+      "proposal_unet_evals": 8796,
+      "total_unet_evals": 8800,
+      "np1_equivalent_work_fre": 4.0
+    },
+    "NP_EPP_321": {
+      "source": "Reuse completed EPP321 refinement result for 16 images; execute unchanged on the remaining 64.",
+      "proposal_unet_evals": 8796,
+      "total_unet_evals": 8800,
+      "np1_equivalent_work_fre": 4.0
+    },
+    "NP_EPP_321_RANDOM_PRUNE": {
+      "source": "Reuse completed EPP321 refinement result for 16 images; execute unchanged on the remaining 64.",
+      "proposal_unet_evals": 8796,
+      "total_unet_evals": 8800,
+      "np1_equivalent_work_fre": 4.0
+    },
+    "NP_EPP_321_NO_REALLOCATION": {
+      "source": "Reuse completed EPP321 refinement result for 16 images; execute unchanged on the remaining 64.",
+      "proposal_unet_evals": 6896,
+      "total_unet_evals": 6900,
+      "np1_equivalent_work_fre": 3.1363636363636362
+    }
+  },
+  "evaluation_policy": {
+    "common_primary_representation": "CANONICAL_SAVED_OR_QUANTIZED_RGB_8BIT_RAW_ORIENTATION_V1",
+    "np_native_float_metrics_retained": true,
+    "good25_threshold_db": 25.0,
+    "fresh_baseline_classification": "Recompute A/B/C/D independently on each development measurement using fresh DAPS-4 and SITCOM-4 GT-best candidate PSNR; preserve original class only as the screening stratum.",
+    "do_not_filter_on_fresh_outcome": true,
+    "np_executable_output": "measurement-only clean-free terminal selection",
+    "np_terminal_oracle": "offline GT diagnostic only",
+    "external_best_of_four": "offline GT candidate-set ceiling only"
+  },
+  "compute_policy": {
+    "within_np_family": "UNet forward evaluations are the dominant fixed-work proxy because model, resolution, scheduler and measurement operator are identical.",
+    "np4_vs_epp321": "exactly matched at 8800 total UNet evaluations per image",
+    "cross_family": "Do not equate NP UNet evaluations with DAPS/SITCOM iterations. Preserve native protocol parameters and measured GPU/wall diagnostics now; final fixed/similar-compute claims require method-specific FLOPs or a defensible forward/operator-equivalent accounting.",
+    "wall_time_role": "engineering diagnostic only"
+  },
+  "execution_scope": {
+    "fresh_daps4_images": 80,
+    "fresh_sitcom4_images": 80,
+    "new_np_execution_images": 64,
+    "pilot_np_reuse_images": 16,
+    "remaining_development_images_authorized": true,
+    "confirmation_images_authorized": false,
+    "confirmation_measurement_generation_authorized": false,
+    "c1_extra_exposure_authorized": false,
+    "additional_method_or_checkpoint_search_authorized": false
+  },
+  "resource_contract": {
+    "hard_process_or_group_ceiling_mib": 52452,
+    "min_free_mib": 10240,
+    "do_not_kill_or_evict_other_jobs": true,
+    "physical_gpu_binding_required": true,
+    "worker_failure_policy": "Fail the affected image but continue later assigned development images; final DEV80 gate remains closed until every image has a PASS completion."
+  }
+}

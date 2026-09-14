@@ -1,0 +1,13 @@
+step	status	rc
+fetch_b24	PASS	0
+ancestry	PASS	0
+fast_forward_existing	PASS	0
+import_probe	PASS	0
+compile	PASS	0
+tests	PASS	0
+exposure	PASS	0
+validate	PASS	0
+render64	PASS	0
+render256	PASS	0
+control_dry64	PASS	0
+control_dry256	PASS	0

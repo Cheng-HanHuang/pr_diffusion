@@ -1,0 +1,67 @@
+{
+  "schema_version": "b24.zero-gpu-reporting-correction.v1",
+  "status": "AUTHORIZED_REPORTING_CORRECTION_ONLY",
+  "source_capsule": {
+    "run_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_20260914T044033Z",
+    "archive_sha256": "fe4ac6e0ac5c6554973cc171067f52fe0b729e6a33ded7503594fd424da3b45d",
+    "scientific_run_head": "c3f13963cd267094231302bf9bc8d3a6e8c754c9",
+    "preserve_unchanged": true
+  },
+  "decision": "STOP_B24_METHOD_REFINEMENT",
+  "confirmation_exposed": false,
+  "gpu_work_authorized": false,
+  "measurement_generation_authorized": false,
+  "correction_scope": [
+    "separate all-DEV80 uniqueness from shared-failure-subset success/uniqueness",
+    "check Fresh2 <= DAPS2_ORACLE <= DAPS4_ORACLE per image",
+    "check shared-failure-subset membership and counts against HARD_SUBSET.csv",
+    "correct machine-readable complementarity and top-level closeout summaries",
+    "correct repository result documentation and PR reporting"
+  ],
+  "executable_methods": [
+    "DAPS1",
+    "FRESH2_SELECTED",
+    "SITCOM1",
+    "NP4_SELECTED",
+    "EPP321_SELECTED",
+    "PE3_SCORE_SELECTED",
+    "PE3_RANDOM_SELECTED"
+  ],
+  "shared_failure_subset": {
+    "definition": "DAPS4_ORACLE < 25 dB and SITCOM4_ORACLE < 25 dB",
+    "expected_count": 10,
+    "expected_good25_success_counts": {
+      "DAPS1": 0,
+      "FRESH2_SELECTED": 0,
+      "SITCOM1": 0,
+      "NP4_SELECTED": 2,
+      "EPP321_SELECTED": 2,
+      "PE3_SCORE_SELECTED": 1,
+      "PE3_RANDOM_SELECTED": 0
+    },
+    "expected_exclusive_good25_counts": {
+      "DAPS1": 0,
+      "FRESH2_SELECTED": 0,
+      "SITCOM1": 0,
+      "NP4_SELECTED": 1,
+      "EPP321_SELECTED": 2,
+      "PE3_SCORE_SELECTED": 0,
+      "PE3_RANDOM_SELECTED": 0
+    }
+  },
+  "all_dev80_expected_unique_good25_counts": {
+    "DAPS1": 0,
+    "FRESH2_SELECTED": 1,
+    "SITCOM1": 0,
+    "NP4_SELECTED": 2,
+    "EPP321_SELECTED": 2,
+    "PE3_SCORE_SELECTED": 0,
+    "PE3_RANDOM_SELECTED": 0
+  },
+  "known_reporting_correction": {
+    "fresh2_global_unique_image_id": "17146",
+    "fresh2_global_unique_is_in_shared_failure_subset": false,
+    "pe3_score_shared_failure_success_image_id": "34587",
+    "pe3_score_shared_failure_success_is_exclusive": false
+  }
+}
