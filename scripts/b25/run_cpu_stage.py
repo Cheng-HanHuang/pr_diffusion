@@ -30,14 +30,21 @@ def main() -> int:
         raise RuntimeError("B25 CPU stage requires CUDA_VISIBLE_DEVICES=''")
 
     started = time.perf_counter()
-    proc = subprocess.run(command, check=False)
+    timed_out = False
+    try:
+        proc = subprocess.run(command, check=False, timeout=float(args.max_wall_seconds))
+        returncode = int(proc.returncode)
+    except subprocess.TimeoutExpired:
+        timed_out = True
+        returncode = 124
     wall = time.perf_counter() - started
     usage = resource.getrusage(resource.RUSAGE_CHILDREN)
     max_rss_gib = float(usage.ru_maxrss) / (1024.0 * 1024.0)
     payload = {
         "schema_version": "b25.cpu-stage-resource.v1",
         "command": command,
-        "returncode": int(proc.returncode),
+        "returncode": returncode,
+        "timed_out": timed_out,
         "wall_seconds": wall,
         "ru_maxrss_raw": usage.ru_maxrss,
         "ru_maxrss_note": "Linux ru_maxrss is KiB",
@@ -46,13 +53,18 @@ def main() -> int:
         "system_cpu_seconds": float(usage.ru_stime),
         "max_rss_gib_limit": float(args.max_rss_gib),
         "max_wall_seconds_limit": float(args.max_wall_seconds),
-        "resource_pass": max_rss_gib <= args.max_rss_gib and wall <= args.max_wall_seconds,
+        "resource_pass": (
+            not timed_out
+            and max_rss_gib <= args.max_rss_gib
+            and wall <= args.max_wall_seconds + 1.0
+        ),
         "gpu_work_performed": False,
         "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
     }
     writej(args.resource_json, payload)
-    if proc.returncode != 0:
-        return int(proc.returncode)
+    if returncode != 0:
+        print(json.dumps({"status": "FAILED_OR_TIMED_OUT", **payload}, sort_keys=True))
+        return returncode
     if not payload["resource_pass"]:
         print(json.dumps({"status": "RESOURCE_LIMIT_EXCEEDED", **payload}, sort_keys=True))
         return 96
