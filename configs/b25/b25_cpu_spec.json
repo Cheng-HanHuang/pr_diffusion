@@ -1,0 +1,136 @@
+{
+  "schema_version": "b25.cpu-spec.v1",
+  "stage": "B25.0_B25.1",
+  "status": "PROSPECTIVE_PRE_RUN_SPEC",
+  "immutable_base": "ed162c2f97430804fddb5d9a0bfec7abde201ca0",
+  "resource_envelope": {
+    "max_cpu_workers": 4,
+    "max_ram_gib": 16,
+    "max_scientific_wall_hours": 4,
+    "cuda_visible_devices_required": "",
+    "pretrained_model_inference": false
+  },
+  "rng": {
+    "generator": "numpy.random.Generator(PCG64)",
+    "master_seed": 25091401,
+    "derivation": "SHA256('B25' | stream_name | master_seed), first 64 bits",
+    "streams": [
+      "EXP1_LINEAR", "EXP1_QUADRATIC", "EXP2_DIST_EQ", "EXP2_AMBIG_UNEQ",
+      "EXP2_NEAR_EQ", "EXP2_NEAR_UNEQ", "EXP3_SYNTHETIC_INVARIANCE", "EXP4_SYNTHETIC_PREPROCESS"
+    ]
+  },
+  "experiment1": {
+    "dimension": 8,
+    "base_state": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "drift": [0.2, -0.1, 0.05, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "linear_energy_direction": [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "quadratic_energy_center": [0.6, -0.2, 0.15, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "proposal_counts": [1, 4, 8],
+    "step_sizes": [0.1, 0.03, 0.01, 0.003, 0.001],
+    "mc_samples_per_cell": 120000,
+    "batch_size": 10000,
+    "methods": ["unselected", "hard_min", "finite_likelihood_weighted"],
+    "linear_likelihood": "L(x')=exp(-g^T x')",
+    "quadratic_likelihood": "L(x')=exp(-0.5 ||x'-c||_2^2)",
+    "analytic_linear_target": "N(x+b*h-h*g, h*I)",
+    "analytic_quadratic_target": "N((x+b*h+h*c)/(1+h), h/(1+h)*I)",
+    "projection_histogram": {"min": -5.0, "max": 5.0, "bins": 80},
+    "small_step_fit_points": [0.03, 0.01, 0.003, 0.001],
+    "predictions": {
+      "hard_min_K_gt_1": "score-direction mean displacement magnitude scales as h^0.5",
+      "finite_likelihood_weighted": "score-direction mean displacement scales as h^1 up to finite-K bias",
+      "linear_order_statistic": "selected projection follows K*phi(z)*(1-Phi(z))^(K-1) for minimum score"
+    },
+    "falsifiers": [
+      "linear hard-min projection materially disagrees with the order-statistic analytic reference",
+      "hard-min K>1 fitted small-step exponent is not closer to 0.5 than to 1.0 within Monte Carlo uncertainty",
+      "finite likelihood-weighted selection displays persistent h^0.5 displacement on the fixed grid"
+    ]
+  },
+  "experiment2": {
+    "template_shape": [6, 6],
+    "measurement_operator": "abs(fft2(x, norm='ortho')) flattened",
+    "measurement_noise_sigma": 0.08,
+    "alpha_schedule_clean_to_noise": [1.0, 0.72, 0.36, 0.12, 0.0],
+    "proposal_counts": [1, 4, 8],
+    "trajectories_per_cell": 24000,
+    "batch_size": 2000,
+    "families": [
+      {"name": "distinguishable_equal", "prior_weights": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333], "truth_index": 0},
+      {"name": "ambiguity_unequal", "prior_weights": [0.6, 0.2, 0.2], "truth_index": 0},
+      {"name": "near_ambiguity_equal", "prior_weights": [0.5, 0.5], "truth_index": 0},
+      {"name": "near_ambiguity_unequal", "prior_weights": [0.7, 0.3], "truth_index": 0}
+    ],
+    "methods": ["hard_exact_intermediate", "weighted_exact_intermediate", "weighted_denoised_point"],
+    "reference": "exact finite-support Bayes posterior and exact conditional reverse transition",
+    "mode_present_reference_threshold": 0.05,
+    "mode_omission_empirical_threshold": 0.005,
+    "validation_tolerances": {
+      "normalization_abs": 1e-12,
+      "bayes_enumeration_abs": 1e-12,
+      "ambiguity_measurement_rel": 1e-12,
+      "ambiguity_posterior_ratio_rel": 1e-10,
+      "limiting_prior_tv": 1e-6
+    },
+    "predictions": [
+      "hard finite-candidate selection can distort posterior mode weights even with exact intermediate likelihood",
+      "likelihood-weighted finite-candidate selection approaches but is not equal to the exact conditional transition",
+      "denoised-point likelihood can add error beyond finite-candidate selection, especially for multimodal or nearly ambiguous cases",
+      "exact Fourier-magnitude ambiguity preserves within-group prior odds"
+    ],
+    "falsifiers": [
+      "all approximate methods remain within Monte Carlo uncertainty of exact posterior weights across all frozen families and K",
+      "denoised-point likelihood does not measurably worsen any frozen family relative to the exact-intermediate weighted comparator"
+    ]
+  },
+  "experiment3": {
+    "dev_count": 80,
+    "methods": ["DAPS", "SITCOM", "NP4_INDEPENDENT"],
+    "max_terminals_per_method_per_image": 4,
+    "max_unique_terminals_per_image": 12,
+    "fresh2_role": "pointer_only_to_existing_DAPS_candidate",
+    "canonical_representation": "CANONICAL_SAVED_OR_QUANTIZED_RGB_8BIT_RAW_ORIENTATION_V1",
+    "good25_db": 25.0,
+    "transform_masks": [0, 1, 2, 3, 4, 5, 6, 7],
+    "transform_definition": "bit c independently applies 180-degree spatial reversal to RGB channel c",
+    "operator": {
+      "input": "real RGB in [0,1]",
+      "padding_each_side": 64,
+      "padded_shape": [384, 384],
+      "fft": "ifftshift -> fftn(norm='ortho') -> fftshift, channelwise",
+      "output": "complex magnitude"
+    },
+    "invariance_tolerances": {
+      "synthetic_relative_l2": 1e-10,
+      "real_relative_l2": 1e-9,
+      "psnr_recompute_abs_db": 2e-4
+    },
+    "shared_failure_definition": "fresh DAPS4 oracle <25 dB AND fresh SITCOM4 oracle <25 dB",
+    "interpretation": "GT-assisted symmetry oracle is an offline upper bound only"
+  },
+  "experiment4": {
+    "synthetic_values": [-0.08, -0.01, 0.0, 0.03, 0.2, 1.0],
+    "audit_targets": ["DAPS", "SITCOM", "NP"],
+    "questions": [
+      "amplitude versus intensity",
+      "normalization and FFT scaling",
+      "additive-noise assumption",
+      "clipping or absolute-value preprocessing",
+      "projection-only positivity versus likelihood data",
+      "residual normalization and noise tolerance"
+    ],
+    "known_before_run": {
+      "NP": "B24 DEV80 wrapper hashes raw measurement then applies clamp_min(0) in memory before NP scoring/projection",
+      "SITCOM_wrapper": "B22/B24 wrapper declares measurement_preprocessing='none' and passes the hashed raw tensor to the official operator",
+      "DAPS": "must be verified against the pinned accepted local source; no discrepancy is presumed"
+    }
+  },
+  "protected_data": {
+    "confirmation_payload_access": false,
+    "confirmation_registry_ids_readable_for_exclusion": true,
+    "c1_extra_access": false,
+    "new_ffhq_measurements": false,
+    "new_ffhq_reconstructions": false,
+    "allowed_existing_dev_payloads": ["ground_truth tensors", "locked measurements", "hashed terminal reconstructions", "terminal PNGs", "B24 metrics/manifests"]
+  }
+}
