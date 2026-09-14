@@ -36,6 +36,15 @@
     "analytic_quadratic_target": "N((x+b*h+h*c)/(1+h), h/(1+h)*I)",
     "projection_histogram": {"min": -5.0, "max": 5.0, "bins": 80},
     "small_step_fit_points": [0.03, 0.01, 0.003, 0.001],
+    "engineering_reference_tolerances": {
+      "linear_order_stat_mean_abs": 0.02,
+      "linear_order_stat_variance_abs": 0.03,
+      "linear_order_stat_histogram_l1": 0.04
+    },
+    "prospective_interpretation_bands": {
+      "hard_min_K_gt_1_small_step_exponent_supportive": [0.35, 0.65],
+      "finite_likelihood_weighted_K_gt_1_small_step_exponent_supportive": [0.75, 1.25]
+    },
     "predictions": {
       "hard_min_K_gt_1": "score-direction mean displacement magnitude scales as h^0.5",
       "finite_likelihood_weighted": "score-direction mean displacement scales as h^1 up to finite-K bias",
@@ -71,6 +80,12 @@
       "ambiguity_measurement_rel": 1e-12,
       "ambiguity_posterior_ratio_rel": 1e-10,
       "limiting_prior_tv": 1e-6
+    },
+    "monte_carlo_reporting": {
+      "per_mode_binomial_standard_error": true,
+      "standardized_mode_weight_error": true,
+      "tv_error": true,
+      "reconstruction_mse_to_frozen_truth": true
     },
     "predictions": [
       "hard finite-candidate selection can distort posterior mode weights even with exact intermediate likelihood",
