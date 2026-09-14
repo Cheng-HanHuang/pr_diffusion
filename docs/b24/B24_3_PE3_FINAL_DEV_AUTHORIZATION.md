@@ -4,20 +4,32 @@ Planner/user authorization (2026-09-13):
 
 > Authorize B24 DEV-only final protected-explorer refinement plus cross-family FLOP audit. Implement and run exactly PE3_SCORE and PE3_RANDOM on the existing DEV80 measurements at 8,800 NP UNet evaluations each; perform compute accounting using development data only. No confirmation exposure. If neither PE3 arm passes the prospectively frozen NP4 gate, stop B24 method refinement.
 
-## Scientific motivation
+## Final status
 
-DEV80 falsified `NP_EPP_321` as the main method at the same 8,800-UNet work as `NP4_INDEPENDENT`: its rare large rescues did not compensate for frequent large harms. The matched random-pruning arm nevertheless showed that proposal reallocation can create useful basins, especially on some fresh-D measurements. This final refinement therefore protects multiple native lineages instead of repeatedly pruning to one lineage.
+This stage is complete.
+
+- `NP_PE3_SCORE`: completed on all 80 frozen development measurements.
+- `NP_PE3_RANDOM`: completed on all 80 frozen development measurements.
+- Cross-family development-only dispatch-supported FLOP audit: complete.
+- Confirmation exposure: none.
+- Passing PE3 arms under the prospectively frozen NP4 gate: none.
+
+Binding scientific decision:
+
+`STOP_B24_METHOD_REFINEMENT`
+
+The completed summary reported that both PE3 arms satisfied only the nonnegative-median-delta condition and failed the Good25-count, Good25-rescue/harm, and >=5 dB rescue/harm conditions. This verdict must not be changed retrospectively.
 
 ## Exactly authorized project-method arms
 
-Only two new methods may be executed:
+Only two new methods were executed:
 
 - `NP_PE3_SCORE`
 - `NP_PE3_RANDOM`
 
-Both use exactly 8,800 total NP UNet evaluations per image, including four root initializations. No checkpoint sweep, score-window sweep, extra method variant, or additional root budget is authorized.
+Both used exactly 8,800 total NP UNet evaluations per image, including four root initializations. No checkpoint sweep, score-window sweep, extra method variant, or additional root budget was authorized.
 
-Both methods share the fixed schedule:
+Both methods shared the fixed schedule:
 
 1. initialize four frozen NP roots;
 2. transitions 0..71: four roots, `k=5` proposals per root;
@@ -28,55 +40,65 @@ Both methods share the fixed schedule:
 7. transitions 300..998: four terminal trajectories, `k=1` each;
 8. clean-free terminal selection remains the frozen post-projection measurement-side LF-MSE selector; GT-best terminal remains offline oracle only.
 
-`NP_PE3_SCORE` uses the frozen trailing-32 LF measurement score at checkpoint 72: drop the worst-scored root and designate the best-scored retained root as explorer. Stable lineage tie-break applies.
+`NP_PE3_SCORE` used the frozen trailing-32 LF measurement score at checkpoint 72: drop the worst-scored root and designate the best-scored retained root as explorer. Stable lineage tie-break applied.
 
-`NP_PE3_RANDOM` uses no measurement score for the checkpoint-72 role assignment. A frozen domain hash `B24_METHOD_PE3_RANDOM_ROLE_V1` deterministically orders the four roots: the first becomes explorer, the next two are protected, and the fourth is dropped.
+`NP_PE3_RANDOM` used no measurement score for the checkpoint-72 role assignment. Frozen domain hash `B24_METHOD_PE3_RANDOM_ROLE_V1` deterministically ordered the four roots: the first became explorer, the next two protected, and the fourth dropped.
 
 Exact work accounting per image:
 
 `4 + 72*4*5 + 228*(10+5+5) + 699*4 = 8,800` total UNet evaluations.
 
-## Frozen advancement gate versus NP4
+## Prospectively frozen advancement gate versus NP4
 
-Each PE3 arm is evaluated on the same 80 already-exposed development measurements against the already-completed `NP4_INDEPENDENT` result, using canonical raw-orientation 8-bit RGB PSNR. An arm may be considered for a later method freeze only if all four conditions hold:
+Each PE3 arm was evaluated on the same 80 already-exposed development measurements against the already-completed `NP4_INDEPENDENT` result, using canonical raw-orientation 8-bit RGB PSNR. An arm could advance only if all four conditions held:
 
-- median paired PSNR delta versus NP4 is >= 0 dB;
-- PE3 Good25 count is at least NP4 Good25 count;
-- Good25 rescues are at least Good25 harms;
-- >=5 dB rescues are at least >=5 dB harms.
+- median paired PSNR delta versus NP4 >= 0 dB;
+- PE3 Good25 count at least NP4 Good25 count;
+- Good25 rescues at least Good25 harms;
+- >=5 dB rescues at least >=5 dB harms.
 
-If neither arm passes every condition, B24 method refinement stops. Passing does not authorize confirmation; planner review and a separate freeze/authorization are still required.
+Neither arm passed every condition. Therefore B24 method refinement stopped prospectively as specified.
 
-## Cross-family compute audit
+## Cross-family compute audit result
 
-A development-only compute audit is authorized. It must use only already-exposed DEV80 inputs and prospectively choose any calibration input without method outcomes. It may rerun method trajectories solely for compute instrumentation.
+The development-only audit completed on a prospectively hash-selected DEV80 calibration image. It recorded PyTorch dispatch-supported dynamic FLOPs and retained explicit unsupported-work guards.
 
-Primary accounting is FLOP/work based, not wall-clock matching. The audit must:
+Dispatch-supported dynamic FLOPs:
 
-- preserve the exact pinned DAPS, SITCOM, and NP protocols used in DEV80;
-- report dynamic FLOPs counted by PyTorch dispatch instrumentation where supported;
-- preserve unsupported-operation diagnostics (including FFT counts/shapes and optimizer-step counts) rather than silently treating them as zero-cost;
-- report DAPS-1/SITCOM-1 and their independent x4 work ceilings separately;
-- report PE3/NP work at its actual 8,800-UNet protocol;
-- label wall/GPU-active time as diagnostic only;
-- avoid claiming exact cross-family FLOP equivalence when instrumentation has unsupported operators.
+- DAPS-1: `840267171895544`
+- DAPS-4 independent equivalent: `3361068687582176`
+- PE3_SCORE: `3413820886220800`
+- SITCOM-1: `387934191616000`
+- SITCOM-4 independent equivalent: `1551736766464000`
+
+Ratios relative to PE3_SCORE were approximately 0.2461, 0.9845, 0.1136, and 0.4545 respectively.
+
+These are not asserted to be exact total FLOPs. Unsupported Fourier/custom kernels remain nonzero and must be inventoried separately before any stronger cross-family compute claim.
+
+## Subsequent authorized work
+
+The only subsequent B24 work currently authorized is zero-GPU development closeout/analysis:
+
+- derive historical Fresh2 from stored DEV80 DAPS trajectories;
+- build complementarity/failure-overlap summaries;
+- close the compute audit with explicit unsupported Fourier/operator-work accounting;
+- package the B24 negative development result.
+
+See:
+
+- `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_AUTHORIZATION.md`
+- `configs/b24/b24_3_zero_gpu_closeout.json`
 
 ## Scope boundary
-
-Authorized:
-
-- the same frozen DEV80 only;
-- exactly `NP_PE3_SCORE` and `NP_PE3_RANDOM`;
-- development-only compute/FLOP audit;
-- reuse all existing DEV80 locked measurements and baseline/NP4 results.
 
 Not authorized:
 
 - any of the 305 confirmation images or confirmation measurements;
-- C1-only extra exposure;
-- another PE3/EPP/DPS/checkpoint/score sweep;
-- changing the prospective NP4 gate after seeing PE3;
+- any new measurement generation;
+- any further NP/EPP/PE3/DPS/checkpoint/score/schedule sweep;
+- changing the prospective NP4 gate or the resulting stop verdict;
+- C1-only method development;
 - merge/rebase/squash/retarget/force-push/history rewrite;
 - modification of PR #37.
 
-Global B24 process/group ceiling remains 52,452 MiB. Workers must never kill or evict unrelated jobs.
+Confirmation remains locked.
