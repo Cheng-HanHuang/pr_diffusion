@@ -78,9 +78,9 @@ def order_stat_reference(k):
     phi = np.exp(-0.5 * z * z) / math.sqrt(2.0 * math.pi)
     Phi = np.array([normcdf_scalar(float(v)) for v in z])
     density = k * phi * np.power(np.maximum(1.0 - Phi, 0.0), k - 1)
-    density /= np.trapz(density, z)
-    mean = float(np.trapz(z * density, z))
-    var = float(np.trapz((z - mean) ** 2 * density, z))
+    density /= np.trapezoid(density, z)
+    mean = float(np.trapezoid(z * density, z))
+    var = float(np.trapezoid((z - mean) ** 2 * density, z))
     return mean, var
 
 
