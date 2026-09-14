@@ -1,9 +1,18 @@
 # AGENTS.md
 
-This repository studies reliable diffusion-prior phase retrieval. The active planning stage is B23:
-compatibility-gated, fixed-budget solver synthesis after the frozen B22 comparison.
+This repository studies reliable diffusion-prior phase retrieval. The root guidance below preserves the historical B23 safety contract. A newer explicitly authorized B25 study now exists on branch `codex/b25-noise-selection-mechanisms`.
 
-## Start here
+## B25 branch override
+
+When the checked-out branch is `codex/b25-noise-selection-mechanisms`, start with:
+
+`docs/b25/00_START_HERE.md`
+
+The user authorization for **B25 — noise-selection bias and phase-retrieval failure mechanisms** supersedes the stale B23 *stage-authorization* wording below only for B25. All historical scientific restrictions that remain compatible with the B25 authorization continue to apply. In particular, B24 remains closed under `STOP_B24_METHOD_REFINEMENT`; do not modify historical PRs/worktrees/outputs, do not revive failed NP/SITCOM state transplantation, and do not run unapproved GPU/model work.
+
+For B25, the first operational gate is the consolidated PAC inventory described in `docs/b25/00_START_HERE.md`. B25 scientific execution is CPU-only, with `CUDA_VISIBLE_DEVICES=""`, no pretrained-model inference, no new FFHQ measurements/reconstructions, and no confirmation305 payload access. Shell scripts added for B25 must avoid `set -e`/`set -u`/`set -o pipefail` and must return control to the user's terminal after failures.
+
+## Historical B23 start here
 
 For B23, read in this order:
 
@@ -22,7 +31,7 @@ Accepted scientific-plan snapshot:
 
 `ed4f46e8f116648eda76d387388d762d7cb8f3d7`
 
-## Current authorization boundary
+## Historical B23 authorization boundary
 
 - Do not run GPU jobs automatically.
 - B23.0 is zero-GPU and requires explicit user authorization.
@@ -51,25 +60,25 @@ Accepted scientific-plan snapshot:
 - Preserve the planning branch and draft PR unless the user explicitly authorizes integration.
 - Do not edit, reset, rebase, merge, delete, or force-push `b19_solver_integration`.
 - Preserve dirty PAC checkouts, local DAPS modifications, and external-repository diffs.
-- Use a separately approved clean B23 branch/worktree.
+- Use a separately approved clean worktree for each new execution stage.
 - Make small, reviewable changes.
 - Run experiments only from a recorded, pushed pre-run commit.
-- Commit or push only when the user's authorization explicitly permits writes to the B23 execution
+- Commit or push only when the user's authorization explicitly permits writes to the active execution
   branch. Never merge a PR without separate authorization.
 
 ## PAC storage and paths
 
 Use `/egr/research-pac/huang248`, never `/home`.
 
-Known paths must be inventoried rather than assumed:
+Known historical paths must be inventoried rather than assumed:
 
 - historical checkout:
   `/egr/research-pac/huang248/pr_diffusion_b19_solver`
 - older checkout name retained in historical docs:
   `/egr/research-pac/huang248/pr_diffusion_repo`
-- proposed clean B23 worktree:
+- B23 worktree:
   `/egr/research-pac/huang248/pr_diffusion_b23`
-- proposed B23 output root:
+- B23 output root:
   `/egr/research-pac/huang248/outputs/pr_diffusion/b23`
 - FFHQ data:
   `/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024`
@@ -104,7 +113,7 @@ inventory stage.
   only a short summary.
 - Avoid terminal-flooding commands, `exit`, `logout`, shell replacement, broad `pkill`, or other
   commands that can close the user's terminal.
-- For later authorized long jobs, prefer `nohup` with explicit log, PID/status, and stop commands.
+- For later authorized long jobs, prefer `nohup` with explicit log, PID/status, resume, and graceful-stop commands.
 - Do not assume `tmux` or SLURM.
 - Before a GPU command, state the scientific purpose, expected compute/candidate budget, estimated
   runtime, GPU request, output path, smoke gate, and failure-return procedure.
@@ -117,7 +126,7 @@ inventory stage.
   weights on PAC.
 - Do not use a `.tar.gz` file as the only scientific record.
 - Follow `docs/planning/02_B23_PAC_EXECUTION_AND_RETURN_PROTOCOL.md` for evidence capsules and the
-  exact `PLANNER_RETURN` block.
+  exact `PLANNER_RETURN` block unless a later explicitly authorized stage supplies a more specific return schema.
 - Stop at the end of every authorized stage for planner/user sign-off.
 
 ## Safe no-GPU checks
@@ -129,4 +138,3 @@ inventory stage.
 - `python -m py_compile ...` in the correct environment
 - focused unit tests using synthetic tensors
 - dry-run or help commands that cannot launch an experiment
-
