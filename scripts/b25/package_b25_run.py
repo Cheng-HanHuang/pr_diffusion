@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import tarfile
 from pathlib import Path
 
@@ -13,6 +12,13 @@ def sha256_file(path: Path) -> str:
     with path.open("rb") as f:
         for block in iter(lambda: f.read(1024 * 1024), b""):
             h.update(block)
+    return h.hexdigest()
+
+
+def sha256_stream(handle) -> str:
+    h = hashlib.sha256()
+    for block in iter(lambda: handle.read(1024 * 1024), b""):
+        h.update(block)
     return h.hexdigest()
 
 
@@ -42,12 +48,15 @@ def main() -> int:
         if path.is_file() and path.name != "SHA256SUMS.txt":
             files.append(path)
     sums = run / "SHA256SUMS.txt"
+    manifest: dict[str, str] = {}
     with sums.open("w", encoding="utf-8") as f:
         for path in files:
             rel = path.relative_to(run)
             if rel.is_absolute() or ".." in rel.parts:
                 raise RuntimeError(f"unsafe relative path: {rel}")
-            f.write(f"{sha256_file(path)}  {rel.as_posix()}\n")
+            digest = sha256_file(path)
+            manifest[rel.as_posix()] = digest
+            f.write(f"{digest}  {rel.as_posix()}\n")
     files.append(sums)
 
     with tarfile.open(archive, "w:gz") as tf:
@@ -56,16 +65,35 @@ def main() -> int:
             arcname = Path(run.name) / rel
             tf.add(path, arcname=arcname.as_posix(), recursive=False)
 
+    verified = 0
     with tarfile.open(archive, "r:gz") as tf:
         members = tf.getmembers()
         if not members:
             raise RuntimeError("empty B25 archive")
+        by_name = {m.name: m for m in members}
         for member in members:
             p = Path(member.name)
             if p.is_absolute() or ".." in p.parts:
                 raise RuntimeError(f"unsafe archive member: {member.name}")
             if member.issym() or member.islnk():
                 raise RuntimeError(f"link member forbidden: {member.name}")
+            if not member.isfile():
+                raise RuntimeError(f"non-file archive member forbidden: {member.name}")
+        for rel, expected in manifest.items():
+            name = (Path(run.name) / rel).as_posix()
+            member = by_name.get(name)
+            if member is None:
+                raise RuntimeError(f"archive missing checksummed member: {name}")
+            handle = tf.extractfile(member)
+            if handle is None:
+                raise RuntimeError(f"cannot read archive member: {name}")
+            observed = sha256_stream(handle)
+            if observed != expected:
+                raise RuntimeError(f"internal checksum mismatch: {name}: {observed} != {expected}")
+            verified += 1
+        sums_name = (Path(run.name) / "SHA256SUMS.txt").as_posix()
+        if sums_name not in by_name:
+            raise RuntimeError("archive missing SHA256SUMS.txt")
 
     digest = sha256_file(archive)
     sidecar.write_text(f"{digest}  {archive.name}\n", encoding="utf-8")
@@ -81,6 +109,7 @@ def main() -> int:
         "archive_member_count": len(members),
         "archive_safe": True,
         "internal_checksums": str(sums),
+        "internal_checksums_verified": verified,
     }, sort_keys=True))
     return 0
 
