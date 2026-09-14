@@ -1,88 +1,114 @@
-# B24 start here
+# B24 — start here
 
-## Current status and authorization boundary
+B24 is a separate study in `Cheng-HanHuang/pr_diffusion`, isolated from B23. PR #37 must remain untouched.
 
-B24 remains isolated from B23 and descends from signed-off B23.1 final head `27505e6328157ac9296c95dc5e611cbeef80de98`. B23 cross-family H0 failed: NP-1 and SITCOM-1 remain `BASELINE-ONLY` across family boundaries and no NP/SITCOM cross-family adapter qualified. B24 does not reinterpret that result.
+## Immutable base
 
-**B24.0 PASS.** PRE_B24 exposure freeze has 333 rows with SHA-256 `d475c9c29b4f6ab2839ae21f4b19e33a52fa46f2fd7f0a6a7c5fff491e4b3068`.
+Signed B23.1 final head:
 
-**B24.1 PASS.** Four-independent-process serial/concurrent terminal equivalence was established for DAPS and SITCOM.
+`27505e6328157ac9296c95dc5e611cbeef80de98`
 
-**B24.2 baseline screening COMPLETE.** The cumulative fixed screen contains 7424 realized rows with final census:
+B24 branch:
 
-- A = 6925
-- B = 107
-- C = 307
-- D = 85
+`codex/b24-bestof4-failure-sweep`
 
-Final screen manifest file SHA-256: `b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba`.
+Draft PR: #38.
 
-The primary hash-ranked balanced cohort is frozen as ABC300 = 100 A + 100 B + 100 C, CSV SHA-256 `4599c2a8c1f4a5922640e0c26d2c1efce7f1996d75dcabbff2e9a1c4b427cbce`.
+## Completed baseline/cohort evidence
 
-The secondary severity diagnostic C1 is frozen as the 100 class-C cases with lowest pinned-SITCOM best-of-four PSNR, CSV SHA-256 `9c04994dbd91f6a5bb04280736e4dea346c337508a89f30ae8553a42867576b6`. C1 does not redefine class C and is not an unbiased primary benchmark.
+- B24.0 exposure freeze PASS.
+- B24.1 serial/concurrent equivalence + memory/throughput smoke PASS.
+- B24.2 baseline screen complete at 7424 rows.
+- Final screen census: A=6925, B=107, C=307, D=85.
+- Primary ABC300 and secondary C1 cohorts frozen.
+- Method roles frozen prospectively: DEV80=80 and confirmation=305; Pilot16=4 per screening stratum.
 
-**B24.3 image roles are frozen.** The primary 385-image method panel is split before method execution into:
+## Completed B24.3 development evidence
 
-- A100: 20 development / 80 confirmation
-- B100: 20 development / 80 confirmation
-- C100: 20 development / 80 confirmation
-- D85: 20 development / 65 confirmation
+The following development stages completed operationally:
 
-Development total = 80. Confirmation total = 305. Pilot16 is 4 A + 4 B + 4 C + 4 D. Pilot16 CSV SHA-256: `124d3759e4fd540d2e870618dde59ff73d02cbb798d773a785296da5b140e98a`.
+- one-image NP branching calibration;
+- Pilot16;
+- bounded EPP321 refinement;
+- full DEV80 with fresh DAPS-4 + pinned SITCOM-4 and the NP4/EPP321 portfolio;
+- final protected-explorer refinement (`NP_PE3_SCORE`, `NP_PE3_RANDOM`);
+- one development-only cross-family dispatch-supported FLOP audit.
 
-### Current GPU authorization
+### Frozen scientific verdict
 
-The user/planner explicitly authorized B24.3 implementation plus:
+`NP_EPP_321` failed to improve robustly over compute-matched NP4 on DEV80.
 
-1. exactly one full-method Pilot16 engineering/calibration image on its prospectively frozen **new** development measurement;
-2. if and only if that one-image run passes integrity/resource gates, the already-frozen Pilot16 may run;
-3. the calibration image is part of Pilot16 and must be reused, not silently discarded or regenerated.
+The final PE3 arms were then evaluated under a prospectively frozen advancement gate requiring all of:
 
-Not authorized: the remaining 64 development images, confirmation measurement materialization, confirmation execution, C1-only extra development exposure, or arm/checkpoint search beyond the frozen specification.
+- median paired PSNR delta vs NP4 >= 0 dB;
+- Good25 count >= NP4;
+- Good25 rescues >= harms;
+- >=5 dB rescues >= harms.
 
-Read:
+Neither PE3 arm passed. The binding decision is:
 
-- `configs/b24/b24_3_method_dev_spec.json`
-- `docs/b24/B24_3_METHOD_SPEC_AND_PILOT.md`
-- `docs/b24/B24_3_GPU_AUTHORIZATION.md`
+`STOP_B24_METHOD_REFINEMENT`
 
-before B24.3 execution.
+No confirmation image has been exposed.
 
-## Scientific question
+## Current authorized stage — zero-GPU development closeout
 
-The next question is whether changing **how native NP retains and allocates proposals** improves recovery beyond independent NP populations at comparable compute.
+The user/planner authorized one combined analysis/packaging stage only:
 
-The frozen B24.3 arms are:
+1. derive historical Fresh2 from the stored DEV80 DAPS trajectories using its existing clean-free exact-operator-loss selector;
+2. build DEV80 complementarity/failure-overlap tables;
+3. finish the compute audit with explicit unsupported Fourier/operator-work accounting and conservative interpretation guards;
+4. package B24 as a negative development result.
 
-- NP-1 native single-trajectory control;
-- four independent NP-1 trajectories (primary compute-matched population control);
-- NP_EPP: early population pruning + saved-compute reallocation;
-- NP_EPP_RANDOM_PRUNE: same compute and branch schedule, random/hash pruning control;
-- NP_EPP_NO_REALLOCATION: measurement-based pruning without spending saved compute;
-- NP_DPS: delayed proposal selection, the preferred main-method hypothesis.
+Exact closeout authorization/spec:
 
-Historical NP-8-RS remains two scoring configurations × four seeds and will be used in the later development comparison, not silently redefined as eight identical NP runs.
+- `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_AUTHORIZATION.md`
+- `configs/b24/b24_3_zero_gpu_closeout.json`
 
-## Runtime information contract
+### Historical Fresh2 rule
 
-Ground truth must never decide proposal retention, pruning, branch allocation, survival, routing, stopping, or executable terminal selection.
+Fresh2 uses DAPS reps 0 and 1 only. Compute exact pinned DAPS phase-retrieval `operator.loss(x,y)` for each terminal candidate and select rep 1 iff
 
-Runtime early pruning uses the frozen measurement-only trailing-32 low-frequency MSE score. Executable terminal selection uses the frozen post-projection measurement statistic. Ground truth may be used only for offline reporting/oracle diagnostics after runtime decisions are fixed.
+`loss1 < loss0 - 0.7`.
 
-Every scientific run reports proposal/UNet counts, NP-1-equivalent work, GPU-active/wall time, terminal count, live-branch events, and memory.
+Otherwise retain rep 0. Ground truth is not used for selection.
 
-## Resource contract
+### Run closeout
 
-The global B24 process/group hard ceiling remains **52,452 MiB**. The old baseline 10,240-MiB admission gate is not automatically reused for NP branching.
+Use the fail-closed synchronous launcher:
 
-The one-image B24.3 smoke launches under the conservative pre-existing 52,096-MiB free-memory gate, measures actual NP branching memory, and derives a pilot-only admission gate from the observed B24 process peak plus a 4096-MiB reserve. It never evicts or kills other jobs and uses an explicit physical GPU binding.
+```bash
+cd /egr/research-pac/huang248/pr_diffusion_b23
 
-## Repository identities
+git fetch origin \
+  '+refs/heads/codex/b24-bestof4-failure-sweep:refs/remotes/origin/codex/b24-bestof4-failure-sweep'
 
-- branch: `codex/b24-bestof4-failure-sweep`
-- required ancestry point: `27505e6328157ac9296c95dc5e611cbeef80de98`
-- draft PR: #38, base `codex/b23-execution`
-- PAC worktree: `/egr/research-pac/huang248/pr_diffusion_b24`
-- PAC output root: `/egr/research-pac/huang248/outputs/pr_diffusion/b24`
+git show \
+  origin/codex/b24-bestof4-failure-sweep:scripts/b24/launch_b24_3_zero_gpu_closeout.sh \
+  | bash
+```
 
-Do not modify PR #37 or the B23 output root. Never merge, rebase, squash, retarget, force-push, or rewrite B24 history.
+The launcher hides CUDA, verifies that the DEV80 and PE3 sources are complete and confirmation-free, runs zero-GPU tests, derives Fresh2, creates complementarity and compute-closeout artifacts, and emits a `.tar.gz` plus `.sha256`.
+
+Status helper after completion:
+
+```bash
+bash /egr/research-pac/huang248/pr_diffusion_b24/scripts/b24/status_b24_3_zero_gpu_closeout.sh
+```
+
+## Current hard boundary
+
+Authorized now: zero-GPU closeout/analysis only on already-exposed development artifacts.
+
+Not authorized:
+
+- any GPU work;
+- any new measurement generation;
+- any of the 305 confirmation images/measurements;
+- C1-only extra exposure;
+- any further NP/EPP/PE3 method, selector, score, checkpoint, schedule, or threshold tuning;
+- changing the frozen PE3 stop verdict;
+- merge/rebase/squash/retarget/force-push/history rewrite;
+- modification of PR #37.
+
+Confirmation remains locked after the closeout unless the planner separately changes project direction later; the closeout itself does not authorize that.
