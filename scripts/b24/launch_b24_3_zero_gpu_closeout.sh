@@ -6,11 +6,19 @@ CONTROL="$ROOT/pr_diffusion_b23"
 REPO="$ROOT/pr_diffusion_b24"
 OUTROOT="$ROOT/outputs/pr_diffusion/b24"
 BRANCH=codex/b24-bestof4-failure-sweep
+DAPS_ROOT="$ROOT/pr_diffusion_b19_solver/external/daps"
+DAPS_HEAD=e7a77d094167084faed19b599b96673b7bb11447
 DAPS_PY="$ROOT/conda-envs/daps/bin/python"
 DEV_PTR="$OUTROOT/B24_3_DEV80_LATEST_RUN.txt"
 PE3_PTR="$OUTROOT/B24_3_PE3_LATEST_RUN.txt"
 
 [[ -x "$DAPS_PY" ]] || { echo "STOP|missing_daps_python:$DAPS_PY"; exit 2; }
+[[ -d "$DAPS_ROOT/.git" ]] || { echo "STOP|missing_daps_repo:$DAPS_ROOT"; exit 2; }
+DAPS_ACTUAL_HEAD=$(git -C "$DAPS_ROOT" rev-parse HEAD)
+[[ "$DAPS_ACTUAL_HEAD" == "$DAPS_HEAD" ]] || { echo "STOP|daps_head_drift|expected=$DAPS_HEAD|actual=$DAPS_ACTUAL_HEAD"; exit 2; }
+git -C "$DAPS_ROOT" diff --quiet || { echo "STOP|daps_tracked_worktree_diff"; exit 2; }
+git -C "$DAPS_ROOT" diff --cached --quiet || { echo "STOP|daps_index_diff"; exit 2; }
+
 [[ -f "$DEV_PTR" && -f "$PE3_PTR" ]] || { echo "STOP|missing_source_pointer"; exit 2; }
 DEV80=$(cat "$DEV_PTR")
 PE3=$(cat "$PE3_PTR")
@@ -82,6 +90,7 @@ cat > "$RUN/LAUNCH_IDENTITY.txt" <<EOF
 head=$HEAD
 source_dev80_run=$DEV80
 source_pe3_run=$PE3
+daps_head=$DAPS_HEAD
 gpu_work=0
 measurement_generation=0
 confirmation_exposed=0
