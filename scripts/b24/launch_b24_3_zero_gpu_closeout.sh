@@ -13,7 +13,9 @@ DEV_PTR="$OUTROOT/B24_3_DEV80_LATEST_RUN.txt"
 PE3_PTR="$OUTROOT/B24_3_PE3_LATEST_RUN.txt"
 
 [[ -x "$DAPS_PY" ]] || { echo "STOP|missing_daps_python:$DAPS_PY"; exit 2; }
-[[ -d "$DAPS_ROOT/.git" ]] || { echo "STOP|missing_daps_repo:$DAPS_ROOT"; exit 2; }
+[[ -d "$DAPS_ROOT" ]] || { echo "STOP|missing_daps_root:$DAPS_ROOT"; exit 2; }
+DAPS_IS_WORKTREE=$(git -C "$DAPS_ROOT" rev-parse --is-inside-work-tree 2>/dev/null || true)
+[[ "$DAPS_IS_WORKTREE" == "true" ]] || { echo "STOP|daps_not_git_worktree:$DAPS_ROOT"; exit 2; }
 DAPS_ACTUAL_HEAD=$(git -C "$DAPS_ROOT" rev-parse HEAD)
 [[ "$DAPS_ACTUAL_HEAD" == "$DAPS_HEAD" ]] || { echo "STOP|daps_head_drift|expected=$DAPS_HEAD|actual=$DAPS_ACTUAL_HEAD"; exit 2; }
 git -C "$DAPS_ROOT" diff --quiet || { echo "STOP|daps_tracked_worktree_diff"; exit 2; }
