@@ -1,6 +1,18 @@
 # AGENTS.md
 
-This repository studies reliable diffusion-prior phase retrieval. The root guidance below preserves the historical B23 safety contract. A newer explicitly authorized B25 study now exists on branch `codex/b25-noise-selection-mechanisms`.
+This repository studies reliable diffusion-prior phase retrieval. The root guidance below preserves the historical B23 safety contract. Explicitly authorized later stages override only the stale stage-authorization wording for their own branches.
+
+## B26 branch override
+
+When the checked-out branch is `codex/b26-np-conditional-correction`, start with:
+
+`docs/b26/00_START_HERE.md`
+
+The user authorization for **B26 — NP observation correction and intermediate-likelihood feasibility** supersedes the B25 no-new-execution boundary only on the B26 branch. B26 starts from signed B25 closeout `c906d36e0e396a6abbf761e3d65c91433428170f`. B24 remains closed under `STOP_B24_METHOD_REFINEMENT`; confirmation305 remains locked; no weighted FFHQ reconstruction campaign, new FFHQ measurement generation, cross-family adapter, or DAPS/SITCOM/Fresh rerun is authorized.
+
+B26.0 freezes code/configuration/manifests/tests before scientific execution. B26.1 authorizes the bounded native-NP H/R observation-correction GPU comparison after replay, identity, DEV-only, memory, and budget gates pass. B26.2 is CPU-only and studies finite Monte Carlo intermediate-likelihood estimation on the frozen B25 finite-support families. Every B26 repository mutation must explicitly target `codex/b26-np-conditional-correction`; never write to `main`, PRs #37–39, or historical branches/worktrees/outputs.
+
+B26 PAC paths are `/egr/research-pac/huang248/pr_diffusion_b26` and `/egr/research-pac/huang248/outputs/pr_diffusion/b26`. Use committed `nohup` launchers, explicit return-code checks, bounded logs, PID/status/resume/stop commands, and never close the user's interactive shell.
 
 ## B25 branch override
 
