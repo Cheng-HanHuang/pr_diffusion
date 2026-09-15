@@ -1,0 +1,46 @@
+{
+  "schema_version": "b25.synthetic-templates.v1",
+  "indexing": "zero_based_row_column",
+  "shape": [6, 6],
+  "background_value": 0.0,
+  "base_templates": {
+    "A": [[1, 1, 1.0], [2, 4, 0.72], [4, 2, 0.43], [3, 3, 0.21]],
+    "B": [[1, 1, 1.0], [1, 4, 0.65], [4, 1, 0.35], [3, 4, 0.22]],
+    "C": [[1, 2, 0.9], [2, 2, 0.55], [3, 2, 0.35], [4, 4, 0.8]]
+  },
+  "derived_templates": {
+    "R_A": "180_degree_spatial_reversal_of_A",
+    "NEAR_R_A": {
+      "base": "R_A",
+      "additive_perturbations": [[1, 4, 0.055], [4, 1, 0.025]]
+    }
+  },
+  "families": {
+    "distinguishable_equal": {
+      "templates": ["A", "B", "C"],
+      "prior_weights": [0.3333333333333333, 0.3333333333333333, 0.3333333333333333],
+      "truth_index": 0
+    },
+    "ambiguity_unequal": {
+      "templates": ["A", "R_A", "B"],
+      "prior_weights": [0.6, 0.2, 0.2],
+      "truth_index": 0
+    },
+    "near_ambiguity_equal": {
+      "templates": ["A", "NEAR_R_A"],
+      "prior_weights": [0.5, 0.5],
+      "truth_index": 0
+    },
+    "near_ambiguity_unequal": {
+      "templates": ["A", "NEAR_R_A"],
+      "prior_weights": [0.7, 0.3],
+      "truth_index": 0
+    }
+  },
+  "measurement": {
+    "operator": "abs(fft2(x,norm='ortho')) flattened",
+    "noise_sigma": 0.08,
+    "construction": "y=A(x_truth)+sigma*eta, eta~N(0,I)",
+    "rng_stream": "EXP2_MEAS|<family> under the B25 SHA256-derived PCG64 stream rule"
+  }
+}
