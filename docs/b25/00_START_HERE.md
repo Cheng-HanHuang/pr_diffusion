@@ -1,121 +1,101 @@
 # B25 — noise-selection bias and phase-retrieval failure mechanisms
 
-Status: **B25.0 implemented; PAC inventory cleared; pushed pre-run freeze is the next gate. B25.1 scientific CPU work has not yet run.**
+Status: **B25 COMPLETE. CPU evidence accepted with reporting qualifications; control returned to the scientific planner. No new execution is authorized.**
 
-This stage starts from immutable commit `ed162c2f97430804fddb5d9a0bfec7abde201ca0` on historical branch `codex/b24-bestof4-failure-sweep`. The signed B23.1 ancestor is `27505e6328157ac9296c95dc5e611cbeef80de98`. B24 remains closed under `STOP_B24_METHOD_REFINEMENT` and PR #38 is historical.
+B25 started from immutable B24 commit `ed162c2f97430804fddb5d9a0bfec7abde201ca0`. The signed B23.1 ancestor is `27505e6328157ac9296c95dc5e611cbeef80de98`. B24 remains closed under `STOP_B24_METHOD_REFINEMENT`; confirmation remains locked.
 
 B25 branch: `codex/b25-noise-selection-mechanisms`. Draft PR: `#39`, based on `codex/b24-bestof4-failure-sweep`.
 
-## Authorization
+## Completed scientific identity
 
-B25.0 authorizes inventory, scientific specification, implementation, validation, and a pushed pre-run freeze. B25.1 authorizes the bounded CPU mathematical experiments and CPU analysis of existing allowlisted DEV80 artifacts described in the user authorization.
+- pushed pre-run scientific commit: `32453db6445acec4fc19a4a928142a412d67f1ae`
+- PAC run: `/egr/research-pac/huang248/outputs/pr_diffusion/b25/B25_cpu_20260914T224132Z`
+- sealed capsule: `/egr/research-pac/huang248/outputs/pr_diffusion/b25/B25_cpu_20260914T224132Z.tar.gz`
+- capsule SHA-256: `5b1e785ba46e6be952ffdbc768c5d9bab365e495cf9efd5b154b075ce0081354`
+- capsule verification: 26 safe members; all 25 internal checksums verified
+- scientific execution: CPU-only with `CUDA_VISIBLE_DEVICES=""`
+- GPU work: none
+- pretrained-model inference: none
+- new FFHQ measurement/reconstruction generation: none
+- confirmation305 payload access: none
 
-The PAC inventory returned at UTC `20260914T083919Z` with SHA-256 `e780d6bc8412bc8b8d20dbebe8428e4d13ea50254e9431efecfc48eab4128be1` and cleared the identity/path gate. It showed no pre-existing B25 worktree or B25 output root. The B25 worktree may therefore be created only from the fetched B25 branch after rechecking the remote identities.
+The existing capsule is final and must remain unchanged. The planner explicitly required **no rerun and no repackaging** for the reporting corrections.
 
-## Hard restrictions
+## Accepted interpretation
 
-- No GPU work. Every scientific subprocess must set `CUDA_VISIBLE_DEVICES=""`.
-- No pretrained-model inference, including inference on CPU.
-- No new FFHQ reconstruction and no new FFHQ measurement generation.
-- No loading confirmation305 image, measurement, or reconstruction payloads. Reading the confirmation registry IDs for exclusion checks is allowed.
-- No C1-only or otherwise additional image exposure.
-- No tuning of B24 NP/EPP/PE3 selectors, schedules, or thresholds.
-- No FFHQ method-comparison pilot.
-- No NP/SITCOM state transplantation or unsupported cross-family continuation; the B23 compatibility failure remains binding.
-- Preserve historical B24/B23 worktrees and outputs. Do not merge, rebase, squash, retarget historical PRs, force-push, or rewrite history.
-- Use `/egr/research-pac/huang248`, never `/home`.
-- Do not recursively scan large data, environment, model, or output trees.
-- Shell launchers for B25 must not use `set -e`, `set -u`, `set -o pipefail`, shell replacement, or an `exit` path intended to close the user's terminal. Report failures and return control instead.
+B25 provides a defensible next conditional-inference hypothesis. It does **not** establish a better FFHQ reconstruction method or a PSNR improvement.
 
-## Required reading order
+Accepted findings:
 
-1. root `AGENTS.md` (historical B23 guidance is subordinate to this B25 authorization for this branch)
+1. In the controlled iid proposal model, hard best-of-K selection changes the small-step behavior: the tested hard-selection displacements scale approximately as `h^0.5`, while the tested likelihood-weighted displacements scale approximately as `h`. Matching the order alone does not prove that weighted selection has correct posterior dynamics.
+2. In the near-ambiguity synthetic priors, exact-intermediate likelihood weighting is much closer to the exact posterior probabilities than hard selection or denoised-point weighting at `K=8`. This is posterior-fidelity evidence, not a reconstruction-accuracy result: hard selection has lower MSE to the single frozen truth in both near-ambiguity families. The distinguishable family prevents any universal claim that weighting wins.
+3. The exact-ambiguity hard-selection row is tie-sensitive at floating-point precision and is excluded from evidence for an intrinsic hard-selection defect until explicit tie handling is examined.
+4. NP's `clamp_min(0)` materially changes all 80 locked DEV observations (median relative L2 change approximately `0.08223`). This establishes an observation/preprocessing difference, not its effect on reconstruction quality.
+5. The tested eight channelwise reversal transformations produce no new Good25 recoveries for DAPS or SITCOM on the frozen 10-image shared-failure subset. This conclusion is limited to the tested transformations and does not rule out every phase-retrieval ambiguity.
+6. NP's `57/80` figure in the symmetry analysis is the **four-candidate oracle**. Historical clean-free NP selection is `55/80` Good25.
+
+Correct full process accounting is approximately `166.263 s` total stage-process wall time with maximum recorded RSS approximately `0.649 GiB`. The smaller `159.669 s` / `0.550 GiB` values are inner measurements retained only for provenance.
+
+## Final returned direction
+
+The single B25 direction remains:
+
+**a precisely defined NP conditional-selection correction, investigated prospectively at fixed compute**
+
+The unresolved question is:
+
+> **Can we estimate the intermediate conditional likelihood well enough to improve reconstruction at a fixed computational budget?**
+
+Before any new FFHQ experiment, the scientific planner must specify the implementable intermediate-likelihood estimator, proposal distribution, finite-proposal approximation/resampling rule, lineage handling, and complete compute cost.
+
+Any eventual FFHQ comparison must isolate:
+
+- frozen historical NP;
+- raw-measurement correction only;
+- selection-rule/intermediate-likelihood correction only;
+- combined raw-measurement + selection correction.
+
+Fresh2 remains an important efficiency comparator. No new GPU stage is authorized by B25.
+
+## Read this completed stage in this order
+
+1. root `AGENTS.md`
 2. this file
-3. `docs/b25/B25_EXECUTOR_CONTRACT.md`
-4. `docs/b25/B25_MATHEMATICAL_MODEL.md`
-5. `docs/b25/B25_NATIVE_NP_AUDIT.md`
-6. `docs/b25/B25_LITERATURE_AND_NOVELTY.md`
-7. `docs/b25/B25_CHECKPOINT_REPORT.md`
-8. `configs/b25/b25_cpu_spec.json`
-9. `configs/b25/b25_synthetic_templates.json`
-10. `docs/b24/00_START_HERE.md`
-11. `docs/b24/B24_3_FINAL_PLANNER_RETURN.md`
-12. `docs/b24/B24_3_FINAL_ARCHIVE_RECORD.md`
-13. `docs/planning/02_B23_PAC_EXECUTION_AND_RETURN_PROTOCOL.md`
-14. B24 manifests/configs and accepted terminal-artifact records named below
+3. `docs/b25/B25_FINAL_PLANNER_RETURN.md`
+4. `docs/b25/B25_FINAL_CHECKPOINT.md`
+5. `docs/b25/B25_POSTRUN_NATIVE_NP_AUDIT.md`
+6. `docs/b25/evidence/B25_FINAL_EVIDENCE.json`
+7. `docs/b25/B25_ARCHIVE_SHA256.txt`
+8. `docs/b25/B25_EXECUTOR_CONTRACT.md`
+9. `docs/b25/B25_MATHEMATICAL_MODEL.md`
+10. `docs/b25/B25_NATIVE_NP_AUDIT.md`
+11. `docs/b25/B25_LITERATURE_AND_NOVELTY.md`
+12. `configs/b25/b25_cpu_spec.json`
+13. `configs/b25/b25_synthetic_templates.json`
+14. historical B24 final-return records as needed for provenance
 
-## Pinned B24 sources/provenance
+## Historical execution/provenance entrypoints
 
-The accepted B24 method-development role split is generated as `B24_METHOD_IMAGE_ROLES.csv` / `.json`, with 80 DEVELOPMENT and 305 CONFIRMATION rows, plus `B24_METHOD_PILOT16.csv`. The PAC inventory resolved the accepted role directory to:
+These files remain for reproduction/audit of the completed stage; they are not a launch authorization:
 
-`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_2_7424_extension_20260907T231303Z/case_freeze/method_stage`
-
-containing the role CSV/JSON, Pilot16 CSV, role-freeze summary, and checksums.
-
-The accepted DEV80 run is:
-
-`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_dev80_overnight_20260913T082146Z`
-
-with `B24_METHOD_DEV80.csv`, `DEV80_MANIFEST.json`, 80 task records, and accepted existing terminal results.
-
-Repository definitions include:
-
-- `configs/b24/b24_3_method_dev_spec.json`
-- `configs/b24/b24_3_dev80_overnight.json`
-- `scripts/b24/freeze_b24_method_roles.py`
-- `scripts/b24/generate_b24_locked_input.py`
-- `scripts/b24/launch_b24_3_dev80_overnight.sh`
-- `scripts/b24/run_b24_3_dev80_image.py`
-- `scripts/b24/run_b24_3_dev80_np.py`
-- `scripts/b24/run_b24_3_epp321_refinement.py`
-- `scripts/b24/run_b24_3_np_branching.py`
-- `scripts/pr_external_difffpr_np_guided_lf_s2_selector.py`
-- `scripts/pr_external_difffpr_np_benchmark.py`
-- `configs/b23/np1_frozen.yaml`
-
-The original B24 zero-GPU closeout capsule remains immutable at:
-
-`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_20260914T044033Z`
-
-The corrected successor that defines the final reporting scope is:
-
-`/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_corrected_20260914T060600Z`
-
-B25.3 uses the corrected successor's copied `DEV80_CLOSEOUT_PER_IMAGE.csv`, `HARD_SUBSET.csv`, Fresh2 records, and associated checksums for the shared-failure definition. It follows terminal paths only through the accepted DEV80 manifests/results and never regenerates a missing candidate.
-
-## Native NP provenance boundary
-
-The B24 method spec freezes parent identity `NP-1` at `configs/b23/np1_frozen.yaml`: 1000 steps, projection start 300, soft candidate count 5, hard candidate count 1, LF score radius 0.6, projection radius 0.2, and LF score mode. B24's DEV80 NP wrapper loads `scripts/b24/run_b24_3_epp321_refinement.py`, which loads `scripts/b24/run_b24_3_np_branching.py`; that runner uses `scripts/pr_external_difffpr_np_guided_lf_s2_selector.py`, which in turn imports the candidate-selection/operator implementation in `scripts/pr_external_difffpr_np_benchmark.py`.
-
-B25 audits this chain rather than substituting a generic noise-picking implementation. Historical native semantics include candidate zero reusing the previous selected noise when `eps_prev` exists and `K>1`; other candidates are newly sampled Gaussian noise. The selected candidate is the minimum measurement-dependent LF score after denoising. B25's simplified independent-proposal experiment is explicitly a simplification, not a theorem about this incumbent/reuse/denoiser/projection process.
-
-A verified preprocessing fact to audit in B25.4: `scripts/b24/run_b24_3_dev80_np.py` verifies the stored raw measurement and then passes `measurement_raw.clamp_min(0.0)` to the NP context. The historical SITCOM wrapper records no measurement preprocessing. The exact pinned DAPS path remains a source-audit question and no DAPS discrepancy is presumed before the B25 source audit.
-
-## B25 implementation entrypoints
-
-- scientific freeze: `configs/b25/b25_cpu_spec.json`
-- exact toy construction: `configs/b25/b25_synthetic_templates.json`
 - synthetic Experiments 1–2: `scripts/b25/run_b25_synthetic.py`
 - DEV80 Experiments 3–4: `scripts/b25/run_b25_dev_diagnostics.py`
 - deterministic analysis: `scripts/b25/analyze_b25_results.py`
 - integrity tests: `scripts/b25/test_b25.py`
 - resource wrapper: `scripts/b25/run_cpu_stage.py`
-- launcher: `scripts/b25/launch_b25_cpu.sh`
-- worker: `scripts/b25/run_b25_cpu_worker.sh`
-- status/resume/stop: `scripts/b25/status_b25_cpu.sh`, `resume_b25_cpu.sh`, `stop_b25_cpu.sh`
+- launcher/worker/status/resume/stop: `scripts/b25/launch_b25_cpu.sh`, `run_b25_cpu_worker.sh`, `status_b25_cpu.sh`, `resume_b25_cpu.sh`, `stop_b25_cpu.sh`
 - capsule packager: `scripts/b25/package_b25_run.py`
 
-## PAC locations
+Historical native NP semantics remain important to interpretation: candidate zero may reuse the previously selected noise when `eps_prev` exists and `K>1`, while the remaining candidates are newly sampled. B25's iid proposal study is therefore a controlled mechanism diagnostic, not a direct model of native NP.
 
-- B25 worktree: `/egr/research-pac/huang248/pr_diffusion_b25`
-- B25 output root: `/egr/research-pac/huang248/outputs/pr_diffusion/b25`
-- historical B24 worktree: `/egr/research-pac/huang248/pr_diffusion_b24` (do not update or mutate)
-- historical B24 outputs: `/egr/research-pac/huang248/outputs/pr_diffusion/b24`
-- FFHQ root: `/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024`
-- environment root: `/egr/research-pac/huang248/conda-envs`
+## Hard restrictions remain in force
 
-The B25 launcher explicitly inventories/fetches the branch again, requires a clean B25 worktree, fast-forwards it only to the fetched B25 remote, verifies B24 has not advanced, runs zero-GPU tests, then writes `PRE_RUN_IDENTITY.json` before launching any scientific subprocess.
+- Do not reopen B24 refinement.
+- Do not expose confirmation305 payloads.
+- Do not treat the GT-assisted symmetry oracle as deployable selection.
+- Do not claim B25 established a reconstruction-quality improvement.
+- Do not launch a new FFHQ/GPU stage without a new planner authorization and a prospectively frozen design.
+- Preserve historical worktrees, outputs, the sealed B25 capsule, and PR history; do not force-push or rewrite them.
+- Use `/egr/research-pac/huang248`, never `/home`, for any future PAC stage.
 
-## Next gate
-
-Create the new B25 worktree from the fetched B25 branch after one more path/ref check, then run `scripts/b25/launch_b25_cpu.sh`. Once `PRE_RUN_IDENTITY.json` is written, that exact commit is the pre-run scientific freeze; resume refuses a different remote or local B25 head. Do not commit result-dependent changes to the B25 branch until the scientific worker has completed or been explicitly stopped.
+B25 is closed on the executor side pending a separately authorized follow-up design from the scientific planner.
