@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document records the final source-level interpretation after the completed CPU-only B25 run. It does not modify historical B24 code or outputs and does not authorize a new reconstruction run.
+This document records the final source-level interpretation after the completed CPU-only B25 run and the planner's reporting review. It does not modify historical B24 code or outputs and does not authorize a new reconstruction run.
 
 Pre-run scientific commit:
 
@@ -11,6 +11,8 @@ Pre-run scientific commit:
 PAC run:
 
 `/egr/research-pac/huang248/outputs/pr_diffusion/b25/B25_cpu_20260914T224132Z`
+
+B25 supports a conditional-inference hypothesis worth investigating. It does **not** establish a better FFHQ reconstruction method.
 
 ## Native NP proposal-selection semantics
 
@@ -36,30 +38,60 @@ B25 measured the numerical consequence over the 80 development observations:
 - total negative elements: `12,848,209`;
 - raw-to-clamped relative L2 change: mean `0.08511295`, median `0.08222852`, minimum `0.05595935`, maximum `0.14793063`.
 
-This establishes a genuine observation/preprocessing mismatch. It does **not** by itself prove that clipping caused any particular historical failure.
+This establishes a genuine and material observation/preprocessing change. It does **not** establish that clipping caused a historical failure or that using the raw signed observation will improve reconstruction quality. That requires an isolated ablation.
 
-## Mechanism results relevant to correction
+## Mechanism results relevant to a future correction
 
-Experiment 1 passed all analytic engineering checks. For `K>1`, every prospectively frozen hard-min fit landed in the supportive `h^0.5` band, while every finite-likelihood-weighted fit landed in the supportive `h^1` band. The controlled evidence therefore supports the claim that hard best-of-K conditioning can introduce a leading-order selection displacement that differs from likelihood weighting.
+Experiment 1 passed all analytic engineering checks. For `K>1`, every prospectively frozen hard-min fit landed in the supportive `h^0.5` band, while every finite-likelihood-weighted fit landed in the supportive `h^1` band. This supports the narrower statement that hard best-of-K conditioning changes the controlled small-step behavior relative to likelihood weighting. Matching `h` scaling does **not** establish correct posterior dynamics.
 
-Experiment 2 gives the stronger multimodal warning. At `K=8`:
+Experiment 2 must be interpreted with posterior fidelity separated from one-truth reconstruction accuracy. At `K=8`:
 
-- `ambiguity_unequal`: exact-intermediate weighted TV `0.00475`, hard TV `0.26242`, denoised-point weighted TV `0.24250`;
-- `near_ambiguity_equal`: exact-intermediate weighted TV `0.03401`, hard TV `0.22087`, denoised-point weighted TV `0.24467`;
-- `near_ambiguity_unequal`: exact-intermediate weighted TV `0.00567`, hard TV `0.24983`, denoised-point weighted TV `0.22762`.
+| Prior family | hard TV | exact-intermediate weighted TV | denoised-point weighted TV | hard truth-MSE | exact-intermediate weighted truth-MSE | denoised-point weighted truth-MSE |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| distinguishable equal | **0.00000** | 0.06213 | 0.00004 | **0.000000** | 0.004128 | 0.000002 |
+| exact ambiguity, unequal weights | 0.26242* | **0.00475** | 0.24250 | 0.049744* | 0.024272 | **0.000728** |
+| near ambiguity, equal weights | 0.22087 | **0.03401** | 0.24467 | **0.000000** | 0.024769 | 0.045241 |
+| near ambiguity, unequal weights | 0.24983 | **0.00567** | 0.22762 | **0.000000** | 0.024829 | 0.002158 |
 
-Thus replacing hard argmin by a softmax of the existing denoised-point score is not an adequate correction in general. The relevant conditional quantity is the intermediate likelihood `p(y | z_t)`, not merely `p(y | E[X|z_t])`.
+The near-ambiguity cases support the conditional-inference hypothesis: exact-intermediate likelihood weighting is much closer to the exact posterior probabilities. They do **not** show better reconstruction of the one frozen truth; hard selection has lower truth-MSE in both near-ambiguity rows. The distinguishable family prevents a universal claim that weighting wins.
 
-## Precisely defined correction returned to the planner
+`*` The exact-ambiguity hard-selection result is excluded from evidence for an intrinsic hard-selection defect until tie handling is studied. The theoretically identical likelihoods differ at floating-point precision, and hard `argmax`/`argmin` can convert that numerical difference into a systematic preference.
 
-The recommended next scientific mechanism is **a precisely defined NP conditional-selection correction** with the following invariants:
+Thus replacing hard argmin by a softmax of the existing denoised-point score is not an adequate general correction, but B25 also does not supply an implementable pretrained-model estimator of the required intermediate likelihood `p(y|z_t)`.
 
-1. Preserve the raw signed locked observation `y_raw` for the Gaussian observation likelihood used to condition/rank proposals.
-2. Define `y_plus = clamp_min(y_raw, 0)` only for an amplitude projection/proximal operation that mathematically requires a nonnegative magnitude target. Do not silently substitute `y_plus` into the observation likelihood.
-3. Do not use deterministic hard `argmin` as the conditional-selection rule.
-4. Prefer exchangeable candidates from one proposal kernel. If native incumbent reuse is retained, compute candidate-specific proposal corrections rather than treating the proposals as iid.
-5. For candidate `z_t^(j)`, use normalized stochastic resampling weights proportional to an estimator of the intermediate observation likelihood `p(y_raw | z_t^(j))`, with any required target/proposal correction included.
-6. Do not define that estimator solely as the measurement likelihood at one denoised posterior-mean point. The estimator must preserve multimodal uncertainty sufficiently to avoid the mode-weight pathologies demonstrated by Experiment 2.
-7. When a candidate is resampled, propagate its state/noise lineage consistently.
+## Precisely defined investigation returned to the planner
 
-This is a prospective correction specification, not authorization to run it. B24 remains closed under `STOP_B24_METHOD_REFINEMENT`.
+The recommended next scientific direction remains **a precisely defined NP conditional-selection correction**, interpreted as one focused prospective investigation rather than an established method.
+
+The unresolved question is:
+
+> **Can we estimate the intermediate conditional likelihood well enough to improve reconstruction at a fixed computational budget?**
+
+Before a new FFHQ experiment, the planner must specify:
+
+1. an implementable estimator of `p(y_raw | z_t)` for the pretrained-model setting;
+2. the proposal distribution generating the candidate states;
+3. the finite-proposal approximation and normalized stochastic resampling rule;
+4. lineage handling for each resampled state/noise pair;
+5. proposal-density correction if incumbent reuse or otherwise nonexchangeable proposals remain;
+6. full compute accounting, including denoiser, likelihood-estimator/selector, projection, FFT/custom-operator, and branch overhead.
+
+The observation-model and selection-rule mechanisms must be isolated against frozen NP with at least:
+
+- frozen historical NP;
+- raw-measurement correction only;
+- selection-rule/intermediate-likelihood correction only;
+- combined raw-measurement + selection correction.
+
+Fresh2 remains an important efficiency comparator. Without this ablation, a gain could be attributed to the wrong mechanism.
+
+For the prospective correction itself, retain these design invariants unless the planner explicitly revises them:
+
+1. Preserve the raw signed locked observation `y_raw` for the Gaussian observation likelihood.
+2. Define `y_plus = clamp_min(y_raw, 0)` only for amplitude projection/proximal operations that mathematically require a nonnegative magnitude target; do not silently substitute `y_plus` into the observation likelihood.
+3. Do not use deterministic hard `argmin` as a posterior-conditioning substitute.
+4. Prefer exchangeable candidates from one proposal kernel; otherwise include the required candidate-specific proposal correction.
+5. Weight candidate `z_t^(j)` using the specified estimator of the intermediate likelihood, not merely the measurement likelihood at one denoised posterior-mean point.
+6. Propagate the resampled candidate's state/noise lineage consistently.
+
+This is a prospective investigation specification, not authorization to run it. B24 remains closed, confirmation remains locked, and no new GPU stage is authorized by the B25 review.
