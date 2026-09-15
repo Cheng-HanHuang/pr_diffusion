@@ -1,0 +1,102 @@
+{
+  "schema_version": "b25.final-evidence.v1",
+  "stage": "B25",
+  "status": "PASS",
+  "immutable_b24_start": "ed162c2f97430804fddb5d9a0bfec7abde201ca0",
+  "signed_b23_1_ancestor": "27505e6328157ac9296c95dc5e611cbeef80de98",
+  "pre_run_commit": "32453db6445acec4fc19a4a928142a412d67f1ae",
+  "pac_run": "/egr/research-pac/huang248/outputs/pr_diffusion/b25/B25_cpu_20260914T224132Z",
+  "archive": "/egr/research-pac/huang248/outputs/pr_diffusion/b25/B25_cpu_20260914T224132Z.tar.gz",
+  "archive_sha256": "5b1e785ba46e6be952ffdbc768c5d9bab365e495cf9efd5b154b075ce0081354",
+  "archive_safe": true,
+  "archive_member_count": 26,
+  "internal_checksums_verified": 25,
+  "postrun_operator_audit_sha256": "1d4ebc132d7e4b92e7a9f7be14bec20ef6715a438b18a34096836fb58c6d7d0c",
+  "resource_accounting": {
+    "aggregate_scientific_wall_seconds": 159.6690109781921,
+    "max_observed_rss_gib": 0.5503883361816406,
+    "gpu_work_performed": false,
+    "pretrained_model_inference_performed": false,
+    "confirmation_payloads_accessed": false,
+    "new_ffhq_measurements_generated": false,
+    "new_ffhq_reconstructions_generated": false
+  },
+  "experiment1": {
+    "engineering_checks_pass": true,
+    "hard_min_supportive_cells_K_gt_1": 4,
+    "weighted_supportive_cells_K_gt_1": 4,
+    "fits": {
+      "linear_K4_hard": 0.49162277181357844,
+      "linear_K4_weighted": 1.032524906626981,
+      "linear_K8_hard": 0.49319106065481205,
+      "linear_K8_weighted": 1.0599639299046821,
+      "quadratic_K4_hard": 0.47515337489262116,
+      "quadratic_K4_weighted": 0.9833079990925814,
+      "quadratic_K8_hard": 0.4689774078625733,
+      "quadratic_K8_weighted": 0.9724819215222831
+    },
+    "interpretation": "In the frozen iid toy model, hard minimum selection produces the predicted O(sqrt(h)) directional displacement while likelihood-weighted selection produces O(h) displacement. This does not by itself prove the same theorem for native NP, whose proposal semantics include incumbent reuse."
+  },
+  "experiment2": {
+    "exact_reference_checks_pass": true,
+    "selected_multimodal_examples": [
+      {
+        "family": "ambiguity_unequal",
+        "K": 8,
+        "weighted_exact_intermediate_tv": 0.00475,
+        "hard_exact_intermediate_tv": 0.26241667,
+        "weighted_denoised_point_tv": 0.2425
+      },
+      {
+        "family": "near_ambiguity_equal",
+        "K": 8,
+        "weighted_exact_intermediate_tv": 0.03400738,
+        "hard_exact_intermediate_tv": 0.22086762,
+        "weighted_denoised_point_tv": 0.24467404
+      },
+      {
+        "family": "near_ambiguity_unequal",
+        "K": 8,
+        "weighted_exact_intermediate_tv": 0.00567142,
+        "hard_exact_intermediate_tv": 0.24982858,
+        "weighted_denoised_point_tv": 0.22762025
+      }
+    ],
+    "interpretation": "Exact-intermediate likelihood weighting can approach the correct posterior with increasing K, while hard selection and likelihood evaluated only at a denoised point can severely distort mode weights in ambiguous or near-ambiguous cases."
+  },
+  "experiment3": {
+    "dev_images": 80,
+    "terminal_rows": 960,
+    "shared_failure_count": 10,
+    "all_dev80": {
+      "DAPS": {"original_good25": 68, "symmetry_good25": 69, "recoveries": 1},
+      "SITCOM": {"original_good25": 55, "symmetry_good25": 58, "recoveries": 3},
+      "NP4_INDEPENDENT": {"original_good25": 57, "symmetry_good25": 57, "recoveries": 0}
+    },
+    "shared_failure_subset": {
+      "DAPS": {"images": 10, "recoveries": 0, "max_gain_db": 0.0},
+      "SITCOM": {"images": 10, "recoveries": 0, "max_gain_db": 0.0},
+      "NP4_INDEPENDENT": {"images": 10, "recoveries": 0, "max_gain_db": 3.412863}
+    },
+    "interpretation": "Fourier-magnitude symmetry explains several isolated DEV80 failures but does not explain the frozen common DAPS4/SITCOM4 failure subset; it is not the primary B25 follow-up."
+  },
+  "experiment4": {
+    "images": 80,
+    "images_with_negative_stored_amplitudes": 80,
+    "total_negative_elements": 12848209,
+    "raw_to_clamped_relative_l2": {
+      "mean": 0.08511295024247643,
+      "median": 0.082228518824288,
+      "min": 0.05595935361373753,
+      "max": 0.1479306304607214
+    },
+    "verified_semantics": {
+      "DAPS_main": "nonnegative FFT-magnitude prediction with squared Gaussian residual against the supplied signed measurement",
+      "DAPS_B20_auxiliary_LF_projection": "uses abs(measurement) only inside the auxiliary amplitude projection",
+      "SITCOM_main": "nonnegative FFT-magnitude prediction with squared Gaussian residual against the supplied signed measurement",
+      "NP_B24_DEV80": "verifies the locked raw measurement, then uses measurement_raw.clamp_min(0.0) in the NP path"
+    },
+    "interpretation_boundary": "The preprocessing discrepancy is real and numerically nontrivial, but B25 does not prove that clipping alone caused any historical reconstruction failure."
+  },
+  "final_recommendation": "a precisely defined NP conditional-selection correction"
+}
