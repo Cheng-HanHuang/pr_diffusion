@@ -1,0 +1,91 @@
+{
+  "schema_version": "b26.spec.v1",
+  "stage": "B26",
+  "status": "PROSPECTIVE_PRE_RUN_SPEC",
+  "signed_b25_base": "c906d36e0e396a6abbf761e3d65c91433428170f",
+  "b25_scientific_pre_run": "32453db6445acec4fc19a4a928142a412d67f1ae",
+  "b25_capsule_sha256": "5b1e785ba46e6be952ffdbc768c5d9bab365e495cf9efd5b154b075ce0081354",
+  "branch": "codex/b26-np-conditional-correction",
+  "pac": {
+    "root": "/egr/research-pac/huang248",
+    "worktree": "/egr/research-pac/huang248/pr_diffusion_b26",
+    "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b26",
+    "python": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+    "model": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "difffpr_root": "/egr/research-pac/huang248/external/DiffFPR",
+    "difffpr_head": "a45ffe58f18fed8a63d3446600424e2b08733524"
+  },
+  "frozen_sources": {
+    "role_dir": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_2_7424_extension_20260907T231303Z/case_freeze/method_stage",
+    "dev80_run": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_dev80_overnight_20260913T082146Z",
+    "corrected_closeout": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_corrected_20260914T060600Z",
+    "manifest": "configs/b26/b26_dev80_manifest.json",
+    "b24_screen_manifest_sha256": "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d6a9d710e950ba",
+    "role_csv_sha256": "7c05dd67cc39263db74e58b7255297d014e7d674da0c0bebdee317bcbff809bf",
+    "dev80_manifest_sha256": "3945c2ed26e10766a64ab4e7fb64ea673fa2f478fbf080ea8d1d2c85584f6d5f"
+  },
+  "gpu": {
+    "authorized_physical_ids": [0, 1, 2, 3],
+    "min_free_mib": 10240,
+    "hard_process_group_ceiling_mib": 52452,
+    "one_worker_per_physical_gpu": true,
+    "aggregate_reservation_gpu_hours_ceiling": 24.0,
+    "dynamic_gpu_selection": false
+  },
+  "b26_1": {
+    "question": "Does signed-observation scoring improve native NP reconstruction with proposal generation, hard selection, projection, roots, and compute unchanged?",
+    "arms": {
+      "H": {"score_target": "y_plus", "projection_target": "y_plus"},
+      "R": {"score_target": "y_raw", "projection_target": "y_plus"}
+    },
+    "num_steps": 1000,
+    "projection_start": 300,
+    "soft_candidates": 5,
+    "hard_candidates": 1,
+    "score_radius": 0.6,
+    "projection_radius": 0.2,
+    "projection_schedule": "300:0.2",
+    "root_count": 4,
+    "expected_unet_evals_per_root": 2200,
+    "max_scientific_trajectories": 640,
+    "dev16_rank_domain": "B26_DEV16_RANK_V1",
+    "dev16_per_stratum": 4,
+    "smoke_roots": "root0 of rank-0 image in each A/B/C/D stratum",
+    "terminal_selector": "mean post-projection low-frequency MSE",
+    "primary_policy": {"H": "H trajectories / y_plus selector", "R": "R trajectories / y_raw selector"},
+    "off_diagonal_policies": ["H trajectories / y_raw selector", "R trajectories / y_plus selector"],
+    "good25_db": 25.0,
+    "bad20_db": 20.0,
+    "lower_tail_quantile": 0.10,
+    "bootstrap": {"replicates": 10000, "seed_domain": "B26_BOOTSTRAP_V1", "stratified_by_screening_class": true}
+  },
+  "b26_2": {
+    "master_seed": 26091501,
+    "seed_derivation": "SHA256('B26' | namespace | master_seed), first 64 bits -> PCG64",
+    "families": ["distinguishable_equal", "ambiguity_unequal", "near_ambiguity_equal", "near_ambiguity_unequal"],
+    "observations_per_family": 32,
+    "measurement_noise_sigma": 0.08,
+    "alpha_schedule_clean_to_noise": [1.0, 0.72, 0.36, 0.12, 0.0],
+    "outer_proposals": 5,
+    "trajectories_per_method_per_observation": 512,
+    "batch_size": 128,
+    "methods": ["hard_exact_intermediate", "categorical_exact_intermediate", "categorical_denoised_point", "categorical_lhat_1", "categorical_lhat_4", "categorical_lhat_16"],
+    "inner_sample_counts": [1, 4, 16],
+    "exact_ambiguity": {"force_equal_template_likelihoods_for_equivalent_pair": true, "hard_ties": "uniform separate RNG", "numerical_symmetry_check": true},
+    "resource": {"cuda_visible_devices": "", "max_threads": 4, "max_rss_gib": 16, "max_wall_seconds": 14400}
+  },
+  "future_native_estimator": {
+    "authorized_for_ffhq_execution": false,
+    "concept": "measurement-free reverse-diffusion continuations from each candidate noisy state, followed by arithmetic likelihood averaging",
+    "required_outputs": ["reverse kernel", "timestep respacing", "inner sample count", "model calls", "output representation", "likelihood mask/noise model", "proposal-tilted target derivation", "full compute estimate"]
+  },
+  "hard_boundaries": {
+    "new_ffhq_measurements": false,
+    "confirmation_payload_access": false,
+    "weighted_ffhq_reconstruction": false,
+    "daps_sitcom_fresh_reruns": false,
+    "cross_family_adapter": false,
+    "b24_refinement": false
+  }
+}
