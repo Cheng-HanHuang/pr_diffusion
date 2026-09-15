@@ -1,7 +1,7 @@
 {
-  "schema_version": "b25.final-evidence.v1",
+  "schema_version": "b25.final-evidence.v2",
   "stage": "B25",
-  "status": "PASS",
+  "status": "PASS_WITH_REPORTING_QUALIFICATIONS",
   "immutable_b24_start": "ed162c2f97430804fddb5d9a0bfec7abde201ca0",
   "signed_b23_1_ancestor": "27505e6328157ac9296c95dc5e611cbeef80de98",
   "pre_run_commit": "32453db6445acec4fc19a4a928142a412d67f1ae",
@@ -11,10 +11,14 @@
   "archive_safe": true,
   "archive_member_count": 26,
   "internal_checksums_verified": 25,
+  "capsule_preserved_unchanged_after_review": true,
   "postrun_operator_audit_sha256": "1d4ebc132d7e4b92e7a9f7be14bec20ef6715a438b18a34096836fb58c6d7d0c",
   "resource_accounting": {
-    "aggregate_scientific_wall_seconds": 159.6690109781921,
-    "max_observed_rss_gib": 0.5503883361816406,
+    "stage_process_receipt_wall_seconds_total": 166.2627886198461,
+    "max_stage_process_receipt_rss_gib": 0.6489639282226562,
+    "inner_scientific_wall_seconds": 159.6690109781921,
+    "inner_max_observed_rss_gib": 0.5503883361816406,
+    "reporting_rule": "Use the stage-process receipt totals as full process accounting; the inner values are retained only for provenance.",
     "gpu_work_performed": false,
     "pretrained_model_inference_performed": false,
     "confirmation_payloads_accessed": false,
@@ -35,50 +39,71 @@
       "quadratic_K8_hard": 0.4689774078625733,
       "quadratic_K8_weighted": 0.9724819215222831
     },
-    "interpretation": "In the frozen iid toy model, hard minimum selection produces the predicted O(sqrt(h)) directional displacement while likelihood-weighted selection produces O(h) displacement. This does not by itself prove the same theorem for native NP, whose proposal semantics include incumbent reuse."
+    "accepted_interpretation": "In the frozen iid toy model, hard minimum selection changes the small-step behavior from the weighted arm, with approximately h^0.5 versus h scaling in the tested cells.",
+    "interpretation_boundary": "Matching h scaling does not prove that likelihood-weighted selection has the correct posterior dynamics, and the iid result is not a theorem for native NP with incumbent reuse."
   },
   "experiment2": {
     "exact_reference_checks_pass": true,
-    "selected_multimodal_examples": [
+    "metric_definitions": {
+      "posterior_tv": "total-variation error to the exact finite-support posterior; lower is better",
+      "truth_mse": "empirical reconstruction MSE to the single frozen truth; lower is better and is not a posterior-fidelity metric"
+    },
+    "K8_all_prior_families": [
+      {
+        "family": "distinguishable_equal",
+        "hard_exact_intermediate": {"posterior_tv": 0.0, "truth_mse": 0.0},
+        "weighted_exact_intermediate": {"posterior_tv": 0.062125, "truth_mse": 0.004128},
+        "weighted_denoised_point": {"posterior_tv": 0.00004167, "truth_mse": 0.00000155},
+        "interpretation": "This family prevents any claim that exact-intermediate weighting universally wins."
+      },
       {
         "family": "ambiguity_unequal",
-        "K": 8,
-        "weighted_exact_intermediate_tv": 0.00475,
-        "hard_exact_intermediate_tv": 0.26241667,
-        "weighted_denoised_point_tv": 0.2425
+        "hard_exact_intermediate": {"posterior_tv": 0.26241667, "truth_mse": 0.04974427},
+        "weighted_exact_intermediate": {"posterior_tv": 0.00475, "truth_mse": 0.02427242},
+        "weighted_denoised_point": {"posterior_tv": 0.2425, "truth_mse": 0.00072808},
+        "hard_selection_tie_sensitive": true,
+        "interpretation": "The hard-selection result is descriptive only: theoretically identical likelihoods differ at floating-point precision, and hard argmax/argmin can turn the difference into a systematic preference. Exclude this row from evidence for an intrinsic hard-selection defect until tie handling is examined."
       },
       {
         "family": "near_ambiguity_equal",
-        "K": 8,
-        "weighted_exact_intermediate_tv": 0.03400738,
-        "hard_exact_intermediate_tv": 0.22086762,
-        "weighted_denoised_point_tv": 0.24467404
+        "hard_exact_intermediate": {"posterior_tv": 0.22086762, "truth_mse": 0.0},
+        "weighted_exact_intermediate": {"posterior_tv": 0.03400738, "truth_mse": 0.02476854},
+        "weighted_denoised_point": {"posterior_tv": 0.24467404, "truth_mse": 0.04524095},
+        "interpretation": "Exact-intermediate weighting is much closer to the target posterior, while hard selection has lower error to the single frozen truth."
       },
       {
         "family": "near_ambiguity_unequal",
-        "K": 8,
-        "weighted_exact_intermediate_tv": 0.00567142,
-        "hard_exact_intermediate_tv": 0.24982858,
-        "weighted_denoised_point_tv": 0.22762025
+        "hard_exact_intermediate": {"posterior_tv": 0.24982858, "truth_mse": 0.0},
+        "weighted_exact_intermediate": {"posterior_tv": 0.00567142, "truth_mse": 0.02482928},
+        "weighted_denoised_point": {"posterior_tv": 0.22762025, "truth_mse": 0.00215819},
+        "interpretation": "Exact-intermediate weighting is much closer to the target posterior, while hard selection has lower error to the single frozen truth."
       }
     ],
-    "interpretation": "Exact-intermediate likelihood weighting can approach the correct posterior with increasing K, while hard selection and likelihood evaluated only at a denoised point can severely distort mode weights in ambiguous or near-ambiguous cases."
+    "accepted_interpretation": "The near-ambiguity families support a conditional-inference hypothesis that intermediate-likelihood estimation can improve posterior fidelity. They do not demonstrate improved reconstruction of a single ground truth or improved FFHQ PSNR.",
+    "next_estimator_boundary": "A toy exact likelihood does not provide an implementable pretrained-model intermediate-likelihood estimator. Any next stage must specify the estimator, proposal distribution, finite-proposal approximation, lineage handling, and full compute cost before FFHQ execution."
   },
   "experiment3": {
     "dev_images": 80,
     "terminal_rows": 960,
     "shared_failure_count": 10,
     "all_dev80": {
-      "DAPS": {"original_good25": 68, "symmetry_good25": 69, "recoveries": 1},
-      "SITCOM": {"original_good25": 55, "symmetry_good25": 58, "recoveries": 3},
-      "NP4_INDEPENDENT": {"original_good25": 57, "symmetry_good25": 57, "recoveries": 0}
+      "DAPS": {"four_candidate_oracle_good25": 68, "symmetry_oracle_good25": 69, "symmetry_recoveries": 1},
+      "SITCOM": {"four_candidate_oracle_good25": 55, "symmetry_oracle_good25": 58, "symmetry_recoveries": 3},
+      "NP": {
+        "four_candidate_oracle_good25": 57,
+        "historical_clean_free_selected_good25": 55,
+        "symmetry_oracle_good25": 57,
+        "symmetry_recoveries": 0,
+        "label_boundary": "57/80 is the four-candidate oracle, not historical clean-free NP selection."
+      }
     },
     "shared_failure_subset": {
       "DAPS": {"images": 10, "recoveries": 0, "max_gain_db": 0.0},
       "SITCOM": {"images": 10, "recoveries": 0, "max_gain_db": 0.0},
-      "NP4_INDEPENDENT": {"images": 10, "recoveries": 0, "max_gain_db": 3.412863}
+      "NP_four_candidate_oracle": {"images": 10, "recoveries": 0, "max_gain_db": 3.412863}
     },
-    "interpretation": "Fourier-magnitude symmetry explains several isolated DEV80 failures but does not explain the frozen common DAPS4/SITCOM4 failure subset; it is not the primary B25 follow-up."
+    "accepted_interpretation": "The tested eight channelwise reversal transformations do not explain the frozen common DAPS4/SITCOM4 failure subset.",
+    "interpretation_boundary": "This conclusion is restricted to the tested transformations and does not rule out every possible phase-retrieval ambiguity or symmetry."
   },
   "experiment4": {
     "images": 80,
@@ -96,7 +121,20 @@
       "SITCOM_main": "nonnegative FFT-magnitude prediction with squared Gaussian residual against the supplied signed measurement",
       "NP_B24_DEV80": "verifies the locked raw measurement, then uses measurement_raw.clamp_min(0.0) in the NP path"
     },
-    "interpretation_boundary": "The preprocessing discrepancy is real and numerically nontrivial, but B25 does not prove that clipping alone caused any historical reconstruction failure."
+    "accepted_interpretation": "NP measurement preprocessing materially changes all 80 stored observations and deserves an isolated correction ablation.",
+    "interpretation_boundary": "The preprocessing discrepancy does not establish an effect on reconstruction quality and does not prove clipping caused a historical failure."
   },
-  "final_recommendation": "a precisely defined NP conditional-selection correction"
+  "final_recommendation_category": "a precisely defined NP conditional-selection correction",
+  "final_recommendation_interpretation": "one focused NP conditional-selection investigation at fixed computational budget; not a validated reconstruction method",
+  "next_scientific_question": "Can we estimate the intermediate conditional likelihood well enough to improve reconstruction at a fixed computational budget?",
+  "required_future_ablation": [
+    "frozen historical NP",
+    "raw-measurement correction only",
+    "selection-rule/intermediate-likelihood correction only",
+    "combined raw-measurement plus selection correction"
+  ],
+  "future_efficiency_comparator": "Fresh2",
+  "new_gpu_stage_authorized": false,
+  "b24_remains_closed": true,
+  "confirmation_remains_locked": true
 }
