@@ -356,8 +356,9 @@ def run(args: Any) -> dict:
             if x["status"]=="PASS":
                 x["stratum"]=group[0]["stratum"]
                 if group[0]["cohort"]=="B22":
-                    k=(x["K"] if not x["policy"].endswith("_S2") else x["K"])
-                    sub=group[:k]
+                    k=x["K"]
+                    sub=(group[4:4+k] if x["policy"].endswith("_S2")
+                         else group[:k])
                     x["summed_candidate_wall_s"]=sum(finite(y["wall_s"],"wall") for y in sub)
                 elif group[0]["method"] in ("DAPS","SITCOM"):
                     x["summed_candidate_gpu_active_s"]=sum(finite(y["wall_s"],"gpu active") for y in group[:x["K"]])
