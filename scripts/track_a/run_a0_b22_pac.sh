@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Track A A0 — B22-only CPU metadata audit, V2; preserves V1 failure evidence.
+# Track A A0 — B22-only CPU metadata audit, V3; preserves V1 and V2 failure evidence.
 # No shell exit/set -e/set -u/pipefail; caller terminal remains open on failure.
 ROOT=/egr/research-pac/huang248
 REPO="$ROOT/pr_diffusion_track_a_a0_native_selector"
@@ -9,17 +9,17 @@ B21="$ROOT/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401"
 B22="$ROOT/outputs/pr_diffusion/b22_baselines/B22_2_overnight_20260727_155135"
 B24="$ROOT/outputs/pr_diffusion/b24/B24_3_dev80_overnight_20260913T082146Z"
 COR="$ROOT/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_corrected_20260914T060600Z"
-OUT="$BASE/A0_B22_METADATA_REPLAY_V2"
-TLOG="$BASE/A0_B22_SYNTHETIC_TESTS_V2.log"
-RLOG="$BASE/A0_B22_METADATA_REPLAY_V2.log"
-ARCHIVE="$BASE/A0_B22_METADATA_REPLAY_V2_RETURN.zip"
+OUT="$BASE/A0_B22_METADATA_REPLAY_V3"
+TLOG="$BASE/A0_B22_SYNTHETIC_TESTS_V3.log"
+RLOG="$BASE/A0_B22_METADATA_REPLAY_V3.log"
+ARCHIVE="$BASE/A0_B22_METADATA_REPLAY_V3_RETURN.zip"
 STATUS=0
 
 if [ ! -x "$PY" ] || [ ! -d "$REPO/.git" ] || [ ! -d "$BASE" ]; then
   echo "A0_STOP: interpreter, A0 checkout, or existing inventory base missing"
   STATUS=2
 elif [ -e "$OUT" ] || [ -e "$TLOG" ] || [ -e "$RLOG" ] || [ -e "$ARCHIVE" ]; then
-  echo "A0_STOP: V2 output/log/archive exists; preserve and inspect"
+  echo "A0_STOP: V3 output/log/archive exists; preserve and inspect"
   STATUS=2
 elif [ ! -f "$BASE/A0_SITCOM_PATCH_AUDIT.json" ]; then
   echo "A0_STOP: bounded B22 SITCOM patch evidence missing"
@@ -85,8 +85,8 @@ if not files: raise RuntimeError("no A0 metadata/log output")
 with ZipFile(archive,mode="x",compression=ZIP_DEFLATED) as z:
     for f in files:
         z.write(f, f.relative_to(base))
-print("A0_B22_V2_RETURN_ZIP", archive)
-print("A0_B22_V2_RETURN_SHA256", sha256(archive.read_bytes()).hexdigest())
+print("A0_B22_V3_RETURN_ZIP", archive)
+print("A0_B22_V3_RETURN_SHA256", sha256(archive.read_bytes()).hexdigest())
 PY
   PACKRC=$?
   echo "A0_PACK_RC=$PACKRC"
