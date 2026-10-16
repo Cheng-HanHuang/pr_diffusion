@@ -3,6 +3,7 @@ import unittest
 from scripts.track_a.a0_selectors import (
     AuditStop, best, required_candidates, native, oracle, ladders, paired, summarize)
 from scripts.track_a.a0_source_reconcile import pycache, source_only_names
+from scripts.track_a.a0_historical_compare import align_frozen_b21_b22
 
 SHA = "a"*64
 MODEL = "b"*64
@@ -91,6 +92,49 @@ class SelectorsTest(unittest.TestCase):
         self.assertEqual(result["mcnemar_exact_p"],0.625)
         b[0]["representation"]="8bit"
         with self.assertRaises(AuditStop):paired(a,b,reps=100)
+    def test_b21_b22_alignment_independent_row_orders(self):
+        # B21 arm order and B22 filename-sorted manifest row order differ.
+        ids=[f"{60000+i:05d}" for i in range(100)]
+        b21=[{"image_id":id_, "row_id":str(j),
+              "measurement_path":f"/frozen/{id_}.pt"}
+             for j,id_ in enumerate(reversed(ids))]
+        frozen=[{"image_id":id_, "row_id":j,
+                 "measurement_path":f"/frozen/{id_}.pt",
+                 "measurement_file_sha256":SHA,
+                 "measurement_content_sha256":MODEL}
+                for j,id_ in enumerate(ids)]
+        manifest={"stage":"full", "selected_row_count":100,"rows":frozen}
+        joined=align_frozen_b21_b22(b21,manifest)
+        self.assertEqual(len(joined),100)
+        self.assertEqual(joined[0][0],0)
+        self.assertEqual(joined[0][1]["image_id"],ids[0])
+        self.assertEqual(joined[0][1]["row_id"],"99")
+        self.assertEqual(joined[0][2]["image_id"],ids[0])
+        self.assertEqual(joined[-1][1]["row_id"],"0")
+        b21[0]["measurement_path"]="/incorrect/measurement.pt"
+        with self.assertRaises(AuditStop):
+            align_frozen_b21_b22(b21,manifest)
+
+    def test_b21_b22_alignment_reject_duplicate_or_incomplete_panel(self):
+        ids=[f"{60000+i:05d}" for i in range(100)]
+        b21=[{"image_id":id_, "row_id":j,
+              "measurement_path":f"/frozen/{id_}.pt"}
+             for j,id_ in enumerate(ids)]
+        frozen=[{"image_id":id_, "row_id":j,
+                 "measurement_path":f"/frozen/{id_}.pt",
+                 "measurement_file_sha256":SHA,
+                 "measurement_content_sha256":MODEL}
+                for j,id_ in enumerate(ids)]
+        manifest={"stage":"full", "selected_row_count":100,"rows":frozen}
+        b21[1]["image_id"]=b21[0]["image_id"]
+        with self.assertRaises(AuditStop):align_frozen_b21_b22(b21,manifest)
+        b21[1]["image_id"]=ids[1]
+        manifest["rows"][0]["measurement_content_sha256"]=""
+        with self.assertRaises(AuditStop):align_frozen_b21_b22(b21,manifest)
+        manifest["rows"][0]["measurement_content_sha256"]=MODEL
+        manifest["rows"][0]["row_id"]=1
+        with self.assertRaises(AuditStop):align_frozen_b21_b22(b21,manifest)
+
     def test_summary_and_provenance(self):
         c=rows("B24","NP")
         results=ladders("B24","NP",c)
