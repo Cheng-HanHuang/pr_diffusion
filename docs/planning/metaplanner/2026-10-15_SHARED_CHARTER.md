@@ -1,5 +1,8 @@
 # PRDiffusion shared metaplanner charter — 2026-10-15
 
+> **UPDATED GOVERNANCE (2026-10-15):** The [autonomy amendment](2026-10-15_AUTONOMY_AMENDMENT.md) supersedes the earlier docs-only / no-delegation / metaplanner-per-run permission limits. Tracks A and B may autonomously research, implement scoped work, delegate executor chats, and propose PAC jobs under the shared [coordination issue #41](https://github.com/Cheng-HanHuang/pr_diffusion/issues/41). Frozen-data, namespace, and PAC user-execution restrictions remain.
+
+
 **Authority:** user / metaplanner chat. **Roles:** B26 executor (frozen experiment completion); Track A scientific planner (Noise Picking publication evaluation); Track B scientific planner (new basin-aware method). This charter coordinates work without authorizing any fresh scientific GPU runs.
 
 ## Anchor and interpretation
