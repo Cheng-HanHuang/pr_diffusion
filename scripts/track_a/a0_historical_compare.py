@@ -335,11 +335,12 @@ def run(args: Any) -> dict:
         raise AuditStop("DAPS dirty-source provenance missing")
     # A frozen B24 FULL tracked diff cannot be certified from a current
     # SOURCE-ONLY diff, even if all remaining changed files are bytecode.
-    if (recon.get("status")!="MATCH_B24_FULL_DIFF" or
-        recon.get("current_full_diff_sha256")!=SITCOM_DIFF or
-        recon.get("head")!=SITCOM_HEAD or
-        not recon.get("no_unexpected_source_changes")):
-        raise AuditStop("B24 SITCOM full source identity not reconciled; independent historical patch witness needed")
+    if args.cohort in ("B24", "all"):
+        if (recon.get("status")!="MATCH_B24_FULL_DIFF" or
+            recon.get("current_full_diff_sha256")!=SITCOM_DIFF or
+            recon.get("head")!=SITCOM_HEAD or
+            not recon.get("no_unexpected_source_changes")):
+            raise AuditStop("B24 SITCOM source remains uncertain; forbid B24/full analysis")
     if args.out.exists():
         raise AuditStop("A0 output already exists; never overwrite")
     imgs=b22_rows(args.b21,args.b22,spec)+b24_rows(args.b24,args.corrected,args.b24.parent,spec)
