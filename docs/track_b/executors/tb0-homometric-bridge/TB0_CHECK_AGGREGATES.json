@@ -1,0 +1,204 @@
+{
+  "schema": "TB0_CHECK_AGGREGATES_v1",
+  "frozen_source_commit": "33ed7292fd15bf4b7b02fa67125f1fb6bb90bba7",
+  "source_sha256": "28ea34da0a93c36cac4428a57734314a3698568a4d70f5c6a550b9dc8198e058",
+  "check_rows_sha256": "9b26c32597196b3be476819ff179a9e5882b3d302ff9855b8272d717e6bd1645",
+  "check_summary_sha256": "8e0457e309da315a1bde0cfef3a8e374e0462882c416604e681b3dcf02b17c47",
+  "population": {
+    "b_start": 200,
+    "a_start": 200,
+    "prior_start": 200,
+    "arm_trajectories": 3000,
+    "paired_by_instance": true
+  },
+  "labels_order": [
+    "A",
+    "B",
+    "UNRESOLVED"
+  ],
+  "counts": {
+    "b_start": {
+      "S0": [
+        0,
+        199,
+        1
+      ],
+      "S1": [
+        0,
+        194,
+        6
+      ],
+      "S2": [
+        0,
+        197,
+        3
+      ],
+      "S3": [
+        0,
+        199,
+        1
+      ],
+      "S4": [
+        0,
+        200,
+        0
+      ]
+    },
+    "a_start": {
+      "S0": [
+        198,
+        0,
+        2
+      ],
+      "S1": [
+        198,
+        0,
+        2
+      ],
+      "S2": [
+        198,
+        0,
+        2
+      ],
+      "S3": [
+        198,
+        0,
+        2
+      ],
+      "S4": [
+        199,
+        0,
+        1
+      ]
+    },
+    "prior_start": {
+      "S0": [
+        186,
+        12,
+        2
+      ],
+      "S1": [
+        186,
+        12,
+        2
+      ],
+      "S2": [
+        186,
+        12,
+        2
+      ],
+      "S3": [
+        186,
+        12,
+        2
+      ],
+      "S4": [
+        187,
+        12,
+        1
+      ]
+    }
+  },
+  "b_to_a_paired_bootstrap_S3_minus": {
+    "S1": {
+      "effect": 0,
+      "CI95": [
+        0,
+        0
+      ]
+    },
+    "S2": {
+      "effect": 0,
+      "CI95": [
+        0,
+        0
+      ]
+    },
+    "S4": {
+      "effect": 0,
+      "CI95": [
+        0,
+        0
+      ]
+    }
+  },
+  "arm_means": {
+    "S0": {
+      "runtime_ms": 6.045,
+      "displacement": 0.123126,
+      "refinement_steps": 24
+    },
+    "S1": {
+      "runtime_ms": 6.145,
+      "displacement": 0.105471,
+      "refinement_steps": 15
+    },
+    "S2": {
+      "runtime_ms": 6.218,
+      "displacement": 0.105902,
+      "refinement_steps": 15
+    },
+    "S3": {
+      "runtime_ms": 6.279,
+      "displacement": 0.148684,
+      "refinement_steps": 15
+    },
+    "S4": {
+      "runtime_ms": 6.192,
+      "displacement": 0.134435,
+      "refinement_steps": 15
+    }
+  },
+  "S3_proposals": {
+    "accepted": 1471,
+    "attempted": 1800,
+    "accepted_energy_or_observation_violations": 0,
+    "min_accepted_energy_gain": 0.0013122963952483246,
+    "max_accepted_chi2": 93.17798523523943,
+    "mean_post_crop_amplitude_change": 0.043827539946025854,
+    "max_post_crop_amplitude_change": 0.059051950932382774,
+    "max_inverse_imaginary_part": 2.263981849074498e-16
+  },
+  "configured_work_per_trajectory": {
+    "score": 27,
+    "energy": 6,
+    "charged_fft": 27,
+    "charged_ifft": 6,
+    "measurement": 3,
+    "proposals": 3
+  },
+  "physically_executed_transform_correction": {
+    "S0": [
+      30,
+      9
+    ],
+    "S1": [
+      30,
+      9
+    ],
+    "S2": [
+      27,
+      12
+    ],
+    "S3": [
+      27,
+      12
+    ],
+    "S4": [
+      30,
+      9
+    ],
+    "array_order": [
+      "forward_fft",
+      "inverse_fft"
+    ]
+  },
+  "gate": {
+    "required_B_to_A_advantage": 0.1,
+    "positive_CI_lower": true,
+    "max_excess_A_harm": 0.02,
+    "observed_S3_advantage": 0,
+    "observed_excess_harm_vs_S4": 0.005,
+    "verdict": "STOP"
+  }
+}
