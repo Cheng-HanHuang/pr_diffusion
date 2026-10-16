@@ -1,0 +1,28 @@
+{
+  "note": "TB0 PRE-CHECK FROZEN after dev scale sweep 0.2/0.5/1.0, all 0/30 genuine B-to-A; 0.5 is canonical middle scale (not tuned on CHECK).",
+  "alphas": [
+    0.25,
+    0.5,
+    0.8
+  ],
+  "eta": 0.035,
+  "parent_steps": 1,
+  "refine_steps": 4,
+  "s0_extra_steps": 3,
+  "delta_energy": 0.001,
+  "measurement_gate": 93.21685966023843,
+  "label_radius": 0.13,
+  "floor": 1e-8,
+  "eps": 1e-8,
+  "scale": 0.5,
+  "frozen": true,
+  "dev_counts": {
+    "b-start": 30,
+    "a-start": 30
+  },
+  "check_counts": {
+    "b-start": 200,
+    "a-start": 200,
+    "prior-start": 200
+  }
+}
