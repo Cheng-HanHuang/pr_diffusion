@@ -34,11 +34,12 @@
       "tracked_diff_sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69"
     },
     "B24_SITCOM": {
-      "status": "SOURCE_UNCERTAIN",
+      "status": "SOURCE_UNCERTAIN_COMPARISON_METHOD_CORRECTED",
       "head": "275ab67efbd8146bffca20155171ba6be1169c09",
       "historical_diff_sha256": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e",
       "current_diff_sha256": "0a5587945acbbb86da46ca8e49996bb79ff4cf142c821f268515777ad379ab2a",
-      "note": "10 modified tracked .pyc and posterior_sample.py; source-only diff not yet compared"
+      "note": "Current full diff differs from historical full diff, but source-only digest must NOT be compared to historical full-diff digest. One changed tracked Python source file posterior_sample.py plus 10 pyc files; frozen B24 content identity remains open.",
+      "source_only_diff_sha256": "d0bb0292e341abe3f6b99984bb2a98acb5919c41efe0f4bd8fd0ffb60b464fc5"
     },
     "B24_NP": {
       "status": "PARTIAL_VERIFICATION",
@@ -50,9 +51,10 @@
       "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
     },
     "SITCOM_checkpoint": {
-      "status": "UNAVAILABLE",
+      "status": "CURRENT_FILE_SHA256_VERIFIED_BUT_LAUNCH_TIME_NOT_INDEPENDENTLY_ATTESTED",
       "path_hint": "/egr/research-pac/huang248/external/SITCOM_ODE/checkpoint/ffhq256.pt",
-      "sha256": null
+      "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+      "size_bytes": 374417833
     }
   },
   "cohorts": {
@@ -148,11 +150,16 @@
   },
   "missing": [
     "SITCOM source-only historical dirty diff comparison",
-    "frozen SITCOM native checkpoint SHA vs run provenance",
     "B22 exhaustive per-candidate metadata/seed/cardinality (inventory only samples)",
     "B24 per-terminal source/measurement identity beyond receipts",
     "B22 signed final residual for NP",
-    "B24 SITCOM step160 native K4 selector absent"
+    "B24 SITCOM step160 native K4 selector absent",
+    "SITCOM native checkpoint hash verified currently; frozen launch-time attestation still absent in archival B24 metadata"
   ],
-  "next": "Strictly read-only source reconciliation, then metadata-only A0.1 replay and table generation; never infer PASS from GitHub."
+  "next": "Strictly read-only source reconciliation, then metadata-only A0.1 replay and table generation; never infer PASS from GitHub.",
+  "source_recheck": {
+    "status": "STOP_SOURCE_IDENTITY_NOT_RECONCILED",
+    "sha256": "2c811247ae8cd077aac57ab23ce19f219ef3169a2b69cb04943ffbdccffa16ed",
+    "checkpoint_current_sha_verified": true
+  }
 }
