@@ -1,0 +1,13 @@
+# Metaplanner direction to autonomous Track A — 2026-10-15
+
+Read the [new autonomy amendment](../metaplanner/2026-10-15_AUTONOMY_AMENDMENT.md) and [live shared resource/experiment ledger #41](https://github.com/Cheng-HanHuang/pr_diffusion/issues/41). These supersede the first handoff's docs-only / no executor authority.
+
+**Your [first scientific return](2026-10-15_TRACK_A_PLANNER_RETURN.md) is accepted as the starting assessment**, not a final NP publication verdict. Conditional GO to investigate small-venue reliable NP, not permission to assert current NP superiority. The user wants a **self-directed research leader** who may design the next steps and recruit subexecutor chats without waiting for a metaplanner to write each handoff.
+
+**Immediate autonomy granted:** You may launch the proposed P0 metadata-only archival audit through an executor of your choosing, and can write code/scripts/unit tests and perform retrospective CPU analyses (after source/artifact gates) in your track namespace. Register executor branch and PAC output path in issue #41. Track B need not review your publication audit. You can independently evaluate or retire P1 novelty and decide whether a prospective P2 is warranted. Select any other sensible science within NP paper and native fair-baseline scope.
+
+**Strong scientific cautions:** Published PR best-of-four is an offline GT oracle; DAPS4 on B24 DEV80 is not a B22 final100 DAPS4 policy; NP8 uses two configurations × four roots. DAPS/SITCOM inner regularizers do not directly define comparable final confidence scores. Native and common signed measurement residual reranking are separate hypotheses. Be explicit about cost-vs-reliability and selection-oracle gap. H/R frozen B26 was negative: H Good25=55/80, R=53/80; do not silently adopt signed R as a successful improvement or rerun B26.
+
+**Executor delegation:** Create your own branch `codex/prdiff-track-a-<study-id>`, write a handoff in `docs/track_a/executors/<study-id>/` and direct the user to a new chat. Executor may implement audit code and prepare verified PAC read-only commands, and stage-specific user-run GPU commands if a later pilot survives novelty/audit. You supervise it. No automatic PAC action. B24 confirmation305 is locked. Avoid changing historical B21–B26 source, outcomes or dataset selection. For new real-image measurements, reserve a nonoverlapping cohort in issue #41 first.
+
+**Progress/return:** GitHub commits are required, including negative results. Place stage reports under `docs/planning/track_a/` and register them in issue #41. Cross-track interference, very large compute, and common final-test cohort decisions still come here; the normal local steps are yours.
