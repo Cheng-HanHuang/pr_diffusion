@@ -116,11 +116,39 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
     if (ids.get("repo_head") != B22_SOURCE or ids.get("difffpr_head") != B22_DIFF or
         ids.get("sitcom_head") != SITCOM_HEAD or ids.get("model_sha256") != MODEL):
         raise AuditStop("B22 source/model identity drift")
-    all_images = []
-    for position, row in enumerate(b21_rows):
+    # B21 rows are NOT ordered in B22's sorted locked-filename panel order.
+    # Join by immutable image ID. Never assume equal row_id or line position.
+    b21_by_image = {}
+    b21_row_ids = set()
+    for row in b21_rows:
         img = image(row["image_id"])
-        if int(row["row_id"]) != position:
-            raise AuditStop("B21 row_id/order drift")
+        if img in b21_by_image:
+            raise AuditStop("duplicate B21 image ID")
+        idx = int(row["row_id"])
+        if idx in b21_row_ids:
+            raise AuditStop("duplicate B21 row_id")
+        b21_by_image[img] = row
+        b21_row_ids.add(idx)
+    frozen_rows = manifest.get("rows", [])
+    if (len(frozen_rows) != 100 or
+        int(manifest.get("selected_row_count",-1)) != 100 or
+        manifest.get("stage") != "full"):
+        raise AuditStop("B22 full manifest cardinality/stage drift")
+    b22_ids = [image(x["image_id"]) for x in frozen_rows]
+    if len(set(b22_ids)) != 100 or set(b22_ids) != set(b21_by_image):
+        raise AuditStop("B21/B22 panel image ID set mismatch")
+    all_images = []
+    for position, frozen in enumerate(frozen_rows):
+        img = image(frozen["image_id"])
+        if int(frozen.get("row_id",-1)) != position:
+            raise AuditStop("B22 manifest row index/order drift")
+        row = b21_by_image[img]
+        if str(row["measurement_path"]) != str(frozen["measurement_path"]):
+            raise AuditStop(f"B21/B22 frozen measurement path mismatch: {img}")
+        if len(str(frozen.get("measurement_file_sha256",""))) != 64:
+            raise AuditStop(f"B22 manifest missing measurement file SHA: {img}")
+        if len(str(frozen.get("measurement_content_sha256",""))) != 64:
+            raise AuditStop(f"B22 manifest missing measurement content SHA: {img}")
         sd = []
         for arm in (1,2):
             sd.append(norm(cohort="B22",method="DAPS",img=img,
@@ -139,8 +167,9 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                 raise AuditStop(f"B22 {method} policy mismatch {img}")
             sha = (p.get("measurement_content_sha256") if method=="SITCOM"
                    else p.get("measurement_raw_content_sha256"))
-            if not sha or (common_sha is not None and sha != common_sha):
-                raise AuditStop(f"B22 raw measurement mismatch {img}")
+            if (not sha or sha != frozen["measurement_content_sha256"] or
+                (common_sha is not None and sha != common_sha)):
+                raise AuditStop(f"B22 frozen raw measurement mismatch {img}")
             common_sha = sha
             recs=[]
             tuples=([("run",i,f"run{i:02d}_masterseed43") for i in range(4)]
@@ -160,8 +189,13 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                 file_sha = r.get("measurement_file_sha256")
                 if not isinstance(file_sha, str) or len(file_sha) != 64:
                     raise AuditStop(f"B22 measurement file SHA missing {img}")
-                if common_file_sha is not None and file_sha != common_file_sha:
-                    raise AuditStop(f"B22 SITCOM/NP measurement file SHA mismatch {img}")
+                if (file_sha != frozen["measurement_file_sha256"] or
+                    (common_file_sha is not None and file_sha != common_file_sha)):
+                    raise AuditStop(f"B22 manifest/SITCOM/NP measurement file SHA mismatch {img}")
+                if r.get("ground_truth_content_sha256") != frozen.get("ground_truth_content_sha256"):
+                    raise AuditStop(f"B22 GT content SHA identity mismatch {img}")
+                if int(r.get("row_id",-1)) != position:
+                    raise AuditStop(f"B22 candidate row index mismatch {img}")
                 common_file_sha = file_sha
                 if method=="SITCOM":
                     if (r.get("sitcom_head")!=SITCOM_HEAD or int(r.get("run_index",-1))!=idx
@@ -217,6 +251,8 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                 if abs(value-finite(recs[index]["psnr"],"candidate PSNR"))>1e-7:
                     raise AuditStop(f"archived selected PSNR mismatch {img} {name}")
             groups.append(recs)
+        if common_sha != frozen["measurement_content_sha256"]:
+            raise AuditStop(f"missing cross-method frozen measurement match {img}")
         for d in sd:
             d["measurement_sha256"]=common_sha
         all_images.extend(groups)
