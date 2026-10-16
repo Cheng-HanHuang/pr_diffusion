@@ -391,18 +391,41 @@ def run(args: Any) -> dict:
             raise AuditStop(f"incomplete policy: {key} count={len(rows)}")
         summaries.append(dict(zip(("cohort","method","policy","K","representation"),key),
                               **summarize(rows)))
+    # Predeclared, limited pairs. Never imply K matching implies compute matching.
     pairs=[]
-    groups=list(by_group.items())
-    for i, (ak,a) in enumerate(groups):
-        for bk,b in groups[i+1:]:
-            # Same cohort/K/representation/measurement. Oracle comparisons are diagnostics only.
-            if ak[0]!=bk[0] or ak[3]!=bk[3] or ak[4]!=bk[4]:
-                continue
-            # Avoid quadratic blowup: two different methods or native-versus-oracle of same method.
-            if ak[1]==bk[1] and ak[2]==bk[2]:
-                continue
-            result=paired(a,b,reps=spec["bootstrap"]["reps"],seed=spec["bootstrap"]["seed"])
-            pairs.append({"a":"/".join(map(str,ak)),"b":"/".join(map(str,bk)),**result})
+    def pair_policy(left: tuple, right: tuple, reason: str) -> None:
+        a,b=by_group.get(left),by_group.get(right)
+        if a is None or b is None:
+            raise AuditStop(f"missing predeclared paired comparison: {left} vs {right}")
+        ak,bk=left,right
+        if ak[4]!=bk[4]:
+            raise AuditStop("unmatched metric representation in requested pair")
+        comparison=paired(a,b,reps=spec["bootstrap"]["reps"],
+                          seed=spec["bootstrap"]["seed"],
+                          allow_different_k=(ak[3]!=bk[3]))
+        pairs.append({"a":"/".join(map(str,ak)), "b":"/".join(map(str,bk)),
+                      "purpose":reason, **comparison})
+    for (co,me,po,k,rep),rows in sorted(by_group.items()):
+        if po!="NATIVE":
+            continue
+        oracle_key=(co,me,"GT_ORACLE",k,rep)
+        if oracle_key in by_group:
+            pair_policy((co,me,po,k,rep),oracle_key,"within-family selector regret")
+    if args.cohort in ("B22","all"):
+        # Historical deployed flagship choices, K=2/4/8. Explicitly NOT matched compute.
+        deployed=[("B22","DAPS","NATIVE",2,REPS["B22"]),
+                  ("B22","SITCOM","NATIVE",4,REPS["B22"]),
+                  ("B22","NP","NATIVE",8,REPS["B22"])]
+        for a_idx in range(len(deployed)):
+            for b_idx in range(a_idx+1,len(deployed)):
+                pair_policy(deployed[a_idx],deployed[b_idx],
+                            "historical flagship; unequal K and unmatched compute")
+    if args.cohort in ("B24","all"):
+        # Only comparable canonical 8-bit external baseline metrics here.
+        rep=REPS["B24_EXTERNAL"]
+        pair_policy(("B24","DAPS","NATIVE",2,rep),
+                    ("B24","SITCOM","GT_ORACLE",4,rep),
+                    "native DAPS2 vs SITCOM4 offline oracle; unmatched compute")
     args.out.mkdir(parents=True,exist_ok=False)
     writecsv(args.out/"A0_CANDIDATE_ROWS.csv",candidates)
     writecsv(args.out/"A0_POLICY_ROWS.csv",policies)
