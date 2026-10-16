@@ -295,6 +295,24 @@ def writecsv(path: Path, rows: list[dict]) -> None:
         writer.writeheader()
         writer.writerows(rows)
 
+def reconcile_b22_patch(archive_patch: str, audit: dict) -> None:
+    """B22 archived patch omits trailing unchanged whitespace context."""
+    current = audit.get("current_patch")
+    if (audit.get("status") != "PASS_BOUNDED_SOURCE_INSPECTION" or
+        not isinstance(current,str) or
+        audit.get("historical_B24_full_diff_reconciled") is not False or
+        audit.get("current_patch_sha256") !=
+            "d0bb0292e341abe3f6b99984bb2a98acb5919c41efe0f4bd8fd0ffb60b464fc5"):
+        raise AuditStop("B22 patch receipt/hash/status not verified")
+    if archive_patch.rstrip("\n ") != current.rstrip("\n "):
+        raise AuditStop("B22 Python source patch mismatched beyond blank context")
+    change_lines = [line for line in current.splitlines()
+                    if (line.startswith("+") and not line.startswith("+++")) or
+                       (line.startswith("-") and not line.startswith("---"))]
+    if change_lines != ["-        Path(dir).mkdir()",
+                        "+        Path(dir).mkdir(parents=True, exist_ok=True)"]:
+        raise AuditStop("unexpected SITCOM source modification")
+
 def run(args: Any) -> dict:
     spec=readj(args.spec)
     inv=readj(args.inventory)
