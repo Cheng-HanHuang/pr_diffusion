@@ -167,8 +167,9 @@ def summarize(rows: list[dict]) -> dict:
             "bad20":sum(v<BAD for v in x), "mean_regret":mean(gaps),
             "q95_regret":quantile(gaps,.95), "exact_oracle_matches":sum(g<=1e-9 for g in gaps)}
 
-def paired(a: list[dict], b: list[dict], *, seed: int = 5401, reps: int = 10000) -> dict:
-    """Paired image bootstrap, exact two-sided McNemar; requires same representation."""
+def paired(a: list[dict], b: list[dict], *, seed: int = 5401, reps: int = 10000,
+           allow_different_k: bool = False) -> dict:
+    """Paired bootstrap/McNemar. Cross-family unequal-K comparison is cost-UNMATCHED."""
     if len(a) != len(b) or len(a) < 2:
         raise AuditStop("paired comparison needs same nontrivial full panel")
     aa = {r["image_id"]:r for r in a}
@@ -178,9 +179,11 @@ def paired(a: list[dict], b: list[dict], *, seed: int = 5401, reps: int = 10000)
     x, rescues, harms = [], 0, 0
     for image_id in sorted(aa):
         p,q = aa[image_id],bb[image_id]
-        if (p["cohort"],p["representation"],p["measurement_sha256"],p["K"]) != (
-            q["cohort"],q["representation"],q["measurement_sha256"],q["K"]):
-            raise AuditStop(f"paired provenance/K/representation mismatch: {image_id}")
+        if (p["cohort"],p["representation"],p["measurement_sha256"]) != (
+            q["cohort"],q["representation"],q["measurement_sha256"]):
+            raise AuditStop(f"paired provenance/representation mismatch: {image_id}")
+        if p["K"] != q["K"] and not allow_different_k:
+            raise AuditStop(f"paired K mismatch without explicit cost-unmatched label: {image_id}")
         v,w = finite(p["selected_psnr"], "a"),finite(q["selected_psnr"], "b")
         x.append(v-w)
         rescues += v>=GOOD and w<GOOD
@@ -189,6 +192,6 @@ def paired(a: list[dict], b: list[dict], *, seed: int = 5401, reps: int = 10000)
     pval = min(1.0, 2*sum(comb(n,j) for j in range(min(rescues,harms)+1))/2**n) if n else 1.0
     rng = Random(seed)
     bootstrap = sorted(mean([x[rng.randrange(len(x))] for _ in x]) for _ in range(reps))
-    return {"n":len(x), "mean_delta":mean(x),
+    return {"n":len(x), "compute_matched": not allow_different_k, "mean_delta":mean(x),
             "ci95_low":quantile(bootstrap,.025), "ci95_high":quantile(bootstrap,.975),
             "rescues":rescues, "harms":harms, "mcnemar_exact_p":pval}
