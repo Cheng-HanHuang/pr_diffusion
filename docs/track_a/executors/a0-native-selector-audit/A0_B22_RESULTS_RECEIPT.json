@@ -1,0 +1,135 @@
+{
+  "schema_version": "prdiff.track-a-a0.b22-retrospective-return.v1",
+  "date": "2026-10-16",
+  "status": "PASS_REPLAY_METADATA_ONLY",
+  "raw_pac": "A0_B22_METADATA_REPLAY_V3_RETURN.zip",
+  "raw_zip_sha256": "e0641c4c78e05489d8df53dd42587995b2af03460403b4ac3b22928c4b20d242",
+  "frozen_run_manifest_sha256": "94184e36b27aac0defb93b31ae7b47ea332909bcb0c0a80445be2949f422a219",
+  "analysis_commit": "2b167dd110a7a5ab3104ab16b36e7eebcfd1f8cf",
+  "checks": {
+    "synthetic_pass": 12,
+    "synthetic_fail": 0,
+    "candidate_rows": 1400,
+    "candidate_images": 100,
+    "daps_candidates": 200,
+    "sitcom_candidates": 400,
+    "np_candidates": 800,
+    "policy_rows": 3600,
+    "paired_comparisons": 12,
+    "duplicate_candidate_ids": 0,
+    "paired_raw_measurement_sha_per_image": true,
+    "historical_replay": [
+      {
+        "method": "DAPS",
+        "k": 2,
+        "good25": 92,
+        "n": 100,
+        "status": "PASS"
+      },
+      {
+        "method": "SITCOM",
+        "k": 4,
+        "good25": 93,
+        "n": 100,
+        "status": "PASS"
+      },
+      {
+        "method": "NP",
+        "k": 8,
+        "good25": 95,
+        "n": 100,
+        "status": "PASS"
+      }
+    ],
+    "historical_native_winner_id_replay": "PASS all policies with B22 archived candidate identities"
+  },
+  "archive_member_hashes": {
+    "A0_B22_METADATA_REPLAY_V3/A0_CANDIDATE_ROWS.csv": "d7bd56446139e4d85f9f08f4e78b7ac1a2b17daf8bfc47890f696bb1c8448d8c",
+    "A0_B22_METADATA_REPLAY_V3/A0_POLICY_ROWS.csv": "6b58c10e72f59a00f6fee38d63a5cbb3635dedaf0e05d8630429806052200ceb",
+    "A0_B22_METADATA_REPLAY_V3/A0_METRIC_SUMMARY.csv": "5a80f56c70a417d73477669bd49f5bb614025b1bca3af1590eab93fb28d159e5",
+    "A0_B22_METADATA_REPLAY_V3/A0_PAIRED.csv": "db6f16f9048801b726e8e2d5db4faa9578280d7babf4f28ee054e8c499e5b113",
+    "A0_B22_METADATA_REPLAY_V3/A0_REPLAY_CHECKS.json": "04bedc50d1ca3d782093a1286250e7682bd558da15a318796eabf67eef38c411",
+    "A0_B22_SYNTHETIC_TESTS_V3.log": "4c7b6199997ba2acfc9010e46e42dabfe7097e52a9039cce199024d7c00d48db"
+  },
+  "primary_native_vs_offline_oracle": [
+    {
+      "family": "DAPS",
+      "k": 2,
+      "native_good25": 92,
+      "oracle_good25": 92,
+      "native_psnr_mean_db": 29.298515,
+      "oracle_psnr_mean_db": 29.427249,
+      "mean_regret_db": 0.128734,
+      "ci95_regret_db": [
+        0.049459,
+        0.229663
+      ],
+      "exact_oracle_matches": 59,
+      "mean_candidate_recon_seconds": 312.64
+    },
+    {
+      "family": "SITCOM",
+      "k": 4,
+      "native_good25": 93,
+      "oracle_good25": 95,
+      "native_psnr_mean_db": 26.442238,
+      "oracle_psnr_mean_db": 26.666889,
+      "mean_regret_db": 0.224651,
+      "ci95_regret_db": [
+        0.035855,
+        0.569255
+      ],
+      "exact_oracle_matches": 39,
+      "mean_candidate_recon_seconds": 196.070948
+    },
+    {
+      "family": "NP_mixed_LF4_S24",
+      "k": 8,
+      "native_good25": 95,
+      "oracle_good25": 96,
+      "native_psnr_mean_db": 29.269487,
+      "oracle_psnr_mean_db": 29.407266,
+      "mean_regret_db": 0.137779,
+      "ci95_regret_db": [
+        0.066266,
+        0.230651
+      ],
+      "exact_oracle_matches": 26,
+      "mean_candidate_recon_seconds": 411.782967
+    }
+  ],
+  "exploratory_NP_S2_only_4": {
+    "good25_native": 94,
+    "good25_offline_oracle": 94,
+    "mean_candidate_recon_seconds": 206.461
+  },
+  "all_family_native_union_good25": 99,
+  "all_14_candidates_offline_oracle_union_good25": 99,
+  "unresolved_image": "65003",
+  "within_family_good25_missed_by_native": {
+    "DAPS": [],
+    "SITCOM": [
+      "60140",
+      "64518"
+    ],
+    "NP": [
+      "65269"
+    ]
+  },
+  "disallowed_inferences": [
+    "B24 source provenance passing",
+    "B24 FFHQ quantized PSNR comparability",
+    "GT-oracle deployability",
+    "equal-compute cross-method ranking",
+    "prospective NP S2-only superiority"
+  ],
+  "provenance_limitations": {
+    "B24": "HISTORICAL_SITCOM_SOURCE_UNRECONCILED_NOT_ANALYZED",
+    "B22_NP": "mixed LF and S2 trajectories, NOT 8 iid restarts",
+    "B22_SITCOM": "4 sequential RNG trajectories, NOT B24 independent SITCOM4",
+    "result": "retrospective already exposed candidate data"
+  },
+  "gpu_inference": false,
+  "new_measurements": false,
+  "confirmation305_access": false
+}
