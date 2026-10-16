@@ -319,6 +319,16 @@ def run(args: Any) -> dict:
     recon=readj(args.source_reconcile)
     if inv.get("stop") or not inv.get("no_confirmation_access"):
         raise AuditStop("A0.0 inventory failed/confirmation flag drift")
+    if args.cohort not in ("B22", "B24", "all"):
+        raise AuditStop("unsupported cohort")
+    if spec.get("native_models",{}).get("sitcom_checkpoint_sha256") != MODEL:
+        raise AuditStop("native SITCOM checkpoint SHA not independently verified")
+    if args.cohort in ("B22", "all"):
+        path = args.b22 / "full" / "manifest.json"
+        check_digest(path,spec["known_sha256"]["b22_manifest"])
+        frozen_manifest = readj(path,args.b22)
+        reconcile_b22_patch(frozen_manifest["identities"]["sitcom_posterior_sample_diff"],
+                            readj(args.patch_audit))
     daps=inv.get("sources",{}).get("DAPS",{})
     if (daps.get("matches_recorded_B24_diff") is not True or
         daps.get("unstaged_diff_sha256")!=B24_DIFF or daps.get("head")!=DAPS_HEAD):
