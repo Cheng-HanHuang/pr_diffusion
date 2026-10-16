@@ -1,0 +1,73 @@
+{
+  "schema_version": "prdiff.track-a-a0.analysis-v1",
+  "status": "BLOCKED_PENDING_B24_SITCOM_SOURCE_RECONCILIATION",
+  "source_commit": "c61c5029d27220f34ad6b4b93f1b2c7f5a2767ba",
+  "data_cohorts": {
+    "B22": {
+      "expected_images": 100,
+      "representation": "B21_B22_FLOAT_RAW_RGB_V1",
+      "DAPS": 2,
+      "SITCOM": 4,
+      "NP": 8
+    },
+    "B24": {
+      "expected_images": 80,
+      "screening_strata": {
+        "A": 20,
+        "B": 20,
+        "C": 20,
+        "D": 20
+      },
+      "DAPS": 4,
+      "SITCOM": 4,
+      "NP": 4,
+      "external_representation": "CANONICAL_SAVED_RGB_8BIT_RAW_ORIENTATION_V1",
+      "np_representation": "B24_NP_NATIVE_FLOAT_RAW_V1"
+    }
+  },
+  "known_sha256": {
+    "b21_fresh2_rows": "e0ed1106076c493b6494d82e59f2bddf534aa43a05895a2b6569784283a32654",
+    "b22_manifest": "94184e36b27aac0defb93b31ae7b47ea332909bcb0c0a80445be2949f422a219",
+    "b22_validation": "8016bb8d1f136960c17655ab7ab12176e1bddaff0adeb5f7b788c91582dbb9bb",
+    "b24_dev80_manifest": "3945c2ed26e10766a64ab4e7fb64ea673fa2f478fbf080ea8d1d2c85584f6d5f",
+    "b24_dev80_summary": "4c588053031f65f89382de3d01982c97194b41c26641cf005a3da9ebf1376eee",
+    "b24_corrected_fresh2_rows": "4f6ed3bc68f114e72a19f9eaca0c7e34970c33dae6a063e7b787528350242695",
+    "b24_corrected_summary": "6e0a69e96ac79f38e2234b5b9475345b39d09714eee67ea3b6bc45c94c07d182"
+  },
+  "frozen_replays": {
+    "B22_DAPS2_native_Good25": 92,
+    "B22_SITCOM4_native_Good25": 93,
+    "B22_NP8_native_Good25": 95,
+    "B24_DAPS2_native_Good25": 57,
+    "B24_NP4_native_Good25": 55
+  },
+  "selector_rules": {
+    "DAPS": "rep1 only if signed_exact_loss1 < signed_exact_loss0 - 0.7",
+    "SITCOM": "B22 correction norm measured at anneal step160; B24 native K4 unavailable",
+    "NP": "post-projection LF MSE across frozen full candidates; B22 mixed LF4+S2four is heterogeneous"
+  },
+  "no_recompute": [
+    "FFT",
+    "measurement",
+    "GT metric",
+    "operator loss",
+    "image files",
+    "torch",
+    "GPU"
+  ],
+  "confirmation305_excluded": true,
+  "compute_units": [
+    "candidate count",
+    "method-specific UNet/anneal steps",
+    "sum GPU-active seconds where independently logged",
+    "method/group wall seconds where logged"
+  ],
+  "bootstrap": {
+    "reps": 10000,
+    "seed": 5401
+  },
+  "thresholds": {
+    "Good25": 25,
+    "Bad20": 20
+  }
+}
