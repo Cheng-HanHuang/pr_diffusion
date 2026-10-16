@@ -1,6 +1,6 @@
 {
   "schema_version": "prdiff.track-a-a0.analysis-v1",
-  "status": "BLOCKED_PENDING_B24_SITCOM_SOURCE_RECONCILIATION",
+  "status": "BLOCKED_PENDING_B24_SITCOM_HISTORICAL_SOURCE_PATCH_RECONCILIATION",
   "source_commit": "c61c5029d27220f34ad6b4b93f1b2c7f5a2767ba",
   "data_cohorts": {
     "B22": {
@@ -73,7 +73,7 @@
   "native_models": {
     "np_daps_checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
     "sitcom_checkpoint_path_hint": "/egr/research-pac/huang248/external/SITCOM_ODE/checkpoint/ffhq256.pt",
-    "sitcom_checkpoint_sha256": null,
-    "reason": "Native SITCOM checkpoint is distinct from NP/DAPS path; SHA must be read-only verified against frozen run records, not inferred from NP SHA."
+    "sitcom_checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "reason": "Verified current PAC SITCOM native checkpoint file SHA256 and size 374417833 bytes on Oct 15; same content hash as FFHQ checkpoint does not by itself certify launch-time source state."
   }
 }
