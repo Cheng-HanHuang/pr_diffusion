@@ -1,5 +1,15 @@
-# A0_EXECUTOR_RETURN — **source-gated STOP / analysis not yet executed**
-Date: 2026-10-15. Track A A0 archival-metadata executor.
+# A0_EXECUTOR_RETURN — **B22 VERIFIED PASS / B24 historical source unresolved**
+Date: 2026-10-15 to 2026-10-16. Track A A0 archival-metadata executor.
+
+> **Final status supersedes earlier chronological STOP updates:** The user returned PAC V3 `A0_B22_METADATA_REPLAY_V3_RETURN.zip` with SHA-256 `e0641c4c78e05489d8df53dd42587995b2af03460403b4ac3b22928c4b20d242`. Full B22 retrospective replay **PASSED** (12/12 synthetic tests, 1,400 candidate records, 3,600 policy records, three exact Good25 headline replays: DAPS K2 92/100, SITCOM K4 93/100, NP mixed K8 95/100). The input/output checks and per-image archived native/oracle winner replays passed; independent candidate-level and paired-bootstrap checks reproduced the reported statistics. There was **no** new GPU/inference/measurement/FFT/GT recomputation or confirmation305 access. **B24's frozen full tracked SITCOM source diff is still unreconciled; no new B24 analysis is claimed.**
+
+**Primary scientific result:** [A0_B22_RETROSPECTIVE_RESULTS_2026-10-16.md](A0_B22_RETROSPECTIVE_RESULTS_2026-10-16.md) and [machine-readable replay receipt](A0_B22_RESULTS_RECEIPT.json). These are the authoritative completed B22 A0 findings. The sections below are preserved as an execution/debugging history; statements such as “no comparison has run” describe their respective **earlier** dates, not final status.
+
+**Native vs offline GT K-oracle:** DAPS Fresh2 K2 92 vs 92 Good25, mean regret 0.129 dB, 59/100 PSNR-optimal winner; SITCOM-4S 93 vs 95, 0.225 dB, 39/100; NP mixed8 95 vs 96, 0.138 dB, 26/100. SITCOM native selector misses image `60140` by 15.742 dB and crosses Good25 on `60140` and `64518`; NP misses threshold on `65269`. An offline GT oracle across all 14 candidates achieves 99/100 Good25, no improvement beyond best-of-three already selected native methods; `65003` remains unresolved. NP S2-only4 clean-free retrospective selection gives 94/100 at ~206.46 recorded reconstruction seconds versus NP mixed8 95/100 at ~411.78, an **exploratory, not prospective, cost-efficiency hypothesis**.
+
+**Recommendation to Track A scientific lead:** treat B22 selector inventory as **complete**; independently decide whether a prospective clean-free tail-robust selector test or compute-budgeted S2-only4 benchmark is warranted. Do not claim NP best-of-eight is eight IID restarts, SITCOM4S is four independently seeded runs, cross-family K implies equal compute, or GT oracle is deployable. B24 remains separate and STOP-qualified.
+
+
 
 **Review status:** `A0.0_RECEIPT_VALIDATED; B24_SITCOM_SOURCE_UNRECONCILED; A0.1_NOT_EXECUTED`. This report is a conservative **interim STOP return**, not a claim that A0's historical candidate comparison is complete. Track A scientific lead should not use missing oracle/native cells as performance evidence.
 
