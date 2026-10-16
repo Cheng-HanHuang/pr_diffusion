@@ -343,7 +343,11 @@ def run(args: Any) -> dict:
             raise AuditStop("B24 SITCOM source remains uncertain; forbid B24/full analysis")
     if args.out.exists():
         raise AuditStop("A0 output already exists; never overwrite")
-    imgs=b22_rows(args.b21,args.b22,spec)+b24_rows(args.b24,args.corrected,args.b24.parent,spec)
+    imgs=[]
+    if args.cohort in ("B22", "all"):
+        imgs.extend(b22_rows(args.b21,args.b22,spec))
+    if args.cohort in ("B24", "all"):
+        imgs.extend(b24_rows(args.b24,args.corrected,args.b24.parent,spec))
     policies=[];candidates=[];unsupported=[]; by_group=defaultdict(list)
     for group in imgs:
         rows=ladders(group[0]["cohort"],group[0]["method"],group)
@@ -369,6 +373,8 @@ def run(args: Any) -> dict:
               ("B24","DAPS","NATIVE",2):57,
               ("B24","NP","NATIVE",4):55}
     checks={}
+    expected = {key:value for key,value in expected.items()
+                if args.cohort in (key[0], "all")}
     for (co,me,po,k),good in expected.items():
         data=[r for r in policies if (r["cohort"],r["method"],r["policy"],r["K"])==(co,me,po,k)]
         actual=sum(r["good25"] for r in data)
@@ -417,7 +423,9 @@ def run(args: Any) -> dict:
 
 def main() -> None:
     p=argparse.ArgumentParser()
-    for arg in ("spec","inventory","source-reconcile","b21","b22","b24","corrected","out"):
+    p.add_argument("--cohort",choices=("B22","B24","all"),required=True)
+    for arg in ("spec","inventory","source-reconcile","patch-audit",
+                "b21","b22","b24","corrected","out"):
         p.add_argument("--"+arg,required=True,type=Path)
     a=p.parse_args()
     # Never create output before passing all read/replay checks.
