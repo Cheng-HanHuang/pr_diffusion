@@ -1,0 +1,158 @@
+{
+  "schema_version": "a0.source-artifact-manifest.review.v1",
+  "status": "SOURCE_PROVENANCE_NOT_PASSED",
+  "inventory_status": "AWAITING_SOURCE_AND_SCHEMA_REVIEW",
+  "source_read_only_inventory": {
+    "upload_sha256": "77342e210f70580f4148860fc2de6bb89441aa92935296ab9cf337d7bccb07bf",
+    "manifest_sha256": "bc749c7bd92c956585934d2bd1dcd5e03583982ef7a242b5b818301a62584203",
+    "full_log_sha256": "5fa956b69d3a8311ef29f96ce9e481ef521b552aa707aba8298ecf9c9372599f",
+    "PAC_output": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a0_native_selector_audit_20261015/",
+    "terminal_rc": 0,
+    "zip_member_sha256_checks": "5/5 verified against supplied ZIP with basename remapping"
+  },
+  "provenance": {
+    "B21_source": {
+      "status": "PAC_NOT_CHECKED",
+      "note": "B21 rows/seed/exact loss logged; no source/model/measurement full provenance in inventory"
+    },
+    "B22_repo": {
+      "status": "AVAILABLE",
+      "source_head": "191dbd70894b24f0fafa160c08b17d7ab47a17f1"
+    },
+    "B22_DIFFfpr": {
+      "status": "AVAILABLE",
+      "head": "a45ffe58f18fed8a63d3446600424e2b08733524"
+    },
+    "B22_SITCOM": {
+      "status": "SOURCE_UNCERTAIN",
+      "head": "275ab67efbd8146bffca20155171ba6be1169c09",
+      "note": "B22 records small tracked code difference in posterior_sample.py; model checkpoint SHA unverified"
+    },
+    "B24_DAPS": {
+      "status": "AVAILABLE_TRACKED_DIFF_RECONCILED",
+      "head": "e7a77d094167084faed19b599b96673b7bb11447",
+      "tracked_diff_sha256": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69"
+    },
+    "B24_SITCOM": {
+      "status": "SOURCE_UNCERTAIN",
+      "head": "275ab67efbd8146bffca20155171ba6be1169c09",
+      "historical_diff_sha256": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e",
+      "current_diff_sha256": "0a5587945acbbb86da46ca8e49996bb79ff4cf142c821f268515777ad379ab2a",
+      "note": "10 modified tracked .pyc and posterior_sample.py; source-only diff not yet compared"
+    },
+    "B24_NP": {
+      "status": "PARTIAL_VERIFICATION",
+      "head": "19d1054dcd7a73a471df08032619c05875b3d3c1",
+      "note": "B24 tracked checkout clean; per-image Pilot16 source identities not exhaustively validated"
+    },
+    "NP_DAPS_model": {
+      "status": "HISTORICALLY_RECORDED_NOT_REHASHED",
+      "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+    },
+    "SITCOM_checkpoint": {
+      "status": "UNAVAILABLE",
+      "path_hint": "/egr/research-pac/huang248/external/SITCOM_ODE/checkpoint/ffhq256.pt",
+      "sha256": null
+    }
+  },
+  "cohorts": {
+    "B21_Fresh2": {
+      "status": "SAMPLED_SCHEMA_AND_ROW_COUNT_PASS",
+      "images": 100,
+      "candidates": 200,
+      "source_csv_sha256": "e0ed1106076c493b6494d82e59f2bddf534aa43a05895a2b6569784283a32654",
+      "fields": {
+        "raw_psnr": "AVAILABLE",
+        "signed_exact_loss": "AVAILABLE",
+        "seed": "AVAILABLE",
+        "wall_seconds": "AVAILABLE",
+        "measurement_content_sha": "NOT_IN_CSV",
+        "source_sha": "NOT_IN_CSV"
+      }
+    },
+    "B22_SITCOM": {
+      "status": "POLICY_COUNT_100_SAMPLE_SCHEMA_PASS",
+      "images": 100,
+      "expected_candidates": 400,
+      "confirmed_candidate_files_in_samples": 8,
+      "seeds": "one master seed 43; four sequential RNG runs per image",
+      "native_selector": "step160.correction_norm available in sampled files",
+      "representation": "float raw RGB PSNR",
+      "signed_terminal_residual": "AVAILABLE_IN_SAMPLES",
+      "manifest_sha256": "94184e36b27aac0defb93b31ae7b47ea332909bcb0c0a80445be2949f422a219"
+    },
+    "B22_NP": {
+      "status": "POLICY_COUNT_100_SAMPLE_SCHEMA_PASS",
+      "images": 100,
+      "expected_candidates": 800,
+      "confirmed_candidate_files_in_samples": 16,
+      "seeds": "LF seeds 100-103 + S2 seeds 100-103; non-IID heterogeneous portfolio",
+      "native_selector": "postproj LF MSE available in sampled files",
+      "representation": "float raw RGB PSNR",
+      "signed_terminal_residual": "NOT_PROVEN_PRESENT"
+    },
+    "B24_DEV80": {
+      "status": "PASS_RECEIPTS_AND_CARDINALITY",
+      "images": 80,
+      "strata": {
+        "A": 20,
+        "B": 20,
+        "C": 20,
+        "D": 20
+      },
+      "receipts_pass": 80,
+      "pilot_np_reuse": 16,
+      "counts": {
+        "DAPS": 320,
+        "SITCOM": 320,
+        "NP4": 320
+      },
+      "manifest_sha256": "3945c2ed26e10766a64ab4e7fb64ea673fa2f478fbf080ea8d1d2c85584f6d5f"
+    },
+    "B24_DAPS": {
+      "status": "METADATA_AVAILABLE_SOURCE_PARTIAL",
+      "seeds": "reps0..3 independently preregistered",
+      "native_K2": "stored exact signed-loss margin 0.7",
+      "native_K4": "UNAVAILABLE",
+      "oracle_K4": "AVAILABLE",
+      "metric": "canonical saved quantized 8-bit RGB PSNR"
+    },
+    "B24_SITCOM": {
+      "status": "SOURCE_UNCERTAIN_SELECTOR_UNAVAILABLE",
+      "seeds": "reps0..3 independently preregistered",
+      "native_K4": "UNAVAILABLE_NOT_STEP160_RECORDED",
+      "oracle_K4": "AVAILABLE",
+      "metric": "canonical saved quantized 8-bit RGB PSNR"
+    },
+    "B24_NP4": {
+      "status": "METADATA_AVAILABLE_SOURCE_PARTIAL",
+      "seeds": "four frozen LF root seeds per image; Pilot16 reuse",
+      "native_K4": "post-projection LF score",
+      "oracle_K4": "AVAILABLE",
+      "metric": "native tensor raw PSNR; cannot assume equal to 8-bit DAPS/SITCOM"
+    }
+  },
+  "B24_corrected_Fresh2": {
+    "status": "AVAILABLE",
+    "fresh2_rows_sha256": "4f6ed3bc68f114e72a19f9eaca0c7e34970c33dae6a063e7b787528350242695",
+    "loss_rep0_rep1": "AVAILABLE",
+    "selected_good25_historical": "57/80",
+    "np4_native_good25_historical": "55/80"
+  },
+  "safety": {
+    "confirmation305": "NOT_ACCESSED",
+    "reconstruction": "NOT_EXECUTED",
+    "new_measurements": "NONE",
+    "GPU": "NONE",
+    "historical_files_modified": false
+  },
+  "missing": [
+    "SITCOM source-only historical dirty diff comparison",
+    "frozen SITCOM native checkpoint SHA vs run provenance",
+    "B22 exhaustive per-candidate metadata/seed/cardinality (inventory only samples)",
+    "B24 per-terminal source/measurement identity beyond receipts",
+    "B22 signed final residual for NP",
+    "B24 SITCOM step160 native K4 selector absent"
+  ],
+  "next": "Strictly read-only source reconciliation, then metadata-only A0.1 replay and table generation; never infer PASS from GitHub."
+}
