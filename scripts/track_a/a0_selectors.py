@@ -71,8 +71,11 @@ def best(candidates: list[dict], field: str, maximize: bool) -> dict:
     if not candidates:
         raise AuditStop("empty candidate prefix")
     values = [finite(c.get(field), field) for c in candidates]
-    index = (max if maximize else min)(range(len(values)),
-                                        key=lambda j: ((values[j] if maximize else -values[j]), -j))
+    # Use one argmax transformation for BOTH directions. In particular, do NOT
+    # call min() on negated scores: that would select the largest raw score.
+    # The -j secondary key preserves the earliest observed candidate on ties.
+    index = max(range(len(values)),
+                key=lambda j: ((values[j] if maximize else -values[j]), -j))
     return candidates[index]
 
 def native(cohort: str, method: str, candidates: list[dict], k: int) -> dict:
