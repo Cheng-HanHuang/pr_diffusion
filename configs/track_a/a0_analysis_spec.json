@@ -69,5 +69,11 @@
   "thresholds": {
     "Good25": 25,
     "Bad20": 20
+  },
+  "native_models": {
+    "np_daps_checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "sitcom_checkpoint_path_hint": "/egr/research-pac/huang248/external/SITCOM_ODE/checkpoint/ffhq256.pt",
+    "sitcom_checkpoint_sha256": null,
+    "reason": "Native SITCOM checkpoint is distinct from NP/DAPS path; SHA must be read-only verified against frozen run records, not inferred from NP SHA."
   }
 }
