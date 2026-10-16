@@ -122,6 +122,7 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                 loss=row[f"arm{arm}_exact_operator_loss"],
                 wall=row[f"arm{arm}_wall_seconds"], native_seed=row.get(f"seed{arm}")))
         common_sha = None
+        common_file_sha = None
         groups = [sd]
         for method, k in (("SITCOM",4),("NP",8)):
             folder = full / method.lower() / f"row{position:03d}_{img}"
@@ -145,6 +146,15 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                     raise AuditStop(f"B22 candidate not PASS {img}:{method}:{idx}")
                 if r.get("repo_head") != B22_SOURCE:
                     raise AuditStop(f"B22 candidate repo source mismatch {img}")
+                # B21 and B22 must reference the exact same frozen measurement, not just image ID.
+                if str(r.get("measurement_path")) != str(row["measurement_path"]):
+                    raise AuditStop(f"B21/B22 measurement path mismatch {img}")
+                file_sha = r.get("measurement_file_sha256")
+                if not isinstance(file_sha, str) or len(file_sha) != 64:
+                    raise AuditStop(f"B22 measurement file SHA missing {img}")
+                if common_file_sha is not None and file_sha != common_file_sha:
+                    raise AuditStop(f"B22 SITCOM/NP measurement file SHA mismatch {img}")
+                common_file_sha = file_sha
                 if method=="SITCOM":
                     if (r.get("sitcom_head")!=SITCOM_HEAD or int(r.get("run_index",-1))!=idx
                         or int(r.get("master_seed",-1))!=43 or
