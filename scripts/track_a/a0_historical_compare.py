@@ -61,6 +61,13 @@ def check_digest(path: Path, expected: str) -> None:
     if digest(path) != expected:
         raise AuditStop(f"metadata SHA drift: {path.name}")
 
+def native_sitcom_sha(spec: dict) -> str:
+    # SITCOM uses checkpoint/ffhq256.pt, NOT necessarily NP/DAPS ffhq_10m.pt.
+    h = spec.get("native_models",{}).get("sitcom_checkpoint_sha256")
+    if not isinstance(h,str) or len(h)!=64 or any(c not in "0123456789abcdef" for c in h):
+        raise AuditStop("SITCOM native checkpoint SHA-256 not verified; refuse model identity substitution")
+    return h
+
 def image(value: Any) -> str:
     s = str(value).zfill(5)
     if len(s) != 5 or not s.isdecimal():
@@ -71,13 +78,14 @@ def norm(*, cohort: str, method: str, img: str, measurement: str,
          source: str, rep: str, group: str, index: int, psnr: Any,
          candidate_id: str, selector: Any = None, loss: Any = None,
          wall: Any = None, ssim: Any = None, lpips: Any = None,
-         stratum: str = "", native_seed: Any = None) -> dict:
+         stratum: str = "", native_seed: Any = None,
+         model_hash: str = MODEL) -> dict:
     if len(str(measurement)) != 64:
         raise AuditStop("measurement SHA absent")
     row = {"cohort": cohort, "image_id": img, "method": method,
            "group": group, "index": index, "candidate_id": candidate_id,
            "representation": rep, "measurement_sha256": measurement,
-           "model_sha256": MODEL, "source_id": source, "psnr": finite(psnr, "psnr"),
+           "model_sha256": model_hash, "source_id": source, "psnr": finite(psnr, "psnr"),
            "stratum": stratum, "native_seed": native_seed, "wall_s": wall,
            "ssim": ssim, "lpips": lpips,
            "postproj_lf_mse": selector if method == "NP" else None,
@@ -174,6 +182,7 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                     source=B22_SOURCE,rep=REPS["B22"],group=group,index=idx,
                     candidate_id=f"B22:{method}:{img}:{group}{idx}",
                     psnr=r["metrics"]["psnr_raw"],selector=selector,
+                    model_hash=(native_sitcom_sha(spec) if method=="SITCOM" else MODEL),
                     wall=r["timing"]["reconstruction_s"],
                     ssim=r["metrics"].get("ssim_raw"),
                     native_seed=idx))
@@ -240,6 +249,7 @@ def b24_rows(dev: Path, corrected: Path, safe_root: Path, spec: dict) -> list[li
                     psnr=q["psnr_raw_rgb_db"],ssim=q.get("ssim_raw_rgb"),
                     lpips=q.get("lpips_alex_raw_rgb"),
                     loss=loss,wall=q.get("gpu_active_seconds"),
+                    model_hash=(native_sitcom_sha(spec) if method=="SITCOM" else MODEL),
                     stratum=task["class_label"],native_seed=q["native_seed"]))
             records.append(group)
         np_path=Path(comp["np_results"]["NP4_INDEPENDENT"])
