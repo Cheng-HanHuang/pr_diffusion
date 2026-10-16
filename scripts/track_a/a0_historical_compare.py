@@ -186,6 +186,36 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
                     wall=r["timing"]["reconstruction_s"],
                     ssim=r["metrics"].get("ssim_raw"),
                     native_seed=idx))
+            # Per-image native and oracle replay against the ACTUAL B22
+            # materialized policy identity, not just aggregate Good25 counts.
+            archived=p.get("policies", {})
+            if method=="SITCOM":
+                nidx=min(range(4),key=lambda j:(finite(recs[j]["step160_correction_norm"],"norm"),j))
+                oidx=max(range(4),key=lambda j:(finite(recs[j]["psnr"],"psnr"),-j))
+                expected_replay={
+                    "SITCOM-1":(0,"candidate_run_index"),
+                    "SITCOM-4S":(nidx,"candidate_run_index"),
+                    "SITCOM-oracle4":(oidx,"candidate_run_index"),
+                }
+            else:
+                nidx=min(range(8),key=lambda j:(finite(recs[j]["postproj_lf_mse"],"lf score"),j))
+                oidx=max(range(8),key=lambda j:(finite(recs[j]["psnr"],"psnr"),-j))
+                expected_replay={
+                    "NP-1":(0,"candidate_seed"),
+                    "NP-8-RS":(nidx,"candidate_seed"),
+                    "NP-oracle8":(oidx,"candidate_seed"),
+                }
+            for name,(index,selector_key) in expected_replay.items():
+                policy_row=archived.get(name,{})
+                want=(int(recs[index]["index"]) if method=="NP"
+                      else index)
+                if int(policy_row.get(selector_key,-1))!=want:
+                    raise AuditStop(f"archived selected candidate mismatch {img} {name}")
+                if method=="NP" and policy_row.get("candidate_config_tag")!=recs[index]["group"]:
+                    raise AuditStop(f"archived NP config mismatch {img} {name}")
+                value=finite(policy_row.get("metrics",{}).get("psnr_raw"),"archived PSNR")
+                if abs(value-finite(recs[index]["psnr"],"candidate PSNR"))>1e-7:
+                    raise AuditStop(f"archived selected PSNR mismatch {img} {name}")
             groups.append(recs)
         for d in sd:
             d["measurement_sha256"]=common_sha
