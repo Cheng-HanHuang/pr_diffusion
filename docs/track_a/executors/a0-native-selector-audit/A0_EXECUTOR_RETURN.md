@@ -59,3 +59,11 @@ No GPU, dataset/model execution, measurement creation, terminal re-evaluation, o
 - Reviewed compact JSON/MD: under `docs/track_a/executors/a0-native-selector-audit/` in this branch.
 - Code/config/tests: `scripts/track_a/`, `configs/track_a/`.
 - Next action: run one bounded **read-only** source-only diff + checkpoint hash audit, then review its actual stdout. Register any final A0 replay return commit in issue #41 and notify the Track A lead; do not open B24 confirmation305.
+
+## Addendum — SITCOM source recheck on 2026-10-15
+
+The user returned `A0_SITCOM_SOURCE_RECHECK.json` (SHA `2c811247ae8cd077aac57ab23ce19f219ef3169a2b69cb04943ffbdccffa16ed`). It **verified** the current SITCOM native checkpoint SHA-256 `81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa` (374417833 bytes), so the initial model-SHA unknown cell is resolved for the currently accessible file. The current SITCOM HEAD is the frozen pinned upstream commit; there is one modified tracked Python file `posterior_sample.py` and ten modified tracked bytecode files.
+
+**Correction to original source STOP reasoning:** Comparing the current source-only diff SHA `d0bb0292...` to the B24 historical **full** tracked diff SHA `a9f0076d...` was invalid because the underlying streams differ. It does **not** prove Python source mismatch. Conversely the bytecode modifications alone do **not** prove unchanged B24 Python source. A bounded direct comparison to the archived B22 `posterior_sample.py` patch is the next step; B24 historical source identity remains *unreconciled* without an independent B24 patch/file hash witness. The A0 source tool and analysis gate have been fixed accordingly. [Assessment](A0_SITCOM_RECHECK_ASSESSMENT.md).
+
+**Updated status:** `MODEL_CURRENT_HASH_VERIFIED / HISTORICAL_B24_SITCOM_SOURCE_UNCERTAIN / A0.1_NOT_RUN`. Neither a source PASS nor new candidate-level scientific result is claimed.
