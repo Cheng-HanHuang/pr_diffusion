@@ -14,7 +14,10 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from a0_selectors import AuditStop, finite, ladders, paired, summarize
+if __package__:
+    from .a0_selectors import AuditStop, finite, ladders, paired, summarize
+else:
+    from a0_selectors import AuditStop, finite, ladders, paired, summarize
 
 MODEL = "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
 B22_SOURCE = "191dbd70894b24f0fafa160c08b17d7ab47a17f1"
@@ -99,25 +102,15 @@ def norm(*, cohort: str, method: str, img: str, measurement: str,
         finite(loss, "signed loss")
     return row
 
-def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
-    b21_path = b21 / "analysis_theta0.7" / "fresh2_final_rows.csv"
-    full = run / "full"
-    for p, tag in ((b21_path,"b21_fresh2_rows"), (full/"manifest.json","b22_manifest"),
-                   (full/"validation.json","b22_validation")):
-        check_digest(p, spec["known_sha256"][tag])
-    b21_rows = readcsv(b21_path, b21)
+def align_frozen_b21_b22(b21_rows: list[dict], manifest: dict) -> list[tuple[int,dict,dict]]:
+    """Join by image ID, never by incompatible B21/B22 row enumeration.
+
+    The B22 manifest determines folder row identifiers. Cross-check measurement
+    path and expected digests so a coincidentally matching image ID is insufficient.
+    This function only inspects passed JSON/CSV metadata dictionaries.
+    """
     if len(b21_rows) != 100:
-        raise AuditStop("B21 row count drift")
-    valid = readj(full/"validation.json",run)
-    manifest = readj(full/"manifest.json",run)
-    if valid.get("status") != "PASS" or valid.get("full_panel_complete") is not True:
-        raise AuditStop("B22 validated full panel not PASS")
-    ids = manifest.get("identities", {})
-    if (ids.get("repo_head") != B22_SOURCE or ids.get("difffpr_head") != B22_DIFF or
-        ids.get("sitcom_head") != SITCOM_HEAD or ids.get("model_sha256") != MODEL):
-        raise AuditStop("B22 source/model identity drift")
-    # B21 rows are NOT ordered in B22's sorted locked-filename panel order.
-    # Join by immutable image ID. Never assume equal row_id or line position.
+        raise AuditStop("B21 full panel cardinality drift")
     b21_by_image = {}
     b21_row_ids = set()
     for row in b21_rows:
@@ -137,7 +130,7 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
     b22_ids = [image(x["image_id"]) for x in frozen_rows]
     if len(set(b22_ids)) != 100 or set(b22_ids) != set(b21_by_image):
         raise AuditStop("B21/B22 panel image ID set mismatch")
-    all_images = []
+    aligned = []
     for position, frozen in enumerate(frozen_rows):
         img = image(frozen["image_id"])
         if int(frozen.get("row_id",-1)) != position:
@@ -149,6 +142,29 @@ def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
             raise AuditStop(f"B22 manifest missing measurement file SHA: {img}")
         if len(str(frozen.get("measurement_content_sha256",""))) != 64:
             raise AuditStop(f"B22 manifest missing measurement content SHA: {img}")
+        aligned.append((position, row, frozen))
+    return aligned
+
+def b22_rows(b21: Path, run: Path, spec: dict) -> list[list[dict]]:
+    b21_path = b21 / "analysis_theta0.7" / "fresh2_final_rows.csv"
+    full = run / "full"
+    for p, tag in ((b21_path,"b21_fresh2_rows"), (full/"manifest.json","b22_manifest"),
+                   (full/"validation.json","b22_validation")):
+        check_digest(p, spec["known_sha256"][tag])
+    b21_rows = readcsv(b21_path, b21)
+    if len(b21_rows) != 100:
+        raise AuditStop("B21 row count drift")
+    valid = readj(full/"validation.json",run)
+    manifest = readj(full/"manifest.json",run)
+    if valid.get("status") != "PASS" or valid.get("full_panel_complete") is not True:
+        raise AuditStop("B22 validated full panel not PASS")
+    ids = manifest.get("identities", {})
+    if (ids.get("repo_head") != B22_SOURCE or ids.get("difffpr_head") != B22_DIFF or
+        ids.get("sitcom_head") != SITCOM_HEAD or ids.get("model_sha256") != MODEL):
+        raise AuditStop("B22 source/model identity drift")
+    all_images = []
+    for position, row, frozen in align_frozen_b21_b22(b21_rows,manifest):
+        img = image(frozen["image_id"])
         sd = []
         for arm in (1,2):
             sd.append(norm(cohort="B22",method="DAPS",img=img,
