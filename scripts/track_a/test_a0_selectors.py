@@ -45,6 +45,24 @@ class SelectorsTest(unittest.TestCase):
         self.assertEqual(native("B22","SITCOM",c,4)["index"],1)
         with self.assertRaises(AuditStop):native("B22","SITCOM",c,2)
         with self.assertRaises(AuditStop):native("B24","SITCOM",rows("B24","SITCOM"),4)
+    def test_argmin_monotone_negative_and_earliest_tie(self):
+        c=rows("B22","SITCOM",scores=[-4.0,-2.0,-1.0,9.0])
+        self.assertEqual(best(c,"step160_correction_norm",False)["index"],0)
+        self.assertEqual(native("B22","SITCOM",c,4)["index"],0)
+        c=rows("B22","SITCOM",scores=[4.0,2.0,2.0,1.0])
+        self.assertEqual(best(c,"step160_correction_norm",False)["index"],3)
+        c=rows("B22","SITCOM",scores=[2.0,-5.0,-5.0,1.0])
+        self.assertEqual(best(c,"step160_correction_norm",False)["index"],1)
+        c=rows("B22","NP",scores=[20,19,18,17,16,15,14,13])
+        self.assertEqual(native("B22","NP",c,8)["candidate_id"],"s2_preproj_lam001-103")
+        c=rows("B22","NP",scores=[-2,-2,1,2,3,4,5,6])
+        self.assertEqual(native("B22","NP",c,8)["candidate_id"],"lf-100")
+
+    def test_argmax_psnr_independent_of_score(self):
+        c=rows("B22","SITCOM",psnrs=[13,99,98,97],
+               scores=[0.1,0.9,0.2,0.8])
+        self.assertEqual(oracle(c,4)["index"],1)
+        self.assertEqual(native("B22","SITCOM",c,4)["index"],0)
     def test_missing_selector_fails_closed(self):
         c=rows("B24","NP")
         c[1].pop("postproj_lf_mse")
