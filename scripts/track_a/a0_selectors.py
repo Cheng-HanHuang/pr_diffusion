@@ -192,6 +192,6 @@ def paired(a: list[dict], b: list[dict], *, seed: int = 5401, reps: int = 10000,
     pval = min(1.0, 2*sum(comb(n,j) for j in range(min(rescues,harms)+1))/2**n) if n else 1.0
     rng = Random(seed)
     bootstrap = sorted(mean([x[rng.randrange(len(x))] for _ in x]) for _ in range(reps))
-    return {"n":len(x), "compute_matched": not allow_different_k, "mean_delta":mean(x),
+    return {"n":len(x), "compute_matched": False, "unequal_K":allow_different_k, "mean_delta":mean(x),
             "ci95_low":quantile(bootstrap,.025), "ci95_high":quantile(bootstrap,.975),
             "rescues":rescues, "harms":harms, "mcnemar_exact_p":pval}
