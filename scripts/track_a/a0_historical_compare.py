@@ -305,11 +305,13 @@ def run(args: Any) -> dict:
     if (daps.get("matches_recorded_B24_diff") is not True or
         daps.get("unstaged_diff_sha256")!=B24_DIFF or daps.get("head")!=DAPS_HEAD):
         raise AuditStop("DAPS dirty-source provenance missing")
-    if (recon.get("status")!="SOURCE_ONLY_RECONCILED_BUT_BYTECODE_DRIFT" or
-        recon.get("source_only_diff_sha256")!=SITCOM_DIFF or
+    # A frozen B24 FULL tracked diff cannot be certified from a current
+    # SOURCE-ONLY diff, even if all remaining changed files are bytecode.
+    if (recon.get("status")!="MATCH_B24_FULL_DIFF" or
+        recon.get("current_full_diff_sha256")!=SITCOM_DIFF or
         recon.get("head")!=SITCOM_HEAD or
         not recon.get("no_unexpected_source_changes")):
-        raise AuditStop("B24 SITCOM source not historically reconciled")
+        raise AuditStop("B24 SITCOM full source identity not reconciled; independent historical patch witness needed")
     if args.out.exists():
         raise AuditStop("A0 output already exists; never overwrite")
     imgs=b22_rows(args.b21,args.b22,spec)+b24_rows(args.b24,args.corrected,args.b24.parent,spec)
