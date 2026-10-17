@@ -48,6 +48,32 @@ def file_sha(p: Path, *, maxbytes: int) -> tuple[str,int]:
             h.update(block)
     return h.hexdigest(), n
 
+def checkpoint_sha(p: Path, *, allowed_root: Path, maxbytes: int) -> tuple[str,int,dict]:
+    """Checkpoint-only safe symlink resolution; archived metadata stays strict.
+
+    Resolve the explicitly named checkpoint path, require the final regular file
+    to remain within the PAC workspace and hash the final *content*. Broken links,
+    escapes and unexpected file types remain STOP conditions.
+    """
+    if not p.is_file() and not p.is_symlink():
+        raise ValueError(f"named checkpoint absent: {p}")
+    try:
+        resolved = p.resolve(strict=True)
+    except (OSError, RuntimeError) as e:
+        raise ValueError(f"checkpoint link missing or cyclic: {p}: {e}") from e
+    root = allowed_root.resolve(strict=True)
+    if not resolved.is_relative_to(root):
+        raise ValueError(f"checkpoint target escapes approved PAC workspace: {p}")
+    if not resolved.is_file() or resolved.is_symlink():
+        raise ValueError(f"checkpoint target is not a regular file: {p}")
+    digest,n = file_sha(resolved, maxbytes=maxbytes)
+    info = {"is_symlink":p.is_symlink(),
+            "link_text":os.readlink(p) if p.is_symlink() else None,
+            "resolved_path":str(resolved),
+            "approved_workspace":str(root)}
+    return digest,n,info
+
+
 def cmd(args: list[str], timeout=25) -> tuple[int,str]:
     env=dict(os.environ, GIT_OPTIONAL_LOCKS="0", PYTHONDONTWRITEBYTECODE="1")
     try:
@@ -121,7 +147,7 @@ def main() -> int:
     rc,head=cmd(["git","-C",str(a.checkout),"rev-parse","HEAD"])
     if rc or head.strip()!=a.expected_head:
         issues.append("A1 pinned execution checkout source HEAD mismatch")
-    result={"schema_version":"a1.0-readonly-preflight.v1",
+    result={"schema_version":"a1.0-readonly-preflight.v2",
             "stage":"A1.0", "gpu_work_performed":False,
             "inference_performed":False,"measurements_created":False,
             "candidate_images_selected":False,
@@ -138,9 +164,10 @@ def main() -> int:
         "NP_DAPS_ffhq_model":ROOT/"models/ffhq_10m.pt"
     }.items():
         try:
-            d,n=file_sha(path,maxbytes=2_000_000_000)
+            d,n,linkinfo=checkpoint_sha(path,allowed_root=ROOT,maxbytes=2_000_000_000)
             result["checkpoints"][label]={"path":str(path),"size_bytes":n,
-                                          "sha256":d,"expected_sha256":SHA_MODEL}
+                                          "sha256":d,"expected_sha256":SHA_MODEL,
+                                          **linkinfo}
             if d!=SHA_MODEL:
                 issues.append(f"{label}: checkpoint SHA differs from historical frozen model")
         except (OSError,ValueError) as e:
