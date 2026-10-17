@@ -41,6 +41,21 @@ def seed63(tag: str, identifier: str, index: int) -> int:
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big") & ((1 << 63) - 1)
 
 
+def seed32_numpy(tag: str, identifier: str, index: int) -> int:
+    """Legacy NumPy global RNG requires an unsigned 32-bit seed.
+
+    Full 63-bit seed63 belongs to torch / compatible generators; use this
+    independent domain-separated digest for numpy.random.seed().
+    """
+    identifier = image_id(identifier)
+    if tag not in ARMS + ("A1_MEAS_V1",):
+        raise ProtocolStop(f"unknown numpy seed domain {tag!r}")
+    if not isinstance(index, int) or isinstance(index, bool) or index < 0:
+        raise ProtocolStop("numpy replicate must be a nonnegative integer")
+    payload = f"{VERSION}|numpy32|{tag}|{identifier}|{index}".encode("utf8")
+    return int.from_bytes(hashlib.sha256(payload).digest()[:4], "big")
+
+
 @dataclass(frozen=True)
 class Candidate:
     image_id: str
