@@ -1,7 +1,7 @@
 """A1 protocol checks (stdlib only; invented synthetic five-digit IDs)."""
 import unittest
 from scripts.track_a.a1_protocol import (
-    ProtocolStop, candidate_matrix, seed63, mixed_np4, mixed_np8,
+    ProtocolStop, candidate_matrix, seed63, seed32_numpy, mixed_np4, mixed_np8,
     select_dev_ids, verify_matrix,
 )
 
@@ -42,6 +42,19 @@ class A1ProtocolTests(unittest.TestCase):
             seed63("UNKNOWN", "11111", 0)
         with self.assertRaises(ProtocolStop):
             seed63("DAPS", "11111", True)
+
+    def test_numpy_32bit_domains_are_stable_and_independent(self):
+        ids = [seed32_numpy(f, "11111", j)
+               for f in ("DAPS", "SITCOM", "NP_LF", "NP_S2")
+               for j in range(4)]
+        self.assertEqual(len(set(ids)),16)
+        self.assertTrue(all(0 <= seed < (1<<32) for seed in ids))
+        self.assertEqual(seed32_numpy("DAPS","11111",0),
+                         seed32_numpy("DAPS","11111",0))
+        self.assertNotEqual(seed32_numpy("DAPS","11111",0),
+                            seed32_numpy("SITCOM","11111",0))
+        with self.assertRaises(ProtocolStop):
+            seed32_numpy("DAPS","11111",True)
 
     def test_dev_ids_deterministic_and_exclusions(self):
         # Synthetic only; NOT actual prospective cohort allocation.
