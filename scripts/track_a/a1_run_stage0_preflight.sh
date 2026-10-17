@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# A1.0 read-only source/metadata inventory. No set -e/-u/pipefail, no exit.
+# A1.0 V2 read-only source/metadata inventory (preserves V1 STOP). No set -e/-u/pipefail, no exit.
 # All outputs are restricted to dedicated A1-owned namespace.
 ROOT=/egr/research-pac/huang248
 REPO="$ROOT/pr_diffusion_track_a_a1_oracle_budget"
 PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
 BASE="$ROOT/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016"
-OUT="$BASE/a1_0_preflight_20261017"
-TEST_LOG="$BASE/A1_0_SYNTHETIC_TESTS.log"
-PRE_LOG="$BASE/A1_0_PREFLIGHT.log"
-RETURN_ZIP="$BASE/A1_0_PREFLIGHT_RETURN.zip"
+OUT="$BASE/a1_0_preflight_20261017_v2"
+TEST_LOG="$BASE/A1_0_SYNTHETIC_TESTS_V2.log"
+PRE_LOG="$BASE/A1_0_PREFLIGHT_V2.log"
+RETURN_ZIP="$BASE/A1_0_PREFLIGHT_RETURN_V2.zip"
 STATUS=0
 
 if [ -z "$A1_EXPECTED_HEAD" ]; then
@@ -73,15 +73,15 @@ import hashlib,sys
 from pathlib import Path
 from zipfile import ZipFile,ZIP_DEFLATED
 base,out,dst=map(Path,sys.argv[1:])
-files=[base/"A1_0_SYNTHETIC_TESTS.log",base/"A1_0_PREFLIGHT.log"]
+files=[base/"A1_0_SYNTHETIC_TESTS_V2.log",base/"A1_0_PREFLIGHT_V2.log"]
 files=[x for x in files if x.is_file()]
 if (out/"A1_0_PREFLIGHT.json").is_file():
     files.append(out/"A1_0_PREFLIGHT.json")
 with ZipFile(dst,"x",compression=ZIP_DEFLATED) as z:
     for path in files:
         z.write(path,path.relative_to(base))
-print("A1_RETURN_ZIP",dst)
-print("A1_RETURN_SHA256",hashlib.sha256(dst.read_bytes()).hexdigest())
+print("A1_V2_RETURN_ZIP",dst)
+print("A1_V2_RETURN_SHA256",hashlib.sha256(dst.read_bytes()).hexdigest())
 PY
   ZRC=$?
   echo "A1_PACK_RC=$ZRC"
