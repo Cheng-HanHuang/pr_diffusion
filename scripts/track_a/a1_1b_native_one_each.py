@@ -392,6 +392,8 @@ def main()->int:
             if time.perf_counter()-started>MAX_AGGREGATE_S:
                 raise RuntimeError("aggregate GPU time ceiling")
             if method=="DAPS":
+                # Historical B24 child_spec creates parent/rep0 without parents=True.
+                (OUT/"daps").mkdir(exist_ok=False)
                 data_name="a1-1b-procedural-"+hashlib.sha256(str(OUT).encode()).hexdigest()[:10]
                 data_dir=config_file=None
                 try:
@@ -409,6 +411,7 @@ def main()->int:
                         if sample.is_symlink(): sample.unlink()
                         data_dir.rmdir()  # refuses unexpected files; never recursive delete
             elif method=="SITCOM":
+                (OUT/"sitcom").mkdir(exist_ok=False)
                 spec=helper.child_spec("SITCOM",REPO,item,None,OUT/"sitcom",0,seeds["SITCOM"],args.physical_gpu)
                 spec["env"].pop("B23_TRACE_PATH",None)
                 row=run_bounded(spec,args.physical_gpu,started)
