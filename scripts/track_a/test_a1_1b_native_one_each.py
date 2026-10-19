@@ -1,8 +1,10 @@
 """A1.1b native integration planning: no GPU, image, B24 data or torch imports."""
 import unittest
+import tempfile
+from pathlib import Path
 from scripts.track_a.a1_1b_native_one_each import (
     METHODS, SYNTHETIC_ID, MAX_PER_METHOD_S, MAX_AGGREGATE_S,
-    np_config, build_input_item,
+    np_config, build_input_item, make_native_parent,
 )
 from scripts.track_a.a1_protocol import seed32_numpy
 
@@ -39,6 +41,21 @@ class NativeOneEachPlanTest(unittest.TestCase):
         broken={"np1":dict(frozen["np1"],num_steps=999)}
         with self.assertRaises(RuntimeError):
             np_config(broken,"NP_LF",100)
+
+    def test_native_parent_exists_before_rep0_and_is_nonoverwriting(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            for method in ("DAPS","SITCOM"):
+                parent=make_native_parent(method,root=root)
+                self.assertTrue(parent.is_dir())
+                rep0=parent/"rep0"
+                rep0.mkdir(exist_ok=False)  # matches historical child_spec semantics
+                self.assertTrue(rep0.is_dir())
+                with self.assertRaises(FileExistsError):
+                    make_native_parent(method,root=root)
+            for method in ("NP_LF","NP_S2","DAPS_MORE"):
+                with self.assertRaises(RuntimeError):
+                    make_native_parent(method,root=root)
 
     def test_build_procedural_manifest_no_external_data(self):
         probe={
