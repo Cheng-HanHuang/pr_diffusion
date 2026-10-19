@@ -13,6 +13,7 @@ import importlib.util
 import json
 import os
 from pathlib import Path
+from datetime import datetime, timezone
 import signal
 import subprocess
 import sys
@@ -49,6 +50,14 @@ MAX_AGGREGATE_S=3600
 MAX_DEVICE_USED_MIB=52452
 MIN_DEVICE_FREE_MIB=52096
 MAX_INITIAL_DEVICE_USED_MIB=1024
+RUN_WINDOW_OPEN_UTC=datetime.fromisoformat('2026-10-19T16:30:00+00:00')
+RUN_LATEST_START_UTC=datetime.fromisoformat('2026-10-19T20:00:00+00:00')
+
+
+def run_start_in_approved_window(now:datetime|None=None)->bool:
+    """Conditional one-hour lease must start 12:30–16:00 Eastern Oct 19."""
+    clock=(now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+    return RUN_WINDOW_OPEN_UTC<=clock<=RUN_LATEST_START_UTC
 
 
 def sha_file(p:Path)->str:
@@ -379,6 +388,7 @@ def main()->int:
         "max_device_used_mib":MAX_DEVICE_USED_MIB,
         "min_free_mib":MIN_DEVICE_FREE_MIB,
         "max_initial_device_used_mib":MAX_INITIAL_DEVICE_USED_MIB,
+        "conditional_run_window_utc":["2026-10-19T16:30:00Z","2026-10-19T20:00:00Z"],
         "offline_metric":"COMMON_SAVED_RGB_8BIT_RAW_AND_ROT180",
         "no_paper_quality_claims":True,
     }
@@ -388,6 +398,8 @@ def main()->int:
         return 0
     if args.physical_gpu is None or args.reservation_ack!="TRACK_A_A1_1B_PROCEDURAL_GPU_SMOKE_APPROVED":
         raise RuntimeError("physical GPU and explicit issue #41 RUN RESERVATION acknowledgement required")
+    if not run_start_in_approved_window():
+        raise RuntimeError("GPU start outside the conditional Oct 19 12:30-16:00 EDT window; renew reservation")
     if OUT.exists():
         raise RuntimeError(f"refusing to overwrite A1.1b execution: {OUT}")
     check_gpu(args.physical_gpu)
