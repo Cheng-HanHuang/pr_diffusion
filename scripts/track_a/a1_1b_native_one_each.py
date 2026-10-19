@@ -23,7 +23,7 @@ ROOT=Path("/egr/research-pac/huang248")
 REPO=ROOT/"pr_diffusion_track_a_a1_oracle_budget"
 BASE=ROOT/"outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016"
 PROBE=BASE/"a1_1a_synthetic_probe_v1"
-OUT=BASE/"a1_1b_one_each_v1"
+OUT=BASE/"a1_1b_one_each_v2"
 DAPS=ROOT/"pr_diffusion_b19_solver/external/daps"
 SITCOM=ROOT/"external/SITCOM_ODE"
 DIFFFPR=ROOT/"external/DiffFPR"
@@ -50,12 +50,12 @@ MAX_AGGREGATE_S=3600
 MAX_DEVICE_USED_MIB=52452
 MIN_DEVICE_FREE_MIB=52096
 MAX_INITIAL_DEVICE_USED_MIB=1024
-RUN_WINDOW_OPEN_UTC=datetime.fromisoformat('2026-10-19T16:30:00+00:00')
-RUN_LATEST_START_UTC=datetime.fromisoformat('2026-10-19T20:00:00+00:00')
+RUN_WINDOW_OPEN_UTC=datetime.fromisoformat('2026-10-19T23:30:00+00:00')
+RUN_LATEST_START_UTC=datetime.fromisoformat('2026-10-20T03:30:00+00:00')
 
 
 def run_start_in_approved_window(now:datetime|None=None)->bool:
-    """Conditional one-hour lease must start 12:30–16:00 Eastern Oct 19."""
+    """Conditional one-hour lease: Oct 19 19:30–23:30 Eastern; max run 1h."""
     clock=(now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     return RUN_WINDOW_OPEN_UTC<=clock<=RUN_LATEST_START_UTC
 
@@ -375,7 +375,7 @@ def main()->int:
     if len(set(seeds.values()))!=4:
         raise RuntimeError("native 32bit seed collision")
     planned={
-        "schema":"a1.1b.procedural-four-native-smoke.v1",
+        "schema":"a1.1b.procedural-four-native-smoke.v2",
         "source_head":args.expected_head,
         "procedure":"ONE_FULL_NATIVE_CANDIDATE_PER_METHOD_NOT_K4",
         "probe_synthetic_non_ffhq":True,"protected_confirmation_access":False,
@@ -388,7 +388,7 @@ def main()->int:
         "max_device_used_mib":MAX_DEVICE_USED_MIB,
         "min_free_mib":MIN_DEVICE_FREE_MIB,
         "max_initial_device_used_mib":MAX_INITIAL_DEVICE_USED_MIB,
-        "conditional_run_window_utc":["2026-10-19T16:30:00Z","2026-10-19T20:00:00Z"],
+        "conditional_run_window_utc":["2026-10-19T23:30:00Z","2026-10-20T03:30:00Z"],
         "offline_metric":"COMMON_SAVED_RGB_8BIT_RAW_AND_ROT180",
         "no_paper_quality_claims":True,
     }
@@ -399,7 +399,7 @@ def main()->int:
     if args.physical_gpu is None or args.reservation_ack!="TRACK_A_A1_1B_PROCEDURAL_GPU_SMOKE_APPROVED":
         raise RuntimeError("physical GPU and explicit issue #41 RUN RESERVATION acknowledgement required")
     if not run_start_in_approved_window():
-        raise RuntimeError("GPU start outside the conditional Oct 19 12:30-16:00 EDT window; renew reservation")
+        raise RuntimeError("GPU start outside the conditional Oct 19 19:30-23:30 EDT V2 window; renew reservation")
     if OUT.exists():
         raise RuntimeError(f"refusing to overwrite A1.1b execution: {OUT}")
     check_gpu(args.physical_gpu)
