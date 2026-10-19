@@ -45,13 +45,13 @@ class NativeOneEachPlanTest(unittest.TestCase):
 
     def test_run_window_is_dated_and_fails_closed(self):
         self.assertFalse(run_start_in_approved_window(
-            datetime.fromisoformat("2026-10-19T16:29:59+00:00")))
+            datetime.fromisoformat("2026-10-19T23:29:59+00:00")))
         self.assertTrue(run_start_in_approved_window(
-            datetime.fromisoformat("2026-10-19T16:30:00+00:00")))
+            datetime.fromisoformat("2026-10-19T23:30:00+00:00")))
         self.assertTrue(run_start_in_approved_window(
-            datetime.fromisoformat("2026-10-19T20:00:00+00:00")))
+            datetime.fromisoformat("2026-10-20T03:30:00+00:00")))
         self.assertFalse(run_start_in_approved_window(
-            datetime.fromisoformat("2026-10-19T20:00:01+00:00")))
+            datetime.fromisoformat("2026-10-20T03:30:01+00:00")))
 
     def test_native_parent_exists_before_rep0_and_is_nonoverwriting(self):
         with tempfile.TemporaryDirectory() as temp:
