@@ -18,6 +18,11 @@ if [ -z "$A1_EXPECTED_HEAD" ] || [ "$ACK" != "TRACK_A_A1_1B_PROCEDURAL_GPU_SMOKE
 elif [ "$GPU" != "3" ]; then
   echo "A1_1B_STOP: proposed reservation only covers physical GPU 3"
   STATUS=2
+elif [ "$(date -u +%Y%m%d%H%M%S)" -lt 20261019233000 ] || \
+     [ "$(date -u +%Y%m%d%H%M%S)" -gt 20261020033000 ]; then
+  echo "A1_1B_V2_STOP: current UTC outside renewed Oct 19 23:30Z–Oct 20 03:30Z start window"
+  echo "A1_1B_V2_NOTE: no log, ZIP, or run directory created; retry only within reservation"
+  STATUS=2
 elif [ ! -d "$REPO/.git" ] || [ ! -x "$PY" ]; then
   echo "A1_1B_STOP: checkout or interpreter missing"
   STATUS=2
