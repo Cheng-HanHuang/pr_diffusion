@@ -2,9 +2,10 @@
 import unittest
 import tempfile
 from pathlib import Path
+from datetime import datetime, timezone
 from scripts.track_a.a1_1b_native_one_each import (
     METHODS, SYNTHETIC_ID, MAX_PER_METHOD_S, MAX_AGGREGATE_S,
-    np_config, build_input_item, make_native_parent,
+    np_config, build_input_item, make_native_parent, run_start_in_approved_window,
 )
 from scripts.track_a.a1_protocol import seed32_numpy
 
@@ -41,6 +42,16 @@ class NativeOneEachPlanTest(unittest.TestCase):
         broken={"np1":dict(frozen["np1"],num_steps=999)}
         with self.assertRaises(RuntimeError):
             np_config(broken,"NP_LF",100)
+
+    def test_run_window_is_dated_and_fails_closed(self):
+        self.assertFalse(run_start_in_approved_window(
+            datetime.fromisoformat("2026-10-19T16:29:59+00:00")))
+        self.assertTrue(run_start_in_approved_window(
+            datetime.fromisoformat("2026-10-19T16:30:00+00:00")))
+        self.assertTrue(run_start_in_approved_window(
+            datetime.fromisoformat("2026-10-19T20:00:00+00:00")))
+        self.assertFalse(run_start_in_approved_window(
+            datetime.fromisoformat("2026-10-19T20:00:01+00:00")))
 
     def test_native_parent_exists_before_rep0_and_is_nonoverwriting(self):
         with tempfile.TemporaryDirectory() as temp:
