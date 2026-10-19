@@ -196,6 +196,17 @@ def build_input_item(j:dict)->dict:
     }
 
 
+def make_native_parent(method:str, root:Path=OUT)->Path:
+    """Create only this A1 run's empty method parent before B24 child_spec(rep0)."""
+    if method not in ("DAPS","SITCOM") or root!=OUT and not root.is_dir():
+        raise RuntimeError("invalid native parent method/root")
+    if not root.is_dir():
+        raise RuntimeError("A1 own output root missing")
+    parent=root/method.lower()
+    parent.mkdir(exist_ok=False)
+    return parent
+
+
 def kill_own_group(proc:subprocess.Popen)->None:
     if proc.poll() is None:
         os.killpg(proc.pid,signal.SIGTERM)
@@ -393,12 +404,12 @@ def main()->int:
                 raise RuntimeError("aggregate GPU time ceiling")
             if method=="DAPS":
                 # Historical B24 child_spec creates parent/rep0 without parents=True.
-                (OUT/"daps").mkdir(exist_ok=False)
+                native_parent=make_native_parent("DAPS")
                 data_name="a1-1b-procedural-"+hashlib.sha256(str(OUT).encode()).hexdigest()[:10]
                 data_dir=config_file=None
                 try:
                     data_dir,config_file=helper.prepare_daps_dataset(item,data_name)
-                    spec=helper.child_spec("DAPS",REPO,item,data_name,OUT/"daps",0,seeds["DAPS"],args.physical_gpu)
+                    spec=helper.child_spec("DAPS",REPO,item,data_name,native_parent,0,seeds["DAPS"],args.physical_gpu)
                     # Redirect Hydra's own run directory into A1 outputs only.
                     spec["command"].append(f"hydra.run.dir={spec['run_dir'] / 'hydra'}")
                     spec["env"].pop("B23_TRACE_PATH",None)
@@ -411,8 +422,8 @@ def main()->int:
                         if sample.is_symlink(): sample.unlink()
                         data_dir.rmdir()  # refuses unexpected files; never recursive delete
             elif method=="SITCOM":
-                (OUT/"sitcom").mkdir(exist_ok=False)
-                spec=helper.child_spec("SITCOM",REPO,item,None,OUT/"sitcom",0,seeds["SITCOM"],args.physical_gpu)
+                native_parent=make_native_parent("SITCOM")
+                spec=helper.child_spec("SITCOM",REPO,item,None,native_parent,0,seeds["SITCOM"],args.physical_gpu)
                 spec["env"].pop("B23_TRACE_PATH",None)
                 row=run_bounded(spec,args.physical_gpu,started)
             else:
