@@ -48,6 +48,7 @@ MAX_PER_METHOD_S=1500
 MAX_AGGREGATE_S=3600
 MAX_DEVICE_USED_MIB=52452
 MIN_DEVICE_FREE_MIB=52096
+MAX_INITIAL_DEVICE_USED_MIB=1024
 
 
 def sha_file(p:Path)->str:
@@ -143,7 +144,7 @@ def check_gpu(gpu:int)->dict:
     uuid,free,used=gpu_state(gpu)
     if uuid!=GPU_UUIDS[gpu]:
         raise RuntimeError("physical GPU UUID drift")
-    if free<MIN_DEVICE_FREE_MIB or used>MAX_DEVICE_USED_MIB:
+    if free<MIN_DEVICE_FREE_MIB or used>MAX_INITIAL_DEVICE_USED_MIB:
         raise RuntimeError(f"GPU not safely free: free={free}, used={used} MiB")
     return {"physical_gpu":gpu,"uuid":uuid,"free_mib":free,"used_mib":used}
 
@@ -366,6 +367,7 @@ def main()->int:
         "max_aggregate_wall_seconds":MAX_AGGREGATE_S,
         "max_device_used_mib":MAX_DEVICE_USED_MIB,
         "min_free_mib":MIN_DEVICE_FREE_MIB,
+        "max_initial_device_used_mib":MAX_INITIAL_DEVICE_USED_MIB,
         "offline_metric":"COMMON_SAVED_RGB_8BIT_RAW_AND_ROT180",
         "no_paper_quality_claims":True,
     }
