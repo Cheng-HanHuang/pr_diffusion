@@ -334,7 +334,123 @@ def main()->int:
         raise RuntimeError("NO_GPU_LAUNCH_AUTHORIZED: A1.2 requires explicit dated reservation/source revision")
     if args.physical_gpu is None or args.reservation_ack!=RESERVATION_ID:
         raise RuntimeError("physical GPU and exact reserved A1.2 execution acknowledgement required")
-    raise RuntimeError("A1.2 execution disabled in first CPU-plan-only commit")
+    if args.physical_gpu!=3:
+        raise RuntimeError("this physical-GPU lease is valid only for GPU index 3")
+    # A discrete, dated source-committed RUN_WINDOW_UTC is required for actual launch.
+    from datetime import datetime,timezone
+    utc=datetime.now(timezone.utc)
+    opening,latest_start=RUN_WINDOW_UTC
+    if not (opening<=utc<=latest_start):
+        raise RuntimeError("A1.2 dated reservation expired/not yet open, do not launch")
+    if OUT.exists():
+        raise RuntimeError("A1.2 output exists: never replace/implicitly resume existing trajectories")
+    initial=check_gpu(args.physical_gpu)
+    started=time.perf_counter()
+    OUT.mkdir(parents=True,exist_ok=False)
+    plan["gpu_start"]=initial
+    plan["gpu_run_reserved"]=True
+    plan["reservation_id"]=RESERVATION_ID
+    plan["reservation_start_utc"]=opening.isoformat()
+    plan["reservation_latest_launch_utc"]=latest_start.isoformat()
+    save_new(OUT/"RUN_IDENTITY.json",plan)
+    methods_completed=[]
+    whole_images=[]
+    config=read_json(REPO/"configs/b22/b22_1_smoke.json")
+    helper=import_b24_helper()
+    try:
+        for item in inputs:
+            image_id=item["image_id"]
+            if time.perf_counter()-started>MAX_TOTAL_WALL_S:
+                raise RuntimeError("A1.2 3-hour total compute budget exhausted")
+            if sha_file(Path(item["measurement_path"]))!=item["measurement_file_sha256"]:
+                raise RuntimeError(f"{image_id}: frozen measurement bytes changed")
+            image_root=OUT/image_id
+            image_root.mkdir(exist_ok=False)
+            image_result={"image_id":image_id,"candidates":[]}
+            for method in METHODS:
+                method_parent=image_root/method.lower()
+                method_parent.mkdir(exist_ok=False)
+                for rep in range(K):
+                    candidate_id=f"{image_id}:{method}:{rep}"
+                    seed=seed32_numpy(method,image_id,rep)
+                    if time.perf_counter()-started>MAX_TOTAL_WALL_S:
+                        raise RuntimeError("A1.2 aggregate budget exhausted before new trajectory")
+                    # Sanity-check isolation: each candidate identity is unique in frozen registry.
+                    registered=[c for c in plan["candidate_registry"] if c["candidate_id"]==candidate_id]
+                    if len(registered)!=1 or seed!=registered[0]["native_seed32"]:
+                        raise RuntimeError(f"{candidate_id}: plan/native seed mismatch")
+                    spec,scratch=native_spec(method,item,rep,seed,args.physical_gpu,method_parent,config)
+                    try:
+                        result=run_bounded(spec,args.physical_gpu,started)
+                    finally:
+                        if scratch is not None:
+                            cleanup_daps(scratch[0],scratch[1],image_id)
+                    result.update(image_id=image_id,method=method,rep=rep,
+                                  candidate_id=candidate_id,
+                                  measurement_tensor_sha256=item["measurement_tensor_sha256"],
+                                  ground_truth_tensor_sha256=item["ground_truth_tensor_sha256"])
+                    if sha_file(Path(item["measurement_path"]))!=item["measurement_file_sha256"]:
+                        raise RuntimeError(f"{candidate_id}: shared measurement bytes changed during solver")
+                    save_new(image_root/f"{method}_rep{rep}_COMPLETE.json",result)
+                    image_result["candidates"].append(result)
+                    methods_completed.append(result)
+                    print(json.dumps({"status":"A1_2_CANDIDATE_PASS",
+                           "candidate_id":candidate_id,
+                           "completed":len(methods_completed),
+                           "target":128,
+                           "wall_seconds":result["wall_seconds_subprocess"],
+                           "gpu_event_seconds":result["gpu_active_seconds_event"]},
+                           sort_keys=True),flush=True)
+            if len(image_result["candidates"])!=16:
+                raise RuntimeError(f"{image_id}: incomplete method K4 matrix")
+            whole_images.append(image_result)
+            save_new(image_root/"IMAGE_CANDIDATES_COMPLETE.json",image_result)
+            print(json.dumps({"status":"A1_2_IMAGE_K4_COMPLETE","image_id":image_id,
+                              "images_completed":len(whole_images)},sort_keys=True),flush=True)
+        if len(methods_completed)!=128 or len(whole_images)!=8:
+            raise RuntimeError("missing full 8x16 candidate grid")
+        scored=compute_offline_oracles(whole_images,inputs)
+        save_new(OUT/"A1_2_OFFLINE_ORACLE_SUMMARY.json",scored)
+        totals={
+            "status":"PASS_A1_2_EXPOSED_B22_128_COMPLETE",
+            "head":args.expected_head,
+            "reservation":RESERVATION_ID,
+            "image_ids":list(IDS),
+            "method_counts":dict(Counter(v["method"] for v in methods_completed)),
+            "candidate_count":len(methods_completed),
+            "all_unique_candidate_ids":len({v["candidate_id"] for v in methods_completed})==128,
+            "total_wall_seconds":time.perf_counter()-started,
+            "sum_subprocess_wall_seconds":sum(v["wall_seconds_subprocess"] for v in methods_completed),
+            "sum_cuda_event_seconds":sum(v["gpu_active_seconds_event"] for v in methods_completed),
+            "maximum_reported_torch_reserved_mib":max(v["peak_torch_reserved_mib"] for v in methods_completed),
+            "maximum_reported_device_used_mib":max(v["max_device_used_mib_observed"] for v in methods_completed),
+            "native_seed_count":len({(v["image_id"],v["native_seed32"]) for v in methods_completed}),
+            "frozen_inputs_sha256":EXPECTED_INPUT_FREEZE_SHA,
+            "score_representation":"COMMON_SAVED_PNG8_RGB_RAW_PRIMARY",
+            "np_mixed8_extra_gpu_work":0,
+            "all_data_already_exposed":True,
+            "not_pristine_or_confirmatory":True,
+            "protected_confirmation_access":False,
+            "next_stage_automatically_authorized":False,
+        }
+        save_new(OUT/"A1_2_COMPLETE.json",totals)
+        print(json.dumps({"status":totals["status"],
+                          "total_wall_seconds":totals["total_wall_seconds"],
+                          "methods":totals["method_counts"],
+                          "128_complete":True},sort_keys=True),flush=True)
+        return 0
+    except BaseException as e:
+        save_new(OUT/"A1_2_STOP.json",{
+            "status":"STOP_A1_2_NATIVE_K4",
+            "error":f"{type(e).__name__}: {e}",
+            "a1_head":args.expected_head,
+            "total_wall_seconds":time.perf_counter()-started,
+            "complete_candidate_count":len(methods_completed),
+            "completed_candidate_ids":[v["candidate_id"] for v in methods_completed],
+            "latest_native_logs_preserved":True,
+            "restart_same_output_forbidden":True,
+        })
+        raise
 
 
 if __name__=="__main__":
