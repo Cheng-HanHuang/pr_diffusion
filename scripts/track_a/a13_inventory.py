@@ -106,7 +106,13 @@ def operator_gate(cfg):
     from scripts.track_a.a13_physics import magnitude
     import importlib
     import sys
-    result={"source_witness":source_witness(),"symmetry_witness":symmetry_witness()}
+    from scripts.track_a.a13_physics import synthetic_noise_reference
+    noise_cfg=cfg["noise_reference"]
+    if noise_cfg["consistent_multiplier"]!=1 or noise_cfg["poor_fit_multiplier"]!=3:
+        raise RuntimeError("STOP invalid preregistered noise cutoff definition")
+    result={"source_witness":source_witness(),"symmetry_witness":symmetry_witness(),
+            "noise_reference":synthetic_noise_reference(
+                sigma=noise_cfg["sigma_y"],seed=noise_cfg["seed"],draws=noise_cfg["draws"])}
     x=torch.full((1,3,256,256),-.67,dtype=torch.float32)
     x[:,:,11,17]=.8
     x[:,:,141,212]=-.12
