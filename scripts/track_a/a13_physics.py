@@ -139,3 +139,25 @@ def symmetry_witness():
         raise RuntimeError("STOP_OPERATOR_NOT_RECONCILED: symmetry")
     return {"relative_rot180_difference":rel,"per_channel_l2_difference":channels,
             "rot180_operator_symmetry_reconciled":True}
+
+def synthetic_noise_reference(*, sigma=0.05, seed=720611, draws=32):
+    """Pre-data, independent Gaussian-noise RMSE witness.
+
+    Generated entirely from a seeded CPU RNG, no FFHQ/candidate/GT access.
+    The observed max noise RMSE is a reference, not a confidence bound for
+    recovered solutions. Three times this is a conservative descriptive
+    large-misfit flag, NOT a theorem about solution basins.
+    """
+    torch=require_cpu()
+    gen=torch.Generator(device="cpu").manual_seed(seed)
+    n=3*384*384
+    values=[]
+    for _ in range(draws):
+        eps=torch.randn((n,),generator=gen,dtype=torch.float32)*sigma
+        values.append(float(torch.sqrt(eps.double().square().mean())))
+    return dict(seed=seed,draws=draws,sigma=sigma,
+                noise_rmse_min=min(values),noise_rmse_max=max(values),
+                consistent_cutoff_rmse=max(values),
+                poor_fit_cutoff_rmse=3*max(values),
+                basis="independent gaussian-noise synthetic RMSE, factor3 large-misfit heuristic",
+                method="no GT/source tensors accessed for calibration")
