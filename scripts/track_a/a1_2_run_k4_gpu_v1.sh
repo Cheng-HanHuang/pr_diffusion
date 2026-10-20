@@ -70,7 +70,7 @@ else
       "$PY" -B "$REPO/scripts/track_a/a1_2_k4_exposed_b22.py" \
         --mode execute --expected-head "$A1_EXPECTED_HEAD" \
         --physical-gpu 3 --reservation-ack "$RESERVATION" 2>&1 | tee "$LOG"
-    GPU_RC=\${PIPESTATUS[0]}
+    GPU_RC=${PIPESTATUS[0]}
     echo "A1_2_K4_NATIVE_RC=$GPU_RC"
     if [ "$GPU_RC" -ne 0 ]; then STATUS=3; fi
   fi
