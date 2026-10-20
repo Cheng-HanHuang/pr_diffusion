@@ -55,6 +55,15 @@ class TestA13Physics(unittest.TestCase):
         self.assertEqual(P.select_oracle(rows)["rep"],0)
         self.assertEqual(P.select_min(rows[:1],"r_signed")["rep"],0)
 
+    def test_synthetic_noise_reference_is_frozen(self):
+        a=P.synthetic_noise_reference()
+        b=P.synthetic_noise_reference()
+        self.assertEqual(a,b)
+        self.assertAlmostEqual(a["sigma"],0.05)
+        self.assertGreater(a["noise_rmse_min"],0.049)
+        self.assertLess(a["noise_rmse_max"],0.051)
+        self.assertEqual(a["poor_fit_cutoff_rmse"],3*a["consistent_cutoff_rmse"])
+
     def test_nan_missing_and_gt_leakage_are_forbidden(self):
         with self.assertRaises(ValueError):
             P.select_min([{"r_signed":float("nan")}],"r_signed")
