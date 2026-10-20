@@ -28,3 +28,20 @@ The user subsequently ran the bounded SITCOM diagnostic on PAC:
 - Native measurement source `forward_operator/__init__.py` **unchanged** relative to HEAD; Git blob `adee8c03c7041e2c63346ea0e7aed59ad25f47dd`. Native `forward_operator/fastmri_utils.py` **unchanged** relative to HEAD; Git blob `f669ea2dd5c48fe9798ce1ce800b9789e22e0657`. No forward-operator diff output.
 
 **Interpretation:** The earlier full tracked patch gate is overly sensitive to tracked bytecode. The native operator source appears unchanged; however, because the actual `posterior_sample.py` one-line diff was not included, its possible provenance/logic implications remain **unresolved**. There is no basis to claim the whole SITCOM application source is historically identical; nor evidence here that measurement physics changed. Do **not** reset bytecode, assume current full diff is canonical, or repin a full digest without reviewing the remaining one-line source patch. Next step: `git -C "$SIT" diff --no-ext-diff --unified=4 HEAD -- posterior_sample.py` and `git -C "$SIT" diff --no-ext-diff HEAD -- posterior_sample.py | sha256sum`, read-only. Then decide a relevance-scoped gate: pinned HEAD, pristine forward operator source git blobs, explicit observed posterior patch identity, ignore/report bytecode as non-source metadata, and native CPU numerical equivalence, while avoiding false provenance claims about historical sampler execution.
+
+## Root cause resolved, source-scoped fix committed (but NOT PAC-tested)
+
+User inspected the full `posterior_sample.py` tracked diff, which contains precisely the one-line filesystem helper change:
+
+```diff
+-        Path(dir).mkdir()
++        Path(dir).mkdir(parents=True, exist_ok=True)
+```
+
+No sampling mathematics, measurements or random-number operations change in that diff. PAC reports reviewed patch SHA256 `d0bb0292e341abe3f6b99984bb2a98acb5919c41efe0f4bd8fd0ffb60b464fc5` and current file Git blob `cf91b11464b2bb98c6ac97e5278ba05fb9fe970b`. Frozen operator blobs and native SITCOM HEAD remain as documented above.
+
+A1.3 has now **replaced** SITCOM's overstrict historical B24 full tracked-diff comparison with a fail-closed, source-scoped check. It requires the original HEAD, exact reviewed `posterior_sample.py` git-blob/patch digests, exact unmodified forward-operator git blobs, **only** the specific 10 previously observed tracked Python3.8 bytecode paths as extra modified tracked files, and absence of untracked importable forward-operator source. Actual changed bytecode paths and current full-diff digest remain recorded as **diagnostic only**, not asserted equal to 2026 B24 historical state. DAPS original full patch check remains unchanged. Both DAPS/SITCOM still must match independent numerical Fourier CPU witnesses before any saved terminal file is counted. A1.2 stored source provenance is not retroactively promoted to proof of a historical byte-for-byte SITCOM sampler.
+
+The updated source gate was committed in commits `729b46c6cb471de0c5acc798cfad88d6aee71a0d` (config), `b7121675baba947479fac9d60f23fcbfbcdb7d5a` (check implementation), and `2cb9a6622478f22e32b8e49dd56ba657408ccb55` (NUL-separated filename parser fix). **These commits have not yet been pulled or executed on PAC.**
+
+Next execution step once latest HEAD is pinned: `git -C "$WORK" pull --ff-only origin codex/prdiff-track-a-a13-candidate-audit-20261020` only on the separate clean A1.3 worktree, verify HEAD/branch/no tracked changes, check A1.3 stage0 output still unoccupied, run corrected `a13_run_inventory_v1.sh <LATEST_HEAD>`. STOP on any other mismatch, and return `A13_INVENTORY_COMPLETE.json`, source roster and SHA to planner before stage1. Do not modify existing A1.2 source checkout, native SITCOM repo, or any historical output. No GPU. The report documents an earlier STOP, now explained; it is not a stage0 PASS receipt.
