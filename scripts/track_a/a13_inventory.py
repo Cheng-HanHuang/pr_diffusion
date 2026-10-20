@@ -47,6 +47,14 @@ def git(repo,*args):
     return r.stdout.strip()
 
 def native_source_gate(cfg):
+    """Frozen numerical source identities, excluding explicitly observed pyc churn.
+
+    The B24 historical full SITCOM git-diff digest was not a pinned A1.2
+    execution prerequisite. It included tracked Python3.8 bytecode and changed
+    after later interpreter imports, without a change to Fourier physics.
+    We pin the reviewed one-line mkdir patch and tracked operator source Git
+    blobs, reject other tracked drift, and report (not equate) pyc differences.
+    """
     out={}
     for name,head in cfg["native_heads"].items():
         d=Path(cfg["native_paths"][name])
@@ -62,6 +70,75 @@ def native_source_gate(cfg):
             if digest!=cfg["native_diff_sha256"][name]:
                 raise RuntimeError(f"STOP native dirty patch mismatch {name}")
             out[name]["tracked_diff_sha256"]=digest
+
+    # SITCOM: fail closed for executable source drift while ignoring ONLY
+    # the precise ten tracked Python3.8 bytecode paths observed on PAC.
+    name="SITCOM"
+    d=Path(cfg["native_paths"][name])
+    frozen=cfg["native_source_scope_sitcom"]
+    if frozen["source_head"]!=cfg["native_heads"][name]:
+        raise RuntimeError("STOP conflicting SITCOM source head pins")
+    cp=subprocess.run(["git","-C",str(d),"diff","--name-only","-z","HEAD","--"],
+                      capture_output=True,timeout=60,check=False,
+                      env={**os.environ,"GIT_OPTIONAL_LOCKS":"0"})
+    if cp.returncode:raise RuntimeError("STOP SITCOM tracked change roster unreadable")
+    changed={p.decode("utf-8") for p in cp.stdout.split(b"\\0") if p}
+    expected_sources=set(frozen["allowed_tracked_modified_source"])
+    allowed_pyc=set(frozen["allowed_modified_bytecode_paths"])
+    if changed-expected_sources-allowed_pyc or not expected_sources.issubset(changed):
+        raise RuntimeError("STOP SITCOM unreviewed tracked modifications: "
+                           +repr(sorted(changed-expected_sources-allowed_pyc))
+                           +" missing_required="+repr(sorted(expected_sources-changed)))
+    if any(not p.endswith(".cpython-38.pyc") for p in changed&allowed_pyc):
+        raise RuntimeError("STOP SITCOM unexpected tracked bytecode suffix")
+    if expected_sources!={"posterior_sample.py"}:
+        raise RuntimeError("STOP SITCOM unrecognized reviewed source list")
+
+    sampler="posterior_sample.py"
+    sample_blob=git(d,"hash-object",str(d/sampler))
+    if sample_blob!=frozen["expected_posterior_sample_git_blob"]:
+        raise RuntimeError("STOP SITCOM posterior_sample.py content drift")
+    patch=subprocess.run(["git","-C",str(d),"diff","--no-ext-diff",
+                          "HEAD","--",sampler],
+                         capture_output=True,timeout=60,check=False,
+                         env={**os.environ,"GIT_OPTIONAL_LOCKS":"0"})
+    if patch.returncode:raise RuntimeError("STOP SITCOM posterior patch unreadable")
+    patch_digest=hashlib.sha256(patch.stdout).hexdigest()
+    if patch_digest!=frozen["expected_posterior_sample_patch_sha256"]:
+        raise RuntimeError("STOP SITCOM posterior source patch mismatch")
+
+    operators={}
+    for rel,expected_blob in frozen["expected_forward_operator_git_blobs"].items():
+        operator=d/rel
+        if not operator.is_file() or operator.is_symlink():
+            raise RuntimeError(f"STOP SITCOM operator source missing/symlink: {rel}")
+        actual=git(d,"hash-object",str(operator))
+        head_blob=git(d,"rev-parse",f"HEAD:{rel}")
+        if actual!=expected_blob or head_blob!=expected_blob:
+            raise RuntimeError(f"STOP SITCOM operator source blob drift: {rel}")
+        operators[rel]=actual
+
+    # Guard against Python source shadowing inside native forward_operator.
+    extras=git(d,"ls-files","--others","--exclude-standard","--","forward_operator")
+    unexpected=[p for p in extras.splitlines()
+                if p.endswith((".py",".so",".pyd",".pyi"))]
+    if unexpected:
+        raise RuntimeError("STOP SITCOM untracked importable operator source: "
+                           +repr(unexpected[:8]))
+
+    whole=subprocess.run(["git","-C",str(d),"diff","HEAD","--"],
+                         capture_output=True,timeout=60,check=False,
+                         env={**os.environ,"GIT_OPTIONAL_LOCKS":"0"})
+    if whole.returncode:raise RuntimeError("STOP SITCOM diagnostic diff unreadable")
+    out[name].update(
+        source_gate="reviewed_source_and_operator_blobs_PASS",
+        reviewed_posterior_sample_git_blob=sample_blob,
+        reviewed_posterior_patch_sha256=patch_digest,
+        forward_operator_git_blobs=operators,
+        tracked_modified_bytecode_paths=sorted(changed&allowed_pyc),
+        full_tracked_diff_sha256_diagnostic_only=hashlib.sha256(whole.stdout).hexdigest(),
+        historical_full_diff_not_used_as_a1_execution_pin=True)
+
     a1=Path(cfg["root"])/"pr_diffusion_track_a_a1_oracle_budget"
     a1file=a1/"scripts/track_a/a1_2_k4_exposed_b22.py"
     pin=cfg["a1_execution_source"]
