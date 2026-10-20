@@ -34,10 +34,13 @@ OUT=BASE/"a1_2_exposed_b22_k4_v1"
 K=4
 MAX_EACH_WALL_S=600
 MAX_TOTAL_WALL_S=10800
-# IMPORTANT: this first commit authorizes CPU plan only. No GPU reservation is inferred.
-EXECUTION_ENABLED=False
-RESERVATION_ID="A1_2_B22_EXPOSED_DEV8_K4_NOT_RESERVED"
-RUN_WINDOW_UTC=None
+# Explicit dated A1.2 engineering-only GPU reservation, not held-out FFHQ data.
+# 2026-10-19 22:30 to 2026-10-20 01:00 Eastern (UTC offsets -04:00).
+from datetime import datetime, timezone
+EXECUTION_ENABLED=True
+RESERVATION_ID="TRACK_A_A1_2_EXPOSED_B22_K4_GPU3_20261019_NIGHT"
+RUN_WINDOW_UTC=(datetime.fromisoformat("2026-10-20T02:30:00+00:00"),
+                datetime.fromisoformat("2026-10-20T05:00:00+00:00"))
 
 
 def validate_input_manifest(doc:dict)->list[dict]:
@@ -102,7 +105,7 @@ def make_plan(rows:list[dict],head:str,sources:dict)->dict:
         raise RuntimeError("incomplete independent K4 candidate plan")
     return {
         "schema":"prdiff.a1.2.b22-exposed-independent-k4.plan.v1",
-        "status":"CPU_PLAN_NO_GPU_AUTHORIZATION",
+        "status":"CPU_PLAN_VALIDATED_EXECUTION_REQUIRES_LEASE_ACK",
         "a1_head":head,"source_heads":sources,
         "checkpoint_sha256":MODEL_SHA,
         "selected_images":list(IDS),
@@ -126,6 +129,8 @@ def make_plan(rows:list[dict],head:str,sources:dict)->dict:
         "min_initial_device_free_mib":MIN_DEVICE_FREE_MIB,
         "max_device_used_mib":MAX_DEVICE_USED_MIB,
         "gpu_run_reserved":False,
+        "execution_enabled_only_with_gpu3_and_reservation_ack":EXECUTION_ENABLED,
+        "conditional_run_window_utc": [v.isoformat() for v in RUN_WINDOW_UTC] if RUN_WINDOW_UTC else None,
     }
 
 
@@ -271,6 +276,8 @@ def compute_offline_oracles(images:list[dict],inputs:list[dict])->dict:
         rows=image["candidates"]
         # Native outputs are loaded only AFTER all 128 native candidates completed.
         score_pngs(rows,{"ground_truth_tensor_path":inp["ground_truth_tensor_path"]})
+        for candidate in rows:
+            candidate["metrics_caution"]="B22_EXPOSED_ENGINEERING_ONLY_NOT_HELDOUT"
         families=defaultdict(list)
         for c in rows:families[c["method"]].append(c)
         if set(families)!=set(METHODS) or any(len(v)!=4 for v in families.values()):
@@ -327,6 +334,7 @@ def main()->int:
     sources,inputs=freeze_preflight(args.expected_head)
     plan=make_plan(inputs,args.expected_head,sources)
     if args.mode=="plan":
+        plan["reservation_id_for_future_execution"]=RESERVATION_ID
         plan.pop("candidate_registry")   # use compact summary, full seed registry verified in memory
         print(json.dumps(plan,sort_keys=True))
         return 0
@@ -337,7 +345,6 @@ def main()->int:
     if args.physical_gpu!=3:
         raise RuntimeError("this physical-GPU lease is valid only for GPU index 3")
     # A discrete, dated source-committed RUN_WINDOW_UTC is required for actual launch.
-    from datetime import datetime,timezone
     utc=datetime.now(timezone.utc)
     opening,latest_start=RUN_WINDOW_UTC
     if not (opening<=utc<=latest_start):
@@ -349,6 +356,7 @@ def main()->int:
     OUT.mkdir(parents=True,exist_ok=False)
     plan["gpu_start"]=initial
     plan["gpu_run_reserved"]=True
+    plan["status"]="A1_2_EXECUTION_RESERVATION_ACCEPTED"
     plan["reservation_id"]=RESERVATION_ID
     plan["reservation_start_utc"]=opening.isoformat()
     plan["reservation_latest_launch_utc"]=latest_start.isoformat()
