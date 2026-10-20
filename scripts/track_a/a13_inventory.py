@@ -82,7 +82,7 @@ def native_source_gate(cfg):
                       capture_output=True,timeout=60,check=False,
                       env={**os.environ,"GIT_OPTIONAL_LOCKS":"0"})
     if cp.returncode:raise RuntimeError("STOP SITCOM tracked change roster unreadable")
-    changed={p.decode("utf-8") for p in cp.stdout.split(b"\\0") if p}
+    changed={p.decode("utf-8") for p in cp.stdout.split(bytes([0])) if p}
     expected_sources=set(frozen["allowed_tracked_modified_source"])
     allowed_pyc=set(frozen["allowed_modified_bytecode_paths"])
     if changed-expected_sources-allowed_pyc or not expected_sources.issubset(changed):
