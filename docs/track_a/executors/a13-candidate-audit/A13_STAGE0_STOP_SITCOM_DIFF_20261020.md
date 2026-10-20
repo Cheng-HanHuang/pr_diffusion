@@ -45,3 +45,14 @@ A1.3 has now **replaced** SITCOM's overstrict historical B24 full tracked-diff c
 The updated source gate was committed in commits `729b46c6cb471de0c5acc798cfad88d6aee71a0d` (config), `b7121675baba947479fac9d60f23fcbfbcdb7d5a` (check implementation), and `2cb9a6622478f22e32b8e49dd56ba657408ccb55` (NUL-separated filename parser fix). **These commits have not yet been pulled or executed on PAC.**
 
 Next execution step once latest HEAD is pinned: `git -C "$WORK" pull --ff-only origin codex/prdiff-track-a-a13-candidate-audit-20261020` only on the separate clean A1.3 worktree, verify HEAD/branch/no tracked changes, check A1.3 stage0 output still unoccupied, run corrected `a13_run_inventory_v1.sh <LATEST_HEAD>`. STOP on any other mismatch, and return `A13_INVENTORY_COMPLETE.json`, source roster and SHA to planner before stage1. Do not modify existing A1.2 source checkout, native SITCOM repo, or any historical output. No GPU. The report documents an earlier STOP, now explained; it is not a stage0 PASS receipt.
+
+## Follow-up PAC stage0 retry at A1.3 HEAD `45991c92fba594c817e7aea3efc19af853c6062d` — second STOP
+
+Actual user-reported stdout after clean, fast-forward dedicated A1.3 checkout:
+- `PULL_RC=0`, `ACTUAL_HEAD=45991c92fba594c817e7aea3efc19af853c6062d`; isolated branch correct.
+- Seven synthetic CPU tests **PASS**, 1.229 s, `A13_SYNTHETIC_TEST_RC=0`.
+- New guard: `A13_INVENTORY_STOP: RuntimeError: STOP SITCOM untracked importable operator source: ['forward_operator/motionblur/__init__.py', 'forward_operator/motionblur/motionblur.py']`.
+- Inventory Python exit **7** and **fixed shell wrapper exit 7** (status propagation confirmed).
+- **NO** native operator numeric gate, 128-candidate hash gate, A1.3 stage0 receipt, GT scoring, new model inference or GPU work is established by this STOP. Original A1.2 sources/artifacts remain untouched.
+
+These two files were not in the tracked diff because they are **untracked**, and prior source roster by `git diff HEAD` could not detect them. Do not silently exempt them: untracked importable Python could conceivably be used by `forward_operator/__init__.py` or nested imports. Next user-operated **read-only** inspection must hash both, check file/symlink types and `git status --short --untracked-files=all -- forward_operator`, print bounded file content and exact local import references to `motionblur` from `forward_operator/__init__.py` and `fastmri_utils.py`. No deletion, reset, Git clean, checkout, compilation or import required. After verifying irrelevance (or identifying a reproducible dependency), scope/strengthen the guard with explicit file digests and import constraints; otherwise STOP. Stage1 remains forbidden.
