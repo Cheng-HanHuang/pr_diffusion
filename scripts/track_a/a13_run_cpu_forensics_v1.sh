@@ -30,16 +30,18 @@ else
     if [ "$TEST_RC" -ne 0 ]; then
       echo "STOP_A13_1: synthetic tests failed"
     else
-      "$PY" -m scripts.track_a.a13_analysis --stage analyze \
+      ANALYSIS_LOG=$("$PY" -m scripts.track_a.a13_analysis --stage analyze \
         --expected-head "$EXPECTED" \
         --run-root "$A1/a1_2_exposed_b22_k4_v1" \
-        --input-root "$A1/a1_2_exposed_b22_inputs_v1" --out "$OUT"
+        --input-root "$A1/a1_2_exposed_b22_inputs_v1" --out "$OUT" 2>&1)
       ANALYSIS_RC=$?
+      printf "%s\\n" "$ANALYSIS_LOG" | tail -25
       echo "A13_ANALYSIS_RC=$ANALYSIS_RC"
       if [ "$ANALYSIS_RC" -ne 0 ]; then
         echo "STOP_A13_1: no packaging; preserve any partial A1.3 output"
       else
         printf "%s\\n" "$TEST_LOG" > "$OUT/A13_SYNTHETIC_TESTS.log"
+        printf "%s\\n" "$ANALYSIS_LOG" > "$OUT/A13_ANALYSIS_STDOUT_STDERR.log"
         # Compact metadata-only archive, exclusive creation; never include GT/candidates.
         "$PY" - "$OUT" "$ZIP" <<'PYTHON'
 import pathlib,sys,zipfile,hashlib
