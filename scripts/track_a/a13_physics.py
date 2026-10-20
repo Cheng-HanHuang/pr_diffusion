@@ -84,9 +84,10 @@ def png_to_model_and_01(path):
     import numpy as np
     from PIL import Image
     with Image.open(path) as im:
-        if im.mode!="RGB" or im.size!=(256,256):
-            raise ValueError("saved PNG not RGB256")
-        a=np.asarray(im,dtype=np.float32)
+        if im.size!=(256,256):
+            raise ValueError("saved PNG not 256x256")
+        # Exactly A1.2 score_pngs: convert to RGB even for tagged PNG modes.
+        a=np.asarray(im.convert("RGB"),dtype=np.float32)
     img01=torch.from_numpy(a.copy()).permute(2,0,1).unsqueeze(0)/255.0
     return (img01*2.0-1.0).contiguous(), img01
 
