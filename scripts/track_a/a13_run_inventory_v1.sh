@@ -12,7 +12,7 @@ export CUDA_VISIBLE_DEVICES=""
 export PYTHONDONTWRITEBYTECODE=1
 export OMP_NUM_THREADS=4
 export MKL_NUM_THREADS=4
-if [ -z "$EXPECTED" ] || [ ! -x "$PY" ] || [ ! -d "$REPO/.git" ] && [ ! -f "$REPO/.git" ]; then
+if [ -z "$EXPECTED" ] || [ ! -x "$PY" ] || { [ ! -d "$REPO/.git" ] && [ ! -f "$REPO/.git" ]; }; then
   echo "STOP_A13_0: missing exact commit, interpreter or checked-out Git worktree"
 elif [ -e "$OUT" ] || [ -L "$OUT" ]; then
   echo "STOP_A13_0: stage0 output already exists; preserve it"
