@@ -1,6 +1,6 @@
 # A1.3.0 source inventory and CPU-only test protocol (2026-10-20)
 
-**State:** Implementation committed for review. **PAC UNINSPECTED; tests NOT RUN; no saved candidate opened by this executor; no GPU.** The eight images are already exposed B22 development samples, not prospective validation.
+**State as of 2026-10-20:** PAC read-only inspection PASS; an initial stage0 run executed seven synthetic CPU tests (7/7 PASS) then STOPPED before the 128-candidate byte audit on SITCOM's historical full dirty-diff mismatch. The mismatch has been explained by 10 tracked Python bytecode modifications and one reviewed `posterior_sample.py` mkdir-only patch. Source-scoped correction committed, **NOT YET RETESTED on PAC**. No saved candidate was opened in A1.3, and no GPU was used. The eight images are already exposed B22 development samples, not prospective validation.
 
 ## Gates and ownership
 
@@ -8,7 +8,7 @@
 - New worktree reserved: `/egr/research-pac/huang248/pr_diffusion_track_a_a13_candidate_audit`. New sole output namespace: `/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a13_candidate_audit_20261020/` with stage IDs `a13_0_inventory_v1`, `a13_1_cpu_forensics_v1`. These are reservations, **not assertions that they exist**.
 - A1.2 sources are read-only: `.../a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1` and `.../a1_2_exposed_b22_inputs_v1`. All 128 original terminals, receipts, measurements and GT tensors remain in place, unmodified.
 - The A1.2 GPU controller at execution commit `f4cd28dcd3ec4860cc9f3990fb24964bb97e97bd` is checked by Git blob identity in the A1 source checkout (which may now have later *documentation* commits).
-- Native HEADs: DAPS `e7a77d094167084faed19b599b96673b7bb11447`, SITCOM `275ab67efbd8146bffca20155171ba6be1169c09`, DiffFPR `a45ffe58f18fed8a63d3446600424e2b08733524`. DAPS/SITCOM historical tracked patch hashes are pinned in config. No native source is edited.
+- Native HEADs: DAPS `e7a77d094167084faed19b599b96673b7bb11447`, SITCOM `275ab67efbd8146bffca20155171ba6be1169c09`, DiffFPR `a45ffe58f18fed8a63d3446600424e2b08733524`. DAPS historical tracked patch remains a hard pin. SITCOM uses pinned HEAD, explicitly reviewed mkdir-only sampler patch (exact SHA256/blob), exact native forward-operator source Git blobs, an allowlist of ten tracked `.cpython-38.pyc` bytecode paths, and CPU numerical equivalence; the old full SITCOM B24 diff SHA is diagnostic only. No native source is edited.
 - No source/model imports beyond native CPU `forward_operator.PhaseRetrieval` **after source identity succeeds**; no checkpoints loaded. Always `CUDA_VISIBLE_DEVICES=""`, `PYTHONDONTWRITEBYTECODE=1`, the explicit `prdiff_ffhq` interpreter. No `torch.cuda` compute.
 - B24 confirmation305 is off limits entirely, including path/ID/membership discovery. No B21–B26 source or artifact writes, no GT-derived selectors, no Track B algorithm changes.
 
@@ -85,7 +85,7 @@ After checking the read-only inspection, create only the reserved independent A1
 
 Then execute `bash scripts/track_a/a13_run_inventory_v1.sh <PINNED_A13_COMMIT>`, which independently:
 
-1. Verifies A1.3 branch, exact HEAD, no tracked changes, A1 frozen controller blob, native repo HEADs and historical dirty-source patch hashes, then compares independent FFT output to **both** CPU native `PhaseRetrieval` operators. Requires orthonormal, centered FFT, symmetric 64-pixel zero pad, [-1,1] -> [0,1] without clamp, channelwise shape 1×3×384×384, impulse, zero, and inversion witness.
+1. Verifies A1.3 branch, exact HEAD, no tracked changes, A1 frozen controller blob, native repo HEADs, DAPS historical patch, and the source-scoped SITCOM SHA/allowlist gate, then compares independent FFT output to **both** CPU native `PhaseRetrieval` operators. Requires orthonormal, centered FFT, symmetric 64-pixel zero pad, [-1,1] -> [0,1] without clamp, channelwise shape 1×3×384×384, impulse, zero, and inversion witness.
 2. Checks frozen eight-ID list/manifest and original signed measurement and saved GT **file digests**, then all 128 receipt/seed/measurement identities, unique candidate IDs, unique terminal SHA and exact terminal bytes, and comparable original PNG SHA (DAPS saved PNG included). No tensor pixels are decoded by stage0.
 3. Only after all gates PASS, creates exactly one new `a13_0_inventory_v1` result directory and a compact JSON audit/receipt. No output on failed precreate gate, no partial filtering, and no fallback paths.
 
