@@ -32,3 +32,18 @@ Expected stage0 audit status `A13_SOURCE_AND_INPUT_AUDIT_PASS` (not observed). E
 ## Next larger research decision
 
 After stage0 and later staged scientific audit, submit a final `A13_EXECUTOR_RETURN.md` or `A13_STOP_REPORT.md` with actual observations and metadata archive SHA. The Track A lead will determine any A1.4 next stage; this handoff does not greenlight OOD GPU pilots or prospective generalization claims. Issue #41 records this implementation and future return.
+
+## PAC preliminary inspection received — no execution yet
+
+User-reported initial bounded read-only stdout confirms:
+- Reserved A1.3 worktree and A1.3 output root both ABSENT.
+- A1 source checkout HEAD exactly `f4cd28dcd3ec4860cc9f3990fb24964bb97e97bd`; no tracked dirty entries printed.
+- `$ROOT/conda-envs/prdiff_ffhq/bin/python` available.
+- Frozen `RUN_IDENTITY.json` reports 128 candidates; `A1_2_COMPLETE.json` PASS, 8 IDs and 128 candidates; frozen input manifest PASS with 8 IDs; the original offline-oracle file has expected `per_image`/policies keys.
+- Sampled DAPS/SITCOM/NP terminal paths at `69073:DAPS:0`, `68539:DAPS:0`, `67174:NP_LF:3`, `66631:SITCOM:3` each exist.
+
+These are **preliminary path/receipt checks only**, not the native source patch/content gate, full 128 byte digest audit, CPU numerical equivalence test, nor GT/PSNR replay. Stage0 and stage1 remain NOT EXECUTED. Next command may create only the fresh A1.3 checkout after rechecking reservation absence, then run staged CPU gate; STOP on unexpected checkout/occupied outputs/source drift.
+
+## Future GPU throughput preference (not authorization)
+
+Researcher requested that future multi-hour major sweeps/ablations/main grids generally use all four physical GPUs if available and reserved, rather than serial use of one. Use batch size 1 for controlled **per-candidate latency/time-to-quality** measurements, with explicit concurrent-job contention tests or isolation; for **solution-quality or aggregate throughput** campaigns, allow batching for efficiency while separately reporting per-candidate work and wall throughput, RNG/seed independence, and GPU-time. Four-way parallelism cannot be represented as 4x lower per-candidate runtime: report single-worker latency and cluster makespan/aggregate device-hours separately, check actual availability and Track B priority, and post an exact issue #41 GPU reservation before user launch. **A1.3 stays CPU-only, 0 GPU; this is not a request for or reservation of any GPU.**
