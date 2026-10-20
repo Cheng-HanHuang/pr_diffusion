@@ -1,0 +1,134 @@
+{
+  "schema": "prdiff.track-a.a1.executor-pac-artifact-index.v1",
+  "report_date": "2026-10-20",
+  "stage": "A1.2_EXECUTOR_COMPLETED_GPU128",
+  "scope": "B22_EXPOSED_ENGINEERING_ONLY_NOT_HELDOUT",
+  "pac_access_disclaimer": "Path existence and SHA recorded from prior PAC user receipts, not freshly remotely verified.",
+  "repo": "Cheng-HanHuang/pr_diffusion",
+  "source_branch": "codex/prdiff-track-a-a1-oracle-budget-20261016",
+  "execution_head": "f4cd28dcd3ec4860cc9f3990fb24964bb97e97bd",
+  "pac": {
+    "root": "/egr/research-pac/huang248",
+    "executor_worktree": "/egr/research-pac/huang248/pr_diffusion_track_a_a1_oracle_budget",
+    "planner_reserved_worktree": "/egr/research-pac/huang248/pr_diffusion_track_a_np_paper",
+    "a1_output_base": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016",
+    "b22_exposed_historical_manifest": "/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines/B22_2_overnight_20260727_155135/full/manifest.json",
+    "b22_exposed_historical_manifest_sha256": "94184e36b27aac0defb93b31ae7b47ea332909bcb0c0a80445be2949f422a219",
+    "b21_archived_measurements_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements/ffhq<ID>_phase_noise005_meas5401.pt",
+    "original_ffhq_png_pattern": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024/<THOUSAND_BLOCK>/<ID>.png",
+    "a1_1a_probe": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_1a_synthetic_probe_v1",
+    "a1_1b_gpu_smoke": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_1b_one_each_v2",
+    "a1_2_exposed_inventory": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_dev8_inventory_v1/A1_2_EXPOSED_DEV8_INVENTORY.json",
+    "a1_2_input_freeze": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_inputs_v1/A1_2_INPUT_FREEZE_COMPLETE.json",
+    "a1_2_input_gt_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_inputs_v1/<ID>/ground_truth_tensor.pt",
+    "a1_2_k4_cpu_plan": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_K4_CPU_PLAN_V1.json",
+    "a1_2_gpu_output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1",
+    "a1_2_gpu_run_identity": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/RUN_IDENTITY.json",
+    "a1_2_gpu_complete": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/A1_2_COMPLETE.json",
+    "a1_2_oracle_summary": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/A1_2_OFFLINE_ORACLE_SUMMARY.json",
+    "a1_2_image_candidates_complete_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/IMAGE_CANDIDATES_COMPLETE.json",
+    "a1_2_candidate_receipt_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/<METHOD>_rep<R>_COMPLETE.json",
+    "a1_2_daps_png_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/daps/rep<R>/daps_results/rep<R>/samples/00000_run0000.png",
+    "a1_2_sitcom_tensor_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/sitcom/rep<R>/sitcom1/reconstruction.pt",
+    "a1_2_sitcom_png_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/sitcom/rep<R>/sitcom1/reconstruction.png",
+    "a1_2_np_lf_tensor_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/np_lf/rep<R>/np1/reconstruction.pt",
+    "a1_2_np_lf_png_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/np_lf/rep<R>/np1/reconstruction.png",
+    "a1_2_np_s2_tensor_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/np_s2/rep<R>/np1/reconstruction.pt",
+    "a1_2_np_s2_png_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/np_s2/rep<R>/np1/reconstruction.png",
+    "a1_2_method_run_log_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/<lower_method>/rep<R>/run.log",
+    "a1_2_method_cuda_timer_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/<ID>/<lower_method>/rep<R>/cuda_timing.json",
+    "a1_2_gpu_stdout": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_K4_GPU_MAIN_V1.log",
+    "a1_2_gpu_metadata_zip": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_K4_GPU_METADATA_RETURN_V1.zip",
+    "model_checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+    "native_daps": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps",
+    "native_sitcom": "/egr/research-pac/huang248/external/SITCOM_ODE",
+    "native_difffpr": "/egr/research-pac/huang248/external/DiffFPR",
+    "conda_python_controller_np": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+    "conda_python_daps": "/egr/research-pac/huang248/conda-envs/daps/bin/python",
+    "conda_python_sitcom": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python"
+  },
+  "frozen_selected_images": [
+    "69073",
+    "68539",
+    "67948",
+    "60140",
+    "67293",
+    "67174",
+    "61101",
+    "66631"
+  ],
+  "selected_list_sha256": "faa2e292e915690dc8dd7d477591bb47a12a5f5977fd1c9648849e25c2d09f32",
+  "receipts": [
+    {
+      "stage": "A1.1a_PROBE",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_1A_PROBE_METADATA_RETURN_V1.zip",
+      "sha256": "a2f61731638602f38563502c0c86e3d0896fa9a95f8fbf6fbb7937c507bc290f"
+    },
+    {
+      "stage": "A1.1b_GPU_V1_EXPIRED_STOP",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_1B_GPU_NATIVE_RETURN_V1.zip",
+      "sha256": "ea631b9b581adc07b86511197574f247262ccf6dc62931c84f4574fa3b681672"
+    },
+    {
+      "stage": "A1.1b_GPU_V2_PASS",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_1B_GPU_NATIVE_RETURN_V2.zip",
+      "sha256": "875fae9cc3a546c82d72c15cf31964dc8c5728c52528b4e2f5005b5f7b63df3a"
+    },
+    {
+      "stage": "A1.2_CPU_INVENTORY_PASS",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_EXPOSED_B22_INVENTORY_RETURN_V1.zip",
+      "sha256": "720f30adfa04a7629b766e597afbdc4ae1d853cca7e98ac20757020ebfd2b90b"
+    },
+    {
+      "stage": "A1.2_CPU_FREEZE_PASS",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_INPUT_FREEZE_METADATA_RETURN_V1.zip",
+      "sha256": "219412e50d9dc40d2e028d5f41ad4cc8480b4166a7bc9e7bc04593daa7a55d04"
+    },
+    {
+      "stage": "A1.2_CPU_PLAN_PASS",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_K4_CPU_PLAN_RETURN_V1.zip",
+      "sha256": "7777d36f78464a0782d3cde446f88f53fd7b98d0a2b1fde70afff767e0d4dd20"
+    },
+    {
+      "stage": "A1.2_GPU128_PASS",
+      "file": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/A1_2_K4_GPU_METADATA_RETURN_V1.zip",
+      "sha256": "e82ad0c0314b4cff0fed82db656500307cd82f6927f42c7bc667f94878d7e9fc"
+    }
+  ],
+  "source_identity": {
+    "DAPS_HEAD": "e7a77d094167084faed19b599b96673b7bb11447",
+    "SITCOM_HEAD": "275ab67efbd8146bffca20155171ba6be1169c09",
+    "DIFFFPR_HEAD": "a45ffe58f18fed8a63d3446600424e2b08733524",
+    "FFHQ_MODEL_SHA256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+  },
+  "results": {
+    "candidates_total": 128,
+    "images": 8,
+    "methods": [
+      "DAPS",
+      "SITCOM",
+      "NP_LF",
+      "NP_S2"
+    ],
+    "reps": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "all_candidates_pass": true,
+    "wall_seconds": 5432.002156910021,
+    "cuda_event_elapsed_seconds": 4833.753777343747,
+    "peak_device_used_mib": 1667,
+    "oracle_primary": "COMMON_SAVED_RGB8_RAW_PSNR_GT_BESTOFK",
+    "gpu3_run_lease_closed": true
+  },
+  "governance": {
+    "protected_b24_confirmation305_no_access": true,
+    "cohort_new_heldout": false,
+    "gt_free_restart_selector_established": false,
+    "ood_experiment_executed": false,
+    "next_gpu_run_authorized": false
+  },
+  "readme": "See A1_PLANNER_HANDOFF_RESULTS_PAC_INDEX_20261020.md on A1 executor branch for methodology, limitations and future planner questions. Preserve all existing PAC outputs unchanged."
+}
