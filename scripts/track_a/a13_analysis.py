@@ -123,9 +123,29 @@ def run(cfg,source_audit,runroot,output):
         t0=time.perf_counter()
         image,png01=png_to_model_and_01(ent["png"])
         d=residuals(image,gt_and_y[identifier]["measurement"],eps=cfg["operator"]["eps"])
+        common_cost=time.perf_counter()-t0
         if not all(math.isfinite(v) for side in ("signed","clipped") for v in
                    (d[side]["relative_l2"],d[side]["sse"],d[side]["rmse"])):
             raise RuntimeError(f"STOP nonfinite external residual {cid}")
+        # Additional NATIVE-FLOAT forensic score for 96 SITCOM/NP terminals.
+        # DAPS has only an archived PNG8 endpoint, so native-float is N/A.
+        float_diag=None
+        float_cost=0.0
+        if ent["method"]!="DAPS":
+            diagstart=time.perf_counter()
+            float_tensor=tensor_load(ent["terminal"],("reconstruction",),
+                                      (1,3,256,256),torch.float32)
+            result=loadj(Path(ent["terminal"]).with_name("result.json"))
+            if content_sha(float_tensor)!=result.get("reconstruction_content_sha256") or \
+               result.get("finite_output") is not True:
+                raise RuntimeError(f"STOP native float terminal content mismatch {cid}")
+            float_diag=residuals(float_tensor,gt_and_y[identifier]["measurement"],
+                                 eps=cfg["operator"]["eps"])
+            if ent["method"]=="SITCOM":
+                recorded=result.get("measurement_residual",{}).get("normalized_l2")
+                if recorded is not None and abs(recorded-float_diag["signed"]["relative_l2"])>2e-4:
+                    raise RuntimeError(f"STOP native SITCOM signed residual mismatch {cid}")
+            float_cost=time.perf_counter()-diagstart
         raw_features.append(dict(image_id=identifier,method=ent["method"],rep=ent["rep"],
             candidate_id=cid,terminal_sha256=ent["terminal_sha256"],
             png_sha256=ent["png_sha256"],r_signed=d["signed"]["relative_l2"],
@@ -139,7 +159,12 @@ def run(cfg,source_audit,runroot,output):
             seed32=ent["seed32"],terminal=ent["terminal"],png=ent["png"],
             wall_seconds_subprocess=ent["wall_seconds_subprocess"],
             gpu_active_seconds_event=ent["gpu_active_seconds_event"],
-            extra_cpu_score_wall_s=time.perf_counter()-t0,fft_forward_calls=1))
+            extra_cpu_score_wall_s=common_cost,fft_forward_calls=1,
+            float_native_r_signed=(float_diag["signed"]["relative_l2"] if float_diag else None),
+            float_native_r_clipped=(float_diag["clipped"]["relative_l2"] if float_diag else None),
+            float_native_rmse_signed=(float_diag["signed"]["rmse"] if float_diag else None),
+            float_native_cpu_diagnostic_seconds=float_cost,
+            float_native_diagnostic_fft_calls=(1 if float_diag else 0)))
     if len(raw_features)!=128:raise RuntimeError("STOP incomplete score feature set")
     # Predeclare TWO physically motivated score policies (min signed, min clipped).
     # Selector sees exactly scores and immutable candidate identity, never PSNR/GT.
@@ -319,7 +344,7 @@ def main():
                    a13_commit=a.expected_head)
     count,npol,nreplay=run(cfg,current,Path(a.run_root),Path(a.out))
     write_json_x(Path(a.out)/"A13_CPU_RESOURCE.json",dict(cpu_wall_seconds=time.perf_counter()-t0,
-        cpu_count_visible=os.cpu_count(),gpu_inference=0,fft_forward_for_scores=128,
+        cpu_count_visible=os.cpu_count(),gpu_inference=0,fft_forward_for_scores=128,extra_native_float_diagnostic_fft=96,
         candidate_count=count,policy_rows=npol,replay_rows=nreplay,source_head=a.expected_head,
         stage="a13_1_cpu_forensics_v1",status="PASS",
         metadata_only=True,gt_free_policies=["r_signed","r_clipped"]))
