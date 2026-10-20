@@ -90,5 +90,13 @@
     "psnr_replay_tol_db": 0.0001
   },
   "cpu_only_env": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
-  "forbidden": "Any access including membership checks to B24 confirmation305; no native inference, GT-fitted selectors, cross-family router, new GPU or source edits."
+  "forbidden": "Any access including membership checks to B24 confirmation305; no native inference, GT-fitted selectors, cross-family router, new GPU or source edits.",
+  "noise_reference": {
+    "seed": 720611,
+    "draws": 32,
+    "sigma_y": 0.05,
+    "consistent_multiplier": 1,
+    "poor_fit_multiplier": 3,
+    "note": "synthetic independent Gaussian-noise RMSE only; descriptive not ground-truth basin identification"
+  }
 }
