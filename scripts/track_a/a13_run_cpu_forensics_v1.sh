@@ -23,8 +23,9 @@ else
   if [ "$(git rev-parse HEAD 2>/dev/null)" != "$EXPECTED" ]; then
     echo "STOP_A13_1: HEAD mismatch"
   else
-    "$PY" -m unittest scripts.track_a.test_a13_physics -q
+    TEST_LOG=$("$PY" -m unittest scripts.track_a.test_a13_physics -v 2>&1)
     TEST_RC=$?
+    printf "%s\\n" "$TEST_LOG" | tail -24
     echo "A13_TEST_RC=$TEST_RC"
     if [ "$TEST_RC" -ne 0 ]; then
       echo "STOP_A13_1: synthetic tests failed"
@@ -38,11 +39,12 @@ else
       if [ "$ANALYSIS_RC" -ne 0 ]; then
         echo "STOP_A13_1: no packaging; preserve any partial A1.3 output"
       else
+        printf "%s\\n" "$TEST_LOG" > "$OUT/A13_SYNTHETIC_TESTS.log"
         # Compact metadata-only archive, exclusive creation; never include GT/candidates.
         "$PY" - "$OUT" "$ZIP" <<'PYTHON'
 import pathlib,sys,zipfile,hashlib
 src=pathlib.Path(sys.argv[1]); dst=pathlib.Path(sys.argv[2])
-allowed={p.name for p in src.iterdir() if p.suffix in {".csv",".json",".md"} and p.is_file() and not p.is_symlink()}
+allowed={p.name for p in src.iterdir() if p.suffix in {".csv",".json",".md",".log"} and p.is_file() and not p.is_symlink()}
 needed={"A13_CANDIDATE_METRICS.csv","A13_K_POLICY_ROWS.csv","A13_SUMMARY.csv",
  "A13_SOURCE_AND_INPUT_AUDIT.json","A13_CPU_RESOURCE.json","A13_ORACLE_REPLAY_CHECKS.json"}
 if not needed.issubset(allowed) or len(allowed)>30 or dst.exists():
