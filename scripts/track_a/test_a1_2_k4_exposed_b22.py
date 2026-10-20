@@ -1,10 +1,12 @@
 """A1.2 pure-CPU planning tests; no FFHQ image, native solver or GPU access."""
 import unittest
 from collections import Counter
+from datetime import datetime,timezone
 
 from scripts.track_a.a1_2_k4_exposed_b22 import (
     IDS, METHODS, K, make_plan, validate_input_manifest, select_best_by_psnr,
     EXPECTED_SELECTION_SHA, EXPECTED_INPUT_FREEZE_SHA, EXECUTION_ENABLED,
+    RUN_WINDOW_UTC, RESERVATION_ID, MAX_TOTAL_WALL_S,
 )
 from scripts.track_a.a1_protocol import seed32_numpy
 
@@ -32,7 +34,19 @@ class A12K4ContractTest(unittest.TestCase):
             self.assertTrue(0<=c["native_seed32"]<2**32)
         self.assertEqual(p["np_mixed8_additional_trajectories"],0)
         self.assertTrue(p["not_prospective_heldout"])
-        self.assertEqual(EXECUTION_ENABLED,False)
+        self.assertEqual(EXECUTION_ENABLED,True)
+        self.assertTrue(RESERVATION_ID.startswith("TRACK_A_A1_2_EXPOSED"))
+        self.assertEqual(MAX_TOTAL_WALL_S,10800)
+        self.assertFalse(p["gpu_run_reserved"])
+        self.assertTrue(p["execution_enabled_only_with_gpu3_and_reservation_ack"])
+
+    def test_lease_is_dated_and_bounded(self):
+        early,late=RUN_WINDOW_UTC
+        self.assertEqual(early,datetime(2026,10,20,2,30,tzinfo=timezone.utc))
+        self.assertEqual(late,datetime(2026,10,20,5,0,tzinfo=timezone.utc))
+        self.assertLess((late-early).total_seconds(),MAX_TOTAL_WALL_S)
+        self.assertNotEqual(RESERVATION_ID,"")
+        self.assertFalse(RESERVATION_ID.endswith("NOT_RESERVED"))
 
     def test_wrong_number_or_order_of_exposed_images_fails(self):
         for rows in (fake_inputs()[:7],list(reversed(fake_inputs()))):
