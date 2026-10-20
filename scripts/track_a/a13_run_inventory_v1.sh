@@ -21,8 +21,9 @@ else
   if [ "$(git rev-parse HEAD 2>/dev/null)" != "$EXPECTED" ]; then
     echo "STOP_A13_0: source HEAD does not equal pinned expected commit"
   else
-    "$PY" -m unittest scripts.track_a.test_a13_physics -v
+    TEST_LOG=$("$PY" -m unittest scripts.track_a.test_a13_physics -v 2>&1)
     RC=$?
+    printf "%s\\n" "$TEST_LOG" | tail -24
     echo "A13_SYNTHETIC_TEST_RC=$RC"
     if [ "$RC" -ne 0 ]; then
       echo "STOP_A13_0: unit-test gate failed; no inventory run"
@@ -36,6 +37,7 @@ else
       if [ "$RC" -ne 0 ]; then
         echo "STOP_A13_0: inspect error, do not run stage1"
       else
+        printf "%s\\n" "$TEST_LOG" > "$OUT/A13_SYNTHETIC_TESTS.log"
         echo "STAGE0_RECEIPT=$OUT/A13_INVENTORY_COMPLETE.json"
         sha256sum "$OUT/A13_SOURCE_AND_INPUT_AUDIT.json"
       fi
