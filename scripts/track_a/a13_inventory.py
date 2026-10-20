@@ -118,13 +118,25 @@ def native_source_gate(cfg):
             raise RuntimeError(f"STOP SITCOM operator source blob drift: {rel}")
         operators[rel]=actual
 
-    # Guard against Python source shadowing inside native forward_operator.
+    # Native tracked forward_operator/__init__.py line 5 eagerly imports
+    # forward_operator.motionblur.motionblur.Kernel even for PhaseRetrieval.
+    # Those files were supplied as untracked source in the PAC tree, so pin
+    # exact byte hashes; do not blanket-ignore other importable native code.
     extras=git(d,"ls-files","--others","--exclude-standard","--","forward_operator")
-    unexpected=[p for p in extras.splitlines()
-                if p.endswith((".py",".so",".pyd",".pyi"))]
-    if unexpected:
-        raise RuntimeError("STOP SITCOM untracked importable operator source: "
-                           +repr(unexpected[:8]))
+    actual_importable={p for p in extras.splitlines()
+                       if p.endswith((".py",".so",".pyd",".pyi"))}
+    expected_importable=frozen["allowed_untracked_operator_imports_sha256"]
+    if actual_importable!=set(expected_importable):
+        raise RuntimeError("STOP SITCOM unreviewed untracked importable source:"
+                           +" unexpected="+repr(sorted(actual_importable-set(expected_importable)))
+                           +" missing="+repr(sorted(set(expected_importable)-actual_importable)))
+    verified_imports={}
+    for rel,expected_sha256 in expected_importable.items():
+        p=d/rel
+        if not p.is_file() or p.is_symlink():
+            raise RuntimeError(f"STOP SITCOM untracked import dependency missing/symlink: {rel}")
+        actual_sha256=chkfile(p,expected_sha256)
+        verified_imports[rel]=actual_sha256
 
     whole=subprocess.run(["git","-C",str(d),"diff","HEAD","--"],
                          capture_output=True,timeout=60,check=False,
@@ -135,6 +147,9 @@ def native_source_gate(cfg):
         reviewed_posterior_sample_git_blob=sample_blob,
         reviewed_posterior_patch_sha256=patch_digest,
         forward_operator_git_blobs=operators,
+        exact_untracked_operator_import_sha256=verified_imports,
+        untracked_other_operator_files_diagnostic_only=[p for p in extras.splitlines()
+                                                        if p not in actual_importable][:40],
         tracked_modified_bytecode_paths=sorted(changed&allowed_pyc),
         full_tracked_diff_sha256_diagnostic_only=hashlib.sha256(whole.stdout).hexdigest(),
         historical_full_diff_not_used_as_a1_execution_pin=True)
@@ -203,6 +218,17 @@ def operator_gate(cfg):
                 if key=="forward_operator" or key.startswith("forward_operator."):
                     del sys.modules[key]
             module=importlib.import_module("forward_operator")
+            if name=="SITCOM":
+                # The native package imports Kernel eagerly; verify its origin,
+                # in addition to the prior byte hashes and subsequent numerics.
+                import inspect
+                cls=getattr(module,"Kernel",None)
+                if cls is None or cls.__module__!="forward_operator.motionblur.motionblur":
+                    raise RuntimeError("STOP SITCOM Kernel import dependency unresolved")
+                expected=(root/"forward_operator/motionblur/motionblur.py").resolve()
+                actual=Path(inspect.getfile(cls)).resolve()
+                if actual!=expected:
+                    raise RuntimeError(f"STOP SITCOM Kernel import origin mismatch: {actual}")
             op=module.PhaseRetrieval(oversample=2.0,resolution=256,sigma=.05)
             with torch.no_grad():native=op(x)
             if native.device.type!="cpu" or native.dtype!=torch.float32 or native.shape!=reference.shape:
