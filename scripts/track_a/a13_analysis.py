@@ -146,7 +146,10 @@ def run(cfg,source_audit,runroot,output):
                 if recorded is not None and abs(recorded-float_diag["signed"]["relative_l2"])>2e-4:
                     raise RuntimeError(f"STOP native SITCOM signed residual mismatch {cid}")
             float_cost=time.perf_counter()-diagstart
+        native_label="DIFFFPR" if ent["method"].startswith("NP_") else ent["method"]
         raw_features.append(dict(image_id=identifier,method=ent["method"],rep=ent["rep"],
+            a1_execution_source_head=cfg["a1_execution_source"],
+            native_source_head=cfg["native_heads"][native_label],
             candidate_id=cid,terminal_sha256=ent["terminal_sha256"],
             png_sha256=ent["png_sha256"],r_signed=d["signed"]["relative_l2"],
             r_clipped=d["clipped"]["relative_l2"],
