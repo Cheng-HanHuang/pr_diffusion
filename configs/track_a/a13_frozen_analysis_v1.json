@@ -123,6 +123,11 @@
       "model/edm/dnnlib/__pycache__/util.cpython-38.pyc"
     ],
     "expected_current_full_tracked_diff_sha256_diagnostic_only": "0a5587945acbbb86da46ca8e49996bb79ff4cf142c821f268515777ad379ab2a",
-    "expected_historical_full_tracked_diff_sha256_diagnostic_only": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e"
+    "expected_historical_full_tracked_diff_sha256_diagnostic_only": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e",
+    "allowed_untracked_operator_imports_sha256": {
+      "forward_operator/motionblur/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "forward_operator/motionblur/motionblur.py": "71c81f9249d88dfdabbdb6481f07181a32844179fb7affe1f62836a9348815fc"
+    },
+    "import_dependency_notes": "forward_operator/__init__.py line 5 eagerly imports .motionblur.motionblur.Kernel even for PhaseRetrieval. The two extra .py files are untracked by native SITCOM HEAD, but PAC inspected actual bytes and supplied SHA256. Fail closed if altered or if any other untracked importable operator source exists. Other untracked README/sample/Python cache files are diagnostic only; no claim about historical native run."
   }
 }
