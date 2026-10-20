@@ -41,8 +41,7 @@
     "DIFFFPR": "a45ffe58f18fed8a63d3446600424e2b08733524"
   },
   "native_diff_sha256": {
-    "DAPS": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69",
-    "SITCOM": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e"
+    "DAPS": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69"
   },
   "native_paths": {
     "DAPS": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps",
@@ -98,5 +97,32 @@
     "consistent_multiplier": 1,
     "poor_fit_multiplier": 3,
     "note": "synthetic independent Gaussian-noise RMSE only; descriptive not ground-truth basin identification"
+  },
+  "native_source_scope_sitcom": {
+    "rationale": "The historical full git-diff HEAD SHA covered ten tracked Python3.8 .pyc cache blobs and an unrelated safe_dir mkdir change; the local source patch has now been inspected on PAC. Fail closed for any unapproved tracked change and pin relevant source blobs rather than bytecode. No assertion about historical bytecode equivalence.",
+    "source_head": "275ab67efbd8146bffca20155171ba6be1169c09",
+    "allowed_tracked_modified_source": [
+      "posterior_sample.py"
+    ],
+    "expected_posterior_sample_patch_sha256": "d0bb0292e341abe3f6b99984bb2a98acb5919c41efe0f4bd8fd0ffb60b464fc5",
+    "expected_posterior_sample_git_blob": "cf91b11464b2bb98c6ac97e5278ba05fb9fe970b",
+    "expected_forward_operator_git_blobs": {
+      "forward_operator/__init__.py": "adee8c03c7041e2c63346ea0e7aed59ad25f47dd",
+      "forward_operator/fastmri_utils.py": "f669ea2dd5c48fe9798ce1ce800b9789e22e0657"
+    },
+    "allowed_modified_bytecode_paths": [
+      "forward_operator/__pycache__/__init__.cpython-38.pyc",
+      "forward_operator/__pycache__/fastmri_utils.cpython-38.pyc",
+      "forward_operator/__pycache__/resizer.cpython-38.pyc",
+      "model/__pycache__/__init__.cpython-38.pyc",
+      "model/__pycache__/precond.cpython-38.pyc",
+      "model/ddpm/__pycache__/fp16_util.cpython-38.pyc",
+      "model/ddpm/__pycache__/nn.cpython-38.pyc",
+      "model/ddpm/__pycache__/unet.cpython-38.pyc",
+      "model/edm/dnnlib/__pycache__/__init__.cpython-38.pyc",
+      "model/edm/dnnlib/__pycache__/util.cpython-38.pyc"
+    ],
+    "expected_current_full_tracked_diff_sha256_diagnostic_only": "0a5587945acbbb86da46ca8e49996bb79ff4cf142c821f268515777ad379ab2a",
+    "expected_historical_full_tracked_diff_sha256_diagnostic_only": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e"
   }
 }
