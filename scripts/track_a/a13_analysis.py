@@ -164,13 +164,16 @@ def run(cfg,source_audit,runroot,output):
         if abs(raw-ent["stored_psnr_raw_db"])>cfg["selection"]["psnr_replay_tol_db"] or \
            abs(rot-ent["stored_psnr_rot180_db"])>cfg["selection"]["psnr_replay_tol_db"]:
             raise RuntimeError(f"STOP A1 oracle per-candidate PNG8 replay {ent['candidate_id']}: {raw}/{rot}")
+        reference=source_audit["operator_test"]["noise_reference"]
         if raw>=25:
             tag="RAW_GOOD25"
         elif rot>=25:
             tag="ROTATION_EQUIVALENT_CANDIDATE"
+        elif f["rmse_signed"]<=reference["consistent_cutoff_rmse"]:
+            tag="OTHER_MEASUREMENT_CONSISTENT_LOW_RAW"
+        elif f["rmse_signed"]>reference["poor_fit_cutoff_rmse"]:
+            tag="POOR_MEASUREMENT_FIT"
         else:
-            # A reference range for independently known noise has not been
-            # prospectively calibrated: do not fabricate a fit threshold.
             tag="UNRESOLVED_LOW_RAW"
         metrics.append(dict(f,psnr_raw_rgb8_db=raw,psnr_rot180_rgb8_db=rot,
                 delta_rot180_minus_raw_db=rot-raw,failure_tag=tag))
@@ -237,6 +240,11 @@ def run(cfg,source_audit,runroot,output):
         dict(image_id=v["image_id"],method=v["method"],rep=v["rep"],
              candidate_id=v["candidate_id"],r_signed=v["r_signed"],r_clipped=v["r_clipped"],
              psnr_raw_rgb8_db=v["psnr_raw_rgb8_db"]) for v in metrics])
+    tags=sorted({v["failure_tag"] for v in metrics})
+    write_csv_x(output/"A13_TAXONOMY_COUNTS.csv",[
+        dict(method=m,tag=t,count=sum(v["method"]==m and v["failure_tag"]==t for v in metrics))
+        for m in cfg["methods"] for t in tags])
+    write_json_x(output/"A13_NOISE_REFERENCE.json",source_audit["operator_test"]["noise_reference"])
     write_json_x(output/"A13_ORACLE_REPLAY_CHECKS.json",dict(
         status="PASS_112_PER_IMAGE_POLICY_REPLAYS",n=len(replay),rows=replay))
     write_json_x(output/"A13_SOURCE_AND_INPUT_AUDIT.json",dict(
@@ -259,8 +267,10 @@ def run(cfg,source_audit,runroot,output):
         "advertised as a verified cross-root policy here. Both native selectors: N/A. "
         "DAPS historical Fresh2 margin is not an A1.2 K4 native policy. No native "
         "float score on DAPS: residuals use each saved RGB8 PNG for uniform comparability. "
-        "No independently calibrated signed-noise fit threshold: non-rotation "
-        "low-PSNR cases are UNRESOLVED_LOW_RAW, not automatically poor fits or other basins. "
+        "Synthetic signed-noise RMSE reference is calibrated at stage0 before real "
+        "inputs; its max and 3x max descriptive thresholds are heuristic, not "
+        "a basin identification or proof of nonconvergence. Other residual cases "
+        "remain UNRESOLVED_LOW_RAW. "
         "No new held-out/OOD/trajectory evidence.\n",encoding="utf8")
     special=[("68539","DAPS",[0]),("67293","DAPS",[1,2,3]),
              ("67174","NP_LF",[0,1,2]),("60140","SITCOM",[0,1,2,3])]
