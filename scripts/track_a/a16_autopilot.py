@@ -120,7 +120,8 @@ def make_plan(args,cfg):
     if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("",None):
         raise RuntimeError("STOP CPU plan must hide CUDA devices")
     for sourcefile in ("scripts/track_a/a16_np_hybrid_core.py","scripts/track_a/a16_np_worker.py",
-                       "scripts/track_a/a16_autopilot.py","tests/test_a16_np_fast_autopilot.py"):
+                       "scripts/track_a/a16_autopilot.py","scripts/track_a/a16_selector_diagnostics.py",
+                       "tests/test_a16_np_fast_autopilot.py"):
         ast.parse((WORK/sourcefile).read_text(encoding="utf8"),filename=sourcefile)
     frozen=load(FROZEN_INPUT)
     for row in frozen["rows"]:
@@ -147,6 +148,8 @@ def make_plan(args,cfg):
                   "Track B GPU priority; simultaneous cluster users not excluded by nvidia-smi",
                   "GT used only after each candidate is reconstructed and committed",
                   "No hard budget matching implied by different correction operation counts"])
+    from scripts.track_a.a16_selector_diagnostics import make as saved_fast_forensics
+    saved_fast_forensics()
     dump_exclusive(BASE/"A16_CPU_PLAN_PASS.json",receipt)
     print(json.dumps(dict(status=receipt["status"],source_head=args.expected_head,
         arm_count=receipt["arms"],images=receipt["image_count"],
