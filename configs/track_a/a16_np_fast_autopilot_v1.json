@@ -1,0 +1,249 @@
+{
+  "schema": "prdiff.track_a.a16.np_fast.four_lane.exposed_v1",
+  "root": "/egr/research-pac/huang248",
+  "checkout": "/egr/research-pac/huang248/pr_diffusion_track_a_a16_np_fast_autopilot",
+  "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a16_np_fast_autopilot_20261021",
+  "cohort": "EIGHT_B22_EXPOSED_ENGINEERING_NOT_FRESH",
+  "images": [
+    "69073",
+    "68539",
+    "67948",
+    "60140",
+    "67293",
+    "67174",
+    "61101",
+    "66631"
+  ],
+  "stage0_images": [
+    "69073",
+    "61101",
+    "67174",
+    "66631"
+  ],
+  "epochs": [
+    {
+      "name": "stage0",
+      "reps": [
+        0
+      ],
+      "images": "diagnostic4",
+      "max_active_arms_per_lane": 5
+    },
+    {
+      "name": "stage1",
+      "reps": [
+        0,
+        1
+      ],
+      "images": "all8",
+      "promote_per_lane": 2
+    },
+    {
+      "name": "stage2",
+      "reps": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "images": "all8",
+      "promote_per_lane": 1,
+      "retain_lane_0_1_native_controls": true
+    }
+  ],
+  "gpu_uuids": {
+    "0": "GPU-8c9c6250-7b65-20d8-5c81-d6cb618810c3",
+    "1": "GPU-883c037a-34d2-48c4-467f-9a352fd8fdff",
+    "2": "GPU-c381c0f4-1dbc-004f-7d3a-1d7f7794dffe",
+    "3": "GPU-7d65c050-d7e8-5a6b-ee38-1d72d7a5696a"
+  },
+  "baseline_source": "f4cd28dcd3ec4860cc9f3990fb24964bb97e97bd",
+  "prior_cpu_selector_sha256": "dac02309c91c985a32b6784bdeb047b900ec582ea0457c85c20ad546e4d2aa91",
+  "frozen_input_manifest_sha256": "fda3b5c3a26d3ed761b81cee026eea8dc2eb134b490d6369c2feda29965c2490",
+  "model_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+  "np_competitor_policies": [
+    "DAPS_K4",
+    "NP_LF_K4",
+    "NP_S2_K4",
+    "SITCOM_K4",
+    "FAST_K4"
+  ],
+  "max_root_seconds": 600,
+  "max_total_hours": 8,
+  "lane_arms": {
+    "0": [
+      {
+        "name": "lf_native",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "none",
+        "placement": "none"
+      },
+      {
+        "name": "lf_fast_post",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 40
+      },
+      {
+        "name": "lf_grad_post",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "gradient",
+        "placement": "post",
+        "stride": 40
+      },
+      {
+        "name": "lf_fast_replace",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "fast",
+        "placement": "post",
+        "replace_gs": true,
+        "stride": 40
+      }
+    ],
+    "1": [
+      {
+        "name": "s2_native",
+        "family": "S2",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "none",
+        "placement": "none"
+      },
+      {
+        "name": "lf_fast_prescore",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "fast",
+        "placement": "pre_score",
+        "ranking": "corrected_lf",
+        "stride": 40
+      },
+      {
+        "name": "lf_fast_both",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "fast",
+        "placement": "both",
+        "ranking": "corrected_lf",
+        "stride": 40
+      },
+      {
+        "name": "lf_fast_residual",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "native",
+        "correction": "fast",
+        "placement": "pre_score",
+        "ranking": "residual",
+        "stride": 40
+      }
+    ],
+    "2": [
+      {
+        "name": "lf_sparse",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "sparse",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 40
+      },
+      {
+        "name": "lf_adaptive",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "adaptive",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 40
+      },
+      {
+        "name": "lf_beam2",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "beam2",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 40,
+        "branch_hold": 6
+      },
+      {
+        "name": "lf_budget2",
+        "family": "LF",
+        "steps": 1000,
+        "proposal": "budget2",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 40
+      }
+    ],
+    "3": [
+      {
+        "name": "lf_500_fast",
+        "family": "LF",
+        "steps": 500,
+        "proposal": "sparse",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 25
+      },
+      {
+        "name": "lf_250_fast",
+        "family": "LF",
+        "steps": 250,
+        "proposal": "sparse",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 12
+      },
+      {
+        "name": "lf_150_fast",
+        "family": "LF",
+        "steps": 150,
+        "proposal": "sparse",
+        "correction": "fast",
+        "placement": "post",
+        "stride": 8
+      },
+      {
+        "name": "lf_250_signed",
+        "family": "LF",
+        "steps": 250,
+        "proposal": "sparse",
+        "correction": "fast",
+        "placement": "post",
+        "target": "signed",
+        "stride": 12
+      },
+      {
+        "name": "lf_250_moments",
+        "family": "LF",
+        "steps": 250,
+        "proposal": "sparse",
+        "correction": "fast",
+        "placement": "pre_score",
+        "ranking": "moments",
+        "stride": 12
+      }
+    ]
+  },
+  "notes": [
+    "Data are exposed; GT may rank arms offline for engineering only. No prospective statistical claims.",
+    "Signed vs clipped is intentional factorial, not a hidden model improvement.",
+    "Full FFT and VJP counts must be instrumented or estimated with explicit labels.",
+    "Baseline NP exact trace equivalence required before main run.",
+    "All K roots charged, no GT used for algorithmic run-time selection.",
+    "GPU0..3 physically mapped, Track B priority and no concurrent leases; user must verify externally."
+  ]
+}
