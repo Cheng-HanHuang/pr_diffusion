@@ -62,5 +62,6 @@
   "output_nonoverwrite": true,
   "grid_stage": "a15_2_native_fast_k4_exposed_v1",
   "report_k1_stage": "a15_3_report_k1_v1",
-  "report_k4_stage": "a15_4_report_k4_v1"
+  "report_k4_stage": "a15_4_report_k4_v1",
+  "report_k2_stage": "a15_5_report_k2_v1"
 }
