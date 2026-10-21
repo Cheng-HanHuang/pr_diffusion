@@ -126,7 +126,9 @@
         "correction": "fast",
         "placement": "pre_score",
         "ranking": "corrected_lf",
-        "stride": 40
+        "stride": 40,
+        "correction_start": 0.08,
+        "correction_end": 0.65
       },
       {
         "name": "lf_fast_both",
@@ -136,7 +138,9 @@
         "correction": "fast",
         "placement": "both",
         "ranking": "corrected_lf",
-        "stride": 40
+        "stride": 40,
+        "correction_start": 0.08,
+        "correction_end": 0.65
       },
       {
         "name": "lf_fast_residual",
@@ -146,7 +150,9 @@
         "correction": "fast",
         "placement": "pre_score",
         "ranking": "residual",
-        "stride": 40
+        "stride": 40,
+        "correction_start": 0.08,
+        "correction_end": 0.65
       }
     ],
     "2": [
@@ -244,6 +250,7 @@
     "Full FFT and VJP counts must be instrumented or estimated with explicit labels.",
     "Baseline NP exact trace equivalence required before main run.",
     "All K roots charged, no GT used for algorithmic run-time selection.",
-    "GPU0..3 physically mapped, Track B priority and no concurrent leases; user must verify externally."
+    "GPU0..3 physically mapped, Track B priority and no concurrent leases; user must verify externally.",
+    "Lane1 correction begins at 8% of reverse trajectory before original proj_start=30%, or corrected-candidate ranking would be vacuous (K=1 late)."
   ]
 }
