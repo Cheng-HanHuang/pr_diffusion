@@ -71,6 +71,7 @@ class TestA16Policies(unittest.TestCase):
         self.assertTrue(torch.isfinite(g).all())
         self.assertEqual(counts["fast_updates"],1)
         self.assertEqual(counts["gradient_updates"],1)
+        self.assertEqual(counts["correction_vjp_calls"],4)
 
 
 if __name__=="__main__":
