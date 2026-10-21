@@ -259,13 +259,36 @@ def score_records(arm,images,reps,head):
     runtime=sum(x["sampling_wall_s"] for x in rows)/len(rows)
     # Quality/failure first, measured UNet and runtime penalty second.
     utility=sum(raw)/len(raw) - 8*bad20/len(raw) - .35*math.log(max(1,meansum/150.)) - .08*math.log(max(1.,runtime))
-    return dict(arm=arm,mean_psnr_db=sum(raw)/len(raw),
+    out=dict(arm=arm,mean_psnr_db=sum(raw)/len(raw),
                 minimum_psnr_db=min(raw),bad20=bad20,good25=sum(x>=25 for x in raw),
                 n=len(rows),mean_unet_calls=meansum,mean_sampling_s=runtime,
                 mean_real_process_wall_s=sum(
                     load(result_path(arm,img,rep)/"A16_SUBPROCESS_WALL.json")["subprocess_wall_s"]
                     for img in images for rep in reps)/len(rows),
                 promotion_utility_exposed_only=utility)
+    if reps==[0,1,2,3]:
+        # Fully charge all 4 generated trajectories before GT-free selection.
+        per_image=[]
+        for img in images:
+            subset=[r for r in rows if r["image_id"]==img]
+            oracle=max(subset,key=lambda r:(r["raw_rgb8_psnr_db"],-r["rep"]))
+            entry=dict(image_id=img,oracle_raw_db=oracle["raw_rgb8_psnr_db"])
+            for mode,key in (("signed","signed_full_measurement_residual_l2"),
+                             ("clipped","clipped_full_measurement_residual_l2")):
+                chosen=min(subset,key=lambda r:(r[key],r["rep"]))
+                entry[mode+"_psnr_db"]=chosen["raw_rgb8_psnr_db"]
+                entry[mode+"_regret_db"]=max(0,oracle["raw_rgb8_psnr_db"]-chosen["raw_rgb8_psnr_db"])
+                entry[mode+"_oracle_rep_match"]=int(chosen["rep"]==oracle["rep"])
+                entry[mode+"_chosen_good25"]=int(chosen["raw_rgb8_psnr_db"]>=25)
+            per_image.append(entry)
+        out["K4_gt_free_selector_replay"]={
+            mode:dict(mean_psnr_db=sum(r[mode+"_psnr_db"] for r in per_image)/len(per_image),
+                      mean_oracle_regret_db=sum(r[mode+"_regret_db"] for r in per_image)/len(per_image),
+                      matches_oracle=sum(r[mode+"_oracle_rep_match"] for r in per_image),
+                      good25=sum(r[mode+"_chosen_good25"] for r in per_image))
+            for mode in ("signed","clipped")}
+        out["K4_per_image_selector"] = per_image
+    return out
 
 
 def summarize_stage(args,name,lanes,images,reps):
