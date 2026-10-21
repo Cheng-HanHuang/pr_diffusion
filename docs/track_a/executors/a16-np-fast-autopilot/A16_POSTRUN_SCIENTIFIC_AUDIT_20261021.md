@@ -12,18 +12,18 @@
 
 ## 1. Principal final-stage comparison — same eight exposed images
 
-All K4 quality values below are mean *per-image* raw oriented rounded-RGB8 **GT best of four**, **nondeployable oracle**. Times are **total four fresh subprocess walls per image**, including repeated model loads/imports. U-Net counts include every one of four roots. Failure rates in the next column are across all **32 generated individual roots**, not image-level K4 outcomes.
+All K4 quality values below are mean *per-image* raw oriented rounded-RGB8 **GT best of four**, **nondeployable oracle**. Times are **total four subprocess walls per image**, including repeated model loads/imports. **Important smoke-accounting exception:** the first `lf_native/69073/rep0` subprocess included a dedicated 27.644962-second FULL native NP replay for source equivalence. The archive's `lf_native` 127.29265 s/K4-image is therefore the actual observed research resource bill; subtracting 27.644962/8=3.45562 seconds per K4 image gives ~**123.84 s** for the comparable *method-only four-root subprocess cost*. No other arms include this replay. The code's stage promotion uses sampling-wall time (not this inflated subprocess figure), so its selections are not influenced by this bookkeeping difference. U-Net counts in this table represent the method's four scored roots, not the extra fidelity-only replay. Failure rates in the next column are across all **32 generated individual roots**, not image-level K4 outcomes.
 
-| A16 arm | Mean raw K4 oracle PSNR | Bad20 per root | K4 full subprocess wall/image | K4 U-Net calls/image | Good25 among eight at K4 |
+| A16 arm | Mean raw K4 oracle PSNR | Bad20 per root | K4 recorded subprocess wall/image | K4 U-Net calls/image | Good25 among eight at K4 |
 |---|---:|---:|---:|---:|---:|
 | `lf_fast_post` | **30.4151** | 9/32 | 123.30s | 8800 | 8/8 |
-| `lf_native` | 30.2307 | 9/32 | 127.29s | 8800 | 8/8 |
+| `lf_native` | 30.2307 | 9/32 | 127.29s **(123.84s adjusted)** | 8800 | 8/8 |
 | `lf_fast_prescore` | 30.1910 | 12/32 | 123.54s | 8800 | 8/8 |
 | `lf_beam2` | 30.2209 | 9/32 | **71.51s** | **4392** | 8/8 |
 | `s2_native` | 25.7190 | 17/32 | 124.24s | 8800 | 6/8 |
 | `lf_150_fast` | 27.0045 | 16/32 | **28.31s** | 696 | 7/8 |
 
-**Separate prior A1.5 native FAST-DIPS reference:** K4 GT oracle 31.5251dB; Good25 8/8; K4 sampling-only 14.851s/image, and four-root **program wall after imports** 32.4396s/image. Do not divide these 32.44s by the A16 *whole subprocess* wall and call an exact hardware-matched speed ratio; FAST's actual external four subprocess walls on previous K1 subset were roughly 4×9s, still far below 71–127s for A16 methods. FAST K2 already achieved 30.5253dB and Good25 7/8 using 7.46s four? **Correction:** K2 is TWO roots, sample-only 7.46s/image, not four roots; no causal attribution across different methods.
+**Separate prior A1.5 native FAST-DIPS reference:** K4 GT oracle 31.5251dB; Good25 8/8; K4 sampling-only 14.851s/image, and four-root **program wall after imports** 32.4396s/image. Do not divide these 32.44s by the A16 *whole subprocess* wall and call an exact hardware-matched speed ratio; FAST's actual external four subprocess walls on previous K1 subset were roughly 4×9s, still far below 71–127s for A16 methods. FAST K2 already achieved 30.5253dB and Good25 7/8 with **two** roots costing 7.46s/image *sampling-only*; this is a separate budget and cannot be directly compared with four-root subprocess wall.
 
 ## 2. Paired K4 comparison by image
 
@@ -40,7 +40,7 @@ All K4 quality values below are mean *per-image* raw oriented rounded-RGB8 **GT 
 
 - `lf_fast_post` vs exact paired `lf_native` K4: **+0.1844dB** mean, 6/8 images improve. **Image 67174 contributes +1.206dB**; on the other 7 images the mean gain is only **+0.038dB**. Root-level mean improvement is **+0.032dB**, and **Bad20 remains 9/32** in both. This is an *image-specific recovery*, not evidence of a broad, robust improvement or reduced catastrophic probability. One correction arm has 16 effective updates/root = 80 reverse-mode VJP operations and 336 correction forward magnitudes, but original U-Net count stays 2200.
 - `lf_fast_prescore` is **−1.694dB per-root mean** versus `lf_native`, with **12/32 vs 9/32 Bad20**. K4 change **−0.040dB**. Correcting before ranking can perturb basin decisions and is not an automatic benefit. Per-root comparison uses matching nominal image/rep seeds, although diverged proposal paths can consume RNG differently.
-- `lf_beam2` K4 is **−0.0099dB** relative to native LF, yet costs **1098 vs 2200 U-Net calls per root** (~50.1% of calls) and 71.51s vs 127.29s full K4 subprocess wall (~43.8% saving). Root-level mean is **−0.697dB**, Bad20 still 9/32. K4 oracle picks among independent roots and hides unstable individual trajectories. **Critically, branch + reduced proposals + FAST correction all change together**; without a cost-matched sparse-no-branch/no-FAST control at K4, it is unsound to attribute savings or quality retention to branching itself.
+- `lf_beam2` K4 is **−0.0099dB** relative to native LF, yet costs **1098 vs 2200 U-Net calls per root** (~50.1% of calls) and 71.51s vs **123.84s adjusted** native LF K4 subprocess wall (~42.3% saving; vs observed 127.29s including one verifier it is ~43.8%). Root-level mean is **−0.697dB**, Bad20 still 9/32. K4 oracle picks among independent roots and hides unstable individual trajectories. **Critically, branch + reduced proposals + FAST correction all change together**; without a cost-matched sparse-no-branch/no-FAST control at K4, it is unsound to attribute savings or quality retention to branching itself.
 - `lf_150_fast` K4 27.004dB is **−3.226dB** vs NP-LF native, and **−4.521dB** vs FAST native, despite 696 U-Net calls per image at K4 (FAST native 600). Four independent roots fail on image **68539** (best 9.85dB); this is not a reliable 150-step substitute. Importantly this A16 method is not a faithful 150-step FAST sampler; it is a shortened VP/NP with sparse FAST-inspired corrections.
 - `s2_native` K4 25.719dB vs native LF 30.231dB for THESE new paired seeds. Two images (67948, 66631) lack even one Good25 root; earlier A1.2 NP-S2 K4 was 30.222dB on DIFFERENT seed set. Do not claim S2 is universally worse, merely that it exhibits basin sensitivity.
 
@@ -89,5 +89,5 @@ Recommend a narrow but decisive **factorial follow-up**, not another unbounded o
 - Every reported K4 raw PSNR is the average of per-image **maximum PSNR among four roots**, and is explicitly **offline GT oracle**. Runtime includes ALL four candidates, regardless of selector.
 - Good25 among K4 images is *not* the same as Bad20 among all 32 roots. Both must be shown.
 - Signed-vs-clipped selection is applied **only after** candidate generation in this replay (except separately labeled `lf_250_signed` experimental arm). It is not proof the sampler's correction should use signed input.
-- Timing scopes: FAST 32.44s = four program-after-import walls, A16 71–127s = four full subprocess walls. Report hardware/software and CUDA sample walls before precise speedup factors.
+- Timing scopes: FAST 32.44s = four program-after-import walls, A16 71–127s = four recorded full subprocess walls, and A16 native LF's 127.29s uniquely includes the extra replay guard; **method-only native LF is 123.84s** after subtracting the precisely recorded 27.645s verifier. Report hardware/software and CUDA sample walls before precise speedup factors.
 - Keep B22/A1.2/A1.5 checkpoints, source commits, and completed receipts immutable. This report is committed on a **separate analysis branch**.
