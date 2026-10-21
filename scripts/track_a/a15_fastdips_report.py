@@ -23,13 +23,13 @@ def write_json_x(path,value):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--expected-head",required=True)
-    ap.add_argument("--k",type=int,choices=[1,4],required=True)
+    ap.add_argument("--k",type=int,choices=[1,2,4],required=True)
     a=ap.parse_args()
     if os.environ.get("CUDA_VISIBLE_DEVICES")!="":
         raise RuntimeError("STOP report is CPU-only")
     cfg=load(CFG)
     source=check_source(cfg,a.expected_head)
-    out=Path(cfg["output_root"])/(cfg["report_k1_stage"] if a.k==1 else cfg["report_k4_stage"])
+    out=Path(cfg["output_root"])/{1:cfg["report_k1_stage"],2:cfg["report_k2_stage"],4:cfg["report_k4_stage"]}[a.k]
     if out.exists() or out.is_symlink():raise RuntimeError("STOP occupied report output")
     pre=load(Path(cfg["output_root"])/cfg["preflight_stage"]/"A15_PREFLIGHT_PASS.json")
     if pre["status"]!="A15_CPU_PREFLIGHT_PASS" or pre["source"]["a15_commit"]!=a.expected_head:
