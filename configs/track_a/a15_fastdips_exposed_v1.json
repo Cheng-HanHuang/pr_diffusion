@@ -59,5 +59,6 @@
     "all8_K1_then_all8_K4_after_science_review"
   ],
   "no_auto_gpu": true,
-  "output_nonoverwrite": true
+  "output_nonoverwrite": true,
+  "grid_stage": "a15_2_native_fast_k4_exposed_v1"
 }
