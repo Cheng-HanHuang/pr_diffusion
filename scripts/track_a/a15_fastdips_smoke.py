@@ -189,12 +189,19 @@ def run(args,cfg,source):
     rgba=torch.round(((original_cpu[0].clamp(-1,1)+1.)*.5)*255).to(torch.uint8)
     png=out/"reconstruction.png"
     Image.fromarray(rgba.permute(1,2,0).contiguous().numpy(),"RGB").save(png)
+    # Source-grounded FAST-DIPS original export in misc.tensor_to_pils:
+    # clip to [0,1], multiply by 255 and cast uint8 (truncation).
+    # Keep both variants to diagnose quantization/format confounds.
+    native_uint8=(((original_cpu[0].clamp(-1,1)+1.)*.5)*255).to(torch.uint8)
+    native_png=out/"reconstruction_native_uint8.png"
+    Image.fromarray(native_uint8.permute(1,2,0).contiguous().numpy(),"RGB").save(native_png)
     gtpath=Path(row["ground_truth_tensor_path"])
     file_ok(gtpath,row["ground_truth_tensor_file_sha256"],"frozen GT")
     ground=load_tensor(gtpath,("ground_truth","image","x"),(1,3,256,256))
     if tensor_hash(ground)!=row["ground_truth_tensor_sha256"]:
         raise RuntimeError("STOP frozen GT tensor drift")
     metrics=result_psnr(png,ground)
+    native_metrics=result_psnr(native_png,ground)
 
     summary={"status":("A15_FAST_SINGLE_SMOKE_PASS" if args.mode=="smoke" else "A15_FAST_CANDIDATE_PASS"),"image_id":args.image_id,
         "rep":args.rep,"mode":args.mode,"seed":seed,
@@ -212,6 +219,9 @@ def run(args,cfg,source):
         "peak_torch_reserved_mib":mem,
         "reconstruction_float_sha256":sha(out/"reconstruction.pt"),
         "reconstruction_png_sha256":sha(png),
+        "original_fast_native_png_sha256":sha(native_png),
+        "original_fast_native_png8_metrics":native_metrics,
+        "program_wall_after_imports_seconds":time.perf_counter()-args.beginning,
         "png_export":"round_to_nearest_torchvision_style_8bit",
         "gt_touched_only_post_sampling":True,
         "gt_free_runtime_selection":"single_trajectory_no_choice",
@@ -238,6 +248,7 @@ def main():
     cfg=load(CFG)
     if os.environ.get("PYTHONDONTWRITEBYTECODE")!="1":
         raise RuntimeError("STOP PYTHONDONTWRITEBYTECODE=1 mandatory")
+    a.beginning=time.perf_counter()
     source=check_source(cfg,a.expected_head)
     return run(a,cfg,source)
 
