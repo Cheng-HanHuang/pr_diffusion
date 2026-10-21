@@ -181,6 +181,12 @@ def main():
         baseline_diff=float((pred-native).abs().amax())
         if baseline_diff>5e-4:
             raise RuntimeError(f"STOP native NP replay mismatch maxabs {baseline_diff}")
+    with torch.no_grad():
+        # Post-sampling scored once for offline GT-free selection; excluded
+        # from sampler CUDA-event/sampling-wall timers above.
+        yhat=selector.base.oversampled_magnitude(pred.detach(),64)
+        residual_signed_l2=float((yhat-y).square().sum().sqrt())
+        residual_clipped_l2=float((yhat-y.clamp_min(0)).square().sum().sqrt())
     pred=pred.detach().cpu().float()
     if pred.shape!=(1,3,256,256) or not bool(torch.isfinite(pred).all()):
         raise RuntimeError("STOP invalid NP output")
@@ -205,6 +211,9 @@ def main():
         measurement_preprocessing=arm.target,output_directory=str(out),
         raw_rgb8_psnr_db=raw,rot180_rgb8_psnr_db=rot,
         good25=raw>=25,good30=raw>=30,bad20=raw<20,
+        signed_full_measurement_residual_l2=residual_signed_l2,
+        clipped_full_measurement_residual_l2=residual_clipped_l2,
+        residual_score_is_offline_post_sampling=True,
         sampling_wall_s=sampling_wall,sample_cuda_event_s=event_s,
         program_wall_after_imports_s=time.perf_counter()-boot-baseline_native_time,
         reference_native_replay_seconds=baseline_native_time,
