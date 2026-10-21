@@ -116,6 +116,7 @@ def fast_effective_correction(A, anchor, y, gamma: float,
             ax=A(x_req)
             r2=ax-b2
             Jtr=torch.autograd.grad(ax,x_req,grad_outputs=r2)[0]
+            if stats is not None: stats["correction_vjp_calls"] += 1
         g=torch.nan_to_num((x-p)/gamma+rho*Jtr)
         # Exact pinned FAST pixel default: FD approximation to Jg, eta=1e-3.
         with torch.no_grad():
@@ -153,6 +154,7 @@ def gradient_correction(A, anchor, y, gamma:float, rho:float,
             ax=A(xr)
             r=ax-y
             gdata=torch.autograd.grad(ax,xr,grad_outputs=r)[0]
+            if stats is not None:stats["correction_vjp_calls"]+=1
         g=torch.nan_to_num((x-p)/gamma+rho*gdata)
         with torch.no_grad():
             gn=g.square().mean().sqrt().clamp_min(1e-12)
@@ -198,6 +200,7 @@ def reconstruct(*, selector, model, scheduler, measurement_signed, pad,
     states=[dict(x=None,eps=None)]
     counters=dict(unet=0,branches_spawned=0,branches_pruned=0,fast_updates=0,
                   gradient_updates=0,correction_operator_evaluations=0,
+                  correction_vjp_calls=0,
                   score_fft_estimate=0,gs_fft_estimate=0,branch_max=1,
                   correction_time_s=0., score_time_s=0., selected=0)
     audit_trace=[]
