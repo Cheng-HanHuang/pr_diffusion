@@ -32,6 +32,7 @@ SELECTOR_RESULT=ROOT/"outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed
 LEASE="A16_NP_FAST_FOUR_GPU_RECORDED_ISSUE41"
 MAX_EXEC_HOURS=8
 KILL_AFTER=15
+CANCEL=threading.Event()
 
 def git(*args):
     return subprocess.check_output(["git","-C",str(WORK),*args],text=True).strip()
@@ -181,6 +182,8 @@ def task_command(head,arm,img,rep,gpu,replay):
     return cmd
 
 def run_task(args,arm,img,rep,gpu,replay,deadline,limit):
+    if CANCEL.is_set():
+        raise RuntimeError("STOP another A16 GPU lane failed; no new worker started")
     if check_completed(arm,img,rep,args.expected_head):
         return load(result_path(arm,img,rep)/"A16_CANDIDATE_COMPLETE.json")
     if time.monotonic()>deadline:
@@ -225,11 +228,17 @@ def run_task(args,arm,img,rep,gpu,replay,deadline,limit):
 
 
 def lane_execute(args,stage,gpu,arms,images,reps,deadline,cfg):
-    for arm in arms:
-        for img in images:
-            for rep in reps:
-                run_task(args,arm,img,rep,gpu,False,deadline,int(cfg["max_root_seconds"]))
-    return gpu
+    try:
+        for arm in arms:
+            for img in images:
+                for rep in reps:
+                    if CANCEL.is_set():
+                        raise RuntimeError("STOP peer GPU lane failure; do not launch further tasks")
+                    run_task(args,arm,img,rep,gpu,False,deadline,int(cfg["max_root_seconds"]))
+        return gpu
+    except BaseException:
+        CANCEL.set()
+        raise
 
 def score_records(arm,images,reps,head):
     rows=[load(result_path(arm,img,rep)/"A16_CANDIDATE_COMPLETE.json") for img in images for rep in reps]
@@ -289,6 +298,7 @@ def promotion(analysis,cfg,stage):
 
 
 def run_stage(args,name,lanes,images,reps,deadline,cfg):
+    CANCEL.clear()
     # Four independent physical devices: one serial lane per GPU.
     with ThreadPoolExecutor(max_workers=4) as pool:
         futures=[pool.submit(lane_execute,args,name,gpu,arms,images,reps,deadline,cfg)
