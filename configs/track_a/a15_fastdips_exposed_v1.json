@@ -23,7 +23,7 @@
   "a13_audit_sha256": "ca67a9b94da73464b6eee3795b6f21370c444e096592473bf0dc0739e70b4f9f",
   "checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
   "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
-  "python": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+  "python": "/egr/research-pac/huang248/conda-envs/fast_dips_a15/bin/python",
   "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed_20261020",
   "preflight_stage": "a15_0_cpu_preflight_v1",
   "smoke_stage": "a15_1_single_native_fast_smoke_v1",
@@ -63,5 +63,7 @@
   "grid_stage": "a15_2_native_fast_k4_exposed_v1",
   "report_k1_stage": "a15_3_report_k1_v1",
   "report_k4_stage": "a15_4_report_k4_v1",
-  "report_k2_stage": "a15_5_report_k2_v1"
+  "report_k2_stage": "a15_5_report_k2_v1",
+  "environment_prefix": "/egr/research-pac/huang248/conda-envs/fast_dips_a15",
+  "environment_strategy": "separate Python3.10 torch2.3.0 cu121 native FAST pixel-only dependencies; no edits to prdiff_ffhq"
 }
