@@ -82,13 +82,23 @@ def check_source(cfg,head):
 def cpu_gate(cfg):
     if os.environ.get("CUDA_VISIBLE_DEVICES")!="":
         raise RuntimeError("STOP CUDA_VISIBLE_DEVICES must be empty for preflight")
-    wanted=["torch","numpy","PIL","scipy","packaging","yaml","omegaconf",
+    # Pixel-only native FAST imports: misc.py eagerly imports skimage,
+    # torchmetrics, LPIPS and prettytable. Full upstream requirements also
+    # install heavyweight LDM/StableDiffusion packages unnecessary here.
+    wanted=["torch","numpy","PIL","scipy","packaging","yaml",
             "torchvision","imageio","tqdm","wandb","setproctitle",
-            "einops","pytorch_lightning","diffusers","transformers"]
+            "torchmetrics","skimage","lpips","prettytable"]
     missing=[n for n in wanted if importlib.util.find_spec(n) is None]
     if missing:
         raise RuntimeError("STOP_MISSING_PYTHON_MODULES:"+",".join(missing))
     import torch
+    # Ensure only the newly provisioned isolated interpreter is used.
+    if Path(sys.executable).resolve()!=Path(cfg["python"]).resolve():
+        raise RuntimeError("STOP wrong FAST-DIPS Python interpreter: "+sys.executable)
+    if sys.version_info[:2]!=(3,10):
+        raise RuntimeError("STOP FAST native environment requires Python 3.10")
+    if torch.__version__.split("+")[0]!="2.3.0":
+        raise RuntimeError("STOP FAST PyTorch pin differs from 2.3.0: "+torch.__version__)
     if torch.cuda.is_initialized():
         raise RuntimeError("STOP CUDA already initialized")
     if not hasattr(torch,"func"):
