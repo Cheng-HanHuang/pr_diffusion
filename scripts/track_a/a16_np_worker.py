@@ -139,7 +139,8 @@ def main():
     torch.cuda.synchronize(device)
     model_load=time.perf_counter()-boot
 
-    out.mkdir(parents=True,exist_ok=False)
+    out.parent.mkdir(parents=True,exist_ok=True)
+    out.mkdir(parents=False,exist_ok=False)
     save_exclusive(out/"RUNNING.json",{
         "source_head":args.expected_head,"image":args.image_id,"rep":args.rep,
         "seed":seed,"arm":arm.name,"gpu_uuid":args.gpu_uuid,"status":"INCOMPLETE"})
