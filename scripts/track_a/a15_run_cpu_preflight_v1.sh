@@ -6,7 +6,7 @@ a15_preflight_main() {
   WORK="$ROOT/pr_diffusion_track_a_a15_fastdips"
   FAST="$ROOT/external/FAST_DIPS_A15"
   OUT="$ROOT/outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed_20261020/a15_0_cpu_preflight_v1"
-  PY="$ROOT/conda-envs/prdiff_ffhq/bin/python"
+  PY="$ROOT/conda-envs/fast_dips_a15/bin/python"
   SHA="a9758b38906b7c7950fa04491f37f6634948db26"
   EXPECTED="$1"
 
