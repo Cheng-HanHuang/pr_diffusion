@@ -27,7 +27,7 @@ Main figures: per-image FAST roots rep0..3, K1/K2/K4 prefix best raw RGB8 PSNR, 
 - Inputs READ ONLY: `/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_inputs_v1/A1_2_INPUT_FREEZE_COMPLETE.json`, exactly IDs `69073,68539,67948,60140,67293,67174,61101,66631`; source/contents SHA pinned in `configs/track_a/a15_fastdips_exposed_v1.json`. A1.2 oracle summary read-only. A1.3 source-input PASS receipt read-only.
 - Model READ ONLY `/egr/research-pac/huang248/models/ffhq_10m.pt`, expected SHA256 `81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa`.
 - Default preflight interpreter: `/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python`. FAST official environment recommends Python3.10, torch2.3.0, etc. Do **not** install into existing `prdiff_ffhq` automatically. CPU preflight reports unmet modules. If incompatible, provision a *separate* PAC conda environment under `/egr/research-pac/huang248/conda-envs/` after deliberate review (no writes in /home), with a frozen requirement set and no blind upgrade to break the original A1 model.
-- New **exclusive** output tree: `/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed_20261020/`. Stages `a15_0_cpu_preflight_v1`, `a15_1_single_native_fast_smoke_v1`, `a15_2_native_fast_k4_exposed_v1/<ID>/rep<R>`, `a15_3_report_k1_v1` and `a15_4_report_k4_v1`. Every path is mkdir exclusive; failures preserve partial artifacts. Never `rm -rf`, reset native PAC repos, or overwrite original A1/A1.3 outputs.
+- New **exclusive** output tree: `/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed_20261020/`. Stages `a15_0_cpu_preflight_v1`, `a15_1_single_native_fast_smoke_v1`, `a15_2_native_fast_k4_exposed_v1/<ID>/rep<R>`, `a15_3_report_k1_v1`, `a15_5_report_k2_v1` and `a15_4_report_k4_v1`. Every path is mkdir exclusive; failures preserve partial artifacts. Never `rm -rf`, reset native PAC repos, or overwrite original A1/A1.3 outputs.
 
 ## 4. Stage transitions — fail closed
 
@@ -37,7 +37,7 @@ Main figures: per-image FAST roots rep0..3, K1/K2/K4 prefix best raw RGB8 PSNR, 
 
 **Stage A15.2 (NOT YET AUTHORIZED):** After a scientifically valid smoke/measurement/weight/quality and timing receipt, run eight independent rep0 K1 grid roots; pause for analysis. Then rep1–3 for exact K4 only with separate GPU budget/ledger. The grid runner is present but requires `--mode grid`, an exact disjoint output and explicit `A15_GRID_LEASE_RECORDED_ISSUE41`; its presence does not authorize execution. No hidden restart, mutation, control tuning or other method inference.
 
-**Stage A15.3/4 (CPU reporting after full roots):** `scripts/track_a/a15_fastdips_report.py --k 1|4` consumes exactly 8 or 32 completed grid receipts, recomputes paired historical A1.2 offline-oracle statistics, writes only fresh metadata/CSV. It does **not** generate any candidate itself.
+**Stage A15.3/4/5 (CPU reporting after complete prefixes):** `scripts/track_a/a15_fastdips_report.py --k 1|2|4` consumes exactly 8 or 32 completed grid receipts, recomputes paired historical A1.2 offline-oracle statistics, writes only fresh metadata/CSV. It does **not** generate any candidate itself.
 
 ## 5. Stop and evaluation rules
 
