@@ -240,7 +240,9 @@
         "correction": "fast",
         "placement": "pre_score",
         "ranking": "moments",
-        "stride": 12
+        "stride": 12,
+        "correction_start": 0.08,
+        "correction_end": 0.65
       }
     ]
   },
@@ -251,6 +253,7 @@
     "Baseline NP exact trace equivalence required before main run.",
     "All K roots charged, no GT used for algorithmic run-time selection.",
     "GPU0..3 physically mapped, Track B priority and no concurrent leases; user must verify externally.",
-    "Lane1 correction begins at 8% of reverse trajectory before original proj_start=30%, or corrected-candidate ranking would be vacuous (K=1 late)."
+    "Lane1 correction begins at 8% of reverse trajectory before original proj_start=30%, or corrected-candidate ranking would be vacuous (K=1 late).",
+    "250-step moments arm is activated at pre-projection sparse K5 checkpoints; otherwise ranking changes are vacuous with K=1."
   ]
 }
