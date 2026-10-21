@@ -145,6 +145,7 @@ def main():
         "seed":seed,"arm":arm.name,"gpu_uuid":args.gpu_uuid,"status":"INCOMPLETE"})
 
     baseline_diff=None
+    baseline_native_time=0.0
     if args.reference_replay:
         if arm.proposal!="native" or arm.correction!="none" or arm.placement!="none" or arm.steps!=1000:
             raise RuntimeError("STOP reference replay requires exact NP native arm")
@@ -205,7 +206,8 @@ def main():
         raw_rgb8_psnr_db=raw,rot180_rgb8_psnr_db=rot,
         good25=raw>=25,good30=raw>=30,bad20=raw<20,
         sampling_wall_s=sampling_wall,sample_cuda_event_s=event_s,
-        program_wall_after_imports_s=time.perf_counter()-boot,
+        program_wall_after_imports_s=time.perf_counter()-boot-baseline_native_time,
+        reference_native_replay_seconds=baseline_native_time,
         model_load_s=model_load,
         max_torch_reserved_mib=torch.cuda.max_memory_reserved(device)/(1024*1024),
         np_native_replay_maxabs=baseline_diff,
