@@ -9,6 +9,7 @@ for retrospective engineering promotion. This is NOT a fresh-cohort validation.
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
+import ast
 import argparse
 import csv
 import hashlib
@@ -33,6 +34,8 @@ LEASE="A16_NP_FAST_FOUR_GPU_RECORDED_ISSUE41"
 MAX_EXEC_HOURS=8
 KILL_AFTER=15
 CANCEL=threading.Event()
+ACTIVE=set()
+ACTIVE_LOCK=threading.Lock()
 
 def git(*args):
     return subprocess.check_output(["git","-C",str(WORK),*args],text=True).strip()
@@ -116,6 +119,9 @@ def make_plan(args,cfg):
         raise RuntimeError("STOP A16 output area already exists; do not overwrite")
     if os.environ.get("CUDA_VISIBLE_DEVICES") not in ("",None):
         raise RuntimeError("STOP CPU plan must hide CUDA devices")
+    for sourcefile in ("scripts/track_a/a16_np_hybrid_core.py","scripts/track_a/a16_np_worker.py",
+                       "scripts/track_a/a16_autopilot.py","tests/test_a16_np_fast_autopilot.py"):
+        ast.parse((WORK/sourcefile).read_text(encoding="utf8"),filename=sourcefile)
     frozen=load(FROZEN_INPUT)
     for row in frozen["rows"]:
         if digest(Path(row["measurement_path"]))!=row["measurement_file_sha256"]:
@@ -205,15 +211,20 @@ def run_task(args,arm,img,rep,gpu,replay,deadline,limit):
         before=time.monotonic()
         child=subprocess.Popen(cmd,cwd=str(WORK),env=env,
                                stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
+        with ACTIVE_LOCK: ACTIVE.add(child.pid)
         try:
             child.wait(timeout=min(limit,max(1,int(deadline-time.monotonic()))))
         except subprocess.TimeoutExpired:
-            os.killpg(child.pid,signal.SIGTERM)
+            try: os.killpg(child.pid,signal.SIGTERM)
+            except ProcessLookupError: pass
             try:child.wait(timeout=15)
             except subprocess.TimeoutExpired:
-                os.killpg(child.pid,signal.SIGKILL)
+                try:os.killpg(child.pid,signal.SIGKILL)
+                except ProcessLookupError:pass
                 child.wait()
             raise RuntimeError(f"STOP timed out {arm}/{img}/rep{rep}; output preserved")
+        finally:
+            with ACTIVE_LOCK: ACTIVE.discard(child.pid)
         elapsed=time.monotonic()-before
         if child.returncode!=0:
             raise RuntimeError(f"STOP worker rc{child.returncode} {arm}/{img}/rep{rep}; see {log}")
@@ -337,7 +348,19 @@ def execute(args,cfg):
     dump_exclusive(BASE/"A16_AUTOPILOT_FINAL.json",final)
     print(json.dumps(final,sort_keys=True),flush=True)
 
+def on_interrupt(sig,frame):
+    """Kill ONLY our registered child process groups; never systemwide CUDA jobs."""
+    CANCEL.set()
+    with ACTIVE_LOCK: pids=list(ACTIVE)
+    for pid in pids:
+        try:os.killpg(pid,signal.SIGTERM)
+        except ProcessLookupError:pass
+    raise KeyboardInterrupt("A16 user interrupt; own children terminated")
+
+
 def main():
+    signal.signal(signal.SIGINT,on_interrupt)
+    signal.signal(signal.SIGTERM,on_interrupt)
     ap=argparse.ArgumentParser()
     ap.add_argument("--mode",choices=["plan","smoke","execute"],required=True)
     ap.add_argument("--expected-head",required=True)
@@ -369,6 +392,6 @@ def main():
 
 if __name__=="__main__":
     try:main()
-    except Exception as e:
+    except (Exception,KeyboardInterrupt) as e:
         print("A16_AUTOPILOT_STOP:",str(e),file=sys.stderr,flush=True)
         sys.exit(15)
