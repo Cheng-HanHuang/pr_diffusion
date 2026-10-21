@@ -1,0 +1,63 @@
+{
+  "schema": "prdiff.track_a.a15.fast_dips.exposed_b22.v1",
+  "cohort": "A1_2_B22_EXPOSED_ENGINEERING_ONLY_NOT_FRESH",
+  "ids": [
+    "69073",
+    "68539",
+    "67948",
+    "60140",
+    "67293",
+    "67174",
+    "61101",
+    "66631"
+  ],
+  "root": "/egr/research-pac/huang248",
+  "a15_checkout": "/egr/research-pac/huang248/pr_diffusion_track_a_a15_fastdips",
+  "fast_repo": "/egr/research-pac/huang248/external/FAST_DIPS_A15",
+  "fast_git_source": "https://github.com/ququlza/FAST-DIPS.git",
+  "fast_head": "a9758b38906b7c7950fa04491f37f6634948db26",
+  "frozen_input_manifest": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_inputs_v1/A1_2_INPUT_FREEZE_COMPLETE.json",
+  "frozen_input_manifest_sha256": "fda3b5c3a26d3ed761b81cee026eea8dc2eb134b490d6369c2feda29965c2490",
+  "a1_oracle_summary": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1/A1_2_OFFLINE_ORACLE_SUMMARY.json",
+  "a13_audit_receipt": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a13_candidate_audit_20261020/a13_0_inventory_v1/A13_INVENTORY_COMPLETE.json",
+  "a13_audit_sha256": "ca67a9b94da73464b6eee3795b6f21370c444e096592473bf0dc0739e70b4f9f",
+  "checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+  "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+  "python": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+  "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed_20261020",
+  "preflight_stage": "a15_0_cpu_preflight_v1",
+  "smoke_stage": "a15_1_single_native_fast_smoke_v1",
+  "gpu_data_privacy": "only eight frozen B22 exposed inputs; confirmation305 never accessed",
+  "operator": {
+    "oversample": 2,
+    "resolution": 256,
+    "noise_sigma": 0.05,
+    "pad": 64,
+    "measurement_shape": [
+      1,
+      3,
+      384,
+      384
+    ]
+  },
+  "fast_native_pixel": {
+    "sampler": "edm_FAST_DIPS",
+    "T": 150,
+    "K_ADMM": 2,
+    "S_x": 5,
+    "rho": 200,
+    "epsilon": 0.05,
+    "backtrack": true,
+    "alpha_max": 1,
+    "posterior_mode": "pixel",
+    "record_trajectories": false
+  },
+  "metric": "A1.2_RGB8_RAW_ORIENTED_PRIMARY_GT_POSTERIOR_ONLY_ROT180_SECONDARY",
+  "experiment_stages": [
+    "cpu_read_only_inventory",
+    "isolated_single_image_single_root_gpu_smoke_only_after_lease",
+    "all8_K1_then_all8_K4_after_science_review"
+  ],
+  "no_auto_gpu": true,
+  "output_nonoverwrite": true
+}
