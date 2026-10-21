@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A1.5 isolated single-image/single-root native FAST-DIPS smoke (GPU, user-operated).
+"""A1.5 isolated native FAST-DIPS single-root runner (GPU, user-operated).
 
 Must only run AFTER A1.5 CPU preflight and recorded issue #41 GPU lease.
 Uses official pinned FAST-DIPS sampler unchanged, exact frozen signed A1.2
@@ -70,10 +70,18 @@ def run(args,cfg,source):
     import numpy as np
     import torch
     from PIL import Image
-    if args.image_id!="69073" or args.rep!=0:
-        raise RuntimeError("STOP smoke only frozen image69073, root0")
-    if args.lease_ack!="A15_SMOKE_LEASE_RECORDED_ISSUE41":
-        raise RuntimeError("STOP explicit issue41 GPU lease acknowledgment missing")
+    if args.image_id not in cfg["ids"] or args.rep not in (0,1,2,3):
+        raise RuntimeError("STOP image/rep outside eight frozen exposed K4")
+    if args.mode=="smoke":
+        if args.image_id!="69073" or args.rep!=0:
+            raise RuntimeError("STOP smoke only image69073 rep0")
+        if args.lease_ack!="A15_SMOKE_LEASE_RECORDED_ISSUE41":
+            raise RuntimeError("STOP explicit issue41 smoke GPU lease missing")
+    elif args.mode=="grid":
+        if args.lease_ack!="A15_GRID_LEASE_RECORDED_ISSUE41":
+            raise RuntimeError("STOP explicit issue41 grid GPU lease missing")
+    else:
+        raise RuntimeError("STOP unsupported stage mode")
     g=os.environ.get("CUDA_VISIBLE_DEVICES","")
     if not g or "," in g or g=="-1":
         raise RuntimeError("STOP requires one explicitly mapped physical GPU ID")
@@ -137,12 +145,14 @@ def run(args,cfg,source):
     del obs
 
     out=Path(args.out)
-    if out!=Path(cfg["output_root"])/cfg["smoke_stage"] or out.exists() or out.is_symlink():
+    expected=(Path(cfg["output_root"])/cfg["smoke_stage"] if args.mode=="smoke"
+              else Path(cfg["output_root"])/cfg["grid_stage"]/args.image_id/f"rep{args.rep}")
+    if out!=expected or out.exists() or out.is_symlink():
         raise RuntimeError("STOP output mismatch or occupied")
     # Output creation begins only after successful source/model/measurement checks.
     out.mkdir(parents=True,exist_ok=False)
     (out/"RUNNING.json").write_text(json.dumps({
-        "status":"INCOMPLETE_UNTIL_PASS","a15_head":args.expected_head,
+        "status":"INCOMPLETE_UNTIL_PASS","mode":args.mode,"a15_head":args.expected_head,
         "fast_head":cfg["fast_head"],"image_id":args.image_id,
         "rep":args.rep,"seed":seed,"visible_gpu":g,
         "checkpoint_sha256":cfg["checkpoint_sha256"],
@@ -187,7 +197,7 @@ def run(args,cfg,source):
     metrics=result_psnr(png,ground)
 
     summary={"status":"A15_FAST_SINGLE_SMOKE_PASS","image_id":args.image_id,
-        "rep":args.rep,"seed":seed,
+        "rep":args.rep,"mode":args.mode,"seed":seed,
         "source_head":args.expected_head,"fast_head":cfg["fast_head"],
         "upstream_algorithm":"UNMODIFIED_MAIN_FAST_DIPS_PIXEL_T150_ADMM2_S5",
         "native_checkpoint_load_validation":check,
@@ -219,6 +229,7 @@ def run(args,cfg,source):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--expected-head",required=True)
+    ap.add_argument("--mode",choices=["smoke","grid"],default="smoke")
     ap.add_argument("--image-id",required=True)
     ap.add_argument("--rep",type=int,required=True)
     ap.add_argument("--out",required=True)
