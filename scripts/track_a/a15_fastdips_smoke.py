@@ -196,7 +196,7 @@ def run(args,cfg,source):
         raise RuntimeError("STOP frozen GT tensor drift")
     metrics=result_psnr(png,ground)
 
-    summary={"status":"A15_FAST_SINGLE_SMOKE_PASS","image_id":args.image_id,
+    summary={"status":("A15_FAST_SINGLE_SMOKE_PASS" if args.mode=="smoke" else "A15_FAST_CANDIDATE_PASS"),"image_id":args.image_id,
         "rep":args.rep,"mode":args.mode,"seed":seed,
         "source_head":args.expected_head,"fast_head":cfg["fast_head"],
         "upstream_algorithm":"UNMODIFIED_MAIN_FAST_DIPS_PIXEL_T150_ADMM2_S5",
