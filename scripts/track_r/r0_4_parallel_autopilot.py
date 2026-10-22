@@ -161,7 +161,7 @@ def validate_shard(root,chunk,task_sha,head,tasks):
         validate_complete(folder/"results"/output_name(row),row,task_sha,head)
 
 def active_seconds(active,now):
-    return sum(max(0.,now-item["start_monotonic"]]) for item in active.values())
+    return sum(max(0., now - item["start_monotonic"]) for item in active.values())
 
 def valid_budget(ledger,active,now,canary_seconds):
     running=active_seconds(active,now)
