@@ -170,11 +170,20 @@ def s2_accepted_np_source(record, completion, iid):
         raise RuntimeError("STOP_S2_NP_PILOT_PROVENANCE "+iid)
     if bool(completion.get("np_execution_performed"))==reused:
         raise RuntimeError("STOP_S2_NP_EXECUTION_REUSE_CONFLICT "+iid)
+    # Frozen DEV80 includes 15 NP4 Pilot16 roots and one earlier
+    # independent one-image smoke (32909). All are explicitly indexed
+    # development sources; do not broaden to arbitrary smoke directories.
     if reused:
-        if "B24_3_pilot16_" not in str(accepted):
+        pilot_root=ROOT/"outputs/pr_diffusion/b24/B24_3_pilot16_20260913T045410Z"
+        smoke_one=ROOT/"outputs/pr_diffusion/b24/B24_3_one_image_smoke_20260913T044345Z/methods/NP4_INDEPENDENT/result.json"
+        is_pilot=(pilot_root in accepted.parents)
+        is_smoke=(iid=="32909" and accepted==smoke_one)
+        if not (is_pilot or is_smoke):
             raise RuntimeError("STOP_S2_PILOT_SOURCE_ROOT "+iid)
-    elif "B24_3_dev80_overnight_" not in str(accepted):
-        raise RuntimeError("STOP_S2_DEV80_SOURCE_ROOT "+iid)
+    else:
+        dev_root=ROOT/"outputs/pr_diffusion/b24/B24_3_dev80_overnight_20260913T082146Z"
+        if dev_root not in accepted.parents:
+            raise RuntimeError("STOP_S2_DEV80_SOURCE_ROOT "+iid)
     if digest(accepted)!=record["accepted_np4_result_sha256"]:
         raise RuntimeError("STOP_S2_NP_RECEIPT_SHA "+iid)
     np_rec=read_json(accepted)
