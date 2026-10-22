@@ -72,3 +72,20 @@ def test_recovery_preserves_global_budget_and_head():
     assert m.stage_deadline_remaining(prior,{},0.,canary)==pytest.approx(
         6*3600-5330.95850121649,abs=1e-5)
     assert not m.valid_budget(6*3600,{},0.,canary)
+
+
+def test_recovery_retry_keeps_existing_partial_gpu_affinity(tmp_path):
+    import json
+    m=script("r0_4_recovery_autopilot.py")
+    chunk={"start":1725,"count":19}
+    folder=m.result_dir(tmp_path,chunk)
+    folder.mkdir(parents=True)
+    (folder/"R0_4_SHARD_META.json").write_text(
+        json.dumps({"gpu":2,"start":1725,"count":19}))
+    other={"start":1808,"count":64}
+    items=[chunk,other]
+    assert m.take_compatible_chunk(items,0,tmp_path)==other
+    assert items==[chunk]
+    assert m.take_compatible_chunk(items,1,tmp_path) is None
+    assert m.take_compatible_chunk(items,2,tmp_path)==chunk
+    assert not items
