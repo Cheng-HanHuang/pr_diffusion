@@ -159,6 +159,33 @@ def build_s1(cfg):
             rows.extend(cs)
     return rows
 
+def s2_accepted_np_source(record, completion, iid):
+    """Resolve NP4 terminals from accepted pilot16 or fresh DEV80 source."""
+    accepted=clean(record["accepted_np4_result_path"])
+    adopted=completion.get("np_results",{}).get("NP4_INDEPENDENT")
+    if adopted is None or clean(adopted)!=accepted:
+        raise RuntimeError("STOP_S2_NP_ADOPTED_SOURCE_MISMATCH "+iid)
+    reused=bool(completion.get("np_pilot_result_reused"))
+    if reused != bool(record["pilot16"]):
+        raise RuntimeError("STOP_S2_NP_PILOT_PROVENANCE "+iid)
+    if bool(completion.get("np_execution_performed"))==reused:
+        raise RuntimeError("STOP_S2_NP_EXECUTION_REUSE_CONFLICT "+iid)
+    if reused:
+        if "B24_3_pilot16_" not in str(accepted):
+            raise RuntimeError("STOP_S2_PILOT_SOURCE_ROOT "+iid)
+    elif "B24_3_dev80_overnight_" not in str(accepted):
+        raise RuntimeError("STOP_S2_DEV80_SOURCE_ROOT "+iid)
+    if digest(accepted)!=record["accepted_np4_result_sha256"]:
+        raise RuntimeError("STOP_S2_NP_RECEIPT_SHA "+iid)
+    np_rec=read_json(accepted)
+    if np_rec.get("status")!="PASS" or np_rec.get("arm")!="NP4_INDEPENDENT":
+        raise RuntimeError("STOP_S2_NP4_STATUS_OR_ARM "+iid)
+    if len(np_rec.get("terminals",[]))!=4 or len(record.get("np_roots",[]))!=4:
+        raise RuntimeError("STOP_S2_NP_ROOTS "+iid)
+    terminals=tuple(clean(accepted.parent/f"terminal_{i}.pt") for i in range(4))
+    return np_rec,terminals,reused
+
+
 def build_s2(cfg,repo_root):
     idx=read_json(repo_root/cfg["sources"]["S2_b24_dev80"]["manifest_in_repo"])
     source=idx.get("rows",[])
@@ -189,37 +216,12 @@ def build_s2(cfg,repo_root):
                     t.get("wall_seconds"),
                     notes="Fresh external baseline; B24 development only",
                     measurement_sha=r["measurement_file_sha256"]))
-        # B24 DEV80 reused NP results from its *earlier exposed pilot16*
-        # on a subset. The accepted NP4 receipt, not the DEV80 worker task,
-        # is the source of truth for NP terminal locations. Explicitly check
-        # the task completion's adopted source record before reading it.
-        accepted=clean(r["accepted_np4_result_path"])
-        expected_adopted=comp.get("np_results",{}).get("NP4_INDEPENDENT")
-        if expected_adopted is None or clean(expected_adopted)!=accepted:
-            raise RuntimeError("STOP_S2_NP_ADOPTED_SOURCE_MISMATCH "+iid)
-        reused=bool(comp.get("np_pilot_result_reused"))
-        if reused != bool(r["pilot16"]):
-            raise RuntimeError("STOP_S2_NP_PILOT_PROVENANCE "+iid)
-        if bool(comp.get("np_execution_performed"))==reused:
-            raise RuntimeError("STOP_S2_NP_EXECUTION_REUSE_CONFLICT "+iid)
-        if reused:
-            if "B24_3_pilot16_" not in str(accepted):
-                raise RuntimeError("STOP_S2_PILOT_SOURCE_ROOT "+iid)
-        elif "B24_3_dev80_overnight_" not in str(accepted):
-            raise RuntimeError("STOP_S2_DEV80_SOURCE_ROOT "+iid)
-        if digest(accepted)!=r["accepted_np4_result_sha256"]:
-            raise RuntimeError("STOP_S2_NP_RECEIPT_SHA "+iid)
-        np_rec=read_json(accepted)
-        if np_rec.get("status")!="PASS" or np_rec.get("arm")!="NP4_INDEPENDENT":
-            raise RuntimeError("STOP_S2_NP4_STATUS_OR_ARM "+iid)
-        ts=np_rec.get("terminals",[])
-        if len(ts)!=4 or len(r.get("np_roots",[]))!=4:
-            raise RuntimeError("STOP_S2_NP_ROOTS "+iid)
+        np_rec, terminals, reused=s2_accepted_np_source(r,comp,iid)
         for i,met in enumerate(r["np_roots"]):
             if int(met["root_index"])!=i:raise RuntimeError("STOP_S2_NP_ORDER")
             # The terminal paths are relative to the accepted source's
             # NP4 method directory for both pilot and fresh DEV80 cases.
-            terminal=accepted.parent/f"terminal_{i}.pt"
+            terminal=terminals[i]
             rows.append(value("S2_b24_dev80","NP",iid,i,f"rep{i}",
                 terminal,gt,"pt",y,float(met["accepted_psnr_raw_db"]),
                 "B24_RGB8", "selector_plus_mean",
