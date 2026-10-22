@@ -16,6 +16,7 @@ def module():
 
 def make_case(tmp_path, *, pilot):
     m=module()
+    m.ROOT=tmp_path  # synthetic path namespace; real sources remain untouched
     source_kind="B24_3_pilot16_20260913T045410Z" if pilot else "B24_3_dev80_overnight_20260913T082146Z"
     task=tmp_path/source_kind/"workers"/"gpu2"/"row02_24322"
     np_dir=task/"methods"/"NP4_INDEPENDENT"
@@ -67,3 +68,49 @@ def test_missing_candidate_not_substituted(tmp_path):
     (accepted.parent/"terminal_2.pt").unlink()
     with pytest.raises(RuntimeError,match="STOP_MISSING_INPUT"):
         m.s2_accepted_np_source(row,complete,"24322")
+
+
+def test_one_image_smoke_32909_is_exact_approved_reuse(tmp_path):
+    m=module()
+    m.ROOT=tmp_path
+    accepted=(tmp_path/"outputs/pr_diffusion/b24"/
+              "B24_3_one_image_smoke_20260913T044345Z"/
+              "methods/NP4_INDEPENDENT/result.json")
+    accepted.parent.mkdir(parents=True)
+    rec={"status":"PASS","arm":"NP4_INDEPENDENT",
+         "terminals":[{"terminal_index":i} for i in range(4)]}
+    accepted.write_text(json.dumps(rec))
+    for i in range(4):
+        (accepted.parent/f"terminal_{i}.pt").write_bytes(b"smoke"+bytes([i]))
+    row={"accepted_np4_result_path":str(accepted),
+         "accepted_np4_result_sha256":hashlib.sha256(accepted.read_bytes()).hexdigest(),
+         "pilot16":True,"np_roots":[{"root_index":i} for i in range(4)]}
+    complete={"np_results":{"NP4_INDEPENDENT":str(accepted)},
+              "np_pilot_result_reused":True,"np_execution_performed":False}
+    _,terminals,reused=m.s2_accepted_np_source(row,complete,"32909")
+    assert reused and len(terminals)==4
+    # A one-image smoke path must never be accepted for an unrelated ID.
+    with pytest.raises(RuntimeError,match="STOP_S2_PILOT_SOURCE_ROOT"):
+        m.s2_accepted_np_source(row,complete,"24322")
+
+
+def test_whitelisted_s2_source_families_are_exactly_64_15_1():
+    root=Path(__file__).resolve().parents[2]
+    frozen=json.loads((root/"configs/b26/b26_dev80_manifest.json").read_text())
+    rows=frozen["rows"]
+    assert len(rows)==80
+    seen={}
+    for row in rows:
+        path=Path(row["accepted_np4_result_path"])
+        parts=path.parts
+        names=[x for x in parts if x.startswith("B24_3_")]
+        assert len(names)==1
+        group=names[0]
+        seen[group]=seen.get(group,0)+1
+        assert row["method_role"]=="DEVELOPMENT"
+        assert bool(row["pilot16"]) == ("dev80_overnight" not in group)
+    assert seen=={
+        "B24_3_dev80_overnight_20260913T082146Z":64,
+        "B24_3_pilot16_20260913T045410Z":15,
+        "B24_3_one_image_smoke_20260913T044345Z":1,
+    }
