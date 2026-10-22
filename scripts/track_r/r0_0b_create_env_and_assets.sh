@@ -55,10 +55,13 @@ PYTHON
   if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: dependency probe rc=$RC"; return "$RC"; fi
   if [ -n "$R0_INSTALL" ]; then
     echo "R0_0B_MISSING_PACKAGES=$R0_INSTALL"
-    "$PREFIX/bin/python" -m pip install --no-input $R0_INSTALL
+    "$PREFIX/bin/python" -m pip install --no-input --no-deps $R0_INSTALL
     RC=$?
     if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: isolated pip install rc=$RC"; return "$RC"; fi
   fi
+  "$PREFIX/bin/python" -m pip check
+  RC=$?
+  if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: pip dependency check"; return "$RC"; fi
   "$PREFIX/bin/python" -m pip freeze
   "$PREFIX/bin/python" - <<'PYTHON'
 import torch
