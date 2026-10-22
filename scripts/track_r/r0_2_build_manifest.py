@@ -219,9 +219,13 @@ def build_s2(cfg,repo_root):
         np_rec, terminals, reused=s2_accepted_np_source(r,comp,iid)
         for i,met in enumerate(r["np_roots"]):
             if int(met["root_index"])!=i:raise RuntimeError("STOP_S2_NP_ORDER")
-            # The terminal paths are relative to the accepted source's
-            # NP4 method directory for both pilot and fresh DEV80 cases.
             terminal=terminals[i]
+            native=np_rec["terminals"][i]
+            if (int(native.get("terminal_index",-1))!=i or
+                clean(native["reconstruction_path"])!=terminal or
+                native.get("reconstruction_sha256")!=met["reconstruction_sha256"] or
+                abs(float(native["psnr_raw_db"])-float(met["accepted_psnr_raw_db"]))>1e-6):
+                raise RuntimeError("STOP_S2_NP_TERMINAL_PROVENANCE "+iid+f" rep{i}")
             rows.append(value("S2_b24_dev80","NP",iid,i,f"rep{i}",
                 terminal,gt,"pt",y,float(met["accepted_psnr_raw_db"]),
                 "B24_RGB8", "selector_plus_mean",
