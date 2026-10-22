@@ -183,8 +183,17 @@ def main():
         raise RuntimeError("STOP_R03C_FAST_IMPORT_ORIGIN")
     model_path=Path(cfg["models"]["ffhq_ddpm"]["path"])
     device=torch.device("cuda:0")
-    # Model creation is outside timing. Per-root exact seeds are reset before
-    # get_start(), matching A1.5's fresh-run sampling RNG state.
+    # A1.5 seeded BEFORE get_model(), which consumes random numbers while
+    # initializing tensors. Replay the historical RNG ordering exactly.
+    # The new S2 root uses the pinned R0FAST seed reset just before sampling,
+    # as required by a long-lived model-loaded-once R0.5 worker.
+    reference_seed=cases[0]["seed"]
+    if cases[0]["source"]!="A15_REPLAY":
+        raise RuntimeError("STOP_R03C_REPLAY_MUST_BE_FIRST")
+    random.seed(reference_seed)
+    np.random.seed(reference_seed%(2**32))
+    torch.manual_seed(reference_seed)
+    torch.cuda.manual_seed_all(reference_seed)
     ddpm=copy.deepcopy(settings.MODEL_PRESETS["ffhq256ddpm"])
     if ddpm["name"]!="ddpm":raise RuntimeError("STOP_R03C_NOT_PIXEL_DDPM")
     ddpm["model_config"]["model_path"]=str(model_path)
@@ -210,10 +219,11 @@ def main():
             sub=out/("a15_replay" if c["source"]=="A15_REPLAY" else "s2_new")
             sub.mkdir(parents=True,exist_ok=False)
             seed=c["seed"]
-            random.seed(seed)
-            np.random.seed(seed%(2**32))
-            torch.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)
+            if c["source"]!="A15_REPLAY":
+                random.seed(seed)
+                np.random.seed(seed%(2**32))
+                torch.manual_seed(seed)
+                torch.cuda.manual_seed_all(seed)
             preset=copy.deepcopy(settings.SAMPLER_PRESETS[conf["sampler"]])
             if preset.pop("latent") is not False:
                 raise RuntimeError("STOP_R03C_LATENT_PRESET")
