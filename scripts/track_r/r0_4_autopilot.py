@@ -181,7 +181,11 @@ def main():
                 write_state(status,state)
                 return 21
             folder=chunks/(f"batch_{current:04d}_{count:02d}")
-            log=root/"logs"/(folder.name+".log")
+            # Keep every attempt's log immutable, including after an
+            # interruption or previous unsuccessful retry of this shard.
+            attempt=sum(1 for rec in state["shards"]
+                        if rec["start"]==current and rec["count"]==count)
+            log=root/"logs"/(folder.name+f"_attempt{attempt:03d}.log")
             cmd=[str(PY),"-u","scripts/track_r/r0_4_score_gpu.py",
                  "--expected-head",a.expected_head,
                  "--tasks",str(task_file),"--tasks-sha",task_sha,
