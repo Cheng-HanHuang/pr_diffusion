@@ -31,8 +31,8 @@ MAX_NEW_PACKAGES = 12
 MAX_PASSES = 5
 SETUPTOOLS_PIN = "80.9.0"
 TORCH_SETUPTOOLS_CONFLICT = re.compile(
-    r"^torch (?P<torch_version>\\S+) has requirement setuptools<82, "
-    r"but you have setuptools (?P<installed>\\S+)\\.$",
+    r"^torch (?P<torch_version>\S+) has requirement setuptools<82, "
+    r"but you have setuptools (?P<installed>\S+)\.$",
     re.I,
 )
 CORE_PACKAGES = ("torch", "torchvision", "numpy", "scipy", "triton")
@@ -75,12 +75,12 @@ def pinned_setuptools_for(issue):
 def installed_versions(python, names):
     """Retrieve metadata only; don't import torch or activate CUDA."""
     script = (
-        "import json,importlib.metadata as m,sys\\n"
-        "out={}\\n"
-        "for name in sys.argv[1:]:\\n"
-        "  try: out[name]=m.version(name)\\n"
-        "  except m.PackageNotFoundError: out[name]=None\\n"
-        "print(json.dumps(out,sort_keys=True))\\n"
+        "import json,importlib.metadata as m,sys\n"
+        "out={}\n"
+        "for name in sys.argv[1:]:\n"
+        "  try: out[name]=m.version(name)\n"
+        "  except m.PackageNotFoundError: out[name]=None\n"
+        "print(json.dumps(out,sort_keys=True))\n"
     )
     output = subprocess.check_output(
         [python, "-c", script, *names], text=True, timeout=45
