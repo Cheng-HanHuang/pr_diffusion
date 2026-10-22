@@ -229,17 +229,26 @@ def main():
         add("S1." + key, dir_check(b22[key]))
     add("S1.full_manifest", checked_file(b22["b22_full_manifest"], b22["b22_full_manifest_sha256"]))
     add("S1.fresh_rows", checked_file(b22["b21_fresh_rows_csv"]))
-    stage = safe_path(b22["b22_run_root"]) / "full"
+    root_stage = safe_path(b22["b22_run_root"])
     b22_counts = {}
     b22_example = None
-    for family in ("sitcom", "np", "daps", "SITCOM", "NP", "DAPS"):
-        rows = bounded(str(stage / family / "row*"), 120)
-        if rows:
-            b22_counts[family] = len(rows)
-            if b22_example is None:
-                candidates = bounded(str(Path(rows[0]) / "candidates" / "*" / "result.json"), 16)
-                if candidates:
-                    b22_example = candidates[0]
+    stage = None
+    for candidate_stage in (root_stage / "full", root_stage):
+        counts = {}
+        for family in ("sitcom", "np", "daps", "SITCOM", "NP", "DAPS"):
+            rows = bounded(str(candidate_stage / family / "row*"), 120)
+            if rows:
+                counts[family] = len(rows)
+                if b22_example is None:
+                    candidates = bounded(str(Path(rows[0]) / "candidates" / "*" / "result.json"), 16)
+                    if candidates:
+                        b22_example = candidates[0]
+        if counts:
+            stage = candidate_stage
+            b22_counts = counts
+            break
+    if stage is None:
+        stage = root_stage / "full"
     add("S1.bounded_rows", {"status": "VERIFIED" if b22_counts else "WARN",
                             "stage": str(stage), "family_counts": b22_counts,
                             "example_result": b22_example,
