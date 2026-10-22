@@ -57,7 +57,7 @@ def validate_row(row):
     for name in ("candidate_path", "measurement_path"):
         if not isinstance(row[name],str) or not row[name].startswith("/"):
             raise ValueError("missing absolute " + name)
-    if row["candidate_format"] not in ("pt","png") or row["gt_format"] not in ("pt","png"):
+    if row["candidate_format"] not in ("pt","png") or row["gt_format"] not in ("pt","png","ffhq1024"):
         raise ValueError("bad image format")
     for key in ("recorded_psnr_db","native_selector_value","recorded_cost_seconds"):
         if row[key] not in (None,""):
