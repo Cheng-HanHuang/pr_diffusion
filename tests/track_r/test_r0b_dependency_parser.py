@@ -60,3 +60,37 @@ def test_core_clone_versions_guard(monkeypatch):
         return d
     monkeypatch.setattr(mod,"installed_versions",mismatching)
     assert not mod.core_versions_match("source","target")
+
+
+def test_numpy_metadata_mismatch_only_passes_with_binary_evidence(monkeypatch):
+    mod=_module()
+    base={name:"v1" for name in mod.CORE_PACKAGES}
+    dst=dict(base);base["numpy"]="2.4.3";dst["numpy"]="2.4.6"
+    monkeypatch.setattr(mod,"installed_versions",
+                        lambda py,_names: dict(base if py=="source" else dst))
+    monkeypatch.setattr(mod,"numpy_metadata_ambiguity_safe",lambda _a,_b: True)
+    assert mod.core_versions_match("source","target")
+    monkeypatch.setattr(mod,"numpy_metadata_ambiguity_safe",lambda _a,_b: False)
+    assert not mod.core_versions_match("source","target")
+    dst["torch"]="v2"
+    monkeypatch.setattr(mod,"numpy_metadata_ambiguity_safe",lambda _a,_b: True)
+    assert not mod.core_versions_match("source","target")
+
+
+def test_numpy_identity_requires_inventory_version_and_binary_hashes(monkeypatch):
+    mod=_module()
+    src={"version":"2.4.6",
+         "module_sha256":"a","extension_sha256":"b",
+         "module_path":"/egr/research-pac/huang248/conda-envs/prdiff_ffhq/lib/python3.11/site-packages/numpy/__init__.py",
+         "extension_path":"/egr/research-pac/huang248/conda-envs/prdiff_ffhq/lib/python3.11/site-packages/numpy/_core/_multiarray_umath.so"}
+    dst={**src,
+         "module_path":src["module_path"].replace("prdiff_ffhq","prdiff_track_r"),
+         "extension_path":src["extension_path"].replace("prdiff_ffhq","prdiff_track_r")}
+    monkeypatch.setattr(mod.os.path,"realpath",lambda x:x)
+    monkeypatch.setattr(mod,"numpy_runtime_evidence",lambda py: dict(src if py=="source" else dst))
+    assert mod.numpy_metadata_ambiguity_safe("source","target")
+    dst["extension_sha256"]="changed"
+    assert not mod.numpy_metadata_ambiguity_safe("source","target")
+    dst["extension_sha256"]="b"
+    src["version"]="2.4.3"
+    assert not mod.numpy_metadata_ambiguity_safe("source","target")
