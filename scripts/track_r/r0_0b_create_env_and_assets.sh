@@ -96,13 +96,44 @@ r0b_univfd() {
     if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: UnivFD commit unavailable"; return "$RC"; fi
   fi
   CURRENT=$(git -C "$UNIV" rev-parse HEAD 2>/dev/null)
-  DIRTY=$(git -C "$UNIV" status --porcelain 2>/dev/null)
+  DIRTY=$(git -C "$UNIV" status --porcelain --untracked-files=no 2>/dev/null)
   if [ "$CURRENT" != "$WANT" ] || [ -n "$DIRTY" ]; then
     echo "ENV_FAILED: existing UnivFD HEAD/clean mismatch"; return 22
   fi
-  r0b_sha "$UNIV/pretrained_weights/fc_weights.pth" 477100745713bcc957beb2b40859536859b6483fd6301b3b9293151b194c7847
+  # Exact pinned 4083-byte head, mirrored by the public DeepSafe weights
+  # archive. Download only when absent; never replace wrong existing bytes.
+  HEADFILE="$UNIV/pretrained_weights/fc_weights.pth"
+  if [ ! -e "$HEADFILE" ]; then
+    mkdir -p "$UNIV/pretrained_weights"
+    RC=$?
+    if [ "$RC" -ne 0 ]; then return "$RC"; fi
+    "$PREFIX/bin/python" - "$HEADFILE" <<'PYTHON'
+import hashlib, os, sys, urllib.request
+from pathlib import Path
+target=Path(sys.argv[1])
+want="477100745713bcc957beb2b40859536859b6483fd6301b3b9293151b194c7847"
+url="https://huggingface.co/siddharthksah/deepsafe-weights/resolve/main/universalfakedetect/fc_weights.pth"
+tmp=target.with_suffix(".pth.r0partial")
+if target.exists() or tmp.exists():
+    raise RuntimeError("STOP_R0B_FC_PREEXISTING")
+with urllib.request.urlopen(url,timeout=180) as response, tmp.open("xb") as f:
+    h=hashlib.sha256()
+    while True:
+        block=response.read(1024*1024)
+        if not block: break
+        f.write(block); h.update(block)
+if h.hexdigest()!=want:
+    tmp.unlink()
+    raise RuntimeError("STOP_R0B_FC_HASH_MISMATCH")
+os.replace(tmp,target)
+print("R0B_FC_PINNED_BACKUP_SHA256",h.hexdigest())
+PYTHON
+    RC=$?
+    if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: UnivFD FC pinned download"; return "$RC"; fi
+  fi
+  r0b_sha "$HEADFILE" 477100745713bcc957beb2b40859536859b6483fd6301b3b9293151b194c7847
   RC=$?
-  if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: UnivFD fc_weights absent or wrong; no unpinned download"; return "$RC"; fi
+  if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: UnivFD fc_weights wrong SHA"; return "$RC"; fi
   return 0
 }
 r0b_clip() {
