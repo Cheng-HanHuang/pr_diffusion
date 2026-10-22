@@ -89,14 +89,83 @@ def installed_versions(python, names):
     return json.loads(output)
 
 
+# R0.0 imported NumPy 2.4.6 from prdiff_ffhq. Conda and pip
+# distributions can leave multiple numpy *.dist-info directories, in
+# which case importlib.metadata.version() need not reflect the imported
+# binary module. This exception is limited to NumPy and checked against
+# the prior observed runtime, file hashes, and extension binary hashes.
+NUMPY_INVENTORY_RUNTIME = "2.4.6"
+
+
+def numpy_runtime_evidence(python):
+    script = (
+        "import hashlib,json,pathlib,numpy as np\\n"
+        "import numpy._core._multiarray_umath as ext\\n"
+        "def digest(path):\\n"
+        "  h=hashlib.sha256()\\n"
+        "  with open(path,'rb') as f:\\n"
+        "    for part in iter(lambda:f.read(4*1024*1024),b''):h.update(part)\\n"
+        "  return h.hexdigest()\\n"
+        "print('R0B_NUMPY_EVIDENCE='+json.dumps({"
+        "'version':np.__version__,"
+        "'module_sha256':digest(np.__file__),"
+        "'extension_sha256':digest(ext.__file__),"
+        "'module_path':str(pathlib.Path(np.__file__).resolve()),"
+        "'extension_path':str(pathlib.Path(ext.__file__).resolve())},"
+        "sort_keys=True))\\n"
+    )
+    result = subprocess.run(
+        [python, "-c", script], capture_output=True, text=True,
+        timeout=120, check=False
+    )
+    if result.returncode:
+        raise RuntimeError("STOP_NUMPY_RUNTIME_IMPORT_RC "+str(result.returncode)
+                           +" stderr="+result.stderr[-600:])
+    import json
+    rows = [line for line in result.stdout.splitlines()
+            if line.startswith("R0B_NUMPY_EVIDENCE=")]
+    if len(rows)!=1:
+        raise RuntimeError("STOP_NUMPY_RUNTIME_EVIDENCE_UNAVAILABLE")
+    return json.loads(rows[0].split("=",1)[1])
+
+
+def numpy_metadata_ambiguity_safe(source, target):
+    src=numpy_runtime_evidence(source)
+    dst=numpy_runtime_evidence(target)
+    for scope, record, prefix in (
+        ("source",src,"/egr/research-pac/huang248/conda-envs/prdiff_ffhq/"),
+        ("clone",dst,"/egr/research-pac/huang248/conda-envs/prdiff_track_r/"),
+    ):
+        print("R0B_NUMPY_RUNTIME",scope,record,flush=True)
+        for field in ("module_path","extension_path"):
+            if not os.path.realpath(record[field]).startswith(prefix):
+                print("STOP_R0B_NUMPY_OUTSIDE_ENV",scope,field,flush=True)
+                return False
+    if src["version"]!=NUMPY_INVENTORY_RUNTIME or dst["version"]!=src["version"]:
+        print("STOP_R0B_NUMPY_RUNTIME_VERSION_DRIFT",flush=True)
+        return False
+    if (src["module_sha256"]!=dst["module_sha256"] or
+            src["extension_sha256"]!=dst["extension_sha256"]):
+        print("STOP_R0B_NUMPY_RUNTIME_BINARY_DRIFT",flush=True)
+        return False
+    print("R0B_NUMPY_RUNTIME_IDENTICAL_METADATA_DISAGREES",flush=True)
+    return True
+
+
 def core_versions_match(source, target):
-    src = installed_versions(source, CORE_PACKAGES)
-    dst = installed_versions(target, CORE_PACKAGES)
+    src=installed_versions(source,CORE_PACKAGES)
+    dst=installed_versions(target,CORE_PACKAGES)
     for name in CORE_PACKAGES:
-        if src[name] != dst[name]:
-            print("STOP_R0B_CORE_CLONE_DRIFT", name, src[name], dst[name], flush=True)
-            return False
-    print("R0B_CLONE_CORE_VERSIONS_MATCH", src, flush=True)
+        if src[name]==dst[name]:
+            continue
+        if name=="numpy":
+            if numpy_metadata_ambiguity_safe(source,target):
+                print("R0B_WARN_NUMPY_DISTINFO_DISAGREEMENT",
+                      src[name],dst[name],flush=True)
+                continue
+        print("STOP_R0B_CORE_CLONE_DRIFT",name,src[name],dst[name],flush=True)
+        return False
+    print("R0B_CLONE_CORE_VERSIONS_MATCH_OR_VERIFIED_NUMPY_METADATA",src,dst,flush=True)
     return True
 
 
