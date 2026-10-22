@@ -113,7 +113,7 @@ def build_s1(cfg):
         found=set()
         for rowdir in rowdirs:
             assert_no_forbidden(str(rowdir))
-            m=re.fullmatch(r"row[0-9]{3}_(\\d{5})", rowdir.name)
+            m=re.fullmatch(r"row[0-9]{3}_(\d{5})", rowdir.name)
             if m is None:raise RuntimeError("STOP_S1_B22_ROW_NAME")
             iid=m.group(1)
             if iid not in b21_by_id or iid in found:
