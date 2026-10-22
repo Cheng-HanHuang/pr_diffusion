@@ -147,7 +147,17 @@ def run(a):
     if task_sha!=a.tasks_sha:
         raise RuntimeError("STOP_R04_TASK_FILE_SHA")
     payload=json.loads(task_file.read_text())
-    rows=validate_input(payload,a.expected_head)[a.start:a.start+a.count]
+    # R0.4 four-GPU continuation reuses the frozen, audited 16-candidate
+    # canary task file. Its producing Git head is deliberately *different*
+    # from this worker's newer, parallel-orchestration Git head.
+    producer=a.tasks_source_head or a.expected_head
+    if producer != a.expected_head:
+        canary=BASE/"r0_4_score_20261022T193238Z"/"prepare"/"R0_4_GT_FREE_TASKS.json"
+        if (producer!="8aee60d98acfeba836fff4ec824137769b0a4698" or
+            task_sha!="38543cc4e4c394ab7c8936303a8d0fee6b46fb81e53f877a5ea6768e151078f7" or
+            task_file!=canary or task_file.is_symlink()):
+            raise RuntimeError("STOP_R04_UNAPPROVED_SOURCE_TASKS_HEAD")
+    rows=validate_input(payload,producer)[a.start:a.start+a.count]
     cfg=json.loads((WT/"configs/track_r/pac_paths_track_r_v1.json").read_text())
     ffhq=safe(cfg["models"]["ffhq_ddpm"]["path"])
     if sha(ffhq)!=cfg["models"]["ffhq_ddpm"]["sha256"]:
@@ -293,6 +303,7 @@ if __name__=="__main__":
         p.add_argument("--"+arg,required=True)
     for arg in ("physical-gpu","batch-size","start","count"):
         p.add_argument("--"+arg,required=True,type=int)
+    p.add_argument("--tasks-source-head",default=None)
     a=p.parse_args()
     try:sys.exit(run(a))
     except Exception as exc:
