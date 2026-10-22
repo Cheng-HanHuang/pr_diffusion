@@ -64,3 +64,42 @@ Track R SHA with a **fresh** output directory. Expected path:
 R0.1 tests → full S1–S4 manifest → G0 CPU validation.
 A new source-schema mismatch must stop and be audited;
 no G1 or GPU computation is authorized yet.
+
+## Follow-up 2026-10-22: one-image smoke and native PSNR replay
+
+The clean pinned PAC CPU autopilot `r0_autopilot_20261022T154915Z`
+ran all **19/19 Track R unit tests** and reached another R0.2
+fail-closed source check: `STOP_S2_PILOT_SOURCE_ROOT 32909`.
+This is a third explicitly indexed provenance class, not an unknown
+source. The frozen `configs/b26/b26_dev80_manifest.json` development
+rows comprise exactly:
+
+- 64 NP4 results generated within the new DEV80 overnight worker tasks;
+- 15 NP4 results reused from `B24_3_pilot16_20260913T045410Z`;
+- 1 NP4 result for **image 32909** reused from the earlier
+  `B24_3_one_image_smoke_20260913T044345Z`, exact path
+  `methods/NP4_INDEPENDENT/result.json`.
+
+The source guard now admits the exact single-image smoke exception
+**only** for image 32909, and retains all adopted-path, receipt SHA,
+per-terminal tensor-content SHA and native metric checks. All other
+source roots still STOP. Synthetic tests validate the frozen
+64/15/1 distribution, an allowed 32909 exact-path exception, and
+rejection of smoke roots for any unrelated image.
+
+**Second source-derived replay distinction:** The historical B24
+external DAPS4/SITCOM4 metrics from
+`baseline/metrics/METRICS.json` use saved PNG RGB8, whereas NP4's
+`accepted_psnr_raw_db` originates from the
+`scripts/b24/run_b24_3_np_branching.py::psnr_raw` operation applied
+to the *unquantized* native `branch.x0` tensor (same operation used
+by `run_b24_3_dev80_np.py`). The manifest records the NP-specific
+`B24_NP_FLOAT_CLAMP` convention for historical G0 replay, not
+`B24_RGB8`. **All R0 primary metrics remain frozen at canonical
+saved RGB8.** The distinction corrects source replay bookkeeping;
+it is not a change to an R0 estimator, threshold or scientific
+outcome.
+
+The executor has not observed the next PAC execution on this patch.
+R0.2 G0, GPU smoke and G1 remain pending; previous CPU autopilot runs
+performed zero GPU inference.
