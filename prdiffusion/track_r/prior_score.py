@@ -43,42 +43,71 @@ class PriorScorer:
         if not isinstance(uid, str) or not uid:
             raise ValueError("nonempty candidate uid required")
         x = x_c.to(self.device)
-        members = [apply_orbit(x, p) for p in ORBIT_PATTERNS]
+        members = {p: apply_orbit(x, p) for p in ORBIT_PATTERNS}
         losses = {p: [] for p in ORBIT_PATTERNS}
-        per_t = {p: {} for p in ORBIT_PATTERNS}
+        by_t = {t: {p: [] for p in ORBIT_PATTERNS} for t in self.timesteps}
         calls = 0
+        pending_inputs, pending_eps, pending_meta = [], [], []
+        max_batch_observed = 0
+
+        def flush():
+            nonlocal calls, max_batch_observed
+            if not pending_inputs:
+                return
+            batch = len(pending_inputs)
+            max_batch_observed = max(max_batch_observed, batch)
+            xt = torch.cat(pending_inputs, dim=0)
+            target = torch.cat(pending_eps, dim=0)
+            tb = torch.tensor([v[0] for v in pending_meta],
+                              dtype=torch.long, device=self.device)
+            predicted = self.eps_model(xt, tb)
+            if hasattr(predicted, "sample"):
+                predicted = predicted.sample
+            if isinstance(predicted, tuple):
+                predicted = predicted[0]
+            if (not isinstance(predicted, torch.Tensor) or
+                    predicted.ndim != 4 or
+                    tuple(predicted.shape[:2]) not in
+                    ((batch, 3), (batch, 6)) or
+                    tuple(predicted.shape[-2:]) != (256, 256)):
+                raise ValueError("eps_model invalid output")
+            eps = predicted[:, :3].float()
+            vals = (eps-target).float().square().flatten(1).mean(1).cpu().tolist()
+            for (t, j, p), v in zip(pending_meta, vals):
+                if not math.isfinite(v):
+                    raise RuntimeError("nonfinite prior loss")
+                losses[p].append(float(v))
+                by_t[t][p].append(float(v))
+            calls += 1
+            pending_inputs.clear()
+            pending_eps.clear()
+            pending_meta.clear()
+
+        # Batch across (t, j, orbit) rather than just the eight orbit
+        # members. Thus batch_size=8 and 64 are genuinely different
+        # model-forward workloads for the frozen R0.3 determinism gate.
+        # CPU random draws remain keyed solely by (uid, t, j), not batch.
         with torch.inference_mode():
             for t in self.timesteps:
                 alpha = float(self.alphas[t])
-                by_t = {p: [] for p in ORBIT_PATTERNS}
                 for j in range(self.draws):
-                    rng = torch.Generator(device="cpu").manual_seed(prior_seed(uid,t,j))
-                    noise = torch.randn((1,3,256,256), generator=rng,
-                                        dtype=torch.float32, device="cpu").to(self.device)
-                    for start in range(0, len(ORBIT_PATTERNS), self.batch_size):
-                        patterns = ORBIT_PATTERNS[start:start+self.batch_size]
-                        rotated_noise = [apply_orbit(noise,p) for p in patterns]
-                        z = torch.cat([math.sqrt(alpha)*members[ORBIT_PATTERNS.index(p)] +
-                                       math.sqrt(1-alpha)*n
-                                       for p,n in zip(patterns,rotated_noise)], 0)
-                        tb = torch.full((len(patterns),), t, device=self.device,
-                                        dtype=torch.long)
-                        predicted = self.eps_model(z,tb)
-                        if isinstance(predicted, tuple):
-                            predicted = predicted[0]
-                        if not isinstance(predicted,torch.Tensor) or predicted.shape[0]!=len(patterns) or predicted.ndim!=4 or predicted.shape[1]<3:
-                            raise ValueError("eps_model invalid output")
-                        eps = predicted[:,:3].float()
-                        target = torch.cat(rotated_noise,dim=0)
-                        vals = (eps-target).float().square().flatten(1).mean(1).cpu().tolist()
-                        for p,v in zip(patterns,vals):
-                            if not math.isfinite(v):
-                                raise RuntimeError("nonfinite prior loss")
-                            losses[p].append(float(v))
-                            by_t[p].append(float(v))
-                        calls += 1
-                for p in ORBIT_PATTERNS:
-                    per_t[p][str(t)] = sum(by_t[p])/len(by_t[p])
+                    rng = torch.Generator(device="cpu").manual_seed(
+                        prior_seed(uid,t,j))
+                    noise = torch.randn(
+                        (1,3,256,256), generator=rng,
+                        dtype=torch.float32, device="cpu").to(self.device)
+                    for p in ORBIT_PATTERNS:
+                        rotated_noise = apply_orbit(noise, p)
+                        pending_inputs.append(
+                            math.sqrt(alpha)*members[p] +
+                            math.sqrt(1-alpha)*rotated_noise)
+                        pending_eps.append(rotated_noise)
+                        pending_meta.append((t,j,p))
+                        if len(pending_meta) >= self.batch_size:
+                            flush()
+            flush()
+        per_t = {p: {str(t): sum(by_t[t][p])/len(by_t[t][p])
+                     for t in self.timesteps} for p in ORBIT_PATTERNS}
         scores = {p: sum(losses[p])/len(losses[p]) for p in ORBIT_PATTERNS}
         mid = {p: sum(per_t[p][str(t)] for t in self.timesteps if t in (300,400,500,600)) /
                     sum(t in (300,400,500,600) for t in self.timesteps)
@@ -95,5 +124,6 @@ class PriorScorer:
                 "per_t_means":per_t, "s_star":best,
                 "margin":margin, "z":z,
                 "unet_forwards":len(ORBIT_PATTERNS)*len(self.timesteps)*self.draws,
-                "unet_batch_calls":calls, "draw_losses":losses,
+                "unet_batch_calls":calls, "max_batch_observed":max_batch_observed,
+                "draw_losses":losses,
                 "noise_device":"cpu"}
