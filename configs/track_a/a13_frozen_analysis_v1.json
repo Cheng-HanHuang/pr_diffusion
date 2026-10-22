@@ -1,0 +1,133 @@
+{
+  "schema": "prdiff.track_a.a13.frozen.cpu.v1",
+  "exposed_only": true,
+  "no_gpu": true,
+  "no_new_observations": true,
+  "ids": [
+    "69073",
+    "68539",
+    "67948",
+    "60140",
+    "67293",
+    "67174",
+    "61101",
+    "66631"
+  ],
+  "list_sha256": "faa2e292e915690dc8dd7d477591bb47a12a5f5977fd1c9648849e25c2d09f32",
+  "methods": [
+    "DAPS",
+    "SITCOM",
+    "NP_LF",
+    "NP_S2"
+  ],
+  "replicas": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "root": "/egr/research-pac/huang248",
+  "run_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1",
+  "input_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_inputs_v1",
+  "a13_worktree": "/egr/research-pac/huang248/pr_diffusion_track_a_a13_candidate_audit",
+  "output_parent": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a13_candidate_audit_20261020",
+  "inventory_stage": "a13_0_inventory_v1",
+  "analysis_stage": "a13_1_cpu_forensics_v1",
+  "input_freeze_file_sha256": "fda3b5c3a26d3ed761b81cee026eea8dc2eb134b490d6369c2feda29965c2490",
+  "a1_execution_source": "f4cd28dcd3ec4860cc9f3990fb24964bb97e97bd",
+  "native_heads": {
+    "DAPS": "e7a77d094167084faed19b599b96673b7bb11447",
+    "SITCOM": "275ab67efbd8146bffca20155171ba6be1169c09",
+    "DIFFFPR": "a45ffe58f18fed8a63d3446600424e2b08733524"
+  },
+  "native_diff_sha256": {
+    "DAPS": "fbb5b42369ecf0d3b9b67f8fc162053bc40ec32aed41dbd92a67e8d81dcfad69"
+  },
+  "native_paths": {
+    "DAPS": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps",
+    "SITCOM": "/egr/research-pac/huang248/external/SITCOM_ODE",
+    "DIFFFPR": "/egr/research-pac/huang248/external/DiffFPR"
+  },
+  "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+  "operator": {
+    "sigma_y": 0.05,
+    "oversample": 2,
+    "pad_pixels": 64,
+    "fft": "fftshift(fftn(ifftshift(padded),norm=ortho))",
+    "model_to_physical": "(x+1)/2 WITHOUT clamp for float tensors",
+    "observation_shape": [
+      1,
+      3,
+      384,
+      384
+    ],
+    "image_shape": [
+      1,
+      3,
+      256,
+      256
+    ],
+    "eps": 1e-12
+  },
+  "selection": {
+    "primary": "raw_png8_rgb_psnr",
+    "scores": [
+      "r_signed",
+      "r_clipped"
+    ],
+    "tie_break": "earliest input order",
+    "within_family_k": [
+      1,
+      2,
+      4
+    ],
+    "mixed_np_k": [
+      4,
+      8
+    ],
+    "mixed_order": "LF0,S20,LF1,S21,LF2,S22,LF3,S23",
+    "psnr_replay_tol_db": 0.0001
+  },
+  "cpu_only_env": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+  "forbidden": "Any access including membership checks to B24 confirmation305; no native inference, GT-fitted selectors, cross-family router, new GPU or source edits.",
+  "noise_reference": {
+    "seed": 720611,
+    "draws": 32,
+    "sigma_y": 0.05,
+    "consistent_multiplier": 1,
+    "poor_fit_multiplier": 3,
+    "note": "synthetic independent Gaussian-noise RMSE only; descriptive not ground-truth basin identification"
+  },
+  "native_source_scope_sitcom": {
+    "rationale": "The historical full git-diff HEAD SHA covered ten tracked Python3.8 .pyc cache blobs and an unrelated safe_dir mkdir change; the local source patch has now been inspected on PAC. Fail closed for any unapproved tracked change and pin relevant source blobs rather than bytecode. No assertion about historical bytecode equivalence.",
+    "source_head": "275ab67efbd8146bffca20155171ba6be1169c09",
+    "allowed_tracked_modified_source": [
+      "posterior_sample.py"
+    ],
+    "expected_posterior_sample_patch_sha256": "d0bb0292e341abe3f6b99984bb2a98acb5919c41efe0f4bd8fd0ffb60b464fc5",
+    "expected_posterior_sample_git_blob": "cf91b11464b2bb98c6ac97e5278ba05fb9fe970b",
+    "expected_forward_operator_git_blobs": {
+      "forward_operator/__init__.py": "adee8c03c7041e2c63346ea0e7aed59ad25f47dd",
+      "forward_operator/fastmri_utils.py": "f669ea2dd5c48fe9798ce1ce800b9789e22e0657"
+    },
+    "allowed_modified_bytecode_paths": [
+      "forward_operator/__pycache__/__init__.cpython-38.pyc",
+      "forward_operator/__pycache__/fastmri_utils.cpython-38.pyc",
+      "forward_operator/__pycache__/resizer.cpython-38.pyc",
+      "model/__pycache__/__init__.cpython-38.pyc",
+      "model/__pycache__/precond.cpython-38.pyc",
+      "model/ddpm/__pycache__/fp16_util.cpython-38.pyc",
+      "model/ddpm/__pycache__/nn.cpython-38.pyc",
+      "model/ddpm/__pycache__/unet.cpython-38.pyc",
+      "model/edm/dnnlib/__pycache__/__init__.cpython-38.pyc",
+      "model/edm/dnnlib/__pycache__/util.cpython-38.pyc"
+    ],
+    "expected_current_full_tracked_diff_sha256_diagnostic_only": "0a5587945acbbb86da46ca8e49996bb79ff4cf142c821f268515777ad379ab2a",
+    "expected_historical_full_tracked_diff_sha256_diagnostic_only": "a9f0076d6f852b6898000142c19a09131ffc49ceba0e3d935cd465e85df26e6e",
+    "allowed_untracked_operator_imports_sha256": {
+      "forward_operator/motionblur/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "forward_operator/motionblur/motionblur.py": "71c81f9249d88dfdabbdb6481f07181a32844179fb7affe1f62836a9348815fc"
+    },
+    "import_dependency_notes": "forward_operator/__init__.py line 5 eagerly imports .motionblur.motionblur.Kernel even for PhaseRetrieval. The two extra .py files are untracked by native SITCOM HEAD, but PAC inspected actual bytes and supplied SHA256. Fail closed if altered or if any other untracked importable operator source exists. Other untracked README/sample/Python cache files are diagnostic only; no claim about historical native run."
+  }
+}

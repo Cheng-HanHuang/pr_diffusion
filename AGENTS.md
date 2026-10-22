@@ -2,6 +2,27 @@
 
 This repository studies reliable diffusion-prior phase retrieval. The root guidance below preserves the historical B23 safety contract. Explicitly authorized later stages override only the stale stage-authorization wording for their own branches.
 
+## Track R override (current, from 2026-10-21)
+
+**When it applies:** the checked-out branch is `claude/prdiff-track-r-planner-20261021` or any `codex/prdiff-track-r-*` branch.
+
+**Start with:** `docs/track_r/00_START_HERE.md`. The executor then goes to `docs/track_r/executors/r0/00_EXECUTOR_HANDOFF.md`.
+
+**Authority:** Track R (reliability per compute; planner Claude, executor GPT/Codex, PAC operator Cheng) supersedes the stale stage-authorization wording below for these branches only. Track A stays parked; Track B is paused.
+
+**Binding science:** `docs/planning/track_r/R0_EXPERIMENT_SPEC.md` (FROZEN v1) and `configs/track_r/r0_frozen_v1.json`.
+
+**Rules for Track R** (in addition to every historical scientific invariant and PAC safety rule below):
+- Never access B24 confirmation305: no read, list, glob, hash or membership check.
+- Historical outputs and environments are read-only.
+- New outputs go only under `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/`.
+- Caches go under `/egr/research-pac/huang248/outputs/.cache/track_r/`, never `/home`.
+- No agent launches GPU jobs; Cheng runs every PAC block.
+- Every PAC run starts from a pushed, clean commit.
+- No GT in any deployable step.
+- Count all compute.
+- Within R0, the handoff's pre-authorization replaces the historical "stop after every stage for sign-off" rule: R0.4–R0.6 may proceed once G0, G1 and the R0.3 smoke pass. Every other escalation trigger in the handoff still applies.
+
 ## B26 branch override
 
 When the checked-out branch is `codex/b26-np-conditional-correction`, start with:

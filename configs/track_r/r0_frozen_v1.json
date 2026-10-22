@@ -1,0 +1,122 @@
+{
+  "schema": "prdiff.track_r.r0.frozen.v1",
+  "status": "FROZEN_V1_2026-10-21",
+  "spec_doc": "docs/planning/track_r/R0_EXPERIMENT_SPEC.md",
+  "change_control": "Any change requires a planner amendment (version bump) committed before results are viewed; executor additions must be labeled EXPLORATORY.",
+  "scope": "EXPOSED_DATA_DIAGNOSTIC_ONLY",
+  "operator": {
+    "name": "pinned_daps_phase_retrieval_equivalent",
+    "range_map": "x*0.5+0.5",
+    "pad": 64,
+    "canvas": 384,
+    "fft": "fftshift(fftn(ifftshift(z, dims=(-2,-1)), dims=(-2,-1), norm='ortho'), dims=(-2,-1))",
+    "magnitude": "abs, channelwise",
+    "noise_sigma": 0.05,
+    "measurement_shape": [1, 3, 384, 384],
+    "m": 442368,
+    "reference_implementation": "scripts/track_a/a13_physics.py::magnitude"
+  },
+  "canonical_image": {
+    "representation": "RGB8",
+    "from_tensor": "x8 = round((clamp(x,-1,1)+1)*127.5)",
+    "from_png": "PIL.Image.open(p).convert('RGB')",
+    "to_model_range": "x8/127.5 - 1",
+    "psnr": "-10*log10(mean((x8/255 - g8/255)^2)), g8 from the source's saved GT tensor quantized identically"
+  },
+  "orbit": {
+    "transform": "per-channel torch.rot90(k=2, dims=(-2,-1))",
+    "pattern_bit_order": "R,G,B",
+    "patterns": ["000", "001", "010", "011", "100", "101", "110", "111"],
+    "identity": "000",
+    "global_rotation": "111"
+  },
+  "labels": {
+    "good_db": 25.0,
+    "bad_db": 20.0,
+    "catastrophic_db": 15.0,
+    "nonorbit_consistent_residual_quantile_over_good": 0.95,
+    "quantile_group": ["source", "family"]
+  },
+  "prior_score": {
+    "checkpoint_path_key": "models.ffhq_ddpm",
+    "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "guided_preset": "difffpr_ffhq_10m",
+    "beta_schedule": {"type": "linear", "beta_start": 0.0001, "beta_end": 0.02, "steps": 1000},
+    "eps_channels": "first 3 output channels (learn_sigma=True)",
+    "timesteps_primary": [50, 100, 200, 300, 400, 500, 600, 700],
+    "timesteps_secondary_mid": [300, 400, 500, 600],
+    "noise_draws_per_t": 4,
+    "seed_rule": "torch.Generator('cpu').manual_seed(int.from_bytes(hashlib.sha256(f'R0PRIOR|{candidate_uid}|{t}|{j}'.encode()).digest()[:8], 'little') & (2**63-1)); eps generated on CPU as float32 then moved",
+    "coupling": "paired: orbit member s uses R_s(eps_tj)",
+    "loss": "mean over C,H,W of (eps_theta(x_t, t)[:, :3] - eps)^2",
+    "aggregate_primary": "equal-weight mean over all (t, j)",
+    "aggregate_secondary": "equal-weight mean over timesteps_secondary_mid",
+    "repair_rule": "argmin over 8 members; ties within 1e-7 -> '000'",
+    "confidence": "paired differences d_tj = l_000 - l_sstar; report mean and z = mean/(sd/sqrt(n))",
+    "precision": "float32",
+    "expected_unet_forwards_per_candidate": 256,
+    "determinism_tolerance_relative": 1e-5
+  },
+  "univfd": {
+    "repo": "https://github.com/Yuheng-Li/UniversalFakeDetect",
+    "commit": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619",
+    "license": "MIT",
+    "fc_weights": "pretrained_weights/fc_weights.pth",
+    "fc_weights_sha256": "477100745713bcc957beb2b40859536859b6483fd6301b3b9293151b194c7847",
+    "clip_backbone": "ViT-L/14",
+    "clip_weights_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "preprocess": "RGB8 uint8 -> torchvision ToTensor -> CenterCrop(224) (no resize) -> Normalize(mean=[0.48145466,0.4578275,0.40821073], std=[0.26862954,0.26130258,0.27577711])",
+    "output": "p_fake = sigmoid(fc(encode_image(x)))",
+    "fa_fpr_thresholds_reported": [0.1, 0.3]
+  },
+  "residuals": {
+    "rho_signed": "||A(x) - y||_2 / sqrt(m)",
+    "rho_clipped": "||A(x) - max(y,0)||_2 / sqrt(m)",
+    "native_selectors": "carry recorded values where available; else null"
+  },
+  "policies": {
+    "K_values": [1, 2, 4],
+    "K_values_b22_np": [1, 2, 4, 8],
+    "run_order": "recorded order (rep index / seed order); never re-ordered by outcome",
+    "E0": "argmin rho_signed, no repair",
+    "E1": "E0 choice then prior repair",
+    "E2": "repair all; feasible = rho_signed(x') <= tau(source,family); argmin S(x') over feasible; fallback argmin rho_signed",
+    "E3": "as E2 but argmin p_fake(x') over feasible",
+    "O_raw": "GT ceiling: max PSNR_raw over K",
+    "O_orbit": "GT ceiling: max over K and 8 orbit members"
+  },
+  "bootstrap": {"unit": "image", "replicates": 10000, "seed_rule": "numpy PCG64 seeded from sha256('R0BOOT|{analysis_id}') first 8 bytes"},
+  "gates": {
+    "G0_operator_rho_gt_pass_range": [0.0495, 0.0505],
+    "G0_operator_rho_gt_warn_max": 0.055,
+    "G0_orbit_invariance_relative_tol": 1e-4,
+    "G0_replay_tolerance_db": 0.01,
+    "G0_replay_min_fraction": 0.99,
+    "G0_determinism_relative_tol": 1e-5,
+    "G1_canonical_case": {"source": "S3_a12", "image_id": "68539", "family": "DAPS", "rep": 2, "recorded_raw_db": 6.364, "recorded_rot180_db": 31.871, "required_repaired_db_min": 25.0}
+  },
+  "decisions": {
+    "D_material": "orbit share of single-run failures >= 0.20 for FAST (S4+S5) or DAPS (S1+S2+S3)",
+    "D_repair_pass": "success >= 0.90 on pooled ORBIT_ERROR and harm <= 0.01 on pooled GOOD",
+    "D_repair_fail": "success < 0.75 or harm > 0.03",
+    "D_detect_superior": "AUROC(S or S_img) - AUROC(p_fake) >= +0.03 for FAST and DAPS",
+    "D_detect_noninferior": "AUROC(S or S_img) - AUROC(p_fake) >= -0.02"
+  },
+  "fast_generation": {
+    "config_source": "configs/track_a/a15_fastdips_exposed_v1.json:fast_native_pixel",
+    "sampler": "edm_FAST_DIPS",
+    "T": 150,
+    "K_ADMM": 2,
+    "S_x": 5,
+    "rho": 200,
+    "epsilon": 0.05,
+    "backtrack": true,
+    "alpha_max": 1,
+    "roots_per_image": 4,
+    "seed_rule": "int.from_bytes(sha256(f'R0FAST|{source}|{image_id}|{rep}').digest()[:8],'little') & (2**63-1)",
+    "sources": ["S1_b22", "S2_b24_dev80"],
+    "save": ["reconstruction.pt (float32 model range)", "reconstruction.png (canonical RGB8)", "R0_FAST_ROOT_COMPLETE.json"],
+    "gt_access_in_worker": false
+  },
+  "budget": {"gpu_hours_ceiling_aggregate": 16.0}
+}

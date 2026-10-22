@@ -1,5 +1,9 @@
 # Project docs
 
+> **Current (2026-10-21): Track R.** Start at [`docs/track_r/00_START_HERE.md`](track_r/00_START_HERE.md).
+>
+> Track A (NP method paper) is parked; see `docs/planning/track_a/TRACK_A_PARKED_README_2026-10-21.md`. Track B is paused after its TB0 STOP; see `docs/track_b/executors/tb0-homometric-bridge/TB0_STOP_REPORT.md`. The June 2026 description below is historical.
+
 Updated: 2026-06-23
 
 This directory is organized around the June 2026 NP-SITCOM phase-retrieval update.  The active docs should be enough to restart the project without scrolling through chat logs or manually rediscovering PAC paths.
