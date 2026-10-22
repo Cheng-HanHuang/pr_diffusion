@@ -1,0 +1,294 @@
+{
+  "schema": "prdiff.track_r.pac_paths.verified.inventory.v1",
+  "status": "PARTIAL_VERIFICATION_R0_0_WITH_PENDING_PROBES",
+  "verified_from": {
+    "input_json": "R0_0_INVENTORY.json",
+    "input_sha256": "8f01a21b27285f5d92531dba0b1ac6dd90d75e7ed42a44f9c675ab817a52e9e9",
+    "inventory_utc": "2026-10-22T03:04:01.619190+00:00",
+    "collector_head": "700a347a7e8c46cfb3291206f03064e22b805e4b",
+    "inventory_counts": {
+      "VERIFIED": 45,
+      "WARN": 4,
+      "MISSING": 4,
+      "MISMATCH": 1
+    },
+    "reclassification_note": "Do not treat fast Blackwell MISMATCH as physical source mismatch: attempted probe timed out and CUDA_VISIBLE_DEVICES='' suppresses torch.cuda.get_arch_list(). See targeted R0.0a probe."
+  },
+  "frozen_paths": {
+    "schema": "prdiff.track_r.pac_paths.v1",
+    "status": "UNVERIFIED_FROM_REPO_RECORDS_2026-10-21",
+    "instruction": "R0.0 inventory must verify every entry (existence, SHA where given, git HEAD where given) and write configs/track_r/pac_paths_track_r_verified.json with per-entry status VERIFIED / MISSING / MISMATCH. Never infer existence from this file.",
+    "root": "/egr/research-pac/huang248",
+    "never_use_prefixes": [
+      "/home"
+    ],
+    "track_r": {
+      "worktree": "/egr/research-pac/huang248/pr_diffusion_track_r",
+      "output_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r",
+      "log_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/logs",
+      "cache_root": "/egr/research-pac/huang248/outputs/.cache/track_r",
+      "env_prefix": "/egr/research-pac/huang248/conda-envs/prdiff_track_r",
+      "env_clone_source": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq"
+    },
+    "python": {
+      "prdiff_ffhq": "/egr/research-pac/huang248/conda-envs/prdiff_ffhq/bin/python",
+      "fast_dips_a15_blackwell": "/egr/research-pac/huang248/conda-envs/fast_dips_a15_blackwell/bin/python",
+      "fast_dips_a15": "/egr/research-pac/huang248/conda-envs/fast_dips_a15/bin/python",
+      "daps": "/egr/research-pac/huang248/conda-envs/daps/bin/python",
+      "sitcom_ode_bw": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python",
+      "prdiff_track_r": "/egr/research-pac/huang248/conda-envs/prdiff_track_r/bin/python",
+      "notes": {
+        "prdiff_ffhq": "Ran NP on the Blackwell GPUs in A1.6/B26; clone source for prdiff_track_r. Never modify.",
+        "fast_dips_a15_blackwell": "Interpreter that actually ran native FAST in A1.5 (per A14_A16 consolidated return section 5). Use for FAST generation. Never modify.",
+        "fast_dips_a15": "Earlier cu121 environment from scripts/track_a/a15_create_isolated_env_v1.sh; may lack sm_120 support. Inventory only.",
+        "prdiff_track_r": "Create in R0.0b only if absent: conda clone of prdiff_ffhq, then add only missing packages."
+      }
+    },
+    "models": {
+      "ffhq_ddpm": {
+        "path": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+        "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
+      },
+      "clip_vit_l14": {
+        "path": "/egr/research-pac/huang248/models/clip/ViT-L-14.pt",
+        "sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+        "source_url": "https://openaipublic.azureedge.net/clip/models/b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836/ViT-L-14.pt",
+        "note": "Likely absent; download once in R0.0b. The default CLIP cache is ~/.cache/clip under /home, which must not be used."
+      }
+    },
+    "external": {
+      "fast_dips": {
+        "path": "/egr/research-pac/huang248/external/FAST_DIPS_A15",
+        "commit": "a9758b38906b7c7950fa04491f37f6634948db26",
+        "upstream": "https://github.com/ququlza/FAST-DIPS",
+        "rule": "read-only; do not modify"
+      },
+      "a15_adapter_checkout": {
+        "path": "/egr/research-pac/huang248/pr_diffusion_track_a_a15_fastdips",
+        "commit": "d51170f77ee672990c22f1703c5997e949dda9d6",
+        "rule": "read-only reference; R0 code lives in the Track R worktree"
+      },
+      "difffpr": {
+        "path": "/egr/research-pac/huang248/external/DiffFPR",
+        "commit": "a45ffe58f18fed8a63d3446600424e2b08733524",
+        "role": "provides the guided_diffusion package used by prdiffusion/guided_backend.py"
+      },
+      "univfd": {
+        "path": "/egr/research-pac/huang248/external/UniversalFakeDetect",
+        "repo": "https://github.com/Yuheng-Li/UniversalFakeDetect",
+        "commit": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619",
+        "fc_weights_sha256": "477100745713bcc957beb2b40859536859b6483fd6301b3b9293151b194c7847",
+        "license": "MIT",
+        "note": "Likely absent; clone in R0.0b. Its bundled models/clip/clip.py imports pkg_resources (needs setuptools that still ships it)."
+      }
+    },
+    "data": {
+      "ffhq_images1024": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024",
+      "ffhq_png_pattern": "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/images1024x1024/<THOUSAND_BLOCK>/<ID>.png",
+      "ffhq_metadata_json_candidates": [
+        "/egr/research-pac/huang248/data/ffhq/ffhq-dataset/ffhq-dataset-v2.json"
+      ],
+      "metadata_note": "Record presence only (needed for the R2 validation-split cohort). Do not scan the image tree."
+    },
+    "sources": {
+      "S1_b22": {
+        "b22_run_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines/B22_2_overnight_20260727_155135",
+        "b22_full_manifest": "/egr/research-pac/huang248/outputs/pr_diffusion/b22_baselines/B22_2_overnight_20260727_155135/full/manifest.json",
+        "b22_full_manifest_sha256": "94184e36b27aac0defb93b31ae7b47ea332909bcb0c0a80445be2949f422a219",
+        "b22_layout": "<stage_root>/<family>/row*/policy.json and <stage_root>/<family>/row*/candidates/*/result.json; paired_rows.csv; manifest.json (see scripts/b22/analyze_b22_3_panel.py). Verify whether <stage_root> is the run root or <run_root>/full.",
+        "b21_fresh_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401",
+        "b21_fresh_rows_csv": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/analysis_theta0.7/fresh2_final_rows.csv",
+        "measurement_pattern": "/egr/research-pac/huang248/outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401/measurements/ffhq<ID>_phase_noise005_meas5401.pt",
+        "primary_metric_recorded": "raw RGB PSNR after clamp to [-1,1] and map to [0,1] (float, not RGB8)"
+      },
+      "S2_b24_dev80": {
+        "run_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_dev80_overnight_20260913T082146Z",
+        "manifest_in_repo": "configs/b26/b26_dev80_manifest.json",
+        "layout": "workers/gpu*/task*/input/{ground_truth.pt,measurement.pt,input_manifest.json}; workers/gpu*/task*/methods/<METHOD>/result.json; IMAGE_COMPLETE.json",
+        "methods_expected": [
+          "DAPS4",
+          "SITCOM4",
+          "NP4_INDEPENDENT"
+        ],
+        "methods_note": "Verify exact method directory names from one task directory before building the manifest.",
+        "corrected_closeout": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/B24_3_zero_gpu_closeout_corrected_20260914T060600Z",
+        "primary_metric_recorded": "CANONICAL_SAVED_OR_QUANTIZED_RGB_8BIT_RAW_ORIENTATION_V1"
+      },
+      "S2b_b26_optional": {
+        "run_root": "/egr/research-pac/huang248/outputs/pr_diffusion/b26/B26_20260915T153700Z",
+        "use": "EXPLORATORY only"
+      },
+      "S3_a12": {
+        "index_in_repo": "docs/track_a/executors/a1-oracle-budget/A1_PAC_ARTIFACT_INDEX_20261020.json",
+        "root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_k4_v1",
+        "inputs_root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a1_oracle_budget_20261016/a1_2_exposed_b22_inputs_v1",
+        "input_freeze_manifest_sha256": "fda3b5c3a26d3ed761b81cee026eea8dc2eb134b490d6369c2feda29965c2490",
+        "ids": [
+          "69073",
+          "68539",
+          "67948",
+          "60140",
+          "67293",
+          "67174",
+          "61101",
+          "66631"
+        ]
+      },
+      "S4_a15": {
+        "root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a15_fastdips_exposed_20261020/a15_2_native_fast_k4_exposed_v1",
+        "layout": "<ID>/rep<0-3>/ (receipt A15_SMOKE_COMPLETE.json; verify reconstruction file names)"
+      },
+      "S4b_a16_optional": {
+        "root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_a_np_paper/a16_np_fast_autopilot_20261021",
+        "layout": "runs/<arm>/<ID>/rep<0-3>/{A16_CANDIDATE_COMPLETE.json,reconstruction.pt,reconstruction.png}",
+        "use": "EXPLORATORY only"
+      }
+    },
+    "locked_never_access": {
+      "what": "B24 confirmation305 cohort: registry, membership lists, payloads, measurements",
+      "forbidden_path_tokens": [
+        "confirmation",
+        "confirm305"
+      ],
+      "scope_prefix": "/egr/research-pac/huang248/outputs/pr_diffusion/b24/",
+      "rule": "Do not open, list, glob, hash, or check membership. Every manifest builder asserts that no emitted path contains a forbidden token."
+    },
+    "gpus": {
+      "recorded": "4x NVIDIA RTX PRO 6000 Blackwell Server Edition, 97,887 MiB each (B23.0 inventory, docs/b23/07_PAC_INVENTORY_AND_FREEZE.md)",
+      "rule": "query nvidia-smi before every launch; one worker per physical GPU; report foreign processes and stop if a GPU is busy"
+    }
+  },
+  "entries": {
+    "root": {
+      "status": "VERIFIED",
+      "detail": "worktree checkout and filesystem present"
+    },
+    "track_r.worktree": {
+      "status": "VERIFIED",
+      "detail": "recorded checkout/output/log/cache namespace"
+    },
+    "track_r.output_root": {
+      "status": "VERIFIED",
+      "detail": "recorded checkout/output/log/cache namespace"
+    },
+    "track_r.log_root": {
+      "status": "VERIFIED",
+      "detail": "recorded checkout/output/log/cache namespace"
+    },
+    "track_r.cache_root": {
+      "status": "VERIFIED",
+      "detail": "recorded checkout/output/log/cache namespace"
+    },
+    "track_r.env_prefix": {
+      "status": "MISSING",
+      "detail": "isolated Track R env not yet created"
+    },
+    "track_r.env_clone_source": {
+      "status": "VERIFIED",
+      "detail": "recorded checkout/output/log/cache namespace"
+    },
+    "python.prdiff_ffhq": {
+      "status": "WARN",
+      "detail": "Interpreter present; some optional imports missing and CUDA arch reporting was empty with GPU hidden"
+    },
+    "python.fast_dips_a15_blackwell": {
+      "status": "WARN",
+      "detail": "Inventory recorded MISMATCH due CPU probe not completing and missing CUDA arch flags; actual torch capability is unverified. Targeted CPU reprobe required."
+    },
+    "python.fast_dips_a15": {
+      "status": "WARN",
+      "detail": "Interpreter present; some optional imports missing and CUDA arch reporting was empty with GPU hidden"
+    },
+    "python.daps": {
+      "status": "WARN",
+      "detail": "Interpreter present; some optional imports missing and CUDA arch reporting was empty with GPU hidden"
+    },
+    "python.sitcom_ode_bw": {
+      "status": "WARN",
+      "detail": "Interpreter present; some optional imports missing and CUDA arch reporting was empty with GPU hidden"
+    },
+    "python.prdiff_track_r": {
+      "status": "MISSING",
+      "detail": "isolated target interpreter missing"
+    },
+    "models.ffhq_ddpm": {
+      "status": "VERIFIED",
+      "detail": "FFHQ checkpoint SHA256 matched; CLIP weights absent"
+    },
+    "models.clip_vit_l14": {
+      "status": "MISSING",
+      "detail": "FFHQ checkpoint SHA256 matched; CLIP weights absent"
+    },
+    "external.fast_dips": {
+      "status": "VERIFIED",
+      "detail": "Git HEAD and clean-tree matched pinned source"
+    },
+    "external.a15_adapter_checkout": {
+      "status": "VERIFIED",
+      "detail": "Git HEAD and clean-tree matched pinned source"
+    },
+    "external.difffpr": {
+      "status": "VERIFIED",
+      "detail": "Git HEAD and clean-tree matched pinned source"
+    },
+    "external.univfd": {
+      "status": "MISSING",
+      "detail": "repo and fc head absent"
+    },
+    "external.univfd.fc": {
+      "status": "MISSING",
+      "detail": "expected fc_weights.pth absent"
+    },
+    "data.ffhq_images1024": {
+      "status": "VERIFIED",
+      "detail": "one recorded 1024×1024 source PNG was sampled; no tree scan"
+    },
+    "data.ffhq_metadata_json_candidates[0]": {
+      "status": "VERIFIED",
+      "detail": "metadata JSON existence verified, never enumerated cohort"
+    },
+    "sources.S1_b22": {
+      "status": "WARN",
+      "detail": "full manifest, fresh CSV, B22 roots and NP/SITCOM bounded row counts verified; DAPS Fresh1/2 per-run layouts and saved GT conversion remain unresolved"
+    },
+    "sources.S2_b24_dev80": {
+      "status": "WARN",
+      "detail": "80 DEV rows and input paths verified; one task's methods list has NP4 but not DAPS4/SITCOM4, verify separate baseline placement"
+    },
+    "sources.S2b_b26_optional": {
+      "status": "WARN",
+      "detail": "optional exploratory source was not enumerated"
+    },
+    "sources.S3_a12": {
+      "status": "VERIFIED",
+      "detail": "eight IDs × four reps for all four methods; input freeze SHA matches"
+    },
+    "sources.S4_a15": {
+      "status": "VERIFIED",
+      "detail": "eight ID roots each contain four reps and one canonical RGB8 file sampled"
+    },
+    "sources.S4b_a16_optional": {
+      "status": "WARN",
+      "detail": "optional exploratory source was not enumerated"
+    },
+    "gpus": {
+      "status": "VERIFIED",
+      "detail": "inventory observed GPU0 idle and GPU1–3 occupied; recheck immediately before any GPU launch"
+    },
+    "constraint.confirmation305_lock": {
+      "status": "VERIFIED",
+      "detail": "no protected paths intentionally opened/listed/hashed; applies through R1"
+    }
+  },
+  "unresolved": [
+    "CPU-only pinned FAST env torch import and compiled sm_120 arch flags",
+    "Create only missing prdiff_track_r env and pinned CLIP+UnivFD assets on opt-in",
+    "B22 Fresh1/2 candidate and saved-GT identity/path conventions",
+    "B24 DAPS4/SITCOM4 individual candidate locations, not in NP4 task methods listing",
+    "B22 sample candidate was inadvertently measurement_path; do not infer that it is a candidate"
+  ],
+  "permissions": {
+    "gpu_not_authorized_without_G0_G1_smoke": true,
+    "protected_cohort_locked_through_R1": true
+  }
+}
