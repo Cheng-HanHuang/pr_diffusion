@@ -18,7 +18,7 @@ def make_case(tmp_path, *, pilot):
     m=module()
     m.ROOT=tmp_path  # synthetic path namespace; real sources remain untouched
     source_kind="B24_3_pilot16_20260913T045410Z" if pilot else "B24_3_dev80_overnight_20260913T082146Z"
-    task=tmp_path/source_kind/"workers"/"gpu2"/"row02_24322"
+    task=tmp_path/"outputs/pr_diffusion/b24"/source_kind/"workers"/"gpu2"/"row02_24322"
     np_dir=task/"methods"/"NP4_INDEPENDENT"
     np_dir.mkdir(parents=True)
     accepted=np_dir/"result.json"
