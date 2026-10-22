@@ -192,7 +192,7 @@ def main():
     env = dict(os.environ)
     env.update({"CUDA_VISIBLE_DEVICES": "", "PYTHONDONTWRITEBYTECODE": "1",
                 "PYTHONNOUSERSITE": "1", "R0_IMPORT_ROOT": config["external"]["difffpr"]["path"],
-                "R0_IMPORT_NAMES": "guided_diffusion"})
+                "R0_IMPORT_NAMES": ""})
     for name, value in config["python"].items():
         if not isinstance(value, str):
             continue
@@ -201,6 +201,8 @@ def main():
             add("python." + name, {"status": "MISSING", "path": str(py)})
             continue
         pe = dict(env)
+        if name in ("prdiff_ffhq", "prdiff_track_r"):
+            pe["R0_IMPORT_NAMES"] = "guided_diffusion"
         if name.startswith("fast_dips"):
             pe["R0_IMPORT_ROOT"] = config["external"]["fast_dips"]["path"]
             pe["R0_IMPORT_NAMES"] = "edm_FAST_DIPS"
@@ -274,7 +276,13 @@ def main():
                               "rep_counts": {method: len(bounded(str(p / method / "rep*"), 5))
                                              for method in ("daps","sitcom","np_lf","np_s2")}})
     freeze = safe_path(s3["inputs_root"]) / "A1_2_INPUT_FREEZE_COMPLETE.json"
-    add("S3.input_freeze", checked_file(freeze, s3["input_freeze_manifest_sha256"]))
+    add("S3.input_freeze_receipt", checked_file(freeze))
+    # The recorded input-manifest hash is not a hash of the completion receipt.
+    # Do not mislabel a valid receipt as MISMATCH: resolve the specific manifest
+    # filename from the PAC inventory/receipt before asserting its digest.
+    add("S3.input_freeze_manifest_hash", {"status": "WARN",
+        "expected_sha256": s3["input_freeze_manifest_sha256"],
+        "reason": "exact input-freeze manifest filename not yet verified; receipt inspected separately"})
     s4 = s["S4_a15"]
     add("S4.root", dir_check(s4["root"]))
     for uid in s3["ids"]:
