@@ -23,10 +23,14 @@ r0b_guard() {
   if [ ! -x "$SRC/bin/python" ] || ! command -v conda >/dev/null 2>&1; then
     echo "ENV_FAILED: source environment or conda missing"; return 4
   fi
-  mkdir -p "$BASE/logs" "$CACHE/conda_pkgs" "$CACHE/pip" "$CACHE/tmp" "$CACHE/torch" "$CACHE/hf"
+  mkdir -p "$BASE/logs" "$CACHE/conda_pkgs" "$CACHE/pip" "$CACHE/tmp" "$CACHE/torch" "$CACHE/hf" "$CACHE/home" "$CACHE/config" "$CACHE/data" "$CACHE/state"
   RC=$?
   if [ "$RC" -ne 0 ]; then return "$RC"; fi
   export CONDA_PKGS_DIRS="$CACHE/conda_pkgs" PIP_CACHE_DIR="$CACHE/pip"
+  # Executed in a child shell, so remapping HOME cannot change Cheng's
+  # interactive login environment. Prevent package-manager registry writes to /home.
+  export HOME="$CACHE/home" XDG_CONFIG_HOME="$CACHE/config" XDG_DATA_HOME="$CACHE/data" XDG_STATE_HOME="$CACHE/state"
+  export CONDA_ENVS_PATH="$ROOT/conda-envs"
   export TMPDIR="$CACHE/tmp" XDG_CACHE_HOME="$CACHE" TORCH_HOME="$CACHE/torch" HF_HOME="$CACHE/hf"
   export PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1 PIP_DISABLE_PIP_VERSION_CHECK=1 CUDA_VISIBLE_DEVICES=""
   return 0
