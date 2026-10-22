@@ -237,9 +237,10 @@ def main():
             end=torch.cuda.Event(enable_timing=True)
             t0=time.perf_counter()
             start.record()
-            with torch.no_grad():
-                output=sampler.sample(model,x0,operator,y.to(device),
-                                      evaluator=None,record=False,verbose=False)
+            # Native FAST-DIPS uses measurement gradients internally; do not
+            # wrap sample() in torch.no_grad(), unlike the diffusion-prior scorer.
+            output=sampler.sample(model,x0,operator,y.to(device),
+                                  evaluator=None,record=False,verbose=False)
             end.record()
             torch.cuda.synchronize()
             seconds=time.perf_counter()-t0
