@@ -129,8 +129,7 @@ for path in sys.argv[1:]:
             v=np.asarray(im)
             a[path]=dict(dtype=str(v.dtype),shape=list(v.shape),min=float(v.min()),max=float(v.max()))
         elif p.suffix.lower()==".pt":
-            try: obj=torch.load(p,map_location="cpu",weights_only=True)
-            except Exception: obj=torch.load(p,map_location="cpu",weights_only=False)
+            obj=torch.load(p,map_location="cpu",weights_only=True)
             t=extract(obj)
             if t is None: a[path]={"error":"no tensor in file","type":str(type(obj))}
             else: a[path]=dict(dtype=str(t.dtype),shape=list(t.shape),
@@ -182,11 +181,13 @@ def main():
                      "utc": timestamp, "git": git_check(worktree, args.expected_sha)})
     if checks["identity"]["git"]["status"] != "VERIFIED":
         checks["identity"]["status"] = "MISMATCH"
-    add("disk", {"status": "VERIFIED", "df": run(["df","-h",str(ROOT)]),
-                 "output_free": shutil.disk_usage(out).free})
-    add("gpus", {"status": "VERIFIED",
-                 "devices": run(["nvidia-smi","--query-gpu=index,uuid,name,memory.total,memory.used","--format=csv"]),
-                 "compute_apps": run(["nvidia-smi","--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory","--format=csv"])})
+    df = run(["df","-h",str(ROOT)])
+    gpu_devices = run(["nvidia-smi","--query-gpu=index,uuid,name,memory.total,memory.used","--format=csv"])
+    gpu_apps = run(["nvidia-smi","--query-compute-apps=gpu_uuid,pid,process_name,used_gpu_memory","--format=csv"])
+    add("disk", {"status": "VERIFIED" if df["rc"] == 0 else "WARN",
+                 "df": df, "output_free": shutil.disk_usage(out).free})
+    add("gpus", {"status": "VERIFIED" if gpu_devices["rc"] == 0 and gpu_apps["rc"] == 0 else "WARN",
+                 "devices": gpu_devices, "compute_apps": gpu_apps})
     add("conda", {"status": "VERIFIED" if shutil.which("conda") else "MISSING",
                   "path": shutil.which("conda"), "version": run(["conda","--version"]) if shutil.which("conda") else None})
     env = dict(os.environ)
