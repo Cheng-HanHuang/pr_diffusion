@@ -63,14 +63,21 @@ PYTHON
     RC=$?
     if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: isolated pip install rc=$RC"; return "$RC"; fi
   fi
-  "$PREFIX/bin/python" -m pip check
+  # pip --no-deps may omit genuine transitive requirements of ftfy,
+  # scikit-learn or pytest. Compare the isolated clone with the pristine
+  # source and install ONLY missing dependencies within the clone. Never
+  # resolve/upgrade installed packages, especially torch/numpy/torchvision.
+  "$PREFIX/bin/python" "$WT/scripts/track_r/r0_0b_reconcile_pip.py" \
+    --source "$SRC/bin/python" --target "$PREFIX/bin/python"
   RC=$?
-  if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: pip dependency check"; return "$RC"; fi
+  if [ "$RC" -ne 0 ]; then echo "ENV_FAILED: isolated pip dependency check rc=$RC"; return "$RC"; fi
   "$PREFIX/bin/python" -m pip freeze
   "$PREFIX/bin/python" - <<'PYTHON'
 import torch
-print("R0B_TORCH",torch.__version__,"CUDA",torch.version.cuda,"ARCHES",torch.cuda.get_arch_list())
-print("R0B_SM_120", "sm_120" in torch.cuda.get_arch_list())
+flags_fn=getattr(torch._C,"_cuda_getArchFlags",None)
+flags=flags_fn() if callable(flags_fn) else None
+print("R0B_TORCH",torch.__version__,"CUDA",torch.version.cuda,"COMPILED_ARCHES",flags)
+print("R0B_SM_120",bool(flags and "sm_120" in flags.split()))
 PYTHON
   RC=$?
   if [ "$RC" -ne 0 ]; then return "$RC"; fi
