@@ -79,7 +79,7 @@ def test_orientation_biased_mock_recovers_planted_pattern():
     # Non-equivariant mock: its fixed spatial/colour template intentionally
     # prefers the planted orientation, independent of the measurement.
     model=lambda xt,t: (xt-math.sqrt(a)*template.expand_as(xt))/math.sqrt(1-a)
-    out=PriorScorer(model,[1.,a],timesteps=(1,),draws=2,batch_size=3).score_orbit(x,"toy")
+    out=PriorScorer(model,[0.99,a],timesteps=(1,),draws=2,batch_size=3).score_orbit(x,"toy")
     assert out["s_star"]==planted
     assert out["S"][planted] < 1e-10
     assert out["S"]["000"] > out["S"][planted]
