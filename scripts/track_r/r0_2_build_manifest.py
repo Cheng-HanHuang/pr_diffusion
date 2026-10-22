@@ -213,8 +213,13 @@ def build_s3s4(cfg):
     if len(source)!=8:raise RuntimeError("STOP_S3_FREEZE_COUNT")
     rows=[]
     root=Path(s3["root"])
+    oracle=read_json(root/"A1_2_OFFLINE_ORACLE_SUMMARY.json")
+    per_image=oracle.get("per_image",{})
     for fr in source:
         iid=str(int(fr["image_id"])).zfill(5)
+        recorded={x["candidate_id"]:x for x in per_image.get(iid,{}).get("candidate_metrics",[])}
+        if len(recorded)!=16:
+            raise RuntimeError("STOP_S3_ORACLE_CANDIDATE_COUNT "+iid)
         gt=fr["ground_truth_tensor_path"]
         y=fr["measurement_path"]
         if digest(y)!=fr["measurement_file_sha256"]:
@@ -236,15 +241,17 @@ def build_s3s4(cfg):
                 if len(relevant)!=1:
                     raise RuntimeError("STOP_S3_RECEIPT_AMBIGUITY "+fam+" "+iid+f" rep{i} {len(relevant)}")
                 record=read_json(relevant[0])
-                psnr=record.get("raw_psnr_db")
-                if psnr is None:
-                    psnr=record.get("metric",{}).get("raw_rgb8_psnr_db")
-                if psnr is None:
-                    raise RuntimeError("STOP_S3_RECORDED_PSNR_UNRESOLVED "+str(relevant[0]))
+                cid=f"{iid}:{fam}:{i}"
+                if cid not in recorded:
+                    raise RuntimeError("STOP_S3_ORACLE_METRIC_ID "+cid)
+                psnr=float(recorded[cid]["raw_psnr_db"])
+                if digest(recon)!=recorded[cid]["png_sha256"]:
+                    raise RuntimeError("STOP_S3_CANONICAL_PNG_SHA "+cid)
                 rows.append(value("S3_a12",fam,iid,i,f"rep{i}",recon,
-                    gt,"pt",y,float(psnr),"A12_RGB8",
-                    None,None,record.get("wall_seconds"),
-                    notes="A1.2 four independent roots",measurement_sha=fr["measurement_file_sha256"]))
+                    gt,"pt",y,psnr,"A12_RGB8",
+                    None,None,record.get("wall_seconds_subprocess"),
+                    notes="A1.2 four independent roots; offline oracle candidate metric",
+                    measurement_sha=fr["measurement_file_sha256"]))
         s4=Path(cfg["sources"]["S4_a15"]["root"])
         for i in range(4):
             root4=s4/iid/f"rep{i}"
