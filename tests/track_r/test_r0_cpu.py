@@ -59,6 +59,10 @@ def test_paired_noise_equivariant_and_batch_independence():
     b=PriorScorer(**setup,batch_size=64).score_orbit(x,"S3_a12|DAPS|68539|rep2")
     assert a["s_star"]=="000"
     assert a["unet_forwards"]==32
+    assert a["unet_batch_calls"]==4
+    assert a["max_batch_observed"]==8
+    assert b["unet_batch_calls"]==1
+    assert b["max_batch_observed"]==32
     assert a["noise_device"]=="cpu"
     for p in ORBIT_PATTERNS:
         assert a["S"][p]==pytest.approx(a["S"]["000"],abs=1e-6)
