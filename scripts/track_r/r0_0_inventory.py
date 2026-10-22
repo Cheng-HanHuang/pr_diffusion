@@ -151,12 +151,26 @@ def sample_json_paths(result):
         data = json.loads(p.read_text())
     except Exception as exc:
         return {"error": str(exc)[:200]}
-    def selected(d):
-        if not isinstance(d, dict):
+    def selected(d, prefix="", depth=0):
+        if depth > 3:
             return []
-        return [(k, v) for k, v in d.items()
-                if isinstance(v, str) and (v.endswith(".pt") or v.endswith(".png"))]
-    return {"keys": list(data)[:40], "candidate_fields": selected(data)[:12]}
+        if isinstance(d, dict):
+            items = [(str(k),v) for k,v in d.items()]
+        elif isinstance(d, list):
+            items = [(str(i),v) for i,v in enumerate(d[:20])]
+        else:
+            return []
+        hits = []
+        for key, val in items[:80]:
+            label = prefix + "." + key if prefix else key
+            if isinstance(val, str) and val.lower().endswith((".pt",".png")):
+                hits.append((label,val))
+            elif isinstance(val, (dict,list)):
+                hits.extend(selected(val,label,depth+1))
+        return hits[:24]
+    return {"keys": list(data)[:40] if isinstance(data,dict) else [],
+            "image_id": str(data.get("image_id","")) if isinstance(data,dict) else "",
+            "candidate_fields": selected(data)[:24]}
 
 
 def main():
@@ -295,20 +309,61 @@ def main():
                              "rep_count": len(bounded(str(p / "rep*"), 5))})
     add("FFHQ.metadata", {"status": "VERIFIED" if any(safe_path(p).is_file() for p in config["data"]["ffhq_metadata_json_candidates"]) else "MISSING",
                            "candidates": config["data"]["ffhq_metadata_json_candidates"]})
-    # Probe a maximum of one candidate, one GT and one y from each recoverable source.
+    # Probe at most one candidate, saved GT (or source image), and signed y
+    # per source. Only explicit DEV80 and A1.2 freeze rows are inspected.
     samples = {}
     if b22_example:
         data = sample_json_paths(b22_example)
-        for _, val in (data.get("candidate_fields") or [])[:1]:
-            samples["S1.candidate"] = str((safe_path(b22_example).parent / val).resolve()) if not Path(val).is_absolute() else val
+        for _, val in (data.get("candidate_fields") or [])[:8]:
+            candidate = safe_path(val) if Path(val).is_absolute() else (
+                safe_path(b22_example).parent / val)
+            if candidate.is_file():
+                samples["S1.candidate"] = str(candidate)
+                break
+        if "S1.candidate" not in samples:
+            # A bounded fallback within ONE known candidate directory.
+            candidate_dir = safe_path(b22_example).parent
+            for pattern in ("*.png","*.pt","*/*.png","*/*.pt"):
+                found = bounded(str(candidate_dir / pattern),4)
+                if found:
+                    samples["S1.candidate"] = found[0]
+                    break
+        image_id = data.get("image_id","")
+        if image_id.isdigit():
+            num = int(image_id)
+            stem = str(num).zfill(5)
+            measurements = b22["measurement_pattern"].replace("<ID>",stem)
+            samples["S1.y"] = measurements
+            original = safe_path(config["data"]["ffhq_images1024"])
+            samples["S1.GT_source_image"] = str(original / str((num//1000)*1000).zfill(5) / (stem+".png"))
     if devrows:
-        samples["S2.GT"] = devrows[0].get("ground_truth_tensor_path")
-        samples["S2.y"] = devrows[0].get("measurement_path")
+        first = devrows[0]
+        samples["S2.GT"] = first.get("ground_truth_tensor_path")
+        samples["S2.y"] = first.get("measurement_path")
+        method = safe_path(first["accepted_np4_result_path"]).parent
+        # Probe only shallow native method subpaths, never walk all tasks.
+        for pattern in ("*.png","*.pt","*/*.png","*/*.pt",
+                        "*/*/*.png","*/*/*.pt"):
+            found = bounded(str(method / pattern),4)
+            if found:
+                samples["S2.candidate"] = found[0]
+                break
     uid = s3["ids"][0]
     samples["S3.GT"] = str(safe_path(s3["inputs_root"]) / uid / "ground_truth_tensor.pt")
-    for key, pattern in (("S3.candidate", str(safe_path(s3["root"]) / uid / "sitcom/rep0/sitcom1/reconstruction.png")),
-                         ("S4.candidate", str(safe_path(s4["root"]) / uid / "rep0/reconstruction.png"))):
-        samples[key] = pattern
+    if freeze.is_file():
+        try:
+            frozen = json.loads(freeze.read_text())
+            row = next((r for r in frozen.get("rows",[]) if str(r.get("image_id")) == uid),None)
+            if row:
+                for source in ("S3","S4"):
+                    samples[source+".y"] = row["measurement_path"]
+        except (ValueError,KeyError) as exc:
+            add("S3.freeze_sample_parse", {"status":"WARN","reason":str(exc)[:200]})
+    samples["S4.GT"] = samples["S3.GT"]
+    for key, candidate_path in (
+        ("S3.candidate", str(safe_path(s3["root"]) / uid / "sitcom/rep0/sitcom1/reconstruction.png")),
+        ("S4.candidate", str(safe_path(s4["root"]) / uid / "rep0/reconstruction.png"))):
+        samples[key] = candidate_path
     missing_samples = [k for k,p in samples.items() if not p or not safe_path(p).is_file()]
     files = [str(safe_path(p)) for p in samples.values() if p and safe_path(p).is_file()]
     sample_python = safe_path(config["python"]["prdiff_ffhq"])
