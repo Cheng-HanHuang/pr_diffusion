@@ -265,6 +265,25 @@ def update_status(path,state,active,charged,canary_seconds):
     state["completed_count"]=HISTORICAL_SCORED+sum(c["count"] for c in state["completed"])
     json_atomic(path,state)
 
+def take_compatible_chunk(pending,gpu,root):
+    """Keep partial retry shards on the same original physical GPU.
+
+    Fresh shards can use any idle lane. Existing metadata belongs to a
+    specific physical GPU and must never be silently rewritten.
+    """
+    for index,chunk in enumerate(pending):
+        meta=result_dir(root,chunk)/"R0_4_SHARD_META.json"
+        if meta.exists():
+            previous=read(meta)
+            if previous.get("gpu")!=gpu:
+                continue
+            if (previous.get("start")!=chunk["start"] or
+                previous.get("count")!=chunk["count"]):
+                raise RuntimeError("STOP_R04_RECOVERY_BAD_PARTIAL_META")
+        return pending.pop(index)
+    return None
+
+
 def launch_one(gpu,chunk,a,root,state,active,charged,canary_seconds):
     # Avoid accidental interference if an unrelated process took this GPU.
     check_single_gpu(gpu)
@@ -409,7 +428,9 @@ def main():
                                 failing=True;fatal_reason="GPU_BUDGET"
                                 stop_owned(active,"GPU_BUDGET")
                                 break
-                            c=pending.pop(0)
+                            c=take_compatible_chunk(pending,gpu,root)
+                            if c is None:
+                                continue
                             launch_one(gpu,c,a,root,state,active,
                                        charged,canary_seconds)
                 for gpu,v in list(active.items()):
