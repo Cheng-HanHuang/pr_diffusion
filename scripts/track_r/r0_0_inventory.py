@@ -205,7 +205,7 @@ def main():
             pe["R0_IMPORT_NAMES"] = "guided_diffusion"
         if name.startswith("fast_dips"):
             pe["R0_IMPORT_ROOT"] = config["external"]["fast_dips"]["path"]
-            pe["R0_IMPORT_NAMES"] = "edm_FAST_DIPS"
+            pe["R0_IMPORT_NAMES"] = "forward_operators,main,misc,model"
         result = run([str(py), "-c", PROBE], timeout=65, env=pe)
         line = next((s.split("=",1)[1] for s in result["text"].splitlines() if s.startswith("R0_PROBE_JSON=")), None)
         detail = json.loads(line) if line else {"error": result["text"][-800:]}
@@ -276,13 +276,7 @@ def main():
                               "rep_counts": {method: len(bounded(str(p / method / "rep*"), 5))
                                              for method in ("daps","sitcom","np_lf","np_s2")}})
     freeze = safe_path(s3["inputs_root"]) / "A1_2_INPUT_FREEZE_COMPLETE.json"
-    add("S3.input_freeze_receipt", checked_file(freeze))
-    # The recorded input-manifest hash is not a hash of the completion receipt.
-    # Do not mislabel a valid receipt as MISMATCH: resolve the specific manifest
-    # filename from the PAC inventory/receipt before asserting its digest.
-    add("S3.input_freeze_manifest_hash", {"status": "WARN",
-        "expected_sha256": s3["input_freeze_manifest_sha256"],
-        "reason": "exact input-freeze manifest filename not yet verified; receipt inspected separately"})
+    add("S3.input_freeze", checked_file(freeze, s3["input_freeze_manifest_sha256"]))
     s4 = s["S4_a15"]
     add("S4.root", dir_check(s4["root"]))
     for uid in s3["ids"]:
