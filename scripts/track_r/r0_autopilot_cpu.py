@@ -41,20 +41,30 @@ def sha256(path):
 
 def command(argv,cwd,env,output,timeout):
     with output.open("x",encoding="utf-8") as f:
-        f.write("COMMAND "+repr(argv)+"\n")
+        f.write("COMMAND "+repr(argv)+"\\n")
         f.flush()
         start=time.monotonic()
+        p=subprocess.Popen(argv,cwd=cwd,env=env,
+                           stdout=f,stderr=subprocess.STDOUT)
+        # Every long-running child has an exact recorded PID.
+        pidfile=output.with_suffix(".pid")
+        pidfile.write_text(str(p.pid)+"\\n",encoding="utf-8")
         try:
-            p=subprocess.run(argv,cwd=cwd,env=env,
-                             stdout=f,stderr=subprocess.STDOUT,
-                             check=False,timeout=timeout)
-            return {"rc":p.returncode,
-                    "elapsed_s":round(time.monotonic()-start,3),
-                    "log":str(output)}
+            rc=p.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
-            f.write("\nSTOP_AUTOPILOT_STAGE_TIMEOUT\n")
-            return {"rc":124,"elapsed_s":round(time.monotonic()-start,3),
-                    "log":str(output)}
+            f.write("\\nSTOP_AUTOPILOT_STAGE_TIMEOUT\\n")
+            f.flush()
+            p.terminate()
+            try:
+                p.wait(timeout=20)
+            except subprocess.TimeoutExpired:
+                p.kill()
+                p.wait()
+            rc=124
+        return {"rc":rc,"pid":p.pid,
+                "elapsed_s":round(time.monotonic()-start,3),
+                "log":str(output)}
+
 
 def check_identity(expected):
     if not WT.is_dir() or not (WT/".git").is_dir():
