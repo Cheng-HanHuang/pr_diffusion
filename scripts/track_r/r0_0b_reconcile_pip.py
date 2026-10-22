@@ -99,20 +99,20 @@ NUMPY_INVENTORY_RUNTIME = "2.4.6"
 
 def numpy_runtime_evidence(python):
     script = (
-        "import hashlib,json,pathlib,numpy as np\\n"
-        "import numpy._core._multiarray_umath as ext\\n"
-        "def digest(path):\\n"
-        "  h=hashlib.sha256()\\n"
-        "  with open(path,'rb') as f:\\n"
-        "    for part in iter(lambda:f.read(4*1024*1024),b''):h.update(part)\\n"
-        "  return h.hexdigest()\\n"
+        "import hashlib,json,pathlib,numpy as np\n"
+        "import numpy._core._multiarray_umath as ext\n"
+        "def digest(path):\n"
+        "  h=hashlib.sha256()\n"
+        "  with open(path,'rb') as f:\n"
+        "    for part in iter(lambda:f.read(4*1024*1024),b''):h.update(part)\n"
+        "  return h.hexdigest()\n"
         "print('R0B_NUMPY_EVIDENCE='+json.dumps({"
         "'version':np.__version__,"
         "'module_sha256':digest(np.__file__),"
         "'extension_sha256':digest(ext.__file__),"
         "'module_path':str(pathlib.Path(np.__file__).resolve()),"
         "'extension_path':str(pathlib.Path(ext.__file__).resolve())},"
-        "sort_keys=True))\\n"
+        "sort_keys=True))\n"
     )
     result = subprocess.run(
         [python, "-c", script], capture_output=True, text=True,
