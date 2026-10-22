@@ -309,13 +309,15 @@ def main():
     for key, pattern in (("S3.candidate", str(safe_path(s3["root"]) / uid / "sitcom/rep0/sitcom1/reconstruction.png")),
                          ("S4.candidate", str(safe_path(s4["root"]) / uid / "rep0/reconstruction.png"))):
         samples[key] = pattern
+    missing_samples = [k for k,p in samples.items() if not p or not safe_path(p).is_file()]
     files = [str(safe_path(p)) for p in samples.values() if p and safe_path(p).is_file()]
     sample_python = safe_path(config["python"]["prdiff_ffhq"])
     if sample_python.is_file() and files:
         r = run([str(sample_python), "-c", SAMPLE_PROBE] + files, timeout=110, env=env)
         line = next((v.split("=",1)[1] for v in r["text"].splitlines() if v.startswith("R0_SAMPLE_JSON=")), None)
-        add("sample_tensors", {"status": "VERIFIED" if line else "WARN",
-                               "paths_requested": samples, "values": json.loads(line) if line else r["text"][-1000:]})
+        add("sample_tensors", {"status": "VERIFIED" if line and not missing_samples else "WARN",
+                               "paths_requested": samples, "missing_samples": missing_samples,
+                               "values": json.loads(line) if line else r["text"][-1000:]})
     else:
         add("sample_tensors", {"status": "WARN", "paths_requested": samples, "reason": "no eligible sample interpreter"})
     # Invariant: every touched path has passed safe_path; no forbidden payload discovery.
