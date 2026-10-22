@@ -302,6 +302,9 @@ def main():
                  {(x["start"],x["count"]) for x in state["completed"]}]
         if len(pending)+len(state["completed"])!=40:
             raise RuntimeError("STOP_R04_4GPU_SHARD_PARTITION")
+        state["status"]="RUNNING_4_GPU"
+        state.pop("error",None)
+        state.pop("traceback",None)
         active={}
         charged=prior
         failing=False
