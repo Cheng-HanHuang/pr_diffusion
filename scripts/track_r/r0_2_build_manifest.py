@@ -237,11 +237,11 @@ def build_s2(cfg,repo_root):
                 raise RuntimeError("STOP_S2_NP_TERMINAL_PROVENANCE "+iid+f" rep{i}")
             rows.append(value("S2_b24_dev80","NP",iid,i,f"rep{i}",
                 terminal,gt,"pt",y,float(met["accepted_psnr_raw_db"]),
-                "B24_RGB8", "selector_plus_mean",
+                "B24_NP_FLOAT_CLAMP", "selector_plus_mean",
                 met.get("selector_plus_mean"),np_rec.get("wall_seconds"),
                 notes=("B24 reused exposed pilot16 NP4 terminal" if reused else
                        "B24 freshly generated DEV80 NP4 terminal") +
-                      "; metrics from accepted frozen repo index",
+                      "; recorded native PSNR is unquantized float; R0 scoring uses RGB8",
                 measurement_sha=r["measurement_file_sha256"]))
     return rows
 
