@@ -22,6 +22,10 @@ def safe_path(value):
     p = Path(str(value))
     if any(token in str(p).lower() for token in FORBIDDEN):
         raise RuntimeError("STOP_FORBIDDEN_PATH_TOKEN")
+    # Also disallow a seemingly safe symlink pointing into a protected tree.
+    resolved = p.resolve(strict=False)
+    if any(token in str(resolved).lower() for token in FORBIDDEN):
+        raise RuntimeError("STOP_FORBIDDEN_SYMLINK_TARGET")
     return p
 
 
@@ -315,8 +319,8 @@ def main():
     if b22_example:
         data = sample_json_paths(b22_example)
         for _, val in (data.get("candidate_fields") or [])[:8]:
-            candidate = safe_path(val) if Path(val).is_absolute() else (
-                safe_path(b22_example).parent / val)
+            candidate = safe_path(val if Path(val).is_absolute() else (
+                safe_path(b22_example).parent / val))
             if candidate.is_file():
                 samples["S1.candidate"] = str(candidate)
                 break
