@@ -103,10 +103,23 @@ def build_s1(cfg):
                               float(fr[f"arm{i}_psnr"]),"B21_FLOAT_CLAMP",
                               "exact_operator_loss",float(fr[f"arm{i}_exact_operator_loss"]),
                               float(fr[f"arm{i}_wall_seconds"]),notes="B21.11 Fresh1/2; recorded order"))
+    b21_by_id={str(int(fr["image_id"])).zfill(5):fr for fr in canonical_b22_rows(cfg)}
     for fam,public_name in (("sitcom","SITCOM"),("np","NP")):
-        for index,fr in enumerate(canonical_b22_rows(cfg)):
-            iid=str(int(fr["image_id"])).zfill(5)
-            rowdir=base/fam/f"row{index:03d}_{iid}"
+        family_root=base/fam
+        # B22 rowNNN ordering is not B21's CSV ordering. Join by image ID.
+        rowdirs=sorted(p for p in family_root.glob("row*") if p.is_dir())
+        if len(rowdirs)!=100:
+            raise RuntimeError("STOP_S1_B22_FAMILY_ROWS "+fam)
+        found=set()
+        for rowdir in rowdirs:
+            assert_no_forbidden(str(rowdir))
+            m=re.fullmatch(r"row[0-9]{3}_(\\d{5})", rowdir.name)
+            if m is None:raise RuntimeError("STOP_S1_B22_ROW_NAME")
+            iid=m.group(1)
+            if iid not in b21_by_id or iid in found:
+                raise RuntimeError("STOP_S1_B22_ID_JOIN "+fam+" "+iid)
+            found.add(iid)
+            fr=b21_by_id[iid]
             candidatedir=clean(rowdir/"policy.json").parent/"candidates"
             candidates=sorted(p for p in candidatedir.iterdir() if p.is_dir())
             for p in candidates:
