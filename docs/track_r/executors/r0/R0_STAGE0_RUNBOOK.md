@@ -76,9 +76,10 @@ bash "$WT/scripts/track_r/r0_0b_create_env_and_assets.sh" "$EXPECTED"
 echo "R0_0B_RC=$?"
 ```
 
-If the pinned UnivFD `fc_weights.pth` is unavailable, R0.0b stops rather
-than fetching an unverified weight URL. Return the full logged failure for
-planner escalation. No script should download to the user home directory.
+If the UnivFD head is missing, R0.0b attempts the public pinned-byte mirror
+(SHA-256 verified before installation). Any unavailable or mismatched asset
+stops the stage for planner escalation. No script downloads to the user home
+directory.
 
 ## R0.1 CPU-only tests (after the target environment exists)
 
