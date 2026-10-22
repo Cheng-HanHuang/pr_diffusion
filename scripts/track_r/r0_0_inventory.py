@@ -231,8 +231,11 @@ def main():
         imports = detail.get("imports", {})
         missing = [k for k, v in imports.items() if not v.get("ok")]
         status = "VERIFIED" if result["rc"] == 0 and line and not missing else "WARN"
+        # With CUDA_VISIBLE_DEVICES='' torch.cuda.get_arch_list() may be [].
+        # A timed-out all-import probe is inconclusive, not a source mismatch.
+        # R0.0a checks torch._C._cuda_getArchFlags() without GPU initialization.
         if name == "fast_dips_a15_blackwell" and not detail.get("torch",{}).get("sm_120"):
-            status = "MISMATCH"
+            status = "WARN"
         add("python." + name, {"status": status, "path": str(py),
                                 "detail": detail, "missing_imports": missing})
     for name, item in config["models"].items():
@@ -318,7 +321,10 @@ def main():
     samples = {}
     if b22_example:
         data = sample_json_paths(b22_example)
-        for _, val in (data.get("candidate_fields") or [])[:8]:
+        # The first path is commonly a measurement, not a candidate.
+        for key, val in (data.get("candidate_fields") or [])[:24]:
+            if not key.rsplit(".",1)[-1].startswith("reconstruction_"):
+                continue
             candidate = safe_path(val if Path(val).is_absolute() else (
                 safe_path(b22_example).parent / val))
             if candidate.is_file():
