@@ -168,6 +168,30 @@ def fast_score_receipts(tasks):
         raise RuntimeError("STOP_R07_FAST_SCORE_GAPS")
     return records,float(s["total_r0_gpu_seconds"])
 
+def validate_historical_task_join(manifest_row,score_task):
+    """Reconcile manifest's optional measurement hash with R0.4's verified hash.
+
+    R0.2 deliberately records a blank measurement_sha256 for certain
+    exposed sources. R0.4 froze and checked the SHA256 of the SAME
+    observation path. Never coerce or ignore a populated mismatch.
+    """
+    if manifest_row is None or manifest_row["uid"]!=score_task["uid"]:
+        raise RuntimeError("STOP_R07_HISTORICAL_JOIN_UID")
+    keys=("source","family","image_id","run_index","candidate_path",
+          "candidate_format","measurement_path")
+    for key in keys:
+        if str(manifest_row[key])!=str(score_task[key]):
+            raise RuntimeError("STOP_R07_HISTORICAL_JOIN_FIELD_"+key.upper())
+    recorded=manifest_row["measurement_sha256"]
+    verified=score_task["measurement_sha256"]
+    if (not isinstance(verified,str) or len(verified)!=64 or
+        any(ch not in "0123456789abcdef" for ch in verified)):
+        raise RuntimeError("STOP_R07_HISTORICAL_JOIN_VERIFIED_SHA")
+    if recorded not in (None,"") and recorded!=verified:
+        raise RuntimeError("STOP_R07_HISTORICAL_JOIN_SHA_MISMATCH")
+    return recorded in (None,"")
+
+
 def join_historical(oldrows,taskrows,scorerefs):
     mapping={r["uid"]:r for r in oldrows}
     if len(mapping)!=2520 or len(taskrows)!=2520:
@@ -175,10 +199,12 @@ def join_historical(oldrows,taskrows,scorerefs):
     out=[]
     for i,t in enumerate(taskrows):
         r=mapping.get(t["uid"])
-        if r is None or any(str(r[key])!=str(t[key]) for key in
-            ("source","family","image_id","run_index","candidate_path",
-             "candidate_format","measurement_path","measurement_sha256")):
-            raise RuntimeError("STOP_R07_ORIGINAL_TASK_GT_JOIN "+t["uid"])
+        try:
+            validate_historical_task_join(r,t)
+        except RuntimeError as exc:
+            raise RuntimeError(
+                "STOP_R07_ORIGINAL_TASK_GT_JOIN "+t["uid"]+
+                " reason="+str(exc)) from exc
         safe(r["gt_path"])
         out.append({
             "uid":t["uid"],"source":t["source"],"family":t["family"],
