@@ -179,7 +179,11 @@ def audit_rows(rows,analysis):
             raise RuntimeError("STOP_R08_LABEL_REPLAY "+uid)
         if abs(r["rho_signed_raw"]-r["rho_signed_repaired"])>1e-4:
             raise RuntimeError("STOP_R08_ORBIT_RESIDUAL "+uid)
-        if not (finite(r["S_repaired"]) and 0<=r["p_fake_repaired"]<=1):
+        if not (finite(r["S_repaired"]) and finite(r["S_img"]) and
+                finite(r["rho_clipped_repaired"]) and
+                finite(r["rho_signed_repaired"]) and
+                finite(r["p_fake_repaired"]) and
+                0<=r["p_fake_repaired"]<=1):
             raise RuntimeError("STOP_R08_PRIOR_OR_DETECTOR_SCORE "+uid)
         by_group[(r["source"],r["family"])].append(r)
         label_counts[expected]+=1
@@ -282,6 +286,8 @@ def independent_auc(labels,scores):
     nneg=len(labels)-npos
     if npos==0 or nneg==0:return None
     pairs=sorted((float(v),bool(y)) for y,v in zip(labels,scores))
+    if any(not math.isfinite(value) for value,_ in pairs):
+        raise RuntimeError("STOP_R08_AUC_NONFINITE")
     positives_rank_sum=0.
     i=0
     while i<len(pairs):
