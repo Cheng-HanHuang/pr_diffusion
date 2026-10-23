@@ -141,3 +141,44 @@ def test_all_new_n0_n1_scripts_are_syntactically_valid():
         "prdiffusion/track_r/r0n_letter.py"):
         path=root/relative
         compile(path.read_text(encoding="utf-8"),str(path),"exec")
+
+
+def test_pillow_fallback_generates_three_real_png_pdf_figures(tmp_path):
+    """Actual plotted data, not placeholder boxes; no matplotlib dependency."""
+    from PIL import Image
+    from prdiffusion.track_r.r0n_figures_pillow import render
+    from prdiffusion.track_r.r0n_letter import cohort
+    a={
+        "cohort":"B22_random","family":"DAPS","n_runs":5,
+        "GOOD":3,"ORBIT_ERROR":1,
+        "NONORBIT_CONSISTENT":1,"NONORBIT_INCONSISTENT":0}
+    b={
+        "cohort":"DEV80_enriched","family":"FAST","n_runs":6,
+        "GOOD":2,"ORBIT_ERROR":2,
+        "NONORBIT_CONSISTENT":1,"NONORBIT_INCONSISTENT":1}
+    sample=[]
+    for i in range(5):
+        sample.append({"image_id":"B","family":"DAPS",
+            "rho_signed_raw":0.01+i*.005})
+    for i in range(6):
+        sample.append({"image_id":"D","family":"FAST",
+            "rho_signed_raw":0.02+i*.007})
+    splits={"B22_random":{"B"},"DEV80_enriched":{"D"}}
+    grid=[
+        {"cohort":"B22_random","success":0.8,
+         "harm":0.0,"forwards":16},
+        {"cohort":"DEV80_enriched","success":1.0,
+         "harm":0.2,"forwards":64}]
+    renderer=render(tmp_path,[a,b],[],grid,grid[1],
+                    sample,splits,cohort)
+    assert "Pillow" in renderer["renderer"]
+    assert renderer["formats"]==["PNG","PDF"]
+    for item in ("N1_FIG1_ANATOMY","N1_FIG2_COST_SUCCESS",
+                 "N1_FIG3_RESIDUAL"):
+        png=tmp_path/"figures"/(item+".png")
+        pdf=tmp_path/"figures"/(item+".pdf")
+        with Image.open(png) as im:
+            assert im.size==(1720,1030)
+            assert im.convert("RGB").getbbox()
+        assert pdf.read_bytes().startswith(b"%PDF-")
+        assert pdf.stat().st_size>1000
