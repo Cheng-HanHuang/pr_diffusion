@@ -162,3 +162,27 @@ def test_offline_gt_catalog_fields_guarded():
     assert analyze.BOOT_N==10000
     assert analyze.GOOD==25 and analyze.BAD==20
     assert prep.FROZEN_PATH.name=="r0_frozen_v1.json"
+
+
+def test_s5_same_image_different_measurements_not_cross_selected():
+    analyzer=module("r0_7_analyze_cpu.py")
+    left={"source":"S5_r0_fast","measurement_source":"S1_b22","image_id":"69073"}
+    right={"source":"S5_r0_fast","measurement_source":"S2_b24_dev80","image_id":"69073"}
+    assert analyzer.measurement_instance_key(left)!=analyzer.measurement_instance_key(right)
+    assert analyzer.measurement_instance_key(left)==("S1_b22","69073")
+
+
+def test_report_has_all_four_registered_primary_sections():
+    analyzer=module("r0_7_analyze_cpu.py")
+    sample={
+        "status":"R0_7_ANALYSIS_COMPLETE","n_candidates":3240,
+        "n_unique_image_ids":180,"aggregate_r0_gpu_hours":3.431,
+        "frozen_spec_sha256":"a"*64,"catalog_sha256":"b"*64,
+        "P1":[],"P2":[],"P3":[],"P4":[],
+        "decision_inputs":{},"tau_unavailable_groups":[],
+        "psnr_replay_anomalies":[]}
+    md=analyzer.generate_report(sample)
+    for section in ("P1 —","P2 —","P3 —","P4 —"):
+        assert section in md
+    assert "retrospective" in md.lower()
+    assert "confirmation305" in md
