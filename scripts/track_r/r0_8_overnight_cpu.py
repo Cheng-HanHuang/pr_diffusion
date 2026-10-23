@@ -607,8 +607,12 @@ def main():
     return 0
 
 if __name__=="__main__":
-    try:sys.exit(main())
-    except BaseException as e:
+    try:
+        rc=main()
+    except Exception as e:
         print("STOP_R08_OVERNIGHT",repr(e),flush=True)
         traceback.print_exc()
         sys.exit(8)
+    # sys.exit raises SystemExit even for success (0). Keep it *outside*
+    # the exception handler so a successful audit exits with shell RC=0.
+    sys.exit(rc)
