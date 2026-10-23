@@ -94,3 +94,29 @@ def test_gt_free_worker_allows_only_locked_canary_for_cross_head():
     assert "gt_path" not in source
     assert "recorded_psnr_db" not in source
     assert "measurement_source" in source
+
+
+def test_candidate_audit_detects_provenance_or_batch_score_drift():
+    p=module("r0_6_parallel_autopilot.py")
+    src={"uid":"S5_r0_fast|FAST|S1_b22_60044|rep0",
+         "measurement_source":"S1_b22",
+         "measurement_sha256":"b"*64,"run_index":0}
+    orbit={f"{i:03b}":0.1+0.01*i for i in range(8)}
+    loss={k:0.01+0.001*i for i,k in enumerate(orbit)}
+    rec={"gt_access":False,"source":"S5_r0_fast",
+         "family":"FAST","run_index":0,
+         "measurement_source":"S1_b22",
+         "measurement_sha256":"b"*64,
+         "unet_forwards":256,"univfd_forwards":9,
+         "s_star":"111","p_fake_orbit":orbit,
+         "prior":{"S":loss},"p_fake_repaired":orbit["111"],
+         "S_repaired":loss["111"],"S_raw":loss["000"],
+         "rho_signed_raw":0.07,"rho_signed_repaired":0.070000001,
+         "rho_clipped_raw":0.066,"rho_clipped_repaired":0.066000001}
+    assert p.check_candidate_consistency(rec,src) is None
+    with pytest.raises(RuntimeError,match="PROVENANCE"):
+        p.check_candidate_consistency(dict(rec,measurement_source="S2_b24_dev80"),src)
+    with pytest.raises(RuntimeError,match="METRIC_DISCREPANCY"):
+        p.check_candidate_consistency(dict(rec,p_fake_repaired=0.0),src)
+    with pytest.raises(RuntimeError,match="CANDIDATE_SCORES"):
+        p.check_candidate_consistency(dict(rec,s_star="999"),src)
