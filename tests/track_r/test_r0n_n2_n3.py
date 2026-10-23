@@ -79,3 +79,33 @@ def test_comprehensive_orchestrator_has_hard_stop_and_no_r1():
         assert value in code
     assert "R1_runs_started" in code
     assert "r0n_all_" in code
+
+
+def test_n0_local_commit_survives_git_push_auth_failure(monkeypatch):
+    controller=mod("r0n_all_autopilot.py")
+    controller.PUSH_ERRORS.clear()
+    observed=[]
+    def fake_git(*parts):
+        observed.append(parts)
+        if parts[0]=="push":
+            raise RuntimeError("authentication unavailable")
+        if parts[:2]==("rev-parse","HEAD"):
+            return "a"*40
+        return ""
+    monkeypatch.setattr(controller,"git",fake_git)
+    monkeypatch.setattr(controller,"clean",lambda:None)
+    assert controller.commit("test/path","archival test")=="a"*40
+    assert len(controller.PUSH_ERRORS)==1
+    assert controller.PUSH_ERRORS[0]["head"]=="a"*40
+    assert observed[0][0]=="add"
+    assert observed[1][0]=="commit"
+    assert observed[-1][0]=="push"
+    controller.PUSH_ERRORS.clear()
+
+
+def test_launcher_warns_on_dry_run_without_failing():
+    file=Path(__file__).resolve().parents[2]/"scripts/track_r/r0n_all_launch.sh"
+    code=file.read_text(encoding="utf-8")
+    assert "R0N_GIT_PUSH_PREFLIGHT_WARNING_LOCAL_FALLBACK" in code
+    assert "STOP_R0N_GIT_PUSH_PERMISSION_OR_REMOTE_DIVERGENCE" not in code
+    assert "R0N_GIT_ORIGINAL_HOME" in code
