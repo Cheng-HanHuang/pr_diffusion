@@ -186,9 +186,16 @@ def run(a):
     if task_sha!=a.tasks_sha:
         raise RuntimeError("STOP_R06_TASK_FILE_SHA")
     payload=json.loads(task_file.read_text())
-    if a.tasks_source_head and a.tasks_source_head!=a.expected_head:
-        raise RuntimeError("STOP_R06_TASKS_PRODUCER_HEAD")
-    rows=validate_input(payload,a.expected_head)[a.start:a.start+a.count]
+    producer=a.tasks_source_head or a.expected_head
+    if producer!=a.expected_head:
+        # Only the exact GT-free frozen canary tasks may cross Git HEADs.
+        canary=(BASE/"r0_6_canary_20261023T020016Z"/"prepare"/
+                "R0_6_GT_FREE_TASKS.json")
+        if (producer!="bc62488aa088ae681cbedd4264fa3a099bed82bb" or
+            task_file!=canary or task_file.is_symlink() or
+            task_sha!="f268e29b482da10aee31f79de43a6bf19d460f4203f7813c46dbee83b0591596"):
+            raise RuntimeError("STOP_R06_UNAPPROVED_TASK_SOURCE")
+    rows=validate_input(payload,producer)[a.start:a.start+a.count]
     cfg=json.loads((WT/"configs/track_r/pac_paths_track_r_v1.json").read_text())
     ffhq=safe(cfg["models"]["ffhq_ddpm"]["path"])
     if sha(ffhq)!=cfg["models"]["ffhq_ddpm"]["sha256"]:
