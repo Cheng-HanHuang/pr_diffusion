@@ -167,16 +167,45 @@ def nvidia_free_mib(device,runner=subprocess.check_output):
         raise RuntimeError("STOP_N2_SELECTED_GPU_MISSING")
     return reported[device]
 
+MIN_FREE_MIB=32768  # Conservative admission gate for CLIP batch 64.
+
+def parse_gpu_inventory(data):
+    """Parse physical-index GPU VRAM/utilization, rejecting incomplete output."""
+    result={}
+    for line in data.splitlines():
+        if not line.strip():continue
+        cells=[cell.strip() for cell in line.split(",")]
+        if len(cells)!=5:
+            raise RuntimeError("STOP_N2_GPU_INVENTORY_FIELDS")
+        index,free,total,used,util=map(int,cells)
+        if (index in result or free<0 or total<=0 or used<0 or
+            free>total or used>total or not 0<=util<=100):
+            raise RuntimeError("STOP_N2_GPU_INVENTORY_INVALID")
+        result[index]={"free_mib":free,"total_mib":total,
+                       "used_mib":used,"util_percent":util}
+    if not result:raise RuntimeError("STOP_N2_GPU_INVENTORY_EMPTY")
+    return result
+
 def check_gpu(device):
-    if (device not in (0,1,2,3) or
-        os.environ.get("CUDA_VISIBLE_DEVICES")!=str(device)):
+    if device not in (0,1,2,3) or os.environ.get("CUDA_VISIBLE_DEVICES")!=str(device):
         raise RuntimeError("STOP_N2_PHYSICAL_GPU_BINDING")
-    mem=nvidia_free_mib(device)
-    print("N2_GPU_ADMISSION",device,"FREE_MIB",mem["free"],
-          "TOTAL_MIB",mem["total"],"MIN_FREE_MIB",MIN_FREE_MIB,
-          flush=True)
-    if mem["free"]<MIN_FREE_MIB:
-        raise RuntimeError("STOP_N2_INSUFFICIENT_FREE_MEMORY "+str(mem))
+    usage=subprocess.check_output(
+       ["nvidia-smi",
+        "--query-gpu=index,memory.free,memory.total,memory.used,utilization.gpu",
+        "--format=csv,noheader,nounits"],text=True,timeout=30)
+    gpus=parse_gpu_inventory(usage)
+    available=gpus.get(device)
+    if available is None or available["free_mib"]<MIN_FREE_MIB:
+        raise RuntimeError("STOP_N2_INSUFFICIENT_FREE_GPU_MEMORY "
+                           +repr(available))
+    # Running alongside other workloads is permitted *only* if there
+    # is substantial measured VRAM headroom; this does not relax the
+    # frozen 900-second aggregate GPU budget. The 64-root canary still
+    # rejects inadequate shared compute throughput.
+    print("R0N_N2_SHARED_GPU_ADMISSION",device,
+          "FREE_MIB",available["free_mib"],
+          "USED_MIB",available["used_mib"],
+          "UTIL",available["util_percent"],flush=True)
     import torch
     if not torch.cuda.is_available() or torch.cuda.device_count()!=1:
         raise RuntimeError("STOP_N2_CUDA_NOT_SINGLE_VISIBLE_DEVICE")
