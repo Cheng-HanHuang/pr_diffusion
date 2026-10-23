@@ -1,0 +1,24 @@
+{
+  "automatic_R1_authorization": false,
+  "decisions_reserved_for": "TRACK_R_SCIENTIFIC_PLANNER",
+  "detect": {
+    "best_prior_minus_univfd": {
+      "DAPS": -0.055354957160342666,
+      "FAST": -0.09594109594109601
+    },
+    "both_at_least_minus_0p02": false,
+    "both_at_least_plus_0p03": false
+  },
+  "material": {
+    "DAPS_orbit_share": 0.13131313131313133,
+    "FAST_orbit_share": 0.03571428571428571,
+    "either_at_least_0p20": false
+  },
+  "provisional_next_scenario": "PLANNER_GREY_ZONE_REVIEW",
+  "repair": {
+    "harm_pooled": 0.0,
+    "numerical_status": "MEETS_PASS_CUTOFFS",
+    "success_pooled": 0.9882352941176471
+  },
+  "status": "PROVISIONAL_NUMERIC_CUTOFFS_ONLY"
+}

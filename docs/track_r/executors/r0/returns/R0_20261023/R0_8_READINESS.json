@@ -1,0 +1,25 @@
+{
+  "candidate_next_scenario": "PLANNER_GREY_ZONE_REVIEW",
+  "frozen_config_sha256": "0e872ed9e89decb989f23090875396fadb7080c231d8f9533bd5a380ae475d04",
+  "head": "df8e5463b4ec598993a179ec3c3dfebf0d91eb9e",
+  "independent_decision_replay": {
+    "pooled_family_p3_auc_groups_checked": 2,
+    "pooled_good": 2040,
+    "pooled_orbit_errors": 85,
+    "pooled_repair_harm": 0.0,
+    "pooled_repair_success": 0.9882352941176471
+  },
+  "n_policy_tables": 37,
+  "n_protected_files_opened": 0,
+  "n_rows": 3240,
+  "n_source_family": 12,
+  "new_gpu_hours": 0,
+  "planner_R1_approval_required": true,
+  "prior_r0_gpu_hours": 3.4309563972961366,
+  "scientific_verdict": "NOT_ISSUED_PLANNER_ONLY",
+  "source_r07_analysis_sha256": "5b4b14fd9d104a7f1d5dd6f228adba9046f7f466ebc7e06f33a7282f575586b6",
+  "source_r07_head": "c6dbd6089579c79e9e6fd4a9dd20fc402bc1185b",
+  "source_r07_rows_sha256": "0c01c80acf54c48771904725bdcf0a7c5f0b966ac168b074c5cb8a5690c6ad59",
+  "source_r07_run": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/r0_7_cpu_20261023T080434Z",
+  "status": "R0_8_CPU_AUDIT_PASS_PLANNER_GATE"
+}
