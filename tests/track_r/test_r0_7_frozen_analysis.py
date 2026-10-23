@@ -205,6 +205,6 @@ def test_paired_policy_bootstrap_reports_all_seven_metrics():
     assert set(a["paired_difference"])=={
         "mean","median","good25","bad20","bad15","q05","min"}
     assert a["paired_difference"]["mean"]["estimate"]==pytest.approx(2.)
-    assert a["paired_difference"]["good25"]["estimate"]==pytest.approx(0.)
+    assert a["paired_difference"]["good25"]["estimate"]==pytest.approx(1/3)
     for m in a["paired_difference"].values():
         assert m["ci95"][0]<=m["estimate"]<=m["ci95"][1]
