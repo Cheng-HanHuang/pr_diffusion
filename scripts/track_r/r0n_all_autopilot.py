@@ -51,6 +51,8 @@ def git(*parts):
     git_home=env.get("R0N_GIT_ORIGINAL_HOME")
     if git_home:
         env["HOME"]=git_home
+    # Nohup/automation must never stall waiting for interactive credentials.
+    env["GIT_TERMINAL_PROMPT"]="0"
     result=subprocess.run(["git","-C",str(WT),*parts],
         capture_output=True,text=True,timeout=120,env=env)
     if result.returncode:
