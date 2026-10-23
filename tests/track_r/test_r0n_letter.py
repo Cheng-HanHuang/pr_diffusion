@@ -131,3 +131,13 @@ def test_cpu_script_only_has_explicit_no_gpu_gate_and_n0_receipt():
     assert "R0_7_SCORED_GT_ROWS.jsonl" in s
     assert "replay_receipts" in s
     assert "n_configurations" in s
+
+
+def test_all_new_n0_n1_scripts_are_syntactically_valid():
+    root=Path(__file__).resolve().parents[2]
+    for relative in (
+        "scripts/track_r/r0n_0_import_tables_cpu.py",
+        "scripts/track_r/r0n_1_letter_tables_cpu.py",
+        "prdiffusion/track_r/r0n_letter.py"):
+        path=root/relative
+        compile(path.read_text(encoding="utf-8"),str(path),"exec")
