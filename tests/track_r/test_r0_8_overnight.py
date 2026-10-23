@@ -172,3 +172,34 @@ def test_independently_rechecked_repair_counts_and_detection_auroc():
     summary["P3"][0]["auroc_higher_means_failure"]["S"]=0.0
     with pytest.raises(RuntimeError,match="P3_AUC_REPLAY"):
         m.audit_reported_decision_inputs(rows,summary)
+
+
+def test_main_guard_exits_zero_on_success_and_eight_on_error():
+    """Regression: SystemExit(0) must not be caught as a failure."""
+    import ast
+    import subprocess
+    import sys
+    m=load_module()
+    code=Path(m.__file__).read_text(encoding="utf-8")
+    tree=ast.parse(code)
+    guard=tree.body[-1]
+    assert isinstance(guard,ast.If)
+    assert isinstance(guard.body[0],ast.Try)
+    assert all(isinstance(handler.type,ast.Name) and
+               handler.type.id=="Exception"
+               for handler in guard.body[0].handlers)
+    assert len(guard.body)>=2
+    program=ast.unparse(guard)
+    ok=subprocess.run(
+        [sys.executable,"-c",
+         "import sys,traceback\nmain=lambda:0\n"+program],
+        text=True,capture_output=True,check=False)
+    assert ok.returncode==0
+    assert "STOP_R08_OVERNIGHT" not in ok.stdout
+    bad=subprocess.run(
+        [sys.executable,"-c",
+         "import sys,traceback\n"
+         "def main(): raise RuntimeError('sentinel')\n"+program],
+        text=True,capture_output=True,check=False)
+    assert bad.returncode==8
+    assert "STOP_R08_OVERNIGHT" in bad.stdout
