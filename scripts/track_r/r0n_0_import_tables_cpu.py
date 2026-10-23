@@ -83,7 +83,7 @@ def materialize(archive,expected_head):
     for name,data in extracted.items():
         with (DEST/name).open("xb") as f:f.write(data)
     sums="".join(f"{FILES[k]}  {k}\n" for k in sorted(FILES))
-    sums+=f"{ZIP_SHA}  R0_8_PLANNER_RETURN.zip (PAC original; not committed)\n"
+    sums+=f"# R0_8_PLANNER_RETURN.zip (PAC original; not committed) SHA256 {ZIP_SHA}\n"
     (DEST/"SHA256SUMS.txt").write_text(sums,encoding="utf-8")
     print("R0N_N0_TABLES_STAGED",len(extracted),"ZIP_SHA",ZIP_SHA,flush=True)
     print("R0N_N0_DEST",DEST,flush=True)
