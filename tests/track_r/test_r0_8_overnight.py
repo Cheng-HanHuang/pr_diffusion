@@ -123,3 +123,52 @@ def test_report_emphasizes_planner_gate_and_exploratory_cases():
     assert "EXPLORATORY" in doc
     assert "3.430956" in doc
     assert "confirmation305" in doc
+
+
+def test_independent_auroc_ties_order_and_one_class():
+    m=load_module()
+    assert m.independent_auc([False,False,True,True],[.1,.2,.3,.4])==pytest.approx(1.)
+    assert m.independent_auc([False,True],[.5,.5])==pytest.approx(.5)
+    assert m.independent_auc([True,True],[.1,.2]) is None
+    assert m.independent_auc([False,True],[.9,.1])==pytest.approx(0.)
+
+
+def test_independently_rechecked_repair_counts_and_detection_auroc():
+    m=load_module()
+    rows=[]
+    for family in ("FAST","DAPS"):
+        for j in range(4):
+            value={
+                "family":family,
+                "raw_label":"ORBIT_ERROR" if j in (0,1) else "GOOD",
+                "psnr_raw":20. if j<2 else 27.,
+                "psnr_repaired":22. if j==0 else 27.,
+                "S_repaired":[.9,.3,.1,.2][j],
+                "S_img":[.2,.1,-.1,.0][j],
+                "p_fake_repaired":[.9,.7,.1,.2][j],
+                "rho_signed_repaired":[.8,.7,.1,.2][j],
+                "rho_clipped_repaired":[.8,.7,.1,.2][j]}
+            rows.append(value)
+    p3=[]
+    for family in ("FAST","DAPS"):
+        group=[x for x in rows if x["family"]==family]
+        labels=[x["psnr_repaired"]<25 for x in group]
+        p3.append({
+            "source":"POOLED_FAMILY","family":family,
+            "subtype":"ALL","n":4,"n_failure":1,
+            "auroc_higher_means_failure":{
+                key:m.independent_auc(labels,[x[field] for x in group])
+                for key,field in (
+                    ("S","S_repaired"),("S_img","S_img"),
+                    ("UnivFD_p_fake","p_fake_repaired"),
+                    ("rho_signed","rho_signed_repaired"),
+                    ("rho_clipped","rho_clipped_repaired"))}})
+    summary={"P3":p3,"decision_inputs":{
+        "D_repair_pooled_success":.5,
+        "D_repair_pooled_harm":0.}}
+    checks=m.audit_reported_decision_inputs(rows,summary)
+    assert checks["pooled_orbit_errors"]==4
+    assert checks["pooled_repair_success"]==.5
+    summary["P3"][0]["auroc_higher_means_failure"]["S"]=0.0
+    with pytest.raises(RuntimeError,match="P3_AUC_REPLAY"):
+        m.audit_reported_decision_inputs(rows,summary)
