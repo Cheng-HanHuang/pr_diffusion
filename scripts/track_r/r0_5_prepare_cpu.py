@@ -132,7 +132,7 @@ def fast_roots(tasks):
             raise RuntimeError("STOP_R05_MEASUREMENT_SHA "+iid)
         for rep in range(4):
             records.append({
-                "uid":f"S5_r0_fast|FAST|{source}|{iid}|rep{rep}",
+                "uid":f"S5_r0_fast|FAST|{source}_{iid}|rep{rep}",
                 "source":"S5_r0_fast","measurement_source":source,
                 "image_id":iid,"rep":rep,
                 "seed":native_seed(source,iid,rep),
