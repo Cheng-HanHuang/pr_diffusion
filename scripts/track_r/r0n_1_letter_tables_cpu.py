@@ -157,7 +157,7 @@ def replay_receipts(records,catalog):
             print("R0N_N1_SCORE_RECEIPTS",i+1,"/3240",flush=True)
     return losses,per_score_wall
 
-def generate_figures(out,n1a,n1c,grid,selection):
+def generate_figures(out,n1a,n1c,grid,selection,records,split):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -204,27 +204,32 @@ def generate_figures(out,n1a,n1c,grid,selection):
     fig.savefig(figdir/"N1_FIG2_COST_SUCCESS.png",dpi=180)
     fig.savefig(figdir/"N1_FIG2_COST_SUCCESS.pdf")
     plt.close(fig)
-    # Fig 3: residual distribution violin by cohort and family,
-    # using true per-run source values loaded earlier in caller.
-    # Distribution is summarized as quantile intervals when only N1c
-    # grouped aggregates are passed; use individual data separately.
-    fig,ax=plt.subplots(figsize=(11,5),constrained_layout=True)
-    selected=[r for r in n1c if r["label"] in ("GOOD","NONORBIT_INCONSISTENT")]
-    x=np.arange(len(selected))
-    for idx,r in enumerate(selected):
-        a=r["signed"]
-        color="#4c78a8" if r["label"]=="GOOD" else "#e45756"
-        ax.plot([idx,idx],[a["q10"],a["q90"]],color=color,lw=4)
-        ax.plot(idx,a["median"],marker="o",color="black",markersize=3)
-    ax.set_xticks(x,[r["cohort"].split("_")[0]+"/"+r["family"]+"\n"+r["label"].split("_")[0]
-                       for r in selected],rotation=60,ha="right",fontsize=7)
-    ax.set_ylabel("Signed residual: q10–q90 and median")
-    ax.set_title("N1c residual quantiles (letter figure precursor)")
+    # Fig 3: actual per-run signed-residual violins, by family
+    # and random/hard-enriched cohort. No GT beyond frozen labels.
+    fig,ax=plt.subplots(figsize=(12,5.2),constrained_layout=True)
+    violins=[]
+    labels=[]
+    pos=[]
+    for name in ("B22_random","DEV80_enriched"):
+        for fam in sorted({r["family"] for r in records}):
+            rr=[r["rho_signed_raw"] for r in records
+                if cohort(r,split)==name and r["family"]==fam]
+            if len(rr)<2:continue
+            violins.append(rr);labels.append(name.replace("_random","").replace("_enriched","")+"\\n"+fam)
+            pos.append(len(pos)+1)
+    artwork=ax.violinplot(violins,positions=pos,
+                         showmedians=True,showextrema=False,points=80)
+    for i,body in enumerate(artwork["bodies"]):
+        body.set_facecolor("#4c78a8" if labels[i].startswith("B22") else "#e45756")
+        body.set_alpha(.65)
+    ax.set_xticks(pos,labels,rotation=45,ha="right",fontsize=8)
+    ax.set_ylabel("Signed measurement residual (raw candidate)")
+    ax.set_title("N1c: per-run residual distributions by cohort and family")
     fig.savefig(figdir/"N1_FIG3_RESIDUAL.png",dpi=180)
     fig.savefig(figdir/"N1_FIG3_RESIDUAL.pdf")
     plt.close(fig)
     return {"fig1":"stacked fraction","fig2":"cost-success scatter",
-            "fig3":"q10-median-q90 intervals, not literal violin"}
+            "fig3":"signed-residual per-run violin"}
 
 def n1_costs(records,per_score_wall,chosen):
     def summarize(values):
@@ -376,7 +381,7 @@ def main():
                       ("N1d_PAIRED_VARIANCE",variance),("N1e_COSTS",n1e["by_source_family"]),
                       ("N1f_CONDITIONAL_DETECTION",n1f),("N1g_TABLE2",n1g)):
         csv_table(out/(key+".csv"),items)
-    figures=generate_figures(out,n1a,n1c,grid,selected)
+    figures=generate_figures(out,n1a,n1c,grid,selected,records,ids)
     write_report(out,evidence,figures)
     receipt={"status":"R0N_N1_CPU_EVIDENCE_PASS","head":a.expected_head,
              "rows":3240,"n_configurations":len(configs),
