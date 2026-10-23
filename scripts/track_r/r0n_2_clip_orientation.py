@@ -192,6 +192,10 @@ def clip_score(args):
     u_root=Path(source["external"]["univfd"]["path"])
     if u_root.is_symlink() or not (u_root/"models/clip").is_dir():
         raise RuntimeError("STOP_N2_UNIVFD_EXTERNAL_PATH")
+    observed_head=subprocess.check_output(
+        ["git","-C",str(u_root),"rev-parse","HEAD"],text=True,timeout=30).strip()
+    if observed_head!=source["external"]["univfd"]["commit"]:
+        raise RuntimeError("STOP_N2_UNIVFD_SOURCE_COMMIT_CHANGED")
     if str(u_root) not in sys.path:sys.path.insert(0,str(u_root))
     clip=importlib.import_module("models.clip")
     model,preprocess=clip.load(str(clip_path),device="cuda:0",jit=False)
