@@ -172,3 +172,86 @@
 - **R1 / R2:** CANCELLED.
 - **T1:** parked.
 - **Letter:** planned (see [LETTER_PLAN.md](LETTER_PLAN.md)).
+
+---
+
+## 7. Addendum — planner verification of the R0.8 ZIP (2026-10-23, afternoon)
+
+Cheng uploaded `R0_8_PLANNER_RETURN.zip`.
+- SHA-256 `13c008f3…efab` matches; `testzip` is clean.
+- File hashes match the receipts: analysis `5b4b14fd…86b6`; report `10a9ac82…d738`.
+- Every number in §0–§4 reconciles with the full tables.
+
+What the full tables add:
+
+**1. Failure anatomy per family (single runs)**
+
+| Family | Orbit | Measurement-consistent | Measurement-inconsistent | Failures |
+|---|---|---|---|---|
+| DAPS | 26 (13%) | 18 (9%) | 154 (78%) | 198 |
+| FAST | 11 (4%) | 23 (7%) | 274 (89%) | 308 |
+| SITCOM | 25 (8%) | 180 (57%) | 109 (35%) | 314 |
+| NP | 22 (6%) | 102 (28%) | 235 (65%) | 359 |
+
+- SITCOM's τ (0.0449) is below the noise level σ = 0.05: even its good runs fit the measurement below the noise floor. Over half of its failures are wrong images that fit the measurement just as well.
+- On the random B22 cohort, DAPS had **zero** measurement-consistent failures (0/35).
+
+**2. GT-free protocol versus the field's GT best-of-K.** The field convention is O_raw: best of K by GT, with no orientation alignment, as used by DAPS, SITCOM and FAST-DIPS. Comparing E1 against O_raw at maximal K:
+
+| Stratum | Good25 difference (E1 − O_raw) | Mean PSNR difference |
+|---|---|---|
+| B22 DAPS, K=2 | +3 images | +0.65 dB |
+| B22 SITCOM, K=4 | −1 (E2: +1) | −0.02 dB |
+| B22 NP, K=8 | −2 | −0.28 dB |
+| DEV80 DAPS, K=4 | +1 | 0.00 dB |
+| DEV80 SITCOM, K=4 | +3 | +0.58 dB |
+| DEV80 NP, K=4 | −1 | −0.21 dB |
+| FAST (180 images), K=4 | 0 | −0.01 dB |
+
+**The GT-free protocol matches the GT oracle the field reports, within ±3 images, and beats it wherever orientation errors occur.** This is a stronger and cleaner letter headline than "within 0–2 images of O_orbit" (which also holds).
+
+**3. Repair is cheap.**
+- Pre-registered per-timestep secondary results: any single t ∈ {200, …, 700} with 4 draws over 8 members repairs 100% of orbit errors with 0 harm, in every family. That is 32 forwards, or 8 if only identity versus global 180° is scored.
+- t = 50 fails (≈0–40% success, with up to 37% harm on NP); t = 100 gives 80–86%.
+- Compare this with FAST's ~150 denoiser calls per run. Repair is close to free. N1d will select the configuration formally (DEV80 → B22).
+
+**4. Mechanism for both main results: the complexity bias cancels within the orbit.**
+- Among GOOD runs, Spearman correlation(S, high-frequency energy) = 0.46 (DAPS), 0.43 (FAST), 0.30 (NP), 0.19 (SITCOM). The denoising-loss score is confounded by image complexity across candidates. This is the known likelihood/complexity effect (Serrà et al., arXiv:1909.11480, ICLR 2020).
+- Every orbit member has exactly the same Fourier magnitudes, so any complexity statistic that depends only on the power spectrum is constant over the orbit.
+- Hence the same score is a near-perfect orbit selector but a mediocre failure detector across candidates.
+- This is a planner hypothesis with supporting correlation, not a tested claim. The letter states it as an explanation.
+
+**5. Conditional detection.**
+- SITCOM's measurement-consistent failures (n = 180): prior AUROC 0.902, UnivFD 0.856, clipped residual 0.832, signed residual 0.490. The signed residual is at chance by construction.
+- NP's measurement-consistent failures (n = 102): UnivFD 0.957 beats the prior's 0.861.
+- No universal winner. Exploratory only; consistent with D1.
+
+**6. UnivFD per family.**
+
+| Family | Orbit errors fixed | Good outputs harmed |
+|---|---|---|
+| DAPS | 15/26 | 30/354 |
+| FAST | 4/11 | 55/444 |
+| SITCOM | 23/25 | 51/438 |
+| NP | 19/22 | 78/761 |
+
+On FAST it is worse than chance at the orbit task.
+
+**7. Remaining prior misses are marginal.**
+- The single primary miss (NP 62739) has its best orbit member at 25.10 dB.
+- The largest "harms" are on already-bad runs; for example, NP 67520 goes from 19.8 to 10.9 dB.
+- In the letter, state that orbit choice is meaningful only when a good orbit member exists.
+
+**8. New validity question: checkpoint training membership.**
+- B22 ids are in the 60000–69999 range, which is FFHQ's "validation" category. DEV80 includes "training"-category ids (e.g. 02763, 24322, 59646).
+- I could not confirm which FFHQ images `ffhq_10m.pt` was trained on. The DPS README is silent.
+- If evaluation images were in training, the prior could recognize the upright face by memorization.
+- Repair is 100% on B22 as well (DAPS 7/7, SITCOM 14/14, NP 20/20 with S_mid), which argues against memorization if B22 was held out.
+- Added to R0-N as N1h (category lookup per id) plus a checkpoint-provenance check. Cheng may already know this from SITCOM.
+
+**Kill-criterion status:**
+- **K1** is not triggered: on B22, repair fixes 3 DAPS and 5 SITCOM post-selection failures.
+- **K2** is pending N2.
+- **K3** is satisfied by this independent replay of the ZIP tables; the executor's on-PAC replay is still required.
+
+Ledger unchanged.

@@ -1,6 +1,10 @@
 # Letter plan — "What best-of-K hides in diffusion phase retrieval"
 
-**Status:** PLAN v1, 2026-10-23, planner Claude. Numbers marked ⟨…⟩ come from R0-N.
+**Status:** PLAN v1.1, 2026-10-23, planner Claude. v1.1 updates §1–§2 after the planner checked the R0.8 tables (decision §7). Numbers marked ⟨…⟩ come from R0-N.
+
+**Working title candidates:**
+- "Do we need ground truth to evaluate diffusion phase retrieval? Failure anatomy and exact-symmetry repair"
+- "What best-of-K hides in diffusion phase retrieval"
 
 **Owner of the draft:** planner. Cheng edits; coauthors are decided by Cheng.
 
@@ -20,19 +24,31 @@ Diffusion-prior Fourier phase retrieval papers report the best of four runs chos
 
 For group 3, the posterior ratio equals the prior ratio, and a paired-noise denoising-loss test using the solver's own diffusion prior fixes 98.8–100% of cases with zero observed harm. A learned realness detector of the kind used for failure detection in FA-FPR fixes 73% and harms 10.8% of good outputs.
 
-With signed-residual selection plus prior repair, deployable Good25 is within 0–2 images of the GT oracle in every stratum. What remains are generation failures. We recommend reporting the deployable number.
+The same score is only a mediocre failure detector across candidates (AUROC 0.83–0.86 on DAPS/FAST). One mechanism explains both results:
+- the denoising loss tracks image complexity (Spearman 0.43–0.46 with high-frequency energy among good DAPS/FAST outputs);
+- orbit members share one power spectrum, so this complexity confound cancels exactly inside the orbit.
+
+**Headline.** Signed-residual selection plus prior repair is a fully GT-free protocol. It matches the GT best-of-K the field reports (no alignment) within ±3 images Good25 and ±0.3 dB mean, and exceeds it wherever orientation errors occur:
+- B22 DAPS, K=2: +3 images, +0.65 dB;
+- DEV80 SITCOM, K=4: +3 images, +0.58 dB;
+- FAST, K=4: equal.
+
+It is also within 0–2 images of the GT orbit oracle. What remains are generation failures. We recommend reporting the GT-free number.
 
 ## 2. Contributions (allowed claims)
 
 1. A failure anatomy of DAPS, SITCOM, FAST-DIPS and NP under deployable selection, on a random cohort and a hard-enriched cohort. We are not aware of a comparable cross-family analysis; this must be re-checked at writing time.
 2. GT-free exact-symmetry repair with the solver's own prior:
-   - a proposition (posterior ratio = prior ratio on the orbit, for any magnitude-noise model);
+   - a proposition (posterior ratio = prior ratio on the orbit, for any magnitude-noise model; any power-spectrum statistic is orbit-invariant, so complexity bias cancels);
    - a paired-noise estimator, with its variance reduction ⟨factor⟩;
-   - a cost–accuracy curve: ⟨cheapest dev-selected configuration, its forwards, its accuracy on the B22 evaluation split⟩.
-3. Evidence that the deployable protocol nearly closes the gap to the GT oracle, and that what remains is generation failure.
-4. Negative findings:
+   - a cost–accuracy curve: ⟨cheapest dev-selected configuration, its forwards, its accuracy on the B22 evaluation split⟩. Pre-registered per-t results already show 32 forwards suffice in every family (decision §7).
+3. Evidence that a fully GT-free protocol matches the field's GT best-of-K, and that what remains is generation failure.
+4. Solver-specific failure modes: measurement-consistent wrong reconstructions are 57% of SITCOM's failures, 28% of NP's, 9% of DAPS's and 7% of FAST's.
+5. Negative findings:
    - realness detectors are unreliable for orientation and inferior to the signed residual as post-hoc failure detectors on DAPS and FAST;
    - the clipped residual misranks.
+
+**Open validity item (before writing):** which FFHQ images `ffhq_10m.pt` was trained on (R0-N N1h). If B22 ids were in training, state it as a limitation and rely on the held-out subset if one exists. The literature to cite for the complexity effect (Serrà et al., ICLR 2020; Nalisnick et al., ICLR 2019) must be re-read before citing.
 
 ## 3. Not allowed
 
@@ -76,12 +92,15 @@ With signed-residual selection plus prior repair, deployable Good25 is within 0�
 
 | Item | Source | Status |
 |---|---|---|
-| Anatomy (pooled) | R0.7 | have |
-| Anatomy by cohort, per-family consistent counts | R0-N N1a | pending |
-| Repair success/harm: S, S_mid, UnivFD | R0.7 | have |
+| Anatomy (pooled and per source, including per-family consistent counts) | R0.7 / R0.8 ZIP | have (planner-verified) |
+| Anatomy by image cohort, with S5 split into B22 and DEV80 | R0-N N1a | pending |
+| Repair success/harm: S, S_mid, UnivFD; per-t repair | R0.7 / R0.8 ZIP | have (planner-verified) |
+| Deployable vs O_raw / O_orbit for S1–S5 strata | R0.8 P4 matrix | have (planner-verified); FAST split by cohort pending N1g |
+| Complexity correlation (Spearman of S with high-frequency energy) | R0.7 secondary | have |
+| Checkpoint training membership of evaluation ids | R0-N N1h | pending |
 | Cheap configuration (dev→eval) and paired-variance factor | R0-N N1d | pending |
 | CLIP zero-shot baseline | R0-N N2 | pending (optional, recommended) |
-| Deployable vs oracle, including O_raw | R0-N N1b / N1g | pending |
+| Post-selection decomposition with image identities; cohort-split tables | R0-N N1b / N1g | pending |
 | Residual distributions | R0-N N1c | pending |
 | Costs | R0-N N1e | pending |
 | Conditional detection (exploratory) | R0-N N1f | pending |
