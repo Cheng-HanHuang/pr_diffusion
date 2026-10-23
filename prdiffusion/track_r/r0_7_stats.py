@@ -140,6 +140,42 @@ def clustered_paired_ci(a,b,analysis_id,reps=BOOT_N):
             "ci95":[float(v) for v in np.quantile(values,[0.025,0.975])],
             "n_images":len(ids)}
 
+def clustered_policy_metric_ci(a,b,analysis_id,reps=BOOT_N):
+    """Seven paired policy metrics; resample images, not individual runs."""
+    if set(a)!=set(b):raise ValueError("unpaired policy images")
+    if not a:return None
+    ids=sorted(a)
+    x=np.asarray([float(a[k]) for k in ids])
+    y=np.asarray([float(b[k]) for k in ids])
+    metrics=("mean","median","good25","bad20","bad15","q05","min")
+    def measure(values):
+        return {
+            "mean":np.mean(values,axis=-1),
+            "median":np.median(values,axis=-1),
+            "good25":np.mean(values>=GOOD,axis=-1),
+            "bad20":np.mean(values<BAD,axis=-1),
+            "bad15":np.mean(values<CATASTROPHIC,axis=-1),
+            "q05":np.quantile(values,.05,axis=-1,method="linear"),
+            "min":np.min(values,axis=-1)}
+    ma=measure(x);mb=measure(y)
+    estimates={k:float(ma[k]-mb[k]) for k in metrics}
+    rng=seeded_rng(analysis_id)
+    stored={k:[] for k in metrics}
+    for start in range(0,reps,1000):
+        n=min(1000,reps-start)
+        idx=rng.integers(0,len(ids),(n,len(ids)))
+        va=measure(x[idx]);vb=measure(y[idx])
+        for k in metrics:
+            stored[k].append(va[k]-vb[k])
+    return {
+        "n_images":len(ids),"replicates":reps,
+        "paired_difference":{
+            k:{"estimate":estimates[k],"ci95":[
+                float(v) for v in np.quantile(
+                    np.concatenate(stored[k]),[0.025,0.975])]}
+            for k in metrics}}
+
+
 def exact_mcnemar(a,b,threshold=GOOD):
     """Two-sided exact McNemar p-value from discordant Good25 outcomes."""
     if set(a)!=set(b):raise ValueError("unpaired images")
@@ -163,30 +199,33 @@ def summarize_psnr(values):
         "min":float(a.min())}
 
 def select_e(group,k,tau):
-    """The frozen E0/E1/E2/E3 and both GT ceilings for one image and K."""
-    if tau is None:return None
+    """E0/E1/GT are valid even if no GOOD rows exist to calibrate E2/E3."""
     candidates=sorted(group,key=lambda r:(r["run_index"],r["uid"]))
     if len(candidates)<k:return None
     selected=candidates[:k]
     if len({r["run_index"] for r in selected})!=k:
         raise RuntimeError("STOP_R07_DUPLICATE_RUN_ORDER")
     e0=min(selected,key=lambda r:(r["rho_signed_raw"],r["run_index"]))
-    e2_feasible=[r for r in selected if r["rho_signed_repaired"]<=tau]
-    # Frozen empty-feasible fallback: smallest signed measurement residual.
-    e2=min(e2_feasible,key=lambda r:(r["S_repaired"],r["run_index"])) if e2_feasible else min(
-        selected,key=lambda r:(r["rho_signed_repaired"],r["run_index"]))
-    e3=min(e2_feasible,key=lambda r:(r["p_fake_repaired"],r["run_index"])) if e2_feasible else min(
-        selected,key=lambda r:(r["rho_signed_repaired"],r["run_index"]))
     result={
         "E0":float(e0["psnr_raw"]),
         "E1":float(e0["psnr_repaired"]),
-        "E2":float(e2["psnr_repaired"]),
-        "E3":float(e3["psnr_repaired"]),
         "O_raw":max(float(r["psnr_raw"]) for r in selected),
         "O_orbit":max(float(r["psnr_orbit_best"]) for r in selected)}
-    return {"psnr":result,"uids":{
-        "E0":e0["uid"],"E1":e0["uid"],
-        "E2":e2["uid"],"E3":e3["uid"]},
+    selected_uid={"E0":e0["uid"],"E1":e0["uid"]}
+    if tau is None:
+        result.update(E2=None,E3=None)
+        selected_uid.update(E2=None,E3=None)
+        return {"psnr":result,"uids":selected_uid,
+                "empty_feasible":None,"n_feasible":None}
+    e2_feasible=[r for r in selected if r["rho_signed_repaired"]<=tau]
+    fallback=min(selected,key=lambda r:(r["rho_signed_repaired"],r["run_index"]))
+    e2=min(e2_feasible,key=lambda r:(r["S_repaired"],r["run_index"])) if e2_feasible else fallback
+    e3=min(e2_feasible,key=lambda r:(r["p_fake_repaired"],r["run_index"])) if e2_feasible else fallback
+    result["E2"]=float(e2["psnr_repaired"])
+    result["E3"]=float(e3["psnr_repaired"])
+    selected_uid["E2"]=e2["uid"]
+    selected_uid["E3"]=e3["uid"]
+    return {"psnr":result,"uids":selected_uid,
         "empty_feasible":not bool(e2_feasible),
         "n_feasible":len(e2_feasible)}
 
