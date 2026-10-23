@@ -64,8 +64,11 @@ for name in (
   "r0n_3_imagenet_inventory_cpu.py",
   "r0n_all_autopilot.py"):
     ast.parse((root/name).read_text(),filename=str(root/name))
-ast.parse(pathlib.Path("prdiffusion/track_r/r0n_letter.py").read_text())
-print("R0N_STATIC_PYTHON_SYNTAX_PASS 6 scripts")
+for name in ("r0n_letter.py","r0n_figures_pillow.py"):
+    ast.parse((pathlib.Path("prdiffusion/track_r")/name).read_text(),
+              filename=name)
+from PIL import Image
+print("R0N_STATIC_PYTHON_SYNTAX_PASS 7 modules PILLOW",Image.__version__)
 PY
 RC=$?
 if [ "$RC" -ne 0 ]; then echo "STOP_R0N_SYNTAX_RC=$RC";exit "$RC";fi
