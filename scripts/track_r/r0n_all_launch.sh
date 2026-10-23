@@ -21,6 +21,15 @@ if [ "$(git -C "$WT" rev-parse HEAD)" != "$EXPECTED" ] ||
    [ -n "$(git -C "$WT" status --porcelain)" ]; then
   echo STOP_R0N_BAD_HEAD_OR_DIRTY; exit 6
 fi
+# Two commits and two branch pushes are part of this unattended handoff.
+# Check author identity and permission to push before touching N0 files.
+git -C "$WT" var GIT_AUTHOR_IDENT >/dev/null 2>&1 || {
+  echo STOP_R0N_GIT_AUTHOR_IDENTITY; exit 6;
+}
+git -C "$WT" push --dry-run origin "HEAD:refs/heads/$BRANCH" >/dev/null 2>&1 || {
+  echo STOP_R0N_GIT_PUSH_PERMISSION_OR_REMOTE_DIVERGENCE; exit 6;
+}
+echo R0N_GIT_PUSH_DRY_RUN_PASS
 mkdir -p "$BASE/logs" "$CACHE/home" "$CACHE/tmp" "$CACHE/config" \
  "$CACHE/data" "$CACHE/state" "$CACHE/torch" "$CACHE/hf" "$CACHE/pip"
 export PYTHONPATH="$WT"
