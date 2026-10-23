@@ -167,7 +167,7 @@ def nvidia_free_mib(device,runner=subprocess.check_output):
         raise RuntimeError("STOP_N2_SELECTED_GPU_MISSING")
     return reported[device]
 
-MIN_FREE_MIB=32768  # Conservative admission gate for CLIP batch 64.
+MIN_FREE_MIB=40960  # Shared-GPU admission: require at least 40 GiB free VRAM.
 
 def parse_gpu_inventory(data):
     """Parse physical-index GPU VRAM/utilization, rejecting incomplete output."""
