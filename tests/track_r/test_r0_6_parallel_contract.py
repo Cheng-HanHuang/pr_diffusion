@@ -33,14 +33,18 @@ def test_aggregate_budget_charges_simultaneous_gpus():
     p=module("r0_6_parallel_autopilot.py")
     active={0:{"began":10.},1:{"began":10.},
             2:{"began":15.},3:{"began":18.}}
-    assert p.active_seconds(active,20.)==47.
+    # At t=20, these four workers used 10 + 10 + 5 + 2 = 27 GPU-s.
+    # This sum counts overlap correctly, rather than elapsed wall time.
+    assert p.active_seconds(active,20.)==27.
+    all_four={i:{"began":10.} for i in range(4)}
+    assert p.active_seconds(all_four,20.)==40.
     prior=2.84538*3600
     canary=29.908
     added=123.
     remaining=p.remaining_budget(added,active,20.,prior,canary)
     assert remaining==pytest.approx(
-        min(4*3600-canary-added-47.,
-            16*3600-prior-canary-added-47.))
+        min(4*3600-canary-added-27.,
+            16*3600-prior-canary-added-27.))
     assert p.remaining_budget(14400,{},20.,prior,canary)<0
     assert p.remaining_budget(0,{},20.,16*3600,canary)<0
 
@@ -79,7 +83,7 @@ def test_resume_rejects_meta_drift_and_old_head(tmp_path):
     (folder/"R0_6_SHARD_META.json").write_text(json.dumps({
         "start":999,"count":64,"gpu":1
     }))
-    with pytest.raises(RuntimeError,match="META_DRIFT"):
+    with pytest.raises(RuntimeError,match="RETRY_METADATA_DRIFT"):
         p.compatible_next([first],1,tmp_path)
 
 
