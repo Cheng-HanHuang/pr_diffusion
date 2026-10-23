@@ -54,7 +54,8 @@ def git(*parts):
     # Nohup/automation must never stall waiting for interactive credentials.
     env["GIT_TERMINAL_PROMPT"]="0"
     result=subprocess.run(["git","-C",str(WT),*parts],
-        capture_output=True,text=True,timeout=120,env=env)
+        capture_output=True,text=True,
+        timeout=30 if parts and parts[0]=="push" else 120,env=env)
     if result.returncode:
         raise RuntimeError("STOP_R0N_GIT "+result.stdout[-300:]+result.stderr[-300:])
     return result.stdout.strip()
