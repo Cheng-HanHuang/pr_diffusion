@@ -9,6 +9,10 @@ CACHE="$ROOT/outputs/.cache/track_r"
 PY="$ROOT/conda-envs/prdiff_track_r/bin/python"
 BRANCH=codex/prdiff-track-r-r0n-20261023
 EXPECTED="${1:-}"
+RESUME_N0="${2:-}"
+if [ -n "$RESUME_N0" ] && [ "$RESUME_N0" != "--resume-n0" ]; then
+  echo STOP_R0N_UNRECOGNIZED_ARGUMENT; exit 3
+fi
 
 if [ -z "$EXPECTED" ]; then echo STOP_N0N_MISSING_PIN; exit 3; fi
 if [ ! -x "$PY" ]; then echo STOP_R0N_NO_PYTHON; exit 4; fi
@@ -121,7 +125,8 @@ RUN="$BASE/r0n_all_$STAMP"
 LOG="$BASE/logs/r0n_all_$STAMP.log"
 if [ -e "$RUN" ];then echo STOP_R0N_RUN_ALREADY_EXISTS;exit 9;fi
 CUDA_VISIBLE_DEVICES="" nohup "$PY" -u scripts/track_r/r0n_all_autopilot.py \
- --expected-head "$EXPECTED" --physical-gpu "$GPU" --out "$RUN" > "$LOG" 2>&1 &
+ --expected-head "$EXPECTED" --physical-gpu "$GPU" --out "$RUN" \
+ ${RESUME_N0:+"$RESUME_N0"} > "$LOG" 2>&1 &
 PID=$!
 printf '%s\n' "$RUN" > "$BASE/LATEST_R0N_ALL_RUN"
 printf '%s\n' "$PID" > "$BASE/logs/r0n_all_$STAMP.pid"
