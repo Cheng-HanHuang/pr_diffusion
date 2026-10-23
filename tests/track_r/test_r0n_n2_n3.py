@@ -109,3 +109,29 @@ def test_launcher_warns_on_dry_run_without_failing():
     assert "R0N_GIT_PUSH_PREFLIGHT_WARNING_LOCAL_FALLBACK" in code
     assert "STOP_R0N_GIT_PUSH_PERMISSION_OR_REMOTE_DIVERGENCE" not in code
     assert "R0N_GIT_ORIGINAL_HOME" in code
+
+
+def test_n2_shared_gpu_admission_parses_available_memory():
+    n=mod("r0n_2_clip_orientation.py")
+    usage="0, 76543, 98304, 21761, 89\n1, 76621, 98304, 21683, 97\n"
+    observed=n.parse_gpu_inventory(usage)
+    assert observed[0]["free_mib"]>n.MIN_FREE_MIB
+    assert observed[1]["util_percent"]==97
+    assert n.MIN_FREE_MIB==40960
+    with pytest.raises(RuntimeError,match="INVENTORY_FIELDS"):
+        n.parse_gpu_inventory("1, 70000\n")
+    with pytest.raises(RuntimeError,match="INVENTORY_INVALID"):
+        n.parse_gpu_inventory("0, 90000, 50000, 5000, 50\n")
+
+def test_r0n_resume_n0_checks_all_original_shas_and_tracking():
+    src=(Path(__file__).resolve().parents[2]/
+         "scripts/track_r/r0n_all_autopilot.py").read_text()
+    assert 'p.add_argument("--resume-n0"' in src
+    assert 'STOP_R0N_N0_NOT_TRACKED' in src
+    assert 'STOP_R0N_N0_SOURCE_SHA' in src
+    assert 'R0N_N0_REUSED_SHA_VERIFIED' in src
+    assert "if not a.resume_n0:" in src
+    launcher=(Path(__file__).resolve().parents[2]/
+              "scripts/track_r/r0n_all_launch.sh").read_text()
+    assert 'RESUME_N0="${2:-}"' in launcher
+    assert '"--resume-n0"' in launcher
