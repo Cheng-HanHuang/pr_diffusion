@@ -55,6 +55,12 @@ def audit(expected_head,out):
     grep_names=[]
     grep_status="FAST_REPO_MISSING"
     if FAST_REPO.is_dir() and not FAST_REPO.is_symlink():
+        frozen=ROOT/"pr_diffusion_track_r/configs/track_r/pac_paths_track_r_v1.json"
+        pinned=json.loads(frozen.read_text(encoding="utf-8"))["external"]["fast_dips"]["commit"]
+        observed=subprocess.check_output(
+            ["git","-C",str(FAST_REPO),"rev-parse","HEAD"],text=True,timeout=30).strip()
+        if observed!=pinned:
+            raise RuntimeError("STOP_R0N_N3_FAST_SOURCE_CHANGED")
         # Use git ls-files with config-related patterns; never recurse
         # into data, assets, model checkpoints, or image directories.
         config_paths=subprocess.run(
