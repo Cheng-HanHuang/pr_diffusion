@@ -208,3 +208,37 @@ def test_paired_policy_bootstrap_reports_all_seven_metrics():
     assert a["paired_difference"]["good25"]["estimate"]==pytest.approx(1/3)
     for m in a["paired_difference"].values():
         assert m["ci95"][0]<=m["estimate"]<=m["ci95"][1]
+
+
+def test_historical_join_optional_sha_reconciliation_is_fail_closed():
+    prep=module("r0_7_prepare_cpu.py")
+    t={
+        "uid":"S1_b22|DAPS|61978|fresh1",
+        "source":"S1_b22","family":"DAPS",
+        "image_id":"61978","run_index":0,
+        "candidate_path":"/exposed/native/61978/terminal.pt",
+        "candidate_format":"pt",
+        "measurement_path":"/exposed/b21/61978/measurement.pt",
+        "measurement_sha256":"a"*64}
+    original=dict(t,measurement_sha256=None)
+    assert prep.validate_historical_task_join(original,t) is True
+    original["measurement_sha256"]=""
+    assert prep.validate_historical_task_join(original,t) is True
+    original["measurement_sha256"]="a"*64
+    assert prep.validate_historical_task_join(original,t) is False
+    original["measurement_sha256"]="b"*64
+    with pytest.raises(RuntimeError,match="SHA_MISMATCH"):
+        prep.validate_historical_task_join(original,t)
+    original["measurement_sha256"]=None
+    original["candidate_path"]="/other/terminal.pt"
+    with pytest.raises(RuntimeError,match="FIELD_CANDIDATE_PATH"):
+        prep.validate_historical_task_join(original,t)
+    original["candidate_path"]=t["candidate_path"]
+    original["measurement_path"]="/different/y.pt"
+    with pytest.raises(RuntimeError,match="FIELD_MEASUREMENT_PATH"):
+        prep.validate_historical_task_join(original,t)
+    original["measurement_path"]=t["measurement_path"]
+    with pytest.raises(RuntimeError,match="VERIFIED_SHA"):
+        prep.validate_historical_task_join(original,dict(t,measurement_sha256="bad"))
+    with pytest.raises(RuntimeError,match="JOIN_UID"):
+        prep.validate_historical_task_join(None,t)
