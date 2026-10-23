@@ -64,6 +64,38 @@ def verify_git(expected):
     if not PY.is_file() or os.environ.get("PYTHONDONTWRITEBYTECODE")!="1":
         raise RuntimeError("STOP_R06_PARALLEL_ENV")
 
+def check_candidate_consistency(r,row):
+    """GT-free numerical and provenance audit for any scorer receipt."""
+    if (r.get("gt_access") is not False or
+        r.get("measurement_source")!=row["measurement_source"] or
+        r.get("measurement_sha256")!=row["measurement_sha256"] or
+        r.get("source")!="S5_r0_fast" or r.get("family")!="FAST" or
+        r.get("run_index")!=row["run_index"] or
+        r.get("unet_forwards")!=256 or
+        r.get("univfd_forwards") not in (9,17)):
+        raise RuntimeError("STOP_R06_CANDIDATE_PROVENANCE "+row["uid"])
+    orbit=r.get("p_fake_orbit",{})
+    prior=r.get("prior",{}).get("S",{})
+    s=r.get("s_star")
+    if (s not in orbit or set(orbit)!={
+          "000","001","010","011","100","101","110","111"} or
+        set(prior)!=set(orbit) or
+        any(not math.isfinite(float(q)) for q in
+            (*orbit.values(),*prior.values()))):
+        raise RuntimeError("STOP_R06_CANDIDATE_SCORES "+row["uid"])
+    for key in ("p_fake_repaired","S_repaired","S_raw",
+                "rho_signed_raw","rho_signed_repaired",
+                "rho_clipped_raw","rho_clipped_repaired"):
+        if not math.isfinite(float(r[key])):
+            raise RuntimeError("STOP_R06_CANDIDATE_NONFINITE "+row["uid"])
+    if (abs(float(r["p_fake_repaired"])-float(orbit[s]))>1e-5 or
+        abs(float(r["S_repaired"])-float(prior[s]))>1e-7 or
+        abs(float(r["S_raw"])-float(prior["000"]))>1e-7 or
+        abs(float(r["rho_signed_raw"])-float(r["rho_signed_repaired"]))>1e-4 or
+        abs(float(r["rho_clipped_raw"])-float(r["rho_clipped_repaired"]))>1e-4):
+        raise RuntimeError("STOP_R06_CANDIDATE_METRIC_DISCREPANCY "+row["uid"])
+
+
 def sealed_canary():
     from scripts.track_r.r0_6_score_gpu import (
         validate_input,validate_complete,output_name)
@@ -123,16 +155,7 @@ def sealed_canary():
     for r in rows[:8]:
         path=src/"results"/output_name(r)
         validate_complete(path,r,TASK_SHA,PRODUCER_HEAD)
-        result=read(path)
-        if (result.get("gt_access") is not False or
-            result.get("s_star") not in result.get("p_fake_orbit",{}) or
-            abs(float(result["p_fake_repaired"])-
-                float(result["p_fake_orbit"][result["s_star"]]))>1e-5 or
-            abs(float(result["rho_signed_raw"])-
-                float(result["rho_signed_repaired"]))>1e-4 or
-            abs(float(result["rho_clipped_raw"])-
-                float(result["rho_clipped_repaired"]))>1e-4):
-            raise RuntimeError("STOP_R06_CANARY_SCORE_CONTENT "+r["uid"])
+        check_candidate_consistency(read(path),r)
     print("R06_CANARY_8_AUDITED",TASK_SHA,
           "PRIOR_R0_GPU_H",round(prior_s/3600,6),
           "CANARY_GPU_SECONDS",round(canary_s,3),flush=True)
@@ -165,7 +188,9 @@ def validate_shard(root,item,rows,head):
         info.get("uids")!=[r["uid"] for r in selection]):
         raise RuntimeError("STOP_R06_SHARD_INTEGRITY "+str(item))
     for r in selection:
-        validate_complete(folder/"results"/output_name(r),r,TASK_SHA,head)
+        result_path=folder/"results"/output_name(r)
+        validate_complete(result_path,r,TASK_SHA,head)
+        check_candidate_consistency(read(result_path),r)
 
 def gpu_memory():
     info={}
