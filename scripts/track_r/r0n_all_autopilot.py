@@ -25,6 +25,8 @@ PLANNER="6686322b919e891b5dd37d14ce5dddfa96a97dcd"
 MERGE="1936e79acd4040f67e754276415bdac503b1121c"
 ZIP=BASE/"r0_8_overnight_20261023T082909Z/R0_8_PLANNER_RETURN.zip"
 N0=WT/"docs/track_r/executors/r0/returns/R0_20261023"
+PUSH_ERRORS=[]  # GitHub publishing can be unavailable on PAC; data remains local.
+
 
 def sha(path):
     h=hashlib.sha256()
@@ -106,12 +108,22 @@ def stop(status,state,label,detail):
     return 15
 
 def commit(path,message):
+    """Commit locally first. Remote publish failure must not discard research."""
     git("add","--",str(path))
     git("commit","-m",message)
     clean()
     new=git("rev-parse","HEAD")
-    git("push","origin",f"HEAD:refs/heads/{BRANCH}")
-    print("R0N_COMMITTED",new,flush=True)
+    try:
+        git("push","origin",f"HEAD:refs/heads/{BRANCH}")
+        print("R0N_PUSH_PASS",new,flush=True)
+    except Exception as exc:
+        # Preserve the local commit. An authentication / branch policy
+        # issue must not prevent N1–N3 or the immutable planner ZIP.
+        reason=str(exc)
+        PUSH_ERRORS.append({"head":new,"error":reason[-1000:]})
+        print("R0N_PUSH_PENDING_LOCAL_COMMIT_PRESERVED",new,reason[-500:],
+              flush=True)
+    print("R0N_COMMITTED_LOCAL",new,flush=True)
     return new
 
 def checked_copy(src,dst):
@@ -153,6 +165,7 @@ def return_package(root,head,state,status):
       "R0N code "+head,
       "N0 original ZIP SHA "+sha(ZIP),
       "N0 commit "+state["N0_head"],
+      "GitHub publish: "+("PENDING (local commit preserved)" if PUSH_ERRORS else "PUSHED"),
       "",
       "R0 methodology stopped; no R1 and no protected data access.",
       "K3 replay completed: 3240; GOOD 2040; ORBIT 85;",
@@ -212,10 +225,14 @@ def return_package(root,head,state,status):
     newhead=commit(directory.relative_to(WT),
         "track-r R0N: publish letter tables, optional orientation and asset inventory")
     state["final_head"]=newhead
+    state["push_errors"]=list(PUSH_ERRORS)
+    state["git_remote_published"]=not PUSH_ERRORS
     state["status"]=(
         "R0N_ALL_STAGES_COMPLETE_PLANNER_READY"
         if state["N2_status"]=="PASS" and state["N3_status"]=="PASS"
         else "R0N_PARTIAL_OPTIONALS_PLANNER_READY")
+    if PUSH_ERRORS:
+        state["status"]+="_LOCAL_PUSH_PENDING"
     atomic(status,state)
     print("R0N_PLANNER_READY",state["status"],newhead,str(pack),
           state["package_sha256"],flush=True)
@@ -257,7 +274,9 @@ def main():
                     verify.stdout+verify.stderr)
     n0head=commit(N0.relative_to(WT),
         "track-r R0N N0: commit original SHA-verified R0.8 aggregate tables")
-    state.update(N0_status="PASS",N0_head=n0head)
+    state.update(N0_status="PASS",N0_head=n0head,
+                 push_errors=list(PUSH_ERRORS),
+                 git_remote_published=not PUSH_ERRORS)
     atomic(status,state)
     rc=runstage(run,status,state,"N1_tests",[
         str(PY),"-m","pytest","-q","-p","no:cacheprovider",
