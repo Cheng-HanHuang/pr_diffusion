@@ -26,10 +26,15 @@ fi
 git -C "$WT" var GIT_AUTHOR_IDENT >/dev/null 2>&1 || {
   echo STOP_R0N_GIT_AUTHOR_IDENTITY; exit 6;
 }
-git -C "$WT" push --dry-run origin "HEAD:refs/heads/$BRANCH" >/dev/null 2>&1 || {
-  echo STOP_R0N_GIT_PUSH_PERMISSION_OR_REMOTE_DIVERGENCE; exit 6;
-}
-echo R0N_GIT_PUSH_DRY_RUN_PASS
+# Publishing may be unavailable (SSH/HTTPS credentials), but that
+# cannot invalidate the CPU science. Keep diagnostics and proceed
+# locally; the controller will preserve both Git commits and return ZIP.
+if PUSH_DIAG=$(GIT_TERMINAL_PROMPT=0 timeout 20s git -C "$WT" push --dry-run origin "HEAD:refs/heads/$BRANCH" 2>&1);then
+  echo R0N_GIT_PUSH_DRY_RUN_PASS
+else
+  echo R0N_GIT_PUSH_PREFLIGHT_WARNING_LOCAL_FALLBACK
+  printf '%s\\n' "$PUSH_DIAG" | tail -n 6
+fi
 mkdir -p "$BASE/logs" "$CACHE/home" "$CACHE/tmp" "$CACHE/config" \
  "$CACHE/data" "$CACHE/state" "$CACHE/torch" "$CACHE/hf" "$CACHE/pip"
 export PYTHONPATH="$WT"
