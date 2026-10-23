@@ -27,6 +27,11 @@ PATHS=WT/"configs/track_r/pac_paths_track_r_v1.json"
 FROZEN=WT/"configs/track_r/r0_frozen_v1.json"
 A15=WT/"configs/track_a/a15_fastdips_exposed_v1.json"
 SOURCE_HEAD="a9758b38906b7c7950fa04491f37f6634948db26"
+CANARY_TASK_PATH=(BASE/"r0_5_canary_20261023T004927Z"/
+                  "prepare"/"R0_5_GT_FREE_ROOTS.json")
+CANARY_TASK_SHA="2291aa793b612c973ae76ab3d36b1f20263cd747f3b23cf593e51517a26c3bfe"
+CANARY_HEAD="c3170587e58e9610c97c6f4ae48964eab2db1b46"
+
 
 def sha(path):
     h=hashlib.sha256()
@@ -121,7 +126,12 @@ def preflight(a):
     roots=source(a.roots)
     if sha(roots)!=a.roots_sha:
         raise RuntimeError("STOP_R05_ROOTLIST_SHA")
-    rows=frozen_roots(json.loads(roots.read_text()),a.expected_head)
+    producer=a.roots_source_head or a.expected_head
+    if producer != a.expected_head:
+        if (producer!=CANARY_HEAD or roots!=CANARY_TASK_PATH or
+            a.roots_sha!=CANARY_TASK_SHA):
+            raise RuntimeError("STOP_R05_UNAPPROVED_FROZEN_ROOTS_PRODUCER")
+    rows=frozen_roots(json.loads(roots.read_text()),producer)
     chosen=rows[a.start:a.start+a.count]
     if any(r["rep"]!=i%4 for i,r in enumerate(chosen)):
         raise RuntimeError("STOP_R05_ROOT_ORDER")
@@ -313,6 +323,7 @@ if __name__=="__main__":
     for k in ("start","count","physical-gpu"):
         parser.add_argument("--"+k,type=int,required=True)
     parser.add_argument("--resume",action="store_true")
+    parser.add_argument("--roots-source-head",default=None)
     args=parser.parse_args()
     try:sys.exit(execute(args))
     except Exception as err:
