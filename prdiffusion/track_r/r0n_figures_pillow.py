@@ -81,7 +81,7 @@ def output(figdir,name,img):
 def anatomy(figdir,rows):
     order=sorted(rows,key=lambda r:(r["cohort"],r["family"]))
     img,d=canvas("N1a | Single-run failure anatomy",
-        "Frozen PSNR labels, B22 random versus DEV80 enriched • fraction of runs")
+        "Frozen PSNR labels, B22 random versus DEV80 enriched - fraction of runs")
     yy=axes(d,0,1,"Fraction")
     left,top,right,bottom=PLOT
     n=len(order)
@@ -110,7 +110,7 @@ def anatomy(figdir,rows):
 
 def cost(figdir,grid,selected):
     img,d=canvas("N1d | Repair success versus UNet forwards",
-        "All 60 frozen configurations • open circles; marker size reflects Good25 harm")
+        "All 60 frozen configurations - open circles; marker size reflects Good25 harm")
     yy=axes(d,0,1,"Orbit-repair success")
     left,top,right,bottom=PLOT
     xx=lambda v:left+(float(v)/256)*(right-left)
@@ -137,7 +137,7 @@ def cost(figdir,grid,selected):
 
 def residual(figdir,records,split,cohort):
     img,d=canvas("N1c | Signed residual distributions",
-        "Actual per-run samples • kernel-smoothed violins and observed medians")
+        "Actual per-run samples - kernel-smoothed violins and observed medians")
     groups=defaultdict(list)
     for r in records:
         key=(cohort(r,split),r["family"])
