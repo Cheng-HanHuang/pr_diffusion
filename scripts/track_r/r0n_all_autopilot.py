@@ -245,6 +245,7 @@ def main():
     p.add_argument("--expected-head",required=True)
     p.add_argument("--out",required=True)
     p.add_argument("--physical-gpu",type=int,default=1)
+    p.add_argument("--resume-n0",action="store_true",help="Reuse a SHA-verified already-committed N0 archive; rerun N1 onward only.")
     a=p.parse_args()
     run=Path(a.out)
     if (not str(run).startswith(str(BASE)+"/") or run.exists() or
@@ -254,7 +255,10 @@ def main():
     clean()
     from scripts.track_r.r0n_0_import_tables_cpu import ZIP_SHA
     if sha(ZIP)!=ZIP_SHA:raise RuntimeError("STOP_R0N_ZIP_SHA")
-    if N0.exists():raise RuntimeError("STOP_R0N_N0_ALREADY_EXISTS")
+    if a.resume_n0 and not N0.is_dir():
+        raise RuntimeError("STOP_R0N_RESUME_N0_MISSING")
+    if not a.resume_n0 and N0.exists():
+        raise RuntimeError("STOP_R0N_N0_ALREADY_EXISTS")
     run.mkdir(parents=True,exist_ok=False)
     (run/"logs").mkdir()
     status=run/"AUTOPILOT_STATUS.json"
@@ -266,18 +270,37 @@ def main():
        "active":None,"stages":[],"protected_access":False,
        "R1_runs_started":0}
     atomic(status,state)
-    rc=runstage(run,status,state,"N0_import",[
-        str(PY),"-u","scripts/track_r/r0n_0_import_tables_cpu.py",
-        "--zip",str(ZIP),"--expected-head",a.expected_head],timeout=600)
-    if rc:return stop(status,state,"STOP_R0N_N0","N0 importer RC="+str(rc))
+    if not a.resume_n0:
+        rc=runstage(run,status,state,"N0_import",[
+            str(PY),"-u","scripts/track_r/r0n_0_import_tables_cpu.py",
+            "--zip",str(ZIP),"--expected-head",a.expected_head],timeout=600)
+        if rc:return stop(status,state,"STOP_R0N_N0","N0 importer RC="+str(rc))
+    from scripts.track_r.r0n_0_import_tables_cpu import FILES
+    # Always check both original frozen bytes and Git tracking before
+    # trusting an already-committed N0, not just its existence.
+    for filename,want in FILES.items():
+        target=N0/filename
+        if not target.is_file() or target.is_symlink() or sha(target)!=want:
+            return stop(status,state,"STOP_R0N_N0_SOURCE_SHA",filename)
+        if a.resume_n0:
+            tracked=subprocess.run(
+                ["git","-C",str(WT),"ls-files","--error-unmatch",
+                 str(target.relative_to(WT))],
+                capture_output=True,text=True,timeout=20)
+            if tracked.returncode:
+                return stop(status,state,"STOP_R0N_N0_NOT_TRACKED",filename)
     verify=subprocess.run(["sha256sum","-c","SHA256SUMS.txt"],
         cwd=N0,capture_output=True,text=True,timeout=60)
     if verify.returncode:
         return stop(status,state,"STOP_R0N_N0_SHA",
                     verify.stdout+verify.stderr)
-    n0head=commit(N0.relative_to(WT),
-        "track-r R0N N0: commit original SHA-verified R0.8 aggregate tables")
-    state.update(N0_status="PASS",N0_head=n0head,
+    if a.resume_n0:
+        n0head=git("rev-parse","HEAD")
+        print("R0N_N0_REUSED_SHA_VERIFIED",n0head,flush=True)
+    else:
+        n0head=commit(N0.relative_to(WT),
+            "track-r R0N N0: commit original SHA-verified R0.8 aggregate tables")
+    state.update(N0_status="PASS_REUSED" if a.resume_n0 else "PASS",N0_head=n0head,
                  push_errors=list(PUSH_ERRORS),
                  git_remote_published=not PUSH_ERRORS)
     atomic(status,state)
