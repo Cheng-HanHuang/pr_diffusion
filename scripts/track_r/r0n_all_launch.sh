@@ -88,19 +88,31 @@ PY
 RC=$?
 if [ "$RC" -ne 0 ]; then echo "STOP_R0N_ZIP_PREFLIGHT_RC=$RC";exit "$RC";fi
 
-nvidia-smi --query-gpu=index,name,memory.used --format=csv || true
+nvidia-smi --query-gpu=index,name,memory.used,memory.free,memory.total --format=csv || true
 GPU=1
-# Prefer GPU 1, then any other currently idle physical GPU.
-if command -v nvidia-smi >/dev/null 2>&1;then
-  mapfile -t MEMS < <(nvidia-smi --query-gpu=memory.used --format=csv,noheader,nounits)
-  for IDX in 1 0 2 3;do
-    USED="${MEMS[$IDX]:-999999}"
-    USED="${USED//[[:space:]]/}"
-    if [[ "$USED" =~ ^[0-9]+$ ]] && [ "$USED" -le 1024 ];then
-      GPU=$IDX
-      break
+BEST_FREE=-1
+MIN_FREE_MIB=40960
+# Co-tenancy is permitted if a GPU has at least 40 GiB free; choose
+# the most-free GPU rather than requiring entirely idle hardware.
+# The N2 worker re-queries memory before loading the model.
+if command -v nvidia-smi >/dev/null 2>&1; then
+  while IFS=',' read -r INDEX FREE TOTAL; do
+    INDEX="${INDEX//[[:space:]]/}"
+    FREE="${FREE//[[:space:]]/}"
+    TOTAL="${TOTAL//[[:space:]]/}"
+    if [[ "$INDEX" =~ ^[0-9]+$ && "$FREE" =~ ^[0-9]+$ ]] &&
+       [ "$INDEX" -le 3 ] &&
+       [ "$FREE" -ge "$MIN_FREE_MIB" ] &&
+       [ "$FREE" -gt "$BEST_FREE" ]; then
+      GPU=$INDEX
+      BEST_FREE=$FREE
     fi
-  done
+  done < <(nvidia-smi --query-gpu=index,memory.free,memory.total --format=csv,noheader,nounits)
+fi
+if [ "$BEST_FREE" -lt "$MIN_FREE_MIB" ]; then
+  echo "R0N_N2_NO_GPU_WITH_40G_FREE_OPTIONAL_STAGE_MAY_STOP"
+else
+  echo "R0N_N2_GPU_FREE_MIB=$BEST_FREE"
 fi
 echo "R0N_N2_PREFERRED_GPU=$GPU (worker rechecks at launch)"
 
