@@ -207,6 +207,8 @@ def clip_score(args):
         u=u/u.norm();d=d/d.norm()
         results=[]
         smoken=0
+        model_ready=time.monotonic()
+        init_seconds=model_ready-start
         for i in range(0,len(rows),BATCH):
             if time.monotonic()-start>=args.budget_seconds-10:
                 raise RuntimeError("STOP_N2_GPU_BUDGET_NEAR_EXHAUSTION")
@@ -239,13 +241,15 @@ def clip_score(args):
             # Projection comes after 64 first candidates, excludes one-time
             # model load from per-candidate cost and preserves a reserve.
             if smoken==SMOKE:
-                elapsed=time.monotonic()-start
-                # Conservative 2x observed throughput requirement:
-                projected=elapsed*len(rows)/SMOKE*2
-                print("N2_SMOKE64_SECONDS",round(elapsed,3),
-                      "PESSIMISTIC_2X_PROJECTION_SECONDS",round(projected,3),
+                processing=time.monotonic()-model_ready
+                # Model/text loading is one-time overhead, not per-batch.
+                # Include a 1.5x batch projection and 60-second reserve.
+                projected=init_seconds+processing*len(rows)/SMOKE*1.5+60.
+                print("N2_MODEL_LOAD_SECONDS",round(init_seconds,3),
+                      "SMOKE64_PROCESSING_SECONDS",round(processing,3),
+                      "CONSERVATIVE_PROJECTION_SECONDS",round(projected,3),
                       "BUDGET",args.budget_seconds,flush=True)
-                if projected>args.budget_seconds-30:
+                if projected>args.budget_seconds:
                     raise RuntimeError("STOP_N2_PROJECTED_BUDGET_EXCESS")
             if (i//BATCH)%10==0:
                 print("N2_GT_FREE_CLIP_PROGRESS",len(results),"/3240",
