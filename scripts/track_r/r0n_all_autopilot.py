@@ -42,8 +42,15 @@ def atomic(path,obj):
     tmp.replace(path)
 
 def git(*parts):
+    # HOME for scientific workers is an isolated cache; for the two
+    # explicitly authorized Git commits/pushes, preserve the credential
+    # environment already verified by the launcher -- never copy secrets.
+    env=dict(os.environ)
+    git_home=env.get("R0N_GIT_ORIGINAL_HOME")
+    if git_home:
+        env["HOME"]=git_home
     result=subprocess.run(["git","-C",str(WT),*parts],
-        capture_output=True,text=True,timeout=120)
+        capture_output=True,text=True,timeout=120,env=env)
     if result.returncode:
         raise RuntimeError("STOP_R0N_GIT "+result.stdout[-300:]+result.stderr[-300:])
     return result.stdout.strip()
