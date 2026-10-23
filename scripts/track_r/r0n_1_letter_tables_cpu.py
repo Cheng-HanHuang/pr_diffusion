@@ -158,7 +158,14 @@ def replay_receipts(records,catalog):
     return losses,per_score_wall
 
 def generate_figures(out,n1a,n1c,grid,selection,records,split):
-    import matplotlib
+    try:
+        import matplotlib
+    except ModuleNotFoundError as exc:
+        if exc.name!="matplotlib":
+            raise
+        from prdiffusion.track_r.r0n_figures_pillow import render
+        print("R0N_N1_FIGURES_PILLOW_FALLBACK_NO_MATPLOTLIB",flush=True)
+        return render(out,n1a,n1c,grid,selection,records,split,cohort)
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch
