@@ -41,7 +41,7 @@
 | DEV80 DAPS, K=4 | 14 | 3 | 11 |
 | FAST, K=4 (180 images) | 26 | 1 | 24 |
 
-- The B22 DAPS row matches the B22 visual taxonomy exactly: 3 rotation failures fixed; 5 chromatic, twin/ghost or collapse failures remaining.
+- The B22 DAPS row matches the *counts* in the B22 visual taxonomy for Fresh2: 3 rotation failures; 5 chromatic, twin/ghost or collapse failures. E0 is not Fresh2's native selector, so the image identities are to be confirmed in R0-N N1b.
 - Selection is not the bottleneck; sampling is.
 
 **Bottom line:** there is no method paper here. There is one small, honest evaluation letter.
