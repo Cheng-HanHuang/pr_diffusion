@@ -41,6 +41,11 @@ def test_n2_strict_identity_and_no_gt_gpu_tasks():
     assert 'names=("uid","source","family","image_id","run_index",' in text
     assert "GT_FREE_CANDIDATES" in text
     assert "STOP_N2_GT_LEAK_IN_TASKS" in text
+    assert "gpu_reads_canonical_png_only" in text
+    score=text.split("def clip_score(args):",1)[1].split("def eval_scores",1)[0]
+    assert "load_png_rgb8(file)" in score
+    assert "candidate_tensor" not in score
+    assert "STOP_N2_CANONICAL_PNG_SHA" in score
     assert 's1>s0' in text
     assert "gt_path" not in text.split("def clip_score(args):")[1].split("def eval_scores")[0]
     assert "torch.inference_mode()" in text
@@ -60,3 +65,17 @@ def test_n3_no_recursive_image_tree_inventory():
     assert "ls-files" in text
     assert "no_image_tree_enumeration" in text
     compile(text,"r0n_3_imagenet_inventory_cpu.py","exec")
+
+
+def test_comprehensive_orchestrator_has_hard_stop_and_no_r1():
+    source=Path(__file__).resolve().parents[2]/"scripts/track_r/r0n_all_autopilot.py"
+    code=source.read_text(encoding="utf-8")
+    compile(code,str(source),"exec")
+    for value in (
+        "STOP_R0N_K3_OR_N1","N2_CLIP_GPU",
+        "N3_CPU_INVENTORY","R0N_ALL_STAGES_COMPLETE_PLANNER_READY",
+        "R0N_PARTIAL_OPTIONALS_PLANNER_READY",
+        "N0_import","N1_tests"):
+        assert value in code
+    assert "R1_runs_started" in code
+    assert "r0n_all_" in code
