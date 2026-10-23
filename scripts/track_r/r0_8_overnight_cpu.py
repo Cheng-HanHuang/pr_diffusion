@@ -138,7 +138,8 @@ def evaluated_rows(filename):
         "psnr_orbit_best","psnr_ufd","psnr_mid","s_gt","s_star",
         "s_ufd","psnr_by_orbit","raw_label","rho_signed_raw",
         "rho_signed_repaired","S_repaired","p_fake_repaired",
-        "tau_signed_good_q95","after_repair_failure")
+        "tau_signed_good_q95","after_repair_failure","S_img",
+        "rho_clipped_repaired")
     # Never follow paths embedded in these offline evaluation records.
     with safe_source(filename).open(encoding="utf-8") as f:
         for line in f:
@@ -272,6 +273,70 @@ def audit_policy_table(rows,analysis):
                 not close(stats["min"],min(vals),1e-6)):
                 raise RuntimeError("STOP_R08_P4_METRIC_"+src+"_"+fam+"_"+str(k)+"_"+name)
     return len(summary)
+
+def independent_auc(labels,scores):
+    """Rank-based AUROC independently of R0.7's NumPy implementation."""
+    if len(labels)!=len(scores):
+        raise RuntimeError("STOP_R08_AUC_LENGTH")
+    npos=sum(bool(x) for x in labels)
+    nneg=len(labels)-npos
+    if npos==0 or nneg==0:return None
+    pairs=sorted((float(v),bool(y)) for y,v in zip(labels,scores))
+    positives_rank_sum=0.
+    i=0
+    while i<len(pairs):
+        j=i+1
+        while j<len(pairs) and pairs[i][0]==pairs[j][0]:
+            j+=1
+        avg_rank=(i+1+j)/2
+        positives_rank_sum+=sum(int(y) for _,y in pairs[i:j])*avg_rank
+        i=j
+    return (positives_rank_sum-npos*(npos+1)/2)/(npos*nneg)
+
+
+def audit_reported_decision_inputs(rows,summary):
+    """Independently recompute pooled denominators and key P3 AUROCs."""
+    subset_orbit=[r for r in rows if r["raw_label"]=="ORBIT_ERROR"]
+    subset_good=[r for r in rows if r["raw_label"]=="GOOD"]
+    success=(sum(r["psnr_repaired"]>=25 for r in subset_orbit)/
+             len(subset_orbit)) if subset_orbit else None
+    harm=(sum(r["psnr_repaired"]<25 for r in subset_good)/
+          len(subset_good)) if subset_good else None
+    reference=summary["decision_inputs"]
+    for key,value in (("D_repair_pooled_success",success),
+                      ("D_repair_pooled_harm",harm)):
+        published=reference.get(key)
+        if value is None:
+            if published is not None:raise RuntimeError("STOP_R08_DECISION_DENOM")
+        elif not close(published,value,1e-10):
+            raise RuntimeError("STOP_R08_DECISION_NUMERATORS "+key)
+    p3={(p["source"],p["family"]):p for p in summary["P3"]
+        if p["subtype"]=="ALL"}
+    for fam in ("FAST","DAPS"):
+        group=[r for r in rows if r["family"]==fam]
+        entry=p3.get(("POOLED_FAMILY",fam))
+        if not entry or entry["n"]!=len(group):
+            raise RuntimeError("STOP_R08_P3_POOLED_SIZE "+fam)
+        labels=[r["psnr_repaired"]<25 for r in group]
+        assert_equal(sum(labels),entry["n_failure"],"P3_POOLED_FAILURES")
+        for name,key in (
+            ("S","S_repaired"),("S_img","S_img"),
+            ("UnivFD_p_fake","p_fake_repaired"),
+            ("rho_signed","rho_signed_repaired"),
+            ("rho_clipped","rho_clipped_repaired")):
+            calculated=independent_auc(labels,[r[key] for r in group])
+            observed=entry["auroc_higher_means_failure"][name]
+            if calculated is None:
+                if observed is not None:
+                    raise RuntimeError("STOP_R08_P3_EXPECT_NONE")
+            elif not close(calculated,observed,1e-10):
+                raise RuntimeError("STOP_R08_P3_AUC_REPLAY "+fam+"_"+name)
+    return {"pooled_orbit_errors":len(subset_orbit),
+            "pooled_good":len(subset_good),
+            "pooled_repair_success":success,
+            "pooled_repair_harm":harm,
+            "pooled_family_p3_auc_groups_checked":2}
+
 
 def derive_decisions(summary):
     """Mechanical frozen thresholds only; scientific verdict planner-owned."""
@@ -469,6 +534,7 @@ def main():
     rows=evaluated_rows(rows_file)
     by_group,counts=audit_rows(rows,analysis)
     policy_count=audit_policy_table(rows,analysis)
+    independent=audit_reported_decision_inputs(rows,analysis)
     decisions=derive_decisions(analysis)
     casebook=concise_cases(rows)
     dest.mkdir(parents=True,exist_ok=False)
@@ -497,6 +563,7 @@ def main():
         "frozen_config_sha256":sha(FROZEN),
         "n_rows":len(rows),"n_source_family":len(by_group),
         "n_policy_tables":policy_count,
+        "independent_decision_replay":independent,
         "n_protected_files_opened":0,"new_gpu_hours":0,
         "prior_r0_gpu_hours":analysis["aggregate_r0_gpu_hours"],
         "scientific_verdict":"NOT_ISSUED_PLANNER_ONLY",
