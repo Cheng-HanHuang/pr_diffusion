@@ -18,7 +18,8 @@ from prdiffusion.track_r.r0_7_stats import (
     ORBIT,GOOD,BOOT_N,
     choose,orbit_psnr_channel_mse,label_candidate,tau_from_good,
     auc_roc,clustered_ratio_ci,clustered_paired_ci,exact_mcnemar,
-    select_e,summarize_psnr,spearman,high_frequency_energy)
+    select_e,summarize_psnr,spearman,high_frequency_energy,
+    clustered_policy_metric_ci)
 
 
 def module(filename):
@@ -131,7 +132,12 @@ def test_e0_e1_e2_e3_and_gt_ceilings():
     assert result["uids"]["E2"]=="u2"
     assert result["n_feasible"]==2
     assert select_e(candidates,4,.001)["psnr"]["E2"]==28.
-    assert select_e(candidates,4,None) is None
+    unavailable=select_e(candidates,4,None)
+    assert unavailable["psnr"]["E0"]==29.
+    assert unavailable["psnr"]["E1"]==28.
+    assert unavailable["psnr"]["O_orbit"]==35.
+    assert unavailable["psnr"]["E2"] is None
+    assert unavailable["psnr"]["E3"] is None
 
 
 def test_policy_summary_good_bad_and_quantile():
@@ -186,3 +192,19 @@ def test_report_has_all_four_registered_primary_sections():
         assert section in md
     assert "retrospective" in md.lower()
     assert "confirmation305" in md
+
+
+def test_paired_policy_bootstrap_reports_all_seven_metrics():
+    lhs={"a":26.,"b":21.,"c":30.}
+    rhs={"a":24.,"b":20.,"c":27.}
+    a=clustered_policy_metric_ci(lhs,rhs,"P4|SRC|FAST|K4|E2-E1")
+    b=clustered_policy_metric_ci(lhs,rhs,"P4|SRC|FAST|K4|E2-E1")
+    assert a==b
+    assert a["n_images"]==3
+    assert a["replicates"]==10000
+    assert set(a["paired_difference"])=={
+        "mean","median","good25","bad20","bad15","q05","min"}
+    assert a["paired_difference"]["mean"]["estimate"]==pytest.approx(2.)
+    assert a["paired_difference"]["good25"]["estimate"]==pytest.approx(0.)
+    for m in a["paired_difference"].values():
+        assert m["ci95"][0]<=m["estimate"]<=m["ci95"][1]
