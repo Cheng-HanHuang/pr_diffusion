@@ -95,20 +95,43 @@ def stage_prepare(args):
         receipt.get("status")!="R0_7_ANALYSIS_COMPLETE" or
         receipt.get("n_scored")!=3240):
         raise RuntimeError("STOP_N2_R07_INCOMPLETE")
-    # Whitelist ONLY GT-free fields from R0.7 catalog.
+    # Stage canonical PNG copies of the *same saved reconstructions*.
+    # N2 model scoring must read PNGs only, never historical .pt or
+    # any GT/measurement file. This conversion runs on CPU before GPU.
+    from scripts.track_r.r0_4_score_gpu import candidate_tensor
+    from prdiffusion.track_r.physics import load_png_rgb8
+    from PIL import Image
+    import torch
     names=("uid","source","family","image_id","run_index",
            "candidate_path","candidate_format","candidate_sha256")
-    rows=[{name:r[name] for name in names} for r in catalog["rows"]]
-    if len({r["uid"] for r in rows})!=3240:
+    originals=[{name:r[name] for name in names} for r in catalog["rows"]]
+    if len({r["uid"] for r in originals})!=3240:
         raise RuntimeError("STOP_N2_UID_COLLISION")
-    for r in rows:
-        if set(r)!=set(names):
-            raise RuntimeError("STOP_N2_GT_FREE_TASKS")
-        valid_file(r["candidate_path"])
-        if not (len(r["candidate_sha256"])==64 and
-          all(c in "0123456789abcdef" for c in r["candidate_sha256"])):
-            raise RuntimeError("STOP_N2_HASH_SCHEMA")
     out.mkdir(parents=True,exist_ok=False)
+    folder=out/"canonical_png"
+    folder.mkdir()
+    rows=[]
+    for i,r in enumerate(originals):
+        if set(r)!=set(names):
+            raise RuntimeError("STOP_N2_GT_FREE_PREP")
+        valid_file(r["candidate_path"])
+        if (len(r["candidate_sha256"])!=64 or
+            any(c not in "0123456789abcdef" for c in r["candidate_sha256"])):
+            raise RuntimeError("STOP_N2_HASH_SCHEMA")
+        x8=candidate_tensor(r)
+        if x8.dtype!=torch.uint8 or x8.shape!=(1,3,256,256):
+            raise RuntimeError("STOP_N2_CANONICAL_RGB8")
+        path=folder/(hashlib.sha256(r["uid"].encode()).hexdigest()+".png")
+        image=x8[0].permute(1,2,0).numpy()
+        Image.fromarray(image,"RGB").save(path,format="PNG")
+        if not torch.equal(load_png_rgb8(path),x8):
+            raise RuntimeError("STOP_N2_PNG_ROUNDTRIP "+r["uid"])
+        rows.append({"uid":r["uid"],"source":r["source"],
+           "family":r["family"],"image_id":r["image_id"],
+           "run_index":r["run_index"],"png_path":str(path),
+           "png_sha256":sha(path)})
+        if (i+1)%500==0:
+            print("N2_CPU_CANONICAL_PNG",i+1,"/3240",flush=True)
     task=out/"N2_GT_FREE_CANDIDATES.json"
     write_x(task,{"status":"R0N_N2_GT_FREE_CANDIDATES_FROZEN",
         "executor_head":args.expected_head,
@@ -118,7 +141,8 @@ def stage_prepare(args):
         "status":"R0N_N2_PREP_PASS","tasks_sha256":sha(task),
         "n_candidates":3240,"executor_head":args.expected_head,
         "r07_analysis_sha256":receipt["analysis_sha256"],
-        "gt_paths_in_gpu_tasks":False})
+        "gt_paths_in_gpu_tasks":False,
+        "gpu_reads_canonical_png_only":True})
     print("N2_GT_FREE_PREP_PASS",len(rows),sha(task),flush=True)
 
 def check_gpu(device):
@@ -141,7 +165,7 @@ def clip_score(args):
     import importlib
     import torch
     from PIL import Image
-    from scripts.track_r.r0_4_score_gpu import candidate_tensor
+    from prdiffusion.track_r.physics import load_png_rgb8
     frozen_config();exact_head(args.expected_head)
     if args.budget_seconds>CEILING or args.budget_seconds<=0:
         raise RuntimeError("STOP_N2_GPU_BUDGET")
@@ -158,7 +182,7 @@ def clip_score(args):
        payload.get("count")!=3240 or len(rows)!=3240):
         raise RuntimeError("STOP_N2_TASKS")
     allowed={"uid","source","family","image_id","run_index",
-             "candidate_path","candidate_format","candidate_sha256"}
+             "png_path","png_sha256"}
     if any(set(r)!=allowed for r in rows):
         raise RuntimeError("STOP_N2_GT_LEAK_IN_TASKS")
     source=load(PAC_CFG)
@@ -189,7 +213,10 @@ def clip_score(args):
             subset=rows[i:i+BATCH]
             arr=[]
             for r in subset:
-                x8=candidate_tensor(r) # SHA-verifies original, no GT.
+                file=valid_file(r["png_path"])
+                if file.parent!=tasks_file.parent/"canonical_png" or sha(file)!=r["png_sha256"]:
+                    raise RuntimeError("STOP_N2_CANONICAL_PNG_SHA")
+                x8=load_png_rgb8(file)
                 x=x8[0].permute(1,2,0).numpy()
                 upright=Image.fromarray(x,"RGB")
                 flipped=Image.fromarray(np.rot90(x,2),"RGB")
@@ -213,7 +240,6 @@ def clip_score(args):
             # model load from per-candidate cost and preserves a reserve.
             if smoken==SMOKE:
                 elapsed=time.monotonic()-start
-                overhead=elapsed
                 # Conservative 2x observed throughput requirement:
                 projected=elapsed*len(rows)/SMOKE*2
                 print("N2_SMOKE64_SECONDS",round(elapsed,3),
