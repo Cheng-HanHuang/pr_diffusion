@@ -267,11 +267,33 @@ def write_report(out,evidence,figures):
         "|---|---|---:|---:|---:|---:|---:|---:|---:|"]
     for r in evidence["N1a"]:
         lines.append(f"| {r['cohort']} | {r['family']} | {r['n_runs']} | {r['GOOD']} | {r['ORBIT_ERROR']} | {r['ORBIT_GLOBAL']} | {r['ORBIT_PARTIAL']} | {r['NONORBIT_CONSISTENT']} | {r['NONORBIT_INCONSISTENT']} |")
+    lines+=["","## N1a image-cluster orbit-share confidence intervals","",
+        "| Cohort | Family | Orbit share among raw failures | 95% CI |",
+        "|---|---|---:|---|"]
+    for r in evidence["N1a"]:
+        a=r["orbit_share_failures"]
+        val=a["estimate"]
+        ci=a["ci95"]
+        lines.append(
+            f"| {r['cohort']} | {r['family']} | "+
+            (f"{val:.4f}" if val is not None else "N/A")+" | "+
+            (f"[{ci[0]:.4f}, {ci[1]:.4f}]" if ci else "N/A")+" |")
     lines+=["","## N1b — post-selection decomposition",
         "","| Cohort | Source | Family | K | Images | E0 failed | Fixed by E1 | Orbit uncorrected | Selection miss | Generation failure |",
         "|---|---|---|---:|---:|---:|---:|---:|---:|---:|"]
     for r in evidence["N1b"]:
         lines.append(f"| {r['cohort']} | {r['source']} | {r['family']} | {r['K']} | {r['n_images']} | {r['E0_failures']} | {r['orbit_fixed']} | {r['orbit_not_fixed']} | {r['selection_miss']} | {r['generation_failure']} |")
+    lines+=["","## N1c — signed/clipped residual distributions","",
+        "Only observed cohort/family/label quantiles are reported;",
+        "the relative overlap in SITCOM versus FAST/DAPS is a descriptive",
+        "diagnostic, not an invented causal explanation.",
+        "","| Cohort | Family | Label | n | Signed median [q10,q90] | Clipped median [q10,q90] |",
+        "|---|---|---|---:|---|---|"]
+    for r in evidence["N1c"]:
+        signed=r["signed"];clipped=r["clipped"]
+        lines.append(f"| {r['cohort']} | {r['family']} | {r['label']} | {r['n']} | "+
+            f"{signed['median']:.5f} [{signed['q10']:.5f},{signed['q90']:.5f}] | "+
+            f"{clipped['median']:.5f} [{clipped['q10']:.5f},{clipped['q90']:.5f}] |")
     lines+=["","## N1d — DEV80-selected repair configuration",
         "","```json",json.dumps(evidence["N1d"]["selected_on_DEV80"],sort_keys=True),
         "```","",
@@ -282,10 +304,13 @@ def write_report(out,evidence,figures):
         "```","","## N1f — exploratory conditional detection",
         "```json",json.dumps(evidence["N1f"],sort_keys=True),"```",
         "","## N1g — max-K deployable versus oracle",
-        "","| Cohort | Source | Family | K | n | O_raw Good25 | O_orbit Good25 | E0 Good25 | E1 Good25 |",
-        "|---|---|---|---:|---:|---:|---:|---:|---:|"]
+        "","Each cell: Good25 fraction / mean PSNR dB / q05 PSNR dB.", "",
+        "| Cohort | Source | Family | K | n | O_raw | O_orbit | E0 | E1 |",
+        "|---|---|---|---:|---:|---|---|---|---|"]
     for r in evidence["N1g"]:
-        lines.append(f"| {r['cohort']} | {r['source']} | {r['family']} | {r['K']} | {r['n_images']} | {r['O_raw']['good25']:.4f} | {r['O_orbit']['good25']:.4f} | {r['E0']['good25']:.4f} | {r['E1']['good25']:.4f} |")
+        def triple(x):
+            return f"{x['good25']:.4f} / {x['mean']:.2f} / {x['q05']:.2f}"
+        lines.append(f"| {r['cohort']} | {r['source']} | {r['family']} | {r['K']} | {r['n_images']} | {triple(r['O_raw'])} | {triple(r['O_orbit'])} | {triple(r['E0'])} | {triple(r['E1'])} |")
     lines+=["","## Figures",json.dumps(figures,sort_keys=True),
         "","## Handoff",
         "K1 is the B22 post-selection orbit_fixed count per family (N1b).",
