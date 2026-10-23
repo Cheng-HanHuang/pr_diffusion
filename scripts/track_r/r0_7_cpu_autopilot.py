@@ -117,7 +117,7 @@ def main():
         rc=run_stage(root,"cpu_join",[
             str(PY),"-u","scripts/track_r/r0_7_prepare_cpu.py",
             "--expected-head",head,"--out",str(prepared)
-        ],env,7200,status and status,state)
+        ],env,7200,status,state)
         if rc!=0:
             state["status"]="STOP_R07_JOIN"
             atomic(status,state)
