@@ -183,6 +183,11 @@ def complete_labels(rows):
         r["after_repair_failure"]=r["psnr_repaired"]<GOOD
     return taus
 
+def measurement_instance_key(row):
+    # S5 pools S1 and S2 measurement cohorts under one method source.
+    # For within-image policies the measurement must remain fixed.
+    return (row["measurement_source"],str(row["image_id"]))
+
 def groups_source_family(rows):
     groups=defaultdict(list)
     for r in rows:
@@ -258,11 +263,11 @@ def outcome_p2(rows):
 def outcome_p3(rows):
     medians=defaultdict(list)
     for r in rows:
-        medians[(r["source"],r["family"],r["image_id"])].append(r["S_repaired"])
+        medians[(r["source"],r["family"],*measurement_instance_key(r))].append(r["S_repaired"])
     normalized={k:float(np.median(v)) for k,v in medians.items()}
     for r in rows:
         r["S_img"]=r["S_repaired"]-normalized[
-            (r["source"],r["family"],r["image_id"])]
+            (r["source"],r["family"],*measurement_instance_key(r))]
     metrics={
         "S":"S_repaired","S_img":"S_img",
         "UnivFD_p_fake":"p_fake_repaired",
@@ -303,7 +308,7 @@ def outcome_p4(rows,taus):
     for (src,fam),subset in sorted(groups.items()):
         groups_by_image=defaultdict(list)
         for r in subset:
-            groups_by_image[r["image_id"]].append(r)
+            groups_by_image[measurement_instance_key(r)].append(r)
         # Named run order is authoritative. If source has fewer than
         # K completed roots, that K is explicitly unavailable.
         supported=[1,2,4,8] if src=="S1_b22" and fam.startswith("NP") else [1,2,4]
@@ -359,7 +364,7 @@ def outcomes_secondary(rows):
         bias=spearman(s,hf)
         image_groups=defaultdict(list)
         for r in good:
-            image_groups[r["image_id"]].append(r)
+            image_groups[measurement_instance_key(r)].append(r)
         lowest=0
         tested=0
         for entries in image_groups.values():
