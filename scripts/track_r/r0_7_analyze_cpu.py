@@ -23,7 +23,8 @@ from prdiffusion.track_r.physics import to_rgb8,psnr_rgb8
 from prdiffusion.track_r.r0_7_stats import (
     ORBIT,GOOD,BAD,CATASTROPHIC,BOOT_N,
     choose,orbit_psnr_channel_mse,label_candidate,tau_from_good,
-    clustered_ratio_ci,clustered_paired_ci,exact_mcnemar,auc_roc,
+    clustered_ratio_ci,clustered_paired_ci,clustered_policy_metric_ci,
+    exact_mcnemar,auc_roc,
     summarize_psnr,select_e,spearman,high_frequency_energy)
 from scripts.track_r.r0_4_score_gpu import candidate_tensor
 from scripts.track_r.r0_2_g0_cpu import gt_source
@@ -319,26 +320,23 @@ def outcome_p4(rows,taus):
             for image,rr in groups_by_image.items():
                 if len(rr)<k:continue
                 value=select_e(rr,k,taus[(src,fam)])
-                if value is None:
-                    missing_tau+=1
-                    continue
+                if value is None:continue
                 byimg[image]=value
                 if value["empty_feasible"]:empty+=1
-            values={policy:{image:dat["psnr"][policy] for image,dat in byimg.items()}
+                if value["empty_feasible"] is None:missing_tau+=1
+            values={policy:{image:dat["psnr"][policy]
+                    for image,dat in byimg.items()
+                    if dat["psnr"][policy] is not None}
                     for policy in ("E0","E1","E2","E3","O_raw","O_orbit")}
             stats={key:summarize_psnr(list(vals.values())) for key,vals in values.items()}
             compare={}
             for lhs,rhs in (("E1","E0"),("E2","E1"),("E2","E3")):
-                if values[lhs]:
-                    pa=values[lhs];pb=values[rhs]
+                pa=values[lhs];pb=values[rhs]
+                if pa and set(pa)==set(pb):
                     idbase=f"P4|{src}|{fam}|K{k}|{lhs}-{rhs}"
                     compare[lhs+"_minus_"+rhs]={
-                        "mean_psnr_db":clustered_paired_ci(
-                            pa,pb,idbase+"|mean_psnr"),
-                        "good25":clustered_paired_ci(
-                            {im:float(v>=GOOD) for im,v in pa.items()},
-                            {im:float(pb[im]>=GOOD) for im in pa},
-                            idbase+"|good25"),
+                        "paired_bootstrap_all_reported_metrics":
+                            clustered_policy_metric_ci(pa,pb,idbase),
                         "mcnemar_good25_exact":exact_mcnemar(pa,pb)}
                 else:
                     compare[lhs+"_minus_"+rhs]=None
