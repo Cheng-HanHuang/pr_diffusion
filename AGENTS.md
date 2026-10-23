@@ -22,6 +22,7 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
 - No GT in any deployable step.
 - Count all compute.
 - Within R0, the handoff's pre-authorization replaces the historical "stop after every stage for sign-off" rule: R0.4–R0.6 may proceed once G0, G1 and the R0.3 smoke pass. Every other escalation trigger in the handoff still applies.
+- **Update 2026-10-23:** R0 is complete and the Track R method line is stopped. R1 and R2 are cancelled. The only authorized executor work is R0-N, defined in `docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md` and `configs/track_r/r0n_letter_analysis_v1.json`: CPU work, plus the optional N2 CLIP baseline capped at 0.25 GPU-hours.
 
 ## B26 branch override
 

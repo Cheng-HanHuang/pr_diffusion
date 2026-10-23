@@ -1,5 +1,7 @@
 # Track R planner roadmap — reliability per compute for diffusion-prior Fourier phase retrieval
 
+> **Superseded status (2026-10-23).** R0 is complete. D-material and D-detect failed; D-repair passed. The method line, R1 and R2 are cancelled. The current plan is one short evaluation letter, then wind-down: see [`2026-10-23_R0_PLANNER_DECISION.md`](2026-10-23_R0_PLANNER_DECISION.md). This roadmap is kept unchanged below as the pre-registered record.
+
 **Date:** 2026-10-21 (America/New_York)
 **Planner:** Claude (planner role assigned by Cheng on 2026-10-21)
 **Executor:** a GPT/Codex session chosen by Cheng (no PAC access; writes code, tests, PAC command blocks)

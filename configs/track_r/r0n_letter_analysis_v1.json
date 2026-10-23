@@ -1,0 +1,84 @@
+{
+  "schema": "prdiff.track_r.r0n.letter_analysis.v1",
+  "status": "FROZEN_V1_2026-10-23",
+  "decision_doc": "docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md",
+  "handoff": "docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md",
+  "scope": "CPU-only re-analysis of immutable R0.4/R0.6 score receipts and R0.7 evaluated rows, plus optional N2 CLIP zero-shot baseline (<=0.25 GPU-h)",
+  "forbidden": [
+    "new reconstructions",
+    "new measurements",
+    "B24 confirmation305 access of any kind",
+    "editing R0.x outputs",
+    "changing frozen R0 v1 definitions"
+  ],
+  "inputs": {
+    "r0_7_run": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/r0_7_cpu_20261023T080434Z",
+    "r0_8_run": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/r0_8_overnight_20261023T082909Z",
+    "r0_8_zip_sha256": "13c008f3bca59b7d8d717ec3215fa1f783ca453b31b9001886c84633b513efab",
+    "score_receipts": "R0.4 and R0.6 per-candidate JSON records as enumerated by the R0.7 preparation audit (field prior.draw_losses holds 32 losses per orbit member in (t, j) order: t index = k // 4, j = k % 4)",
+    "fast_generation_receipts": "R0.5 R0_FAST_ROOT_COMPLETE.json records"
+  },
+  "cohorts": {
+    "definition": "by image_id, not by source",
+    "B22_random": "image_ids of the B22 final100 panel (S1); includes S3/S4 runs (their 8 ids are B22 ids) and S5 runs on B22 ids",
+    "DEV80_enriched": "image_ids of B24 DEV80 (S2); includes S5 runs on DEV80 ids",
+    "overlap_check": "assert the two id sets are disjoint; STOP if not"
+  },
+  "n1d_cost_accuracy": {
+    "timestep_index_order": [50, 100, 200, 300, 400, 500, 600, 700],
+    "draws_per_t_recorded": 4,
+    "T_subsets": {
+      "single": [[50], [100], [200], [300], [400], [500], [600], [700]],
+      "mid4": [300, 400, 500, 600],
+      "all8": [50, 100, 200, 300, 400, 500, 600, 700]
+    },
+    "J_subsets": [1, 2, 4],
+    "J_rule": "use draws j < J",
+    "member_sets": {
+      "all8": ["000", "001", "010", "011", "100", "101", "110", "111"],
+      "global2": ["000", "111"]
+    },
+    "decision": "argmin over the member set of the mean loss over the selected (t, j); if loss(000) - min <= 1e-7 choose 000",
+    "unet_forwards": "len(T_subset) * J * len(member_set)",
+    "metrics": {
+      "success": "fraction of ORBIT_ERROR candidates whose chosen member has PSNR >= 25",
+      "harm": "fraction of GOOD candidates whose chosen member has PSNR < 25",
+      "exact": "fraction of ORBIT_ERROR candidates with chosen member == s_gt"
+    },
+    "orbit_psnr_source": "use stored eight-member PSNRs if present in R0.7 rows; otherwise recompute offline on CPU with the R0.7 GT catalog via orbit_psnr_channel_mse (analysis-only GT access)",
+    "split": {"dev": "DEV80_enriched candidates", "eval": "B22_random candidates"},
+    "selection_rule": "on dev only: among configurations with dev success >= 0.95 and dev harm == 0, choose minimum unet_forwards; tie-break: member set all8 before global2, then larger J, then T subset order all8, mid4, single 50..700",
+    "report": "full grid on both splits (EXPLORATORY), and the selected configuration's eval success/harm with image-cluster bootstrap 95% CI (10,000 replicates, seed rule R0BOOT|r0n_cost_eval)",
+    "paired_variance": "per candidate and t: r_t = Var_j(l_000 - l_111) / (Var_j(l_000) + Var_j(l_111)) using ddof=1 over the 4 draws; report median and IQR of r_t over candidates per t and pooled, separately for GOOD and ORBIT_ERROR candidates"
+  },
+  "n2_clip_zero_shot": {
+    "optional": true,
+    "gpu_hours_ceiling": 0.25,
+    "cpu_allowed": true,
+    "model": "/egr/research-pac/huang248/models/clip/ViT-L-14.pt (SHA-256 b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836) loaded with the UnivFD repository's models/clip module (BPE vocab bundled there)",
+    "image_preprocess": "canonical RGB8 candidate -> PIL -> CLIP standard preprocess from clip.load (Resize 224 bicubic, CenterCrop 224, CLIP mean/std)",
+    "prompts_upright": ["a photo of a face.", "a photo of a person's face.", "a portrait photo of a person."],
+    "prompts_inverted": ["an upside-down photo of a face.", "an upside-down photo of a person's face.", "an upside-down portrait photo of a person."],
+    "text_embedding": "L2-normalize each prompt embedding, average per class, re-normalize",
+    "score": "u(x) = <f(x), t_up> - <f(x), t_inv>, f(x) the L2-normalized image embedding",
+    "decision_global": "choose 111 iff u(R_111 x) > u(x) strictly; else 000",
+    "comparators_global_only": {
+      "prior": "choose 111 iff S['111'] < S['000'] - 1e-7 (stored frozen S)",
+      "prior_mid": "same with S_mid",
+      "univfd": "choose 111 iff p_fake_orbit['111'] < p_fake_orbit['000'] (stored)"
+    },
+    "metrics": "success on GLOBAL orbit errors (s_gt == 111), harm on GOOD, and count of partial orbit errors left unfixed",
+    "no_prompt_tuning": true,
+    "gt_access_in_scoring": false
+  },
+  "n3_imagenet_inventory": {
+    "cpu_only": true,
+    "bounded_checks": [
+      "test -f /egr/research-pac/huang248/models/imagenet256.pt",
+      "test -f /egr/research-pac/huang248/models/256x256_diffusion_uncond.pt",
+      "ls -d /egr/research-pac/huang248/data/imagenet* (depth 1 only)",
+      "FAST-DIPS checkout: grep for imagenet256 in its model loader config (no download)"
+    ],
+    "rule": "record presence/absence and file sizes only; no download, no enumeration of image trees"
+  }
+}
