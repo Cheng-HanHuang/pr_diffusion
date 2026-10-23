@@ -34,6 +34,9 @@ mkdir -p "$BASE/logs" "$CACHE/home" "$CACHE/tmp" "$CACHE/config" \
  "$CACHE/data" "$CACHE/state" "$CACHE/torch" "$CACHE/hf" "$CACHE/pip"
 export PYTHONPATH="$WT"
 export PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1
+# Preserve read-only access to the user's pre-existing Git credentials
+# for the two authorized pushes; scientific worker HOME stays isolated.
+export R0N_GIT_ORIGINAL_HOME="${HOME:-}"
 export HOME="$CACHE/home" TMPDIR="$CACHE/tmp"
 export XDG_CACHE_HOME="$CACHE" XDG_CONFIG_HOME="$CACHE/config"
 export XDG_DATA_HOME="$CACHE/data" XDG_STATE_HOME="$CACHE/state"
