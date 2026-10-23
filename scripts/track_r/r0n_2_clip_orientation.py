@@ -145,18 +145,38 @@ def stage_prepare(args):
         "gpu_reads_canonical_png_only":True})
     print("N2_GT_FREE_PREP_PASS",len(rows),sha(task),flush=True)
 
-def check_gpu(device):
-    if not device in (0,1,2,3) or os.environ.get("CUDA_VISIBLE_DEVICES")!=str(device):
-        raise RuntimeError("STOP_N2_PHYSICAL_GPU_BINDING")
-    usage=subprocess.check_output(
-       ["nvidia-smi","--query-gpu=index,memory.used",
+# CLIP ViT-L/14 with a batch of 64 transformed images should fit in
+# substantially less than this threshold. This admission rule permits
+# memory-safe co-tenancy on authorized shared GPUs, but never preempts
+# or terminates an existing process. Contention is included in the
+# immutable N2 900-second wall/GPU allocation.
+MIN_FREE_MIB=40960  # 40 GiB conservative headroom for N2 CLIP only.
+
+def nvidia_free_mib(device,runner=subprocess.check_output):
+    usage=runner(
+       ["nvidia-smi","--query-gpu=index,memory.free,memory.total",
         "--format=csv,noheader,nounits"],text=True,timeout=30)
-    gpu_mem={}
-    for row in usage.splitlines():
-        a,b=[x.strip() for x in row.split(",")]
-        gpu_mem[int(a)]=int(b)
-    if gpu_mem.get(device,99999)>1024:
-        raise RuntimeError("STOP_N2_FOREIGN_GPU_ACTIVITY "+str(gpu_mem))
+    reported={}
+    for line in usage.splitlines():
+        fields=[x.strip() for x in line.split(",")]
+        if len(fields)!=3:
+            raise RuntimeError("STOP_N2_GPU_MEMORY_QUERY_SCHEMA")
+        index,free,total=(int(x) for x in fields)
+        reported[index]={"free":free,"total":total}
+    if device not in reported:
+        raise RuntimeError("STOP_N2_SELECTED_GPU_MISSING")
+    return reported[device]
+
+def check_gpu(device):
+    if (device not in (0,1,2,3) or
+        os.environ.get("CUDA_VISIBLE_DEVICES")!=str(device)):
+        raise RuntimeError("STOP_N2_PHYSICAL_GPU_BINDING")
+    mem=nvidia_free_mib(device)
+    print("N2_GPU_ADMISSION",device,"FREE_MIB",mem["free"],
+          "TOTAL_MIB",mem["total"],"MIN_FREE_MIB",MIN_FREE_MIB,
+          flush=True)
+    if mem["free"]<MIN_FREE_MIB:
+        raise RuntimeError("STOP_N2_INSUFFICIENT_FREE_MEMORY "+str(mem))
     import torch
     if not torch.cuda.is_available() or torch.cuda.device_count()!=1:
         raise RuntimeError("STOP_N2_CUDA_NOT_SINGLE_VISIBLE_DEVICE")
