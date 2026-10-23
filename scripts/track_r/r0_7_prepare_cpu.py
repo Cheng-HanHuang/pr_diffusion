@@ -197,6 +197,7 @@ def join_historical(oldrows,taskrows,scorerefs):
     if len(mapping)!=2520 or len(taskrows)!=2520:
         raise RuntimeError("STOP_R07_ORIGINAL_COUNT")
     out=[]
+    measurement_hash_cache={}
     for i,t in enumerate(taskrows):
         r=mapping.get(t["uid"])
         try:
@@ -205,6 +206,14 @@ def join_historical(oldrows,taskrows,scorerefs):
             raise RuntimeError(
                 "STOP_R07_ORIGINAL_TASK_GT_JOIN "+t["uid"]+
                 " reason="+str(exc)) from exc
+        # Recheck the actual saved signed measurement bytes. The R0.2
+        # manifest's optional hash may be blank, but R0.4's mandatory
+        # hash must remain accurate at the time of GT-only analysis.
+        observed=t["measurement_path"]
+        if observed not in measurement_hash_cache:
+            measurement_hash_cache[observed]=filehash(observed)
+        if measurement_hash_cache[observed]!=t["measurement_sha256"]:
+            raise RuntimeError("STOP_R07_SOURCE_MEASUREMENT_CHANGED "+t["uid"])
         safe(r["gt_path"])
         out.append({
             "uid":t["uid"],"source":t["source"],"family":t["family"],
@@ -295,6 +304,10 @@ def main():
         raise RuntimeError("STOP_R07_R06_PREPARATION_INPUT_MISMATCH")
     fastref,all_gpu_seconds=fast_score_receipts(fasttasks)
     catalog=join_historical(oldrows,oldtasks,oldref)
+    original_optional_hashes=sum(
+        r["measurement_sha256"] in (None,"") for r in oldrows)
+    print("R07_JOIN_ORIGINAL_OPTIONAL_SHA_FIELDS",
+          original_optional_hashes,"OF",len(oldrows),flush=True)
     catalog.extend(join_fast(fasttasks,fastref,catalog))
     if (len(catalog)!=3240 or len({r["uid"] for r in catalog})!=3240 or
         not 0<old_gpu_sec<all_gpu_seconds<16*3600):
@@ -310,11 +323,13 @@ def main():
           "r04_score_tasks_sha256":OLD_SCORE_TASK_SHA,
           "r06_score_tasks_sha256":FAST_SCORE_TASK_SHA,
           "n_candidates":3240,"n_historical":2520,"n_fast":720,
+          "n_original_optional_measurement_hashes":original_optional_hashes,
           "n_sources":5,"gpu_calls":0,"no_protected_access":True,
           "all_r0_gpu_seconds":all_gpu_seconds,"rows":catalog}
     dump_new(filename,data)
     receipt={"status":"R0_7_CPU_JOIN_PASS","head":head,
              "n_candidates":3240,"n_historical":2520,"n_fast":720,
+             "n_original_optional_measurement_hashes":original_optional_hashes,
              "all_r0_gpu_hours":all_gpu_seconds/3600,
              "catalog_sha256":filehash(filename),
              "frozen_spec_sha256":filehash(FROZEN_PATH),
