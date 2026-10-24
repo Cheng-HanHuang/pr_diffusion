@@ -29,6 +29,13 @@ R07=BASE/"r0_7_cpu_20261023T080434Z"
 CFG=WT/"configs/track_r/r0n_letter_analysis_v1.json"
 PAC_CFG=WT/"configs/track_r/pac_paths_track_r_v1.json"
 CLIP_SHA="b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836"
+# A single already-completed CPU N2 preparation is reused for the
+# approved N2-only recovery; its original file is immutable.
+RECOVERY_PREP_HEAD="b1637f7c27a3caaa03a8b204171fca0d3fccfcd5"
+RECOVERY_TASKS_SHA="7be734de4cd2e6f395add521717506be9260c37708f8902e248c1848b68b705b"
+RECOVERY_TASKS_PATH=(
+    BASE/"r0n_n2prep_20261024T061111Z/N2_GT_FREE_CANDIDATES.json")
+
 R07_HEAD="c6dbd6089579c79e9e6fd4a9dd20fc402bc1185b"
 PROMPTS_UP=("a photo of a face.","a photo of a person's face.","a portrait photo of a person.")
 PROMPTS_INV=("an upside-down photo of a face.",
@@ -211,6 +218,7 @@ def check_gpu(device):
         raise RuntimeError("STOP_N2_CUDA_NOT_SINGLE_VISIBLE_DEVICE")
 
 def clip_score(args):
+    from prdiffusion.track_r.r0n_clip_compat import encode_text_univfd_tuple_compat
     import importlib
     import torch
     from PIL import Image
@@ -225,11 +233,29 @@ def clip_score(args):
         raise RuntimeError("STOP_N2_TASKS_SHA")
     payload=load(tasks_file)
     rows=payload["tasks"]
+    original_head=payload.get("executor_head")
+    is_current=(original_head==args.expected_head and
+                args.reuse_prep_head is None)
+    is_frozen_recovery=(
+        args.reuse_prep_head==RECOVERY_PREP_HEAD and
+        original_head==RECOVERY_PREP_HEAD and
+        tasks_file==RECOVERY_TASKS_PATH and
+        args.tasks_sha==RECOVERY_TASKS_SHA)
     if (payload.get("status")!="R0N_N2_GT_FREE_CANDIDATES_FROZEN"
-       or payload.get("executor_head")!=args.expected_head
-       or payload.get("no_gt") is not True or
-       payload.get("count")!=3240 or len(rows)!=3240):
+       or not (is_current or is_frozen_recovery)
+       or payload.get("no_gt") is not True
+       or payload.get("count")!=3240 or len(rows)!=3240):
         raise RuntimeError("STOP_N2_TASKS")
+    if is_frozen_recovery:
+        prep_receipt=load(tasks_file.parent/"N2_PREP_RECEIPT.json")
+        if (prep_receipt.get("status")!="R0N_N2_PREP_PASS" or
+            prep_receipt.get("n_candidates")!=3240 or
+            prep_receipt.get("tasks_sha256")!=RECOVERY_TASKS_SHA or
+            prep_receipt.get("executor_head")!=RECOVERY_PREP_HEAD or
+            prep_receipt.get("gpu_reads_canonical_png_only") is not True):
+            raise RuntimeError("STOP_N2_RECOVERY_PREP_RECEIPT")
+        print("R0N_N2_REUSE_FROZEN_GT_FREE_PREP",
+              RECOVERY_PREP_HEAD,RECOVERY_TASKS_SHA,flush=True)
     allowed={"uid","source","family","image_id","run_index",
              "png_path","png_sha256"}
     if any(set(r)!=allowed for r in rows):
@@ -252,7 +278,7 @@ def clip_score(args):
     prompts=list(PROMPTS_UP+PROMPTS_INV)
     with torch.inference_mode():
         tokens=clip.tokenize(prompts).to("cuda:0")
-        encoded=model.encode_text(tokens)
+        encoded=encode_text_univfd_tuple_compat(model,tokens)
         encoded=encoded.float()
         encoded=encoded/encoded.norm(dim=-1,keepdim=True)
         u=encoded[:3].mean(dim=0)
@@ -319,7 +345,9 @@ def clip_score(args):
     write_x(scored,{"status":"R0N_N2_ALL_3240_GT_FREE_CLIP_PASS",
       "head":args.expected_head,"tasks_sha256":args.tasks_sha,
       "prompts_up":list(PROMPTS_UP),"prompts_inverted":list(PROMPTS_INV),
-      "scoring_gt_access":False,"n":3240,"rows":results})
+      "scoring_gt_access":False,"n":3240,"rows":results,
+      "source_prep_head":original_head,
+      "text_compat":"UNIVFD_TUPLE_TRANSFORMER_V1"})
     write_x(out/"N2_CLIP_GPU_RECEIPT.json",{
       "status":"R0N_N2_CLIP_GPU_PASS","n":3240,
       "scored_sha256":sha(scored),"head":args.expected_head,
@@ -436,6 +464,7 @@ if __name__=="__main__":
     p.add_argument("--tasks")
     p.add_argument("--tasks-sha")
     p.add_argument("--scores")
+    p.add_argument("--reuse-prep-head",default=None)
     p.add_argument("--physical-gpu",type=int,default=0)
     p.add_argument("--budget-seconds",type=float,default=900.)
     a=p.parse_args()
