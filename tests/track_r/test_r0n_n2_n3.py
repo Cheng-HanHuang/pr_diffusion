@@ -135,3 +135,68 @@ def test_r0n_resume_n0_checks_all_original_shas_and_tracking():
               "scripts/track_r/r0n_all_launch.sh").read_text()
     assert 'RESUME_N0="${2:-}"' in launcher
     assert '"--resume-n0"' in launcher
+
+
+def test_pinned_univfd_two_value_transformer_text_compat_cpu():
+    """Minimal exact-path test of the original tuple-vs-tensor crash."""
+    import torch
+    import torch.nn as nn
+    from prdiffusion.track_r.r0n_clip_compat import encode_text_univfd_tuple_compat
+
+    class TupleTransformer(nn.Module):
+        def forward(self,x):
+            return {"layer0":x[0]},x+.125
+
+    class ToyCLIP(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.context_length=5
+            self.token_embedding=nn.Embedding(24,4)
+            self.positional_embedding=nn.Parameter(torch.randn(5,4))
+            self.transformer=TupleTransformer()
+            self.ln_final=nn.LayerNorm(4)
+            self.text_projection=nn.Parameter(torch.randn(4,3))
+            self.dtype=torch.float32
+
+    torch.manual_seed(4)
+    model=ToyCLIP().eval()
+    tokens=torch.tensor([[1,2,3,15,0],[2,10,4,0,0]],dtype=torch.long)
+    result=encode_text_univfd_tuple_compat(model,tokens)
+    x=model.token_embedding(tokens).type(model.dtype)
+    x=x+model.positional_embedding.type(model.dtype)
+    _,x=model.transformer(x.permute(1,0,2))
+    x=model.ln_final(x.permute(1,0,2)).type(model.dtype)
+    expected=x[torch.arange(2),tokens.argmax(dim=-1)]@model.text_projection
+    assert result.shape==(2,3)
+    assert torch.allclose(result,expected,rtol=0,atol=0)
+
+def test_pinned_univfd_text_compat_rejects_changed_tuple_contract():
+    import torch
+    import torch.nn as nn
+    from prdiffusion.track_r.r0n_clip_compat import encode_text_univfd_tuple_compat
+
+    class BadTransformer(nn.Module):
+        def forward(self,x):
+            return x
+
+    class TinyCLIP(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.context_length=3
+            self.token_embedding=nn.Embedding(12,4)
+            self.positional_embedding=nn.Parameter(torch.zeros(3,4))
+            self.transformer=BadTransformer()
+            self.dtype=torch.float32
+
+    with pytest.raises(RuntimeError,match="TUPLE_SCHEMA"):
+        encode_text_univfd_tuple_compat(TinyCLIP(),torch.tensor([[1,2,3]]))
+
+def test_n2_retry_uses_only_approved_old_preparation():
+    n=mod("r0n_2_clip_orientation.py")
+    assert n.RECOVERY_PREP_HEAD=="b1637f7c27a3caaa03a8b204171fca0d3fccfcd5"
+    assert n.RECOVERY_TASKS_SHA=="7be734de4cd2e6f395add521717506be9260c37708f8902e248c1848b68b705b"
+    source=Path(n.__file__).read_text(encoding="utf-8")
+    assert "encode_text_univfd_tuple_compat(model,tokens)" in source
+    assert "N2_PREP_RECEIPT.json" in source
+    assert "RECOVERY_TASKS_PATH" in source
+    assert 'p.add_argument("--reuse-prep-head"' in source
