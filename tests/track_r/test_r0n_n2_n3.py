@@ -200,3 +200,32 @@ def test_n2_retry_uses_only_approved_old_preparation():
     assert "N2_PREP_RECEIPT.json" in source
     assert "RECOVERY_TASKS_PATH" in source
     assert 'p.add_argument("--reuse-prep-head"' in source
+
+
+def test_n2_only_recovery_frozen_budget_and_source_lock():
+    controller=mod("r0n_2_recovery_autopilot.py")
+    assert controller.RETRY_LIMIT_SECONDS==870.
+    assert controller.PRIOR_STAGE_SECONDS==6.83
+    assert controller.PRIOR_STAGE_SECONDS+controller.RETRY_LIMIT_SECONDS<900
+    assert controller.SOURCE_N0N1N3=="5af47dbb4f6dba5ba5aa140b9b30677039b31e39"
+    assert controller.PREP_HEAD=="b1637f7c27a3caaa03a8b204171fca0d3fccfcd5"
+    assert controller.PREP_SHA=="7be734de4cd2e6f395add521717506be9260c37708f8902e248c1848b68b705b"
+    code=source("r0n_2_recovery_autopilot.py").read_text(encoding="utf-8")
+    assert 'N2_CLIP_GPU_RETRY' in code
+    assert 'N2_OFFLINE_CPU_EVAL' in code
+    assert 'R0N_N2_RECOVERY_COMPLETE_PLANNER_READY' in code
+    assert 'R0N_N2_RECOVERY_COMPLETE_LOCAL_PUSH_PENDING' in code
+    assert 'R0N_N2_CLIP_COMPARISON.json' in code
+    assert 'N1_CPU' not in code
+    assert 'N0_import' not in code
+    compile(code,"r0n_2_recovery_autopilot.py","exec")
+
+def test_n2_recovery_launch_pins_sha_and_cpu_test_gate():
+    filename=source("r0n_2_recovery_launch.sh")
+    src=filename.read_text(encoding="utf-8")
+    assert 'R0N_N2_RECOVERY_CPU_TEST_RC' in src
+    assert 'R0N_N2_FROZEN_TASK_SHA_PASS' in src
+    assert 'R0N_N2_SELECTED_GPU=' in src
+    assert 'sha256sum' in src
+    assert '--budget-seconds 870' in src
+    assert 'LATEST_R0N_N2_RECOVERY_RUN' in src
