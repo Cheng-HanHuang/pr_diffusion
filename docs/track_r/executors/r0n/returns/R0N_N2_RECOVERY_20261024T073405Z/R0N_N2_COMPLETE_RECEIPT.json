@@ -1,0 +1,8 @@
+{
+  "comparison_sha256": "322c3ef02c1f8b509b1048e9ac9f3896bb86988a76afb8f62407e0a528db0233",
+  "gpu_hours": 0.0076632273519256465,
+  "head": "3f42c62825a135982a82aaec73e7c7f665a5e3d7",
+  "n": 3240,
+  "planner_k2_decision_pending": true,
+  "status": "R0N_N2_CLIP_OFFLINE_EVAL_PASS"
+}

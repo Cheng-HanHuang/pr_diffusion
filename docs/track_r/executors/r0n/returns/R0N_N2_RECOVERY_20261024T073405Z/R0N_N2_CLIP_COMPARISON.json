@@ -1,0 +1,1444 @@
+{
+  "K2_reserved_for_planner": true,
+  "gpu_hours": 0.0076632273519256465,
+  "gt_access": "offline precomputed R0.7 PSNR only",
+  "head": "3f42c62825a135982a82aaec73e7c7f665a5e3d7",
+  "per_candidate_gpu_wall_sec": 0.008514697057695163,
+  "rows": [
+    {
+      "family": "ALL",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 84,
+      "n_good": 2040,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 319,
+      "partial_orbit_left_unfixed": 1,
+      "source": "ALL"
+    },
+    {
+      "family": "ALL",
+      "global_repair_success": {
+        "ci95": [
+          0.9565217391304348,
+          1.0
+        ],
+        "estimate": 0.9880952380952381,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 84,
+      "n_good": 2040,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 215,
+      "partial_orbit_left_unfixed": 1,
+      "source": "ALL"
+    },
+    {
+      "family": "ALL",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 84,
+      "n_good": 2040,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 342,
+      "partial_orbit_left_unfixed": 1,
+      "source": "ALL"
+    },
+    {
+      "family": "ALL",
+      "global_repair_success": {
+        "ci95": [
+          0.7101449275362319,
+          0.9466666666666667
+        ],
+        "estimate": 0.8452380952380952,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.029906905415037693,
+          0.07899959197551851
+        ],
+        "estimate": 0.052941176470588235,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 84,
+      "n_good": 2040,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 520,
+      "partial_orbit_left_unfixed": 1,
+      "source": "ALL"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 9966
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 7,
+      "n_good": 165,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 11,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 9982
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 7,
+      "n_good": 165,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 11,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 9979
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 7,
+      "n_good": 165,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 15,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          0.5,
+          1.0
+        ],
+        "estimate": 0.8571428571428571,
+        "n_images": 100,
+        "n_valid_boot": 9975
+      },
+      "good_harm": {
+        "ci95": [
+          0.011976047904191617,
+          0.08045977011494253
+        ],
+        "estimate": 0.04242424242424243,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 7,
+      "n_good": 165,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 24,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 20,
+      "n_good": 598,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 52,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          0.8125,
+          1.0
+        ],
+        "estimate": 0.95,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 20,
+      "n_good": 598,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 34,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 20,
+      "n_good": 598,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 64,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.024037843053173243,
+          0.12026513172874724
+        ],
+        "estimate": 0.06688963210702341,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 20,
+      "n_good": 598,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 107,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 14,
+      "n_good": 285,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 44,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 14,
+      "n_good": 285,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 34,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 14,
+      "n_good": 285,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 43,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          0.75,
+          1.0
+        ],
+        "estimate": 0.9285714285714286,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.03483751005092469,
+          0.14084507042253522
+        ],
+        "estimate": 0.08421052631578947,
+        "n_images": 100,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 14,
+      "n_good": 285,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 73,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S1_b22"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 16,
+      "n_good": 170,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 44,
+      "partial_orbit_left_unfixed": 1,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 16,
+      "n_good": 170,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 30,
+      "partial_orbit_left_unfixed": 1,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 9999
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 16,
+      "n_good": 170,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 47,
+      "partial_orbit_left_unfixed": 1,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          0.25,
+          1.0
+        ],
+        "estimate": 0.625,
+        "n_images": 80,
+        "n_valid_boot": 9999
+      },
+      "good_harm": {
+        "ci95": [
+          0.005376344086021506,
+          0.05
+        ],
+        "estimate": 0.023529411764705882,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 16,
+      "n_good": 170,
+      "n_partial_orbit": 1,
+      "n_selected_global_flip": 62,
+      "partial_orbit_left_unfixed": 1,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 6345
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 2,
+      "n_good": 163,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 32,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 6313
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 2,
+      "n_good": 163,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 18,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 6345
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 2,
+      "n_good": 163,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 35,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "NP",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 6381
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 2,
+      "n_good": 163,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 40,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 9977
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 11,
+      "n_good": 129,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 53,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 9979
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 11,
+      "n_good": 129,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 44,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 9988
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 11,
+      "n_good": 129,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 53,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 80,
+        "n_valid_boot": 9977
+      },
+      "good_harm": {
+        "ci95": [
+          0.007575757575757576,
+          0.13392857142857142
+        ],
+        "estimate": 0.06201550387596899,
+        "n_images": 80,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 11,
+      "n_good": 129,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 75,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S2_b24_dev80"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6583
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 2,
+      "n_good": 19,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 6,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6534
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 2,
+      "n_good": 19,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 6,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6418
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 2,
+      "n_good": 19,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 8,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "DAPS",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6563
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 2,
+      "n_good": 19,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 7,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_LF",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 0,
+      "n_good": 21,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 1,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_LF",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 0,
+      "n_good": 21,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 0,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_LF",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 0,
+      "n_good": 21,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 1,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_LF",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 0,
+      "n_good": 21,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 4,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_S2",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6543
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 3,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_S2",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6638
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 3,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_S2",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6538
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 6,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "NP_S2",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6497
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 3,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 0,
+      "n_good": 24,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 2,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 0,
+      "n_good": 24,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 3,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 0,
+      "n_good": 24,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 4,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "SITCOM",
+      "global_repair_success": {
+        "ci95": null,
+        "estimate": null,
+        "n_images": 8,
+        "n_valid_boot": 0
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 0,
+      "n_good": 24,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 4,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S3_a12"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6551
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 5,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S4_a15"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6452
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 3,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S4_a15"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6537
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 5,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S4_a15"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 8,
+        "n_valid_boot": 6533
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 8,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 1,
+      "n_good": 22,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 5,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S4_a15"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 180,
+        "n_valid_boot": 9997
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "CLIP",
+      "n_global_orbit": 10,
+      "n_good": 422,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 66,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S5_r0_fast"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 180,
+        "n_valid_boot": 9999
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_GLOBAL",
+      "n_global_orbit": 10,
+      "n_good": 422,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 29,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S5_r0_fast"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          1.0,
+          1.0
+        ],
+        "estimate": 1.0,
+        "n_images": 180,
+        "n_valid_boot": 9997
+      },
+      "good_harm": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "estimate": 0.0,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "PRIOR_MID_GLOBAL",
+      "n_global_orbit": 10,
+      "n_good": 422,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 61,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S5_r0_fast"
+    },
+    {
+      "family": "FAST",
+      "global_repair_success": {
+        "ci95": [
+          0.14285714285714285,
+          0.7777777777777778
+        ],
+        "estimate": 0.5,
+        "n_images": 180,
+        "n_valid_boot": 9997
+      },
+      "good_harm": {
+        "ci95": [
+          0.029055690072639227,
+          0.09414815321945708
+        ],
+        "estimate": 0.05924170616113744,
+        "n_images": 180,
+        "n_valid_boot": 10000
+      },
+      "method": "UNIVFD_GLOBAL",
+      "n_global_orbit": 10,
+      "n_good": 422,
+      "n_partial_orbit": 0,
+      "n_selected_global_flip": 116,
+      "partial_orbit_left_unfixed": 0,
+      "source": "S5_r0_fast"
+    }
+  ],
+  "source_score_sha256": "fbf9083071f03cf873402e77a6b8d69829aab30675bf9f2b0d3a0b21b56188a8",
+  "status": "R0N_N2_CLIP_OFFLINE_EVAL_PASS",
+  "total_n": 3240
+}
