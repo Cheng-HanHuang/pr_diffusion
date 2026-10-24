@@ -1,5 +1,21 @@
 # PC-DAPS and field positioning — planner note (2026-10-24)
 
+> **Update, 2026-10-24 morning: K2 triggered** (decision §10).
+>
+> **Result.** CLIP zero-shot fixes 84/84 global orbit errors with 0/2,040 good outputs harmed, matching the diffusion prior at lower cost. So the diffusion-prior repair is **no longer a contribution**.
+>
+> **Superseded in this note:**
+> - every "still ours" item about repair (§0 item 3, §2's prior column, §6 claim 3);
+> - the related-work sentence in §7. Its replacement:
+>
+> > Concurrent work [PC-DAPS] also observes that ground-truth best-of-k reporting masks rotated and color-inverted phase-retrieval reconstructions, and modifies DAPS to prune them during sampling. Our study is complementary: a post-hoc audit of four solver families showing that ground-truth-free selection with a generic orientation test recovers nearly all of the ground-truth best-of-K gain, and that the remaining failures are generation failures.
+>
+> **Still valid:** the reconciliation (§3), the field survey (§5), and the anatomy and ladder claims.
+>
+> **Withdrawn:** N4 (§9).
+>
+> The current plan is LETTER_PLAN v1.3.
+
 **Author:** planner (Claude).
 
 **Trigger:** Cheng attached arXiv 2610.31592 (PC-DAPS, posted 22 Oct 2026). He asked for:

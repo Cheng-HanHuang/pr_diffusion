@@ -1,112 +1,59 @@
-# R0-N amendment 2 (planner, 2026-10-24): the R0-N.2 follow-up CPU block
+# R0-N amendment 2, revision B (planner, 2026-10-24): the R0-N.2 CPU block
 
-**Status.**
-- The R0-N N1 return has been received and ruled on. It is `R0N_20261024T061111Z` on `codex/prdiff-track-r-r0n-20261023` @ `5af47db`; the planner's ruling is in `docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md` §9.
-- This amendment defines **one follow-up CPU block, R0-N.2**. It collects everything still owed:
-  - items from amendment 1 that were not executed: the R0-N run merged planner `6686322`, which predates amendment 1;
-  - N2 on CPU, because the GPU gate returned UNAVAILABLE;
-  - two new CPU items prompted by concurrent work PC-DAPS.
+**Revision B (2026-10-24 morning) supersedes revision A.** It follows the N2 recovery and the K2 ruling (decision §10: K2 TRIGGERED; the paper becomes an audit).
+- **Removed:**
+  - A's B3 (N2 on CPU), now done by the N2 GPU recovery;
+  - A's B4 (N1d miss identity), no longer needed;
+  - A's A5 (N3b);
+  - N4.
+- **Promoted to required:** the mean-of-K ladder, plus a new **E1_CLIP** policy.
+
+**Inputs already in hand.**
+- R0-N N1 return: `R0N_20261024T061111Z` @ `5af47db`.
+- N2 recovery: `R0N_N2_RECOVERY_20261024T073405Z` @ `081fc75`/`33a34bd`, comparison SHA `322c3ef0…0233`.
 
 **Scope.**
 - CPU only (`CUDA_VISIBLE_DEVICES=""`).
-- Changes no frozen R0 or R0-N v1 definition.
+- Changes no frozen R0 or R0-N v1 definition, and reuses the frozen N2 CLIP decisions as stored. **No new CLIP or UNet inference.**
 - **Excluded:** GPU work, new reconstructions or measurements, and any access to confirmation305.
-- Existing R0-N outputs are immutable. Write to a new `r0n2_<stage>_<UTCSTAMP>/` root.
+- Write to a new `r0n2_<stage>_<UTCSTAMP>/` root. Existing R0-N outputs are immutable.
 
-**Priority order.** If time runs short, finish B1–B4 and return; A4/A5 may be marked "deferred". Optional items not returned by 2026-11-06 are dropped from the submission.
+**Target date:** return by 2026-11-07. Items not returned by then are dropped from the paper.
 
-**Planner context for A4/A5:** `docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`.
+## B1 — branch (required)
 
-## B1 — branch
-
-1. Merge `origin/claude/prdiff-track-r-planner-20261021` (≥ the commit that adds this file) into `codex/prdiff-track-r-r0n-20261023`, or into a new `codex/prdiff-track-r-r0n2-<YYYYMMDD>` created from `5af47db`. This should be conflict-free, because planner-owned files are unchanged on the executor branch.
+1. Merge `origin/claude/prdiff-track-r-planner-20261021` (≥ the commit that adds this revision) into `codex/prdiff-track-r-r0n-20261023`, or into a new `codex/prdiff-track-r-r0n2-<YYYYMMDD>` from `33a34bd`. The planner's dry run of this merge is conflict-free.
 2. Record both SHAs in the return.
 
-## B2 — amendment 1 items not yet executed (required)
+## B2 — N1h training-membership lookup (required; owed from amendment 1)
 
-1. **N1h, training-membership lookup.** Run amendment 1 §A2 exactly:
-   - look up the FFHQ `category` by id only, for B22 and DEV80;
-   - report repair success and harm for prior S and S_mid, split by category;
-   - record any documentation of `ffhq_10m.pt`'s training set, from targeted greps of `external/dps` and `external/DiffFPR`; otherwise write "UNKNOWN".
-2. **A3 image identities.** List the image ids behind:
-   - each post-selection fix;
-   - each selection miss;
-   - each uncorrected orbit error;
-   - each generation failure
+1. Run amendment 1 §A2: look up the FFHQ `category` field by image id only, for B22 and DEV80, in `/egr/research-pac/huang248/data/ffhq/ffhq-dataset/ffhq-dataset-v2.json`. Do not enumerate image trees.
+2. Report the counts per cohort.
+3. Record any documentation of `ffhq_10m.pt`'s training set from targeted greps of `external/dps` and `external/DiffFPR`, or write "UNKNOWN".
+4. Split by category:
+   - single-run Good25 rates per family;
+   - repair success and harm (CLIP and S_mid, global-only).
 
-   in the max-K N1b strata. These are the 15 fixes, 5 misses, 1 uncorrected and 93 generation failures counted by the planner from `N1b_POSTSELECTION.csv`.
-3. **N0 receipt.** `R0_7_COMPLETE_RECEIPT.json` (SHA `50ff1550…79c8`) was not committed with N0.
-   - If it is path-free, commit it and verify the SHA.
-   - If not, record "withheld: contains paths".
+## A4 — N1i ladder (required) and outcome crosswalk (recommended)
 
-## B3 — N2 CLIP zero-shot on CPU (required: kill criterion K2)
+### A4.3 Protocol ladder (REQUIRED)
 
-1. Run `scripts/track_r/r0n_2_clip_orientation.py` on CPU. Keep the frozen config `n2_clip_zero_shot` unchanged (`cpu_allowed: true`): same model SHA, prompts, preprocessing, score and decision.
-2. No GT in scoring.
-3. Measure CPU seconds per encoding.
-4. **Report** success on GLOBAL orbit errors, harm on GOOD, and the partial orbit errors left unfixed, for:
-   - CLIP;
-   - prior global-only (S);
-   - prior global-only (S_mid);
-   - **the N1d-selected configuration** (`single_300|J1|global2`, 2 forwards);
-   - UnivFD global-only.
+For each (source, family), and per cohort where a source spans both (S5), at K = 1 and at maximal K, report Good25 / mean / q05 for each rung:
 
-   Give image-cluster CIs. Add measured or projected cost per candidate for each.
-5. **Stop rule.** If the CPU projection exceeds 3 hours wall time, stop and report the projection instead of running.
+| Rung | Definition |
+|---|---|
+| **mean-of-K** | Per image, the mean PSNR over its K runs; then the mean over images. Also give the per-run Good25 rate, which is the single-run failure rate |
+| **E0, E1, E2, O_raw, O_orbit** | Existing frozen policies, reproduced. E1 is the prior-based (8-member S) repair |
+| **E1_CLIP** (new, required) | Take the E0 pick, then apply the **stored frozen N2 CLIP global decision** for that candidate: choose 111 iff u(R₁₁₁x) > u(x); otherwise keep 000. Evaluate the chosen member's raw PSNR |
+| **E1_2F** (optional) | As E1_CLIP, with the N1d-selected `single_300\|J1\|global2` decision computed from the stored draw losses |
+| **E_P** (optional, EXPLORATORY) | Take the argmin over the K candidates of the stored identity-member S (ties → lowest run index), then apply E1's repair |
 
-## B4 — N1d miss identity (required, one line)
+**Also report, per stratum:**
+- **GT-free share of the K-run gain** = (E1_CLIP − first run) / (O_raw − first run), and the same with E1;
+- the planner-check value: E1_CLIP − E1 (expected near 0);
+- for E1_CLIP, the max-K post-selection decomposition, i.e. N1b's fixed / selection miss / uncorrected / generation-failure counts.
 
-Give the id and orbit pattern of the one DEV80 orbit error that `single_300|J1|global2` missed (35/36). The planner expects it to be the single partial-orbit error (DAPS, DEV80); confirm or correct.
-
-## A4 — N1i: outcome crosswalk and protocol ladder (optional, non-blocking)
-
-**Why.**
-- PC-DAPS (arXiv 2610.31592; code `github.com/voilalab/PC-DAPS` @ `59b2f04`, MIT) reports DAPS phase-retrieval outcomes on FFHQ with an orientation-only label: 14.5% of runs are upside-down or color-inverted.
-- We report 3.5% (B22) and 5.3% (DEV80) of DAPS runs as *repairable* orbit errors.
-- To reconcile these, compute their label on our runs.
-
-**Inputs.** Use the same candidate images and GT tensors that the R0.7 PSNR_raw replay used, per source.
-- Record the representation each source uses: float after clamp, or RGB8.
-- GT is used for evaluation labels only, as in R0.7. It is never used in a deployable step.
-
-### A4.1 PC-DAPS outcome label
-
-This is the exact rule of `pr_outcomes.py` @ `59b2f04`. You may reimplement it, or copy it with the MIT notice.
-
-1. **Map to [0, 1].** Map x and g from [−1, 1] by v·0.5 + 0.5, then clamp to [0, 1].
-2. **Per-channel PSNR.** PSNR_c(x, r) = 10·log10(1 / max(MSE_c, 1e-10)), with the MSE taken over H×W for channel c.
-3. **Shift search.** For r ∈ {g, rot180(g)}, where rot180 flips both spatial axes, take the maximum of PSNR_c over the 9 circular shifts (dy, dx) ∈ {−1, 0, 1}² of r. The shift is `torch.roll` on the spatial dims.
-4. **Channel assignment.**
-   - upright_c ⇔ best(g) > best(rot) + 1.0 dB;
-   - rotated_c ⇔ best(rot) > best(g) + 1.0 dB.
-5. **Run label.**
-   - **faithful:** all channels upright;
-   - **flipped:** not faithful, and every channel is upright or rotated;
-   - **failed:** otherwise.
-6. **Unrecoverable image** at a given K: none of its K runs is faithful.
-
-**Unit test (synthetic, CPU).** A smooth non-symmetric test image should be labeled faithful; its rot180, flipped; a version with only channel G rotated, flipped; and uniform noise, failed.
-
-### A4.2 Tables (DESCRIPTIVE)
-
-1. **Label rates.** For each family × cohort (and per source where a source spans both cohorts, i.e. S5): faithful / flipped / failed rates per run. Give n and image-cluster bootstrap CIs using the R0.7 convention.
-2. **Cross-tab.** PC-DAPS label × R0.7 label, as counts per family × cohort. R0.7 labels: GOOD, ORBIT-global, ORBIT-partial, CONSISTENT, INCONSISTENT.
-3. **Unrecoverable images.** The rate per image at maximal K, next to 1 − O_orbit Good25 for the same stratum.
-4. **Selected outputs.** The same labels for the E0-selected and the E1-selected output per image at maximal K.
-
-### A4.3 Protocol ladder
-
-For each (source, family), at K = 1 and at maximal K, report Good25 / mean / q05 for:
-- **mean-of-K:** each image's mean PSNR over its K runs, then the mean over images. Also give the per-run Good25 rate.
-- **E0, E1, E2, O_raw, O_orbit:** the existing frozen policies, reproduced.
-- **E_P (EXPLORATORY), prior-only selection:**
-  1. Take the stored S of each candidate's identity member (000).
-  2. Pick the argmin over the K candidates; ties go to the lowest run index.
-  3. Apply the frozen E1 orbit repair to that pick.
-
-  Also report E_P − E0 and E_P − E1. E_P is the post-hoc analogue of selecting by prior consistency alone, with no residual.
-
-**Planner reference values** (R0.8 P4 / N1g; use them to sanity-check your ladder, not as targets):
+**Planner reference values** (R0.8 P4 / N1g; use them to sanity-check the ladder, not as targets):
 
 | Stratum | First run, K=1 E0 (dB) | O_raw at max K (dB) | E1 at max K (dB) |
 |---|---|---|---|
@@ -118,50 +65,55 @@ For each (source, family), at K = 1 and at maximal K, report Good25 / mean / q05
 | DEV80 NP | 22.32 | 26.07 | 25.86 |
 | FAST (S5, both cohorts) | 23.81 | 29.00 | 28.99 |
 
-### A4.4 DAPS configuration record (feeds N1e)
+### A4.1–A4.2 PC-DAPS outcome crosswalk (RECOMMENDED)
 
-From the historical receipts of S1, S2 and S3, record for DAPS:
+**Why.** PC-DAPS (arXiv 2610.31592; code `github.com/voilalab/PC-DAPS` @ `59b2f04`, MIT) reports 14.5% of DAPS runs on FFHQ as upside-down or color-inverted, using an orientation-only label. We report 3.5% (B22) and 5.3% (DEV80) of DAPS runs as repairable orbit errors.
+
+**Inputs.** Use the same candidate images and GT tensors as the R0.7 PSNR_raw replay, per source. Record the representation each source uses (float after clamp, or RGB8). GT is used for evaluation labels only.
+
+**Label rule** (the exact rule of `pr_outcomes.py` @ `59b2f04`; reimplement it, or copy it with the MIT notice):
+1. **Map to [0, 1].** v·0.5 + 0.5, then clamp to [0, 1], for both x and g.
+2. **Per-channel PSNR.** 10·log10(1 / max(MSE_c, 1e-10)), with the MSE over H×W for channel c.
+3. **Shift search.** For r ∈ {g, rot180(g)}, take the maximum over the 9 circular shifts (dy, dx) ∈ {−1, 0, 1}² (`torch.roll` on the spatial dims).
+4. **Channel assignment.** upright_c ⇔ best(g) > best(rot) + 1.0 dB; rotated_c ⇔ best(rot) > best(g) + 1.0 dB.
+5. **Run label.**
+   - faithful: all channels upright;
+   - flipped: not faithful, and every channel assigned;
+   - failed: otherwise.
+6. **Unrecoverable image:** none of its K runs is faithful.
+
+**Unit test (synthetic, CPU).** A smooth non-symmetric test image should be labeled faithful; its rot180, flipped; a version with only channel G rotated, flipped; uniform noise, failed.
+
+**Tables (DESCRIPTIVE):**
+1. Per-run faithful / flipped / failed rates per family × cohort, with n and image-cluster CIs.
+2. Cross-tab of PC-DAPS label × R0.7 label (GOOD, ORBIT-global, ORBIT-partial, CONSISTENT, INCONSISTENT).
+3. Unrecoverable rate at maximal K, next to 1 − O_orbit Good25.
+4. The labels of the E0 and E1_CLIP outputs at maximal K.
+
+### A4.4 DAPS configuration record (required, one line per source)
+
+From the historical receipts of S1, S2 and S3, record:
 - annealing steps;
 - ODE steps;
 - NFE per run.
 
-The planner reads the B21/B24 launch defaults as 400 annealing × 5 ODE steps, i.e. 2,000 NFE per run. Confirm or correct this from receipts, not from the scripts.
+The planner reads the launch defaults as 400 × 5 = 2,000 NFE per run; confirm or correct from receipts.
 
-### A4.5 Outputs and labeling
+## A3 — image identities (optional)
 
-- **Status.** Every N1i number is DESCRIPTIVE or EXPLORATORY; no decision depends on it.
-- **Evidence file.** Write `R0N2_LETTER_EVIDENCE.json` with the numbers under `n1i_*`.
-- **Tables.** One CSV per table.
-- **Figure (optional).** A small PDF/PNG of the cross-tab as a stacked bar for DAPS on B22 and DEV80.
+List the image ids behind the max-K post-selection fixes, misses, uncorrected errors and generation failures: 15 / 5 / 1 / 93 under E1. Repeat under E1_CLIP if the counts differ. These are for example figures only.
 
-## A5 — N3b: bounded held-out-data inventory (optional, non-blocking)
+## Not authorized here
 
-Record presence and size only. No enumeration inside directories, no downloads.
-
-**Checks:**
-1. Held-out face data, depth 1:
-   ```
-   ls -d /egr/research-pac/huang248/data/celeba* /egr/research-pac/huang248/data/*CelebA* /egr/research-pac/huang248/data/*face* 2>/dev/null
-   ```
-2. A DAPS-style 100-image ImageNet test subset, using `test -d` only:
-   - `dataset/test-imagenet` or `datasets/test-imagenet` under the DAPS checkout(s) recorded in R0.0;
-   - the same paths under `/egr/research-pac/huang248/external/FAST_DIPS_A15`.
-3. ImageNet validation images by fixed file name, without listing the directory. N3 found `/egr/research-pac/huang248/data/imagenet`. Only test a val directory directly below it: `val` or `ILSVRC2012_val`, using `test -d`.
-   - **Flat layout:** `test -f <val dir>/ILSVRC2012_val_00000001.JPEG` and `…00000100.JPEG`.
-   - **Per-class layout** (detected with `test -d <val dir>/n01440764`): record "per-class layout" and stop. Do not search the class folders.
-
-**Output.** Add the results to the return. Each item is PRESENT (with size) or ABSENT.
-
-## A6 — explicitly not authorized here
-
-**N4** (clean-image orientation probe) is a planner *proposal* (planner note §9) that needs Cheng's explicit go.
-- Do not write or run GPU code for it under this amendment.
-- If Cheng forwards a go, the planner will issue amendment 3 with the frozen N4 spec.
+- Any new inference: CLIP, UNet or UnivFD.
+- N3b and N4 (withdrawn).
+- R1 or R2 work.
+- Access to confirmation305.
 
 ## Return (`R0N2_EXECUTOR_RETURN.md`)
 
 1. **Status for Cheng** — at most 8 lines.
 2. **Identity** — branch, SHAs and interpreter.
-3. **Sections:** B2 (N1h, A3 identities, N0 receipt), B3 (N2 / K2 inputs), B4, A4 (N1i), A5 (N3b).
+3. **Sections:** B2 (N1h), A4.3 (ladder, with E1_CLIP), A4.4, A4.1–A4.2 (crosswalk), A3.
 4. **Anomalies.**
-5. **Artifacts** — PAC roots, committed outputs and SHA256SUMS.
+5. **Artifacts** — PAC root, committed CSV/JSON files and SHA256SUMS.

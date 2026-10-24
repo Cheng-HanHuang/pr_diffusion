@@ -332,3 +332,80 @@ The planner starts drafting with the N1 numbers now.
 - R0-N N1: COMPLETE, accepted.
 - R0-N.2: AUTHORIZED (CPU).
 - N4: PROPOSED.
+
+---
+
+## 10. N2 return and the K2 ruling (2026-10-24, morning)
+
+**What was read and checked:**
+- branch `codex/prdiff-track-r-r0n-20261023` @ `33a34bd`;
+- `R0N_ALL_STAGES_FINAL_SCIENTIFIC_RETURN_FOR_PLANNER_20261024.md`;
+- `returns/R0N_N2_RECOVERY_20261024T073405Z/R0N_N2_CLIP_COMPARISON.json`.
+- The planner recomputed the JSON's SHA-256: `322c3ef0…0233`, matching the published `comparison_sha256`. The pooled and per-stratum rows were read directly.
+- **Frozen setup:** the six frozen prompts, pinned ViT-L/14 SHA, and 3,240 GT-free PNG tasks. GPU use was 27.6 s of scoring (36.6 s summed stage wall, including the failed first attempt), within the 900 s cap.
+
+**N2 result (global 180° errors only; the single partial-orbit error is outside this denominator):**
+
+| GT-free global-only selector | Global orbit errors corrected | Raw-GOOD outputs harmed | Global flips chosen (of 3,240) |
+|---|---|---|---|
+| CLIP zero-shot (frozen prompts) | **84/84** | **0/2,040** | 319 |
+| Prior S (000 vs 111) | 83/84 (miss: one B22 NP case) | 0/2,040 | 215 |
+| Prior S_mid (000 vs 111) | 84/84 | 0/2,040 | 342 |
+| UnivFD p_fake (000 vs 111) | 71/84 | 108/2,040 (5.3%) | 520 |
+
+The executor's caveat is accepted: zero observed events give a degenerate bootstrap interval [0, 0]. This is not a proof of zero population harm.
+
+### Ruling
+
+**K2 — TRIGGERED.** The pre-registered condition holds against the frozen comparators.
+
+**Accuracy and harm.**
+- CLIP succeeds at least as often as the prior's global-only decision: 84 vs 83 for S, a tie with S_mid.
+- CLIP harms no more: 0 vs 0.
+
+**Cost.** CLIP measured 8.5 ms per candidate, batched, both orientations. The frozen global-only prior decisions use 64 (S) or 32 (S_mid) UNet forwards. At the measured ≈10.8 ms per forward, that projects to ≈0.69 s and ≈0.34 s. CLIP is cheaper by more than an order of magnitude, even with generous error on that projection.
+
+**The N1d two-forward rule is not a frozen K2 comparator.** It ties CLIP on accuracy and harm: 35/35 + 49/49 global errors, 0 harm. Its cost (≈21.5 ms) is a projection, so no speed ordering is claimed between it and CLIP. This does not rescue the claim: K2 asks whether the diffusion prior is needed, and CLIP shows it is not.
+
+**Pre-registered consequence, applied:**
+- Diffusion-prior orientation repair is **not a contribution in its own right**.
+- The letter is reframed: any good uprightness test suffices; the point is what the oracle hides and what remains after it is removed.
+- Odds drop.
+
+### Planner decision on writing
+
+**Write, as a short audit paper. Not a method letter.**
+
+**What still stands on verified, pre-registered or descriptive evidence:**
+1. Cross-solver failure anatomy under GT-free selection.
+2. GT-free selection plus a generic orientation test recovers 93–129% of the first-run → GT best-of-K gain. This is shown with prior-based E1; the CLIP-based E1 is owed in R0-N.2.
+3. After that, 93 of the 99 still-failing image-strata are generation failures.
+4. SITCOM's failures fit y in 57% of cases.
+5. Orientation tests: a generic uprightness test and the solver's prior both work, while a realness detector of the kind used by FA-FPR fixes fewer errors and harms 5.3% of good outputs.
+
+**Venue.**
+- **SPL is no longer the recommended target.** A methodology-free audit letter has low odds there (planner judgment ≈10–20%). The speed argument for SPL was about PC-DAPS scooping the repair, and the repair is no longer ours.
+- **Recommended: EUSIPCO 2027** (paper deadline 2027-02-06, to verify), with **ICIP 2027** (2027-03-31 per the SPS page, to verify) as the alternative. Planner judgment ≈35–45%.
+- Cheng and the coauthors choose. The research pass launched 2026-10-24 verifies dates and policies.
+- **Preprint:** post on arXiv once the draft is final. That timestamps it cheaply.
+
+**Withdrawn:**
+- **N4** (clean-image probe). It would only test a claim K2 has removed, and running it now would be a post-hoc rescue.
+- **N3b** (held-out data inventory). It is no longer needed.
+
+**R0-N.2** stays CPU-only and shrinks to what the audit needs (amendment 2, revision B):
+- N1h;
+- the ladder, with mean-of-K and **E1 using the frozen CLIP decisions**;
+- the PC-DAPS-label crosswalk;
+- A3 identities.
+
+**Time box.**
+- K4 (2026-12-11) now means the planner's draft is submission-ready. Cheng's editing then runs through December and January, before the EUSIPCO deadline.
+- If Cheng prefers to stop instead, the repository record is complete and nothing else is needed.
+
+**Ledger:**
+- R0-N: COMPLETE (N0–N3), accepted.
+- K1 not triggered; **K2 TRIGGERED**; K3 PASS; K4 unchanged.
+- R0-N.2: AUTHORIZED (CPU, revised scope).
+- N4: WITHDRAWN.
+- Letter: audit paper; EUSIPCO 2027 recommended.

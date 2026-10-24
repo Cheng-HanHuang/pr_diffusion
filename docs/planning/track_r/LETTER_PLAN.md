@@ -1,164 +1,171 @@
-# Letter plan — failure anatomy and exact-symmetry repair for diffusion phase retrieval
+# Paper plan — a ground-truth-free audit of diffusion-prior phase retrieval
 
-**Status:** PLAN v1.2, 2026-10-24, planner Claude.
-- **v1.2** repositions the letter after concurrent work PC-DAPS (arXiv 2610.31592); see [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md). It also folds in the R0-N N1 return, accepted in decision §9.
-- **v1.1** (2026-10-23) updated §1–§2 after the R0.8 tables.
-- Numbers marked ⟨…⟩ come from R0-N.
+**Status:** PLAN v1.3, 2026-10-24, planner Claude.
+- **v1.3** applies the K2 ruling (decision §10): CLIP zero-shot matches the diffusion prior on global orientation, so prior repair is no longer a contribution. The paper becomes an audit. SPL is replaced by EUSIPCO 2027 as the recommended venue.
+- **v1.2** repositioned the plan after PC-DAPS (arXiv 2610.31592); see [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md) and its K2 update box.
+- **v1.1** (2026-10-23) followed the R0.8 tables.
+- Numbers marked ⟨…⟩ come from R0-N.2.
 
-## 0. Title
+## 0. Title, venue, owner
 
-The v1.1 titles are retired: "What best-of-K hides…" and "Do we need ground truth…". PC-DAPS is titled "Beyond Best-of-k" and already makes the protocol critique.
+**Retired titles:**
+- "What best-of-K hides…" (PC-DAPS owns that framing);
+- any title containing "repair" as a method.
 
-**Candidates:**
-- **A (default):** "Failure Anatomy and Exact-Symmetry Repair for Diffusion-Prior Phase Retrieval"
-- **B:** "Ground-Truth-Free Selection for Diffusion Phase Retrieval: Symmetry Repair and What Remains"
-- **C:** "Where Diffusion Phase Retrieval Fails After Ground-Truth-Free Selection"
+**Title candidates:**
+- **A (default):** "A Ground-Truth-Free Audit of Diffusion-Prior Phase Retrieval: Selection, Symmetry, and Generation Failures"
+- **B:** "Ground-Truth-Free Selection Nearly Matches Oracle Best-of-K in Diffusion Phase Retrieval"
+- **C:** "What Remains After Ground-Truth-Free Selection in Diffusion Phase Retrieval"
 
-**Owner of the draft:** planner. Cheng edits; Cheng decides coauthors.
+**Venue:** Cheng and the coauthors decide. Facts are to be verified by the 2026-10-24 research pass.
+- **Recommended:** EUSIPCO 2027 (Darmstadt; paper deadline 2027-02-06 per eusipco2027.de as found earlier).
+- **Alternative:** ICIP 2027 (Singapore; 2027-03-31 per the IEEE SPS event page).
+- **Not recommended:** IEEE SPL. Odds for an audit letter there are about 10–20% (planner judgment), and its speed advantage no longer matters.
 
-**Format:** IEEE Signal Processing Letters. Four pages of technical content plus one page of references only; no over-length option (SPS information for authors).
+**Format:** keep the content to 4 pages plus references. That fits all three venues.
 
-**Fallbacks:**
-- EUSIPCO 2027 (Darmstadt, 30 Aug – 3 Sep 2027): paper deadline 2027-02-06, per eusipco2027.de as found in the 2026-10-24 research pass.
-- ICIP 2027 (Singapore): 2027-03-31, per the IEEE SPS event page. Third-party trackers say early February, so verify.
+**Preprint:** post to arXiv when the draft is final, if coauthors agree.
 
-## 1. Pitch (v1.2)
+**Owner:** the planner drafts; Cheng edits; Cheng decides coauthors.
 
-**Practice and question.** Diffusion-prior Fourier phase retrieval is reported as the best of four runs, chosen with the ground truth (GT). Concurrent work (PC-DAPS) shows that this hides rotated and color-inverted runs, and fixes them inside DAPS. We ask two complementary questions across solver families:
-- How much of the GT best-of-K number does a deployable, GT-free, post-hoc procedure recover?
-- What fails after that?
+**Coauthor note:** the SITCOM finding (57% of failures fit y) is unflattering to a method several coauthors wrote. Show it to them early; the finding stays.
 
-**Data.** FFHQ, with DAPS, SITCOM, FAST-DIPS and NP: 3,240 runs on a random cohort and a hard-enriched cohort.
+## 1. Pitch (v1.3)
+
+**Practice and question.** Diffusion-prior Fourier phase retrieval is reported as the best of K runs, chosen with the ground truth (GT). Concurrent work (PC-DAPS) argues that this hides rotated and color-inverted runs. We audit the protocol across solver families and ask:
+1. How much of the GT best-of-K number survives when selection is GT-free?
+2. What fails after that?
+
+**Data.** FFHQ, with DAPS, SITCOM, FAST-DIPS and NP: 3,240 runs on a random cohort (B22) and a hard-enriched cohort (DEV80).
 
 **Findings:**
-1. **GT-free parity.** Signed-residual selection plus exact-orbit prior repair matches GT best-of-K in every family.
-   - It is never more than 2 images (Good25) or 0.28 dB (mean) below GT best-of-K.
-   - It is up to 3 images and 0.65 dB above, where GT best-of-K itself returns misoriented outputs (B22 DAPS and DEV80 SITCOM).
-   - Going from the first run to GT best-of-K gains 2.2–5.5 dB.
-   - The GT-free protocol recovers 93–129% of that gain (planner arithmetic, see positioning note §3.2; ⟨mean-of-K ladder, N1i⟩).
-2. **What remains.** Repairable symmetry errors are a minority of failures: 7.1% pooled, 3.6% for FAST-DIPS. Most failures are generation failures.
-   - After E1, 99 maximal-K image-strata still fail; **93 of those 99 are generation failures**, where no candidate reaches 25 dB in any orbit member (N1b).
-   - For DAPS and FAST-DIPS (78–89% of single-run failures) they do not fit y.
-   - For SITCOM (57%) they fit y, so no residual test can see them.
-   - ⟨Crosswalk to PC-DAPS's orientation-only labels, N1i⟩.
-3. **The repair.** It compares only the exact orbit members of one candidate. These share one likelihood under any magnitude-noise model and the same rotation-invariant statistics, so the prior ratio decides and the complexity confound cancels.
-   - The full score fixes 84/85 orbit errors (S_mid 85/85) and harms 0/2,040 good outputs.
-   - **Two UNet evaluations suffice.** The pre-registered dev-selected configuration (identity vs global 180° at t = 300, one paired noise draw) fixes 49/49 orbit errors on the held-out B22 split and harms 0/1,423 good outputs (N1d). Paired noise cuts the variance of the score difference by about 5× (median factor 0.20).
-   - A learned realness detector fixes 62/85 and harms 220.
-   - Used across candidates, the same score is only a mediocre failure detector (AUROC 0.83–0.86 on DAPS/FAST), as the complexity effect predicts.
+1. **Almost all of the K-run gain survives without GT.**
+   - Going from one run to GT best-of-K gains 2.2–5.5 dB.
+   - Selecting by the signed measurement residual, then fixing global orientation with a generic uprightness test, recovers 93–129% of that gain (prior-based E1; ⟨CLIP-based E1 and mean-of-K, N1i⟩).
+   - It is never more than 2 images (Good25) or 0.28 dB (mean) below GT best-of-K, and up to 3 images and 0.65 dB above it where the GT pick is itself misoriented.
+   - What GT best-of-K hides is per-run unreliability (single-run failure rates of 21–60% by family and cohort) and the K× compute, not GT information.
+2. **What remains is generation failure.** After GT-free selection and orientation correction, 93 of the 99 still-failing image-strata have no candidate reaching 25 dB in any orbit member.
+3. **Failure modes depend on the solver.**
+   - For DAPS and FAST-DIPS, 78–89% of single-run failures do not fit y, and the signed residual detects them (AUROC ≈ 0.98).
+   - For SITCOM, 57% of failures fit y as well as good runs do (AUROC 0.68), so residual tests cannot see them.
+4. **Symmetry errors are a minority, and a generic test fixes them.**
+   - Exact-orbit errors are 7.1% of failures pooled (FAST-DIPS 3.6%).
+   - On the exact orbit the likelihood is identical, so the choice is a pure prior comparison (Proposition 1). Any good uprightness prior then works:
+     - CLIP zero-shot: 84/84 global errors fixed, 0/2,040 good outputs harmed;
+     - the solver's own diffusion prior (S_mid, or 2 forwards at t = 300): 84/84, 0/2,040.
+   - A realness detector of the kind FA-FPR uses fixes 71/84 and harms 5.3% of good outputs.
 
-**Recommendations:** report the GT-free number; use the signed residual; repair symmetry with the solver's own prior. Future solver work should target generation failures.
+**Recommendations:**
+- Report GT-free best-of-K alongside, or instead of, GT best-of-K, and report single-run failure rates.
+- Select by the signed residual. Resolve orientation with any uprightness test, not a realness detector.
+- Future solver work should target generation failures.
 
-## 2. Contributions (allowed claims, v1.2 order)
+## 2. Contributions (allowed claims, v1.3 order)
 
-1. **Cross-family failure anatomy under GT-free selection** on a random and a hard-enriched cohort, crosswalked to PC-DAPS's outcome labels ⟨N1i⟩. We are not aware of a comparable cross-solver analysis; re-check at writing time.
-2. **GT-free parity with GT best-of-K:** the protocol ladder ⟨mean-of-K, E0, E1, E2, O_raw, O_orbit, with E_P exploratory⟩. What remains are generation failures.
-3. **Post-hoc, solver-agnostic exact-symmetry repair with harm accounting:**
-   - Proposition 1, made explicit: posterior ratio = prior ratio on the exact orbit, for any magnitude-noise model; rotation-invariant statistics are constant on the orbit.
-   - The paired-noise estimator: median variance factor 0.20, IQR 0.08–0.43 on GOOD candidates. We claim its validation, not its invention.
-   - A cost curve: the cheapest dev-selected configuration uses 2 forwards and scores 49/49 with 0/1,423 harm on B22 (pre-registered DEV80 → B22). Other grid points are exploratory.
-   - Comparisons with UnivFD and ⟨CLIP zero-shot, N2 on CPU⟩.
-4. **Mechanism.** Across candidates, the denoising-loss score tracks image complexity: Spearman 0.43–0.46 with high-frequency energy among good DAPS/FAST outputs. Inside the exact orbit, that confound cancels.
-   - The per-t results agree: the lowest noise level fails, consistent with CCLR's finding that DDPM complexity bias concentrates in low-noise ELBO terms.
-   - PC-DAPS's mid-noise σ choice (≈ DDPM t 144–396) is consistent with this.
-5. **Negative findings:**
-   - realness detectors are unreliable for orientation, and inferior to the signed residual as post-hoc detectors on DAPS/FAST;
-   - the clipped residual misranks.
+1. **Cross-solver failure anatomy under GT-free selection**, on a random and a hard-enriched cohort ⟨crosswalked to PC-DAPS's outcome labels, N1i⟩. Re-check novelty at writing time.
+2. **The protocol ladder:**
+   - rungs: ⟨mean-of-K⟩, first run, E0, E1 (prior), ⟨E1 (CLIP)⟩, O_raw, O_orbit;
+   - the GT-free share of the K-run gain;
+   - single-run failure rates.
+3. **Post-selection decomposition:** fixes, selection misses, uncorrected orbit errors and generation failures (15 / 5 / 1 / 93 at maximal K).
+4. **Residual behavior by solver:** signed versus clipped residual; why it works for DAPS/FAST and not for SITCOM (N1c distributions).
+5. **Orientation:**
+   - Proposition 1 (posterior ratio = prior ratio on the exact orbit) explains why any uprightness prior suffices.
+   - Evaluation of three test types with harm: generic VLM, the solver's prior, a realness detector.
+   - Low-noise prior terms hurt (full S 83/84; t = 50 fails), consistent with low-noise complexity bias (CCLR).
+
+**Demoted to supporting detail** (one or two sentences, no contribution claim):
+- the paired estimator and its 5× variance factor;
+- the 2-forward configuration;
+- the complexity correlation (Spearman 0.43–0.46).
 
 **Open validity item:** checkpoint training membership (N1h).
-- `ffhq_10m.pt` likely trained on all 70k FFHQ images (ILVR App. C.2; inferred). B22 is validation-category but probably seen in training.
-- State this as a limitation. ⟨Optional N4a held-out faces probe, if Cheng approves and the data exist⟩.
-- Re-read the complexity literature before citing: Serrà et al. (ICLR 2020), Nalisnick et al. (ICLR 2019), Goodier & Campbell CCLR (arXiv 2310.17432).
+- `ffhq_10m.pt` likely trained on all 70k FFHQ images (inferred from ILVR App. C.2). State this as a limitation that affects all solvers equally.
+- It matters less now that no claim depends on the prior recognizing orientation.
 
 ## 3. Not allowed
 
-**Unchanged from v1.1:**
-- Orbit enumeration is not new: DiffFPR's code enumerates the same 8 patterns, but aligns them with GT.
-- GT-free failure detection is not new (FA-FPR).
-- No claims about FA-FPR's mid-trajectory restart policy. We test detectors on final outputs only.
-- No generalization beyond FFHQ at σ = 0.05 and 2× oversampling.
-- No claims about NP as a method.
-- No claims about confirmation305 or any untouched cohort. B22 is a fixed random validation-category panel; DEV80 is hard-enriched.
+**Carried over:**
+- **Novelty:** orbit enumeration and GT-free failure detection are not new (DiffFPR, FA-FPR).
+- **FA-FPR:** no claims about its restart policy.
+- **Scope:** no generalization beyond FFHQ, σ = 0.05, 2× oversampling.
+- **NP:** no claims about it as a method.
+- **Cohorts:** no claims about confirmation305 or untouched cohorts.
+- **PC-DAPS:**
+  - no "first to show best-of-k hides orientation errors";
+  - no "first GT-free prior-based orientation fix";
+  - no novelty for the paired twin test;
+  - no claims about PC-DAPS's cluster score;
+  - no head-to-head numbers against it.
+- Do not say "orbit errors are rare" without "repairable".
 
-**New in v1.2 (PC-DAPS):**
-- No "first to show GT best-of-k hides orientation errors", and no "first to report outcome frequencies or mean-of-k".
-- No "first GT-free, prior-based fix of the phase-retrieval orientation ambiguity". PC-DAPS does it on FFHQ, in-sampler.
-- No novelty claim for the paired twin test itself. It is in PC-DAPS's public code (global, ImageNet only). We claim its post-hoc, solver-agnostic, harm-accounted validation.
-- Do not say "orbit errors are rare" without qualification. Say "repairable orbit errors", i.e. an orbit member ≥ 25 dB.
-- No claim that PC-DAPS's cluster score is confounded by complexity. Untested: our complexity evidence is across images.
-- No head-to-head numbers against PC-DAPS. Images and configurations differ, so quote theirs only as their numbers.
+**New in v1.3 (K2):**
+- **Prior:** no claim that the diffusion prior is needed for, or better at, orientation correction.
+- **Orientation as a method:** no novelty claim for orientation correction. Present it as a generic uprightness test with two instantiations.
+- **CLIP:** no claim that CLIP orientation is new technology.
+- **Speed:** no speed ordering between CLIP and the 2-forward prior rule. The latter's cost is a projection.
+- **Harm wording:** never write "zero harm" unqualified. Write "no harm observed in 2,040 good outputs from 180 images".
 
 ## 4. Structure (about 4 pages)
 
 1. **Introduction** (0.6 page).
    - GT best-of-K practice (DPS, DAPS, SITCOM, FAST-DIPS) and GT orientation alignment (DiffFPR, DDRM-PR, I2I-PR).
-   - FA-FPR's detector; concurrent PC-DAPS (one sentence; draft in the positioning note §7).
-   - The question; contributions.
-2. **Setup** (0.5 page).
-   - Operator: the pinned DAPS/FAST definition, σ = 0.05, signed y.
-   - The four families with native settings ⟨DAPS NFE per run, N1i A4.4⟩.
-   - Cohorts: B22 random 100, DEV80 hard-enriched.
+   - FA-FPR's GT-free detector; concurrent PC-DAPS (one sentence, draft in the positioning note §7, with the repair clause removed).
+   - The audit questions; contributions.
+2. **Setup** (0.6 page).
+   - Operator, σ, signed y.
+   - Four solver families with native settings ⟨DAPS NFE per run⟩.
+   - The two cohorts.
+   - Labels: GOOD (Good25, following DAPS++'s PSNR < 25 failure rule), ORBIT, CONSISTENT, INCONSISTENT, and the τ rule; PC-DAPS labels as a crosswalk.
    - Policies: mean-of-K, E0, E1, O_raw, O_orbit.
-   - Labels: GOOD, ORBIT, CONSISTENT, INCONSISTENT, and the τ rule; PC-DAPS labels as a crosswalk. Good25 follows field practice (DAPS++ uses PSNR < 25 as phase-retrieval failure).
-3. **Exact-symmetry repair** (0.6 page).
-   - Proposition 1 and its one-line proof.
-   - The estimator with paired coupling R_s ε.
-   - Cost.
-   - S_mid and cheap configurations.
-4. **Results** (1.9 pages).
-   - **Fig. 1:** anatomy stacked bars per family, B22 vs DEV80, with the PC-DAPS-label crosswalk as an inset or a sentence ⟨N1i⟩.
-   - **Table 1:** repair success and harm for prior S, S_mid, the cheap configuration, UnivFD and CLIP zero-shot (global only).
-   - **Table 2:** protocol ladder per family: mean-of-K, E0, E1, O_raw, O_orbit (Good25 / mean / q05) on B22, with DEV80 in parentheses.
-   - **Fig. 2:** repair success vs UNet forwards (log x), with harm marked.
-   - **One line plus a short table:** post-hoc detection AUROC (signed ρ vs UnivFD vs prior). SITCOM's 0.68 is explained by the residual distributions.
-5. **Discussion and recommendations** (0.4 page).
-   - Report deployable best-of-K; use the signed residual; repair orientation with the prior.
-   - Remaining failures are generation failures.
-   - Limitations: FFHQ only; checkpoint membership; ImageNet, where PC-DAPS reports weaker prior disambiguation ⟨N4b if run⟩.
-
-**Optional visual** (if space allows): four examples showing raw rotated failure, repaired result and GT.
+   - Proposition 1 (three lines), and the two orientation tests.
+3. **Results** (2.3 pages).
+   - **Fig. 1:** anatomy stacked bars per family, B22 vs DEV80 ⟨plus crosswalk⟩.
+   - **Table 1:** the protocol ladder per family (Good25 / mean / q05), B22 with DEV80 in parentheses, plus the GT-free share of the gain.
+   - **Table 2:** orientation tests (CLIP, prior S_mid, prior 2-forward, prior S, UnivFD): global errors fixed, harm, cost note.
+   - **Fig. 2:** residual distributions by family and label (from N1c).
+   - **Text:** the post-selection decomposition (15 / 5 / 1 / 93); detection AUROC by family.
+4. **Discussion, recommendations, limitations** (0.5 page).
+   - The recommendations from §1.
+   - Limitations: FFHQ only; one operator and noise level; checkpoint membership.
+   - Generality: ImageNet orientation is harder for priors (PC-DAPS), and CLIP's behavior there is untested by us.
 
 ## 5. Evidence status
 
-R0-N N1 is complete and accepted (decision §9). R0-N.2 is the follow-up CPU block in amendment 2.
+R0-N (N0–N3) is complete and accepted (decision §§9–10). R0-N.2 is the remaining CPU block (amendment 2, revision B).
 
 | Item | Source | Status |
 |---|---|---|
-| Anatomy (pooled and per source, including per-family consistent counts) | R0.7 / R0.8 ZIP | have (planner-verified) |
-| Anatomy by image cohort, with S5 split into B22 and DEV80 | R0-N N1a | **have** |
-| Repair success/harm: S, S_mid, UnivFD; per-t repair | R0.7 / R0.8 ZIP | have (planner-verified) |
-| Deployable vs O_raw / O_orbit for S1–S5 strata, FAST split by cohort | R0.8 P4 + R0-N N1g | **have** (A3 targets reproduced) |
-| First-run → GT best-of-K → GT-free ladder | R0.8 P4 (planner arithmetic) | have; mean-of-K rung pending (N1i, optional) |
-| PC-DAPS-label crosswalk; E_P prior-only selection | R0-N.2 A4 (N1i) | pending (optional, non-blocking) |
-| DAPS configuration (NFE per run) from receipts | R0-N.2 A4.4 | pending |
-| Complexity correlation (Spearman of S with high-frequency energy) | R0.7 secondary | have |
-| Checkpoint training membership of evaluation ids | R0-N.2 §B2 (N1h) | pending (required) |
-| ImageNet assets (`imagenet256.pt` present; `/data/imagenet` present) | R0-N N3 | **have** |
-| Held-out data inventory (faces, ImageNet val layout) | R0-N.2 A5 (N3b) | pending (optional) |
-| Clean-image orientation probe (held-out faces, ImageNet) | N4 | **proposed; needs Cheng's go** |
-| Cheap configuration (dev→eval) and paired-variance factor | R0-N N1d | **have**: 2 forwards; B22 49/49, 0/1,423 harm; factor median 0.20 |
-| CLIP zero-shot baseline (K2) | R0-N.2 §B3 (N2 on CPU) | pending (required for K2) |
-| Post-selection decomposition | R0-N N1b | **have** (93/99 remaining are generation failures); image identities pending (§B2) |
-| Residual distributions | R0-N N1c | **have** |
-| Costs | R0-N N1e | **have**: native per-run costs; scoring 2.755 s/candidate full S; ≈0.02 s projected for 2 forwards |
-| Conditional detection (exploratory) | R0-N N1f | **have** |
-| Draft figures (anatomy, cost–success, residual violins) | R0-N figures (Pillow) | have as drafts; final figures to be redrawn for SPL |
+| Anatomy, pooled and by cohort | R0.7 / R0-N N1a | **have** |
+| Ladder: first run, E0, E1 (prior), O_raw, O_orbit; FAST split | R0.8 P4 / R0-N N1g | **have** |
+| Mean-of-K rung; E1 with CLIP orientation | R0-N.2 A4 (N1i) | pending (**required**) |
+| PC-DAPS-label crosswalk | R0-N.2 A4 (N1i) | pending (recommended) |
+| Post-selection decomposition (counts) | R0-N N1b | **have**; image identities pending (A3, optional) |
+| Residual distributions; detection AUROC | R0-N N1c / R0.7 P3 | **have** |
+| Orientation tests: CLIP, S, S_mid, UnivFD (global-only) | R0-N N2 recovery | **have** (planner-verified, SHA-matched) |
+| 2-forward prior rule; paired-variance factor | R0-N N1d | **have** (supporting detail only) |
+| Costs | R0-N N1e; N2 receipt | **have** (CLIP measured; prior rules projected) |
+| Checkpoint training membership | R0-N.2 B2 (N1h) | pending (**required**) |
+| DAPS configuration (NFE per run) | R0-N.2 A4.4 | pending |
+| Draft figures | R0-N (Pillow) | drafts; redraw for the paper |
+| N3b; N4 | — | **withdrawn** |
 
-## 6. Timeline (v1.2, compressed: "submit fast")
+## 6. Timeline (v1.3)
 
 | Date | Milestone |
 |---|---|
-| 2026-10-24 | R0-N N1 complete and accepted (K3 PASS, K1 not triggered) |
-| 2026-10-25 → 10-31 | R0-N.2: one CPU block (N1h, A3 identities, N2 on CPU for K2, optional N1i/N3b) |
-| 2026-10-26 → 11-06 | Planner drafts the full letter, using N1 numbers now and R0-N.2 numbers when they land |
-| 2026-11-06 | Draft freeze for planner content; optional items not back are dropped |
-| 2026-11-10 → 11-20 | Cheng and coauthor edits |
-| **2026-11-24** | **SPL submission target.** Optional same-day arXiv post; coauthors decide |
-| 2026-12-11 | K4 time box, unchanged: the hard stop |
+| 2026-10-24 | R0-N complete; K2 ruled |
+| by 2026-11-07 | R0-N.2: one CPU block (N1h, N1i with mean-of-K, CLIP-E1 and the crosswalk; optional A3) |
+| 2026-10-27 → 11-27 | Planner drafts the full paper |
+| **2026-12-11** | **K4: draft submission-ready** (the planner's deadline) |
+| 2026-12 → 2027-01 | Cheng and coauthor edits, at their pace |
+| **2027-02-06** | **EUSIPCO 2027 deadline (recommended target; verify).** ICIP 2027 (2027-03-31) is the alternative |
 
-**Drop rule:** any optional item (N1i, N2, N4) not returned by 2026-11-06 is dropped from the submission.
+Optional arXiv post once the draft is final.
 
 ## 7. Kill criteria and watch items
 
-- **K1–K4:** as listed in `2026-10-23_R0_PLANNER_DECISION.md` §5. Unchanged.
-- **W1 (new, watch):** if a PC-DAPS revision or another paper publishes post-hoc exact-orbit repair with cross-solver evaluation before we submit, the planner re-rules. Repair would then be presented as a replication, and the anatomy and protocol ladder carry the letter. The planner checks arXiv before the draft freeze and again before submission.
+- **K1:** not triggered. **K2:** TRIGGERED (applied above). **K3:** PASS.
+- **K4:** reinterpreted as the draft-ready date.
+- **W1 (watch):** if a PC-DAPS revision or another paper publishes a cross-solver, GT-free audit of diffusion phase retrieval before we submit, the planner re-rules. The planner checks before the draft freeze and before submission.
+- **Stop option:** if Cheng decides not to write, the repository record is the deliverable and the project goes dormant (D4).
