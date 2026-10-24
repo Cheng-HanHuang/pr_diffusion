@@ -1,4 +1,6 @@
-# R0-N amendment 2, revision B (planner, 2026-10-24): the R0-N.2 CPU block
+# R0-N amendment 2, revision C (planner, 2026-10-24): the R0-N.2 CPU block
+
+**Revision C (2026-10-24 late morning) is additive to revision B.** It adds §A7, a planner observation export plus SSIM/LPIPS on CPU, for extensions X1/X2 in `docs/planning/track_r/2026-10-24_EXTENSION_OPTIONS.md`. Nothing in revision B changes. If R0-N.2 is already running, finish it and run §A7 as a small add-on in the same environment.
 
 **Revision B (2026-10-24 morning) supersedes revision A.** It follows the N2 recovery and the K2 ruling (decision §10: K2 TRIGGERED; the paper becomes an audit).
 - **Removed:**
@@ -103,10 +105,65 @@ The planner reads the launch defaults as 400 × 5 = 2,000 NFE per run; confirm o
 
 List the image ids behind the max-K post-selection fixes, misses, uncorrected errors and generation failures: 15 / 5 / 1 / 93 under E1. Repeat under E1_CLIP if the counts differ. These are for example figures only.
 
+## A7 — planner observation export and evaluation metrics (recommended; revision C)
+
+**Purpose.** Give the planner one compact, path-free per-candidate table, so the exploratory analyses for X1/X2 run on the planner side without further PAC iterations.
+
+**Delivery.**
+- Deliver it as a ZIP that Cheng uploads to the planner, like the R0.8 ZIP.
+- Do **not** commit the per-candidate table to git, consistent with the rule against per-run GT records.
+- Commit only the script, the schema and the ZIP's SHA-256.
+
+**A7.1 Per-candidate table** (`R0N2_OBSERVATION_TABLE.csv`, 3,240 rows; no paths, no tensors). One row per candidate:
+
+| Column group | Columns |
+|---|---|
+| Identity | `image_id`, `cohort`, `source`, `family`, `run_index` (the frozen K order), `ffhq_category` (from B2) |
+| R0.7 labels and PSNR | `label` (R0.7); `psnr_raw`; `psnr_member_<s>` for the 8 members s ∈ {000,…,111} |
+| Residuals | `rho_signed`, `rho_clipped` |
+| Prior and other scores | `S_<s>` and `S_mid_<s>` for the 8 members (stored values); `loss_t300_j0_000` and `loss_t300_j0_111` (the stored per-draw losses behind the 2-forward rule); `univfd_pfake_000`, `univfd_pfake_111` |
+| CLIP | `clip_u_000`, `clip_u_111` and the frozen `clip_choice`, from the stored N2 scores |
+| Other | `hf_energy` (R0.7 secondary); `native_cost_seconds` where recorded |
+| **New evaluation metrics** | `ssim_raw`, `lpips_raw`, `ssim_111`, `lpips_111` (the global-rotated member) |
+
+**Metric definitions for the new columns.** They match the DAPS/FAST-DIPS evaluators: piq SSIM with `data_range=1.0`, and piq `LPIPS(replace_pooling=True)`, on (x·0.5 + 0.5).clamp(0, 1) against GT.
+- CPU only. LPIPS's pretrained network is an evaluation metric, allowed here **for evaluation only**.
+- Record the piq version and the LPIPS weight hash.
+
+**A7.2 Per-image table** (`R0N2_IMAGE_FEATURES.csv`, 180 rows). Per image:
+- **GT-free measurement features**, computed from y only:
+  - total energy Σy²;
+  - the fraction of Σy² beyond radii 16, 32, 64, 96 from the canvas center (384² canvas);
+  - the radial log-power slope fitted on radii 8–128;
+  - the fraction of entries with |y| < σ;
+  - the signed-y negative fraction.
+- **GT-derived descriptive features** (analysis only; never used for selection): GT high-frequency energy, GT total variation, GT mean saturation, GT luminance standard deviation.
+
+**A7.3 Contact sheets** (`contact_*.png`, ≤ 12 sheets, 256-px tiles, ≤ 20 MB total). Each row shows GT | E0 pick | E1_CLIP pick, with the PSNR printed:
+1. all max-K generation failures;
+2. 40 SITCOM measurement-consistent failures, chosen by a fixed rule: the 40 lowest `rho_signed` among SITCOM CONSISTENT candidates, ties broken by id;
+3. all orbit errors.
+
+FFHQ images only. No confirmation305.
+
+**A7.4 Compute-accounting table** (`R0N2_TIMING_SOURCES.csv`). Per source and family:
+- GPU model;
+- timing definition (CUDA event, sampling-only wall, or full process wall);
+- batch size;
+- whether the measured time includes model load.
+
+The planner needs this to put all four solvers on one compute axis (X3).
+
+**Rules.**
+- CPU only (`CUDA_VISIBLE_DEVICES=""`).
+- Read-only inputs. New output root `r0n2_obs_<UTCSTAMP>/`.
+- Stop if the LPIPS projection exceeds 2 CPU-hours. Then deliver everything except the LPIPS columns.
+
 ## Not authorized here
 
-- Any new inference: CLIP, UNet or UnivFD.
+- Any new inference: CLIP, UNet or UnivFD. The only exception is the A7 LPIPS evaluation metric, on CPU.
 - N3b and N4 (withdrawn).
+- GPU extensions X3–X6. They need a planner pre-registration and Cheng's go.
 - R1 or R2 work.
 - Access to confirmation305.
 
@@ -114,6 +171,6 @@ List the image ids behind the max-K post-selection fixes, misses, uncorrected er
 
 1. **Status for Cheng** — at most 8 lines.
 2. **Identity** — branch, SHAs and interpreter.
-3. **Sections:** B2 (N1h), A4.3 (ladder, with E1_CLIP), A4.4, A4.1–A4.2 (crosswalk), A3.
+3. **Sections:** B2 (N1h), A4.3 (ladder, with E1_CLIP), A4.4, A4.1–A4.2 (crosswalk), A3, A7 (the ZIP's SHA-256 and a row and column count; the ZIP itself goes to Cheng for the planner).
 4. **Anomalies.**
 5. **Artifacts** — PAC root, committed CSV/JSON files and SHA256SUMS.

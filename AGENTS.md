@@ -23,7 +23,7 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
 - Count all compute.
 - Within R0, the handoff's pre-authorization replaces the historical "stop after every stage for sign-off" rule: R0.4–R0.6 may proceed once G0, G1 and the R0.3 smoke pass. Every other escalation trigger in the handoff still applies.
 - **Update 2026-10-23:** R0 is complete and the Track R method line is stopped. R1 and R2 are cancelled. The only authorized executor work is R0-N, defined in `docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md` and `configs/track_r/r0n_letter_analysis_v1.json`: CPU work, plus the optional N2 CLIP baseline capped at 0.25 GPU-hours.
-- **Update 2026-10-24:** R0-N (N0–N3) is complete and accepted; **K2 is triggered** (decision §10), so the paper is an audit and diffusion-prior repair is not a contribution. The only authorized executor work is R0-N.2, per `docs/track_r/executors/r0n/R0N_AMENDMENT_2_20261024.md` revision B: CPU only, stored decisions only, no new CLIP, UNet or UnivFD inference. N3b and N4 are withdrawn.
+- **Update 2026-10-24:** R0-N (N0–N3) is complete and accepted; **K2 is triggered** (decision §10), so the paper is an audit and diffusion-prior repair is not a contribution. The only authorized executor work is R0-N.2, per `docs/track_r/executors/r0n/R0N_AMENDMENT_2_20261024.md` revision C: CPU only, stored decisions only, no new CLIP, UNet or UnivFD inference. The one exception is the §A7 SSIM/LPIPS evaluation metrics on CPU. N3b and N4 are withdrawn. GPU extensions X3–X6 (`docs/planning/track_r/2026-10-24_EXTENSION_OPTIONS.md`) need a planner pre-registration and Cheng's go.
 
 ## B26 branch override
 

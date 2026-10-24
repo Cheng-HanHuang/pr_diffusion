@@ -2,6 +2,11 @@
 
 **Status:** PLAN v1.3, 2026-10-24, planner Claude.
 - **v1.3** applies the K2 ruling (decision §10): CLIP zero-shot matches the diffusion prior on global orientation, so prior repair is no longer a contribution. The paper becomes an audit. SPL is replaced by EUSIPCO 2027 as the recommended venue.
+  - **Late-morning addendum:** extension options X1–X6 are in [`2026-10-24_EXTENSION_OPTIONS.md`](2026-10-24_EXTENSION_OPTIONS.md). X1/X2 are CPU work, in R0-N.2 revision C. X3–X6 await pre-registration and Cheng's go.
+  - **Protocol facts now verified:**
+    - DPS leaves its own selection criterion unspecified, while its classical baselines use the measurement residual.
+    - The DAPS and FAST-DIPS evaluation code picks the best run separately for each metric.
+  - The EUSIPCO 2027 deadline (2027-02-06) is verified. Plan for 5 pages including references (2026 rule; confirm for 2027).
 - **v1.2** repositioned the plan after PC-DAPS (arXiv 2610.31592); see [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md) and its K2 update box.
 - **v1.1** (2026-10-23) followed the R0.8 tables.
 - Numbers marked ⟨…⟩ come from R0-N.2.

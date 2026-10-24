@@ -34,7 +34,7 @@
 
 1. **R0 decision** — results, gate rulings, the plan from here, publication image: [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
 2. **PC-DAPS positioning (2026-10-24)** — full read, crosswalk, the gap; read its K2 update box first: [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
-3. **Paper plan (v1.3, audit):** [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md)
+3. **Paper plan (v1.3, audit):** [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md). Extension options X1–X6: [`docs/planning/track_r/2026-10-24_EXTENSION_OPTIONS.md`](../planning/track_r/2026-10-24_EXTENSION_OPTIONS.md)
 4. **R0-N executor handoff:** [`docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md`](executors/r0n/00_EXECUTOR_HANDOFF.md), with config `configs/track_r/r0n_letter_analysis_v1.json` (FROZEN v1) and amendments 1–2
 5. **R0 record:**
    - executor return on `codex/prdiff-track-r-r0-20261021`: `docs/track_r/executors/r0/R0_FROZEN_COMPLETE_SCIENTIFIC_RETURN_TO_PLANNER_20261023.md`;
@@ -51,7 +51,8 @@
 | R0.0–R0.8 | Inventory, environment, G0/G1, scoring of 2,520 historical candidates, 720 new FAST roots and their scoring, frozen analysis, independent audit (3.43 GPU-hours) | COMPLETE, accepted | executor and Cheng |
 | R0-D | R0 decision | COMPLETE (2026-10-23) | planner |
 | R0-N | Letter evidence package: N0 tables, N1 analyses, N2 CLIP baseline, N3 ImageNet inventory | COMPLETE, accepted 2026-10-24 (N1 `5af47db`; N2 recovery `33a34bd`). K1 not triggered, **K2 TRIGGERED**, K3 PASS | executor writes, Cheng runs |
-| R0-N.2 | One CPU block (amendment 2, revision B): N1h; protocol ladder with mean-of-K and E1_CLIP (required); PC-DAPS-label crosswalk (recommended); A3 identities (optional) | NEXT (return by 2026-11-07) | executor writes, Cheng runs |
+| R0-N.2 | One CPU block (amendment 2, revision C): N1h; protocol ladder with mean-of-K and E1_CLIP (required); PC-DAPS-label crosswalk (recommended); A3 identities (optional); **A7 observation export with SSIM/LPIPS** (recommended, for X1/X2) | NEXT (return by 2026-11-07) | executor writes, Cheng runs |
+| X3–X6 | GPU extensions: FAST K-scaling, ImageNet, PC-DAPS, operator robustness | OPTIONS — need a planner pre-registration and Cheng's go (decision by 2026-11-07) | — |
 | N4 | Clean-image orientation probe | WITHDRAWN (K2) | — |
 | Paper | GT-free audit of diffusion PR (LETTER_PLAN v1.3). Recommended venue EUSIPCO 2027 (deadline 2027-02-06, to verify); draft submission-ready by 2026-12-11 | drafting | planner drafts, Cheng and coauthors edit |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |
