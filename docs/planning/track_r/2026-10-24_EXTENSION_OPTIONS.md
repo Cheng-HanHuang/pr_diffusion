@@ -1,5 +1,19 @@
 # Extension options for the audit paper — planner note (2026-10-24, late morning)
 
+> **Update, 2026-10-24 evening, after the extension research pass "Scoping Extensions for a EUSIPCO 2027 Audit…".**
+>
+> **What changed:**
+> - **X3 is narrowed.** TGD (arXiv 2605.03712) already shows that residual-selected DAPS with N=4 beats N=1 at matched wall-clock on FFHQ and ImageNet phase retrieval, with an A-TGD particle sweep up to N=16. X3 therefore becomes **FAST-DIPS K-scaling with failure-rate (Good25) frontiers and our symmetry-aware GT-free selector**, explicitly framed as extending TGD. A 60–100-image subset is acceptable.
+> - **X4 is narrowed.** PC-DAPS already reports ImageNet orientation prevalence (DAPS 42.0% flipped).
+>   - **X4a (new, minutes of GPU):** run the frozen-style CLIP test on 100 ImageNet ground-truth images and their 180° rotations. Compare a generic prompt, a prompt ensemble and the ImageNet diffusion prior's denoising loss. No prior work compares these.
+>   - **X4b (optional):** FAST-DIPS K = 4 on 100 ImageNet images (≈2 GPU-h). No DAPS on ImageNet.
+> - **X5 and X6 are deferred** to any journal version.
+> - **SITCOM's own rule:** "we report the best results from 4 independent runs, following the convention in (Chung et al., 2023b; Zhang et al., 2025)", criterion undefined (arXiv 2410.04479 §4.1). Its runtime statement is internally inconsistent (§4.1 vs App. G).
+>
+> **Unchanged:** X1 and X2 are open, zero-GPU, and first. The EUSIPCO 2025/2026 rule is 5 pages including references.
+>
+> **Theory question** (Cheng, evening): a research pass on theoretical analyses of DPS/DAPS/SITCOM/FAST-DIPS was launched. See §5.
+
 **Trigger.** Cheng asked whether the gap to EUSIPCO 2027 (deadline 2027-02-06, verified) can be used to extend the study, and whether an observation pass or research pass is needed.
 
 **Status of this note.**
@@ -125,3 +139,28 @@ The X2 hardness results get one paragraph only if they are crisp.
 - Any extension not returned by its date is dropped.
 - No new FFHQ ids: X3 reuses the 180 B22 + DEV80 ids. confirmation305 stays locked.
 - **Burnout guard:** if Cheng's time is short, X1 + X2 alone still improve the paper, and nothing else is needed.
+
+## 5. Theory (Cheng's question, 2026-10-24 evening) — planner's preliminary view, pending the research pass
+
+Two different things go by "theory":
+
+**P1 — a probabilistic model of the protocol.** This is in scope for the EUSIPCO paper.
+- **The model:**
+  - Image i yields a GOOD run with probability p_i.
+  - It yields a measurement-consistent wrong run with probability q_i.
+  - Otherwise it yields an inconsistent failure.
+- **The selection rule:** GT-free selection ranks inconsistent failures last. Consistent failures are exchangeable with GOOD runs under the residual.
+- **What follows:**
+  - the oracle success curve 1 − E(1 − p)^K;
+  - the GT-free curve and the oracle gap, as closed forms in (p_i, q_i);
+  - saturation from intrinsically hard images (p_i ≈ 0).
+- **Testing:** fit it on K = 1, predict K = 2/4/8, check it against the ladder, and use it to read X3.
+- **An analogy to check:** in LLM sampling, GT best-of-K is pass@k and GT-free selection is an imperfect verifier. SITCOM's consistent-wrong runs play the role of verifier false positives.
+- **Cost:** CPU only; it fits X2/X3.
+
+**T2 — algorithm-internal theory.** This is a separate study and is not recommended for this paper.
+- **The view:** read DAPS, FAST-DIPS and SITCOM as different solvers of one inner problem: sampling (DAPS), projection (FAST-DIPS), optimization through the network (SITCOM).
+- **The method:** analyze them in toy models with exact symmetry and a known prior, together with speciation and symmetry-breaking results for diffusion. The aim is to predict orbit errors (early commitment) and consistent-wrong outputs (strong measurement fitting on an ill-conditioned problem).
+- **Cost and status:** months of work and idealized assumptions. It needs D4's reopening procedure.
+
+The research pass will check what already exists for both. The planner will rule after reading it.
