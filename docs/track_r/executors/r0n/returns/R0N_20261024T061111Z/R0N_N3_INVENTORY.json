@@ -1,0 +1,35 @@
+{
+  "ImageNet_expansion_authorized": false,
+  "assets": [
+    {
+      "exists": true,
+      "file_size_bytes": 2211383297,
+      "kind": "model_file",
+      "path": "/egr/research-pac/huang248/models/imagenet256.pt"
+    },
+    {
+      "exists": false,
+      "file_size_bytes": null,
+      "kind": "model_file",
+      "path": "/egr/research-pac/huang248/models/256x256_diffusion_uncond.pt"
+    }
+  ],
+  "cpu_only": true,
+  "fast_config_files_mentioning_imagenet256": [],
+  "fast_config_grep_status": "BOUNDED_CONFIG_GREP_COMPLETE",
+  "head": "b1637f7c27a3caaa03a8b204171fca0d3fccfcd5",
+  "imagenet_depth1_matches": [
+    {
+      "exists": true,
+      "is_symlink": false,
+      "kind": "directory",
+      "path": "/egr/research-pac/huang248/data/imagenet",
+      "size_bytes": 5
+    }
+  ],
+  "new_gpu_hours": 0,
+  "no_downloads": true,
+  "no_image_tree_enumeration": true,
+  "protected_cohort_access": false,
+  "status": "R0N_N3_BOUNDED_INVENTORY_PASS"
+}
