@@ -255,3 +255,17 @@ On FAST it is worse than chance at the orbit task.
 - **K3** is satisfied by this independent replay of the ZIP tables; the executor's on-PAC replay is still required.
 
 Ledger unchanged.
+
+---
+
+## 8. Addendum — concurrent work PC-DAPS (2026-10-24)
+
+Concurrent work PC-DAPS (arXiv 2610.31592, 22 Oct 2026) is analyzed in [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md).
+
+**What changes:**
+- **Letter.** It is repositioned in LETTER_PLAN v1.2: new title, claim order and must-not-claims, and a submission target of 2026-11-24.
+- **R0-N amendment 2** adds CPU-only N1i and N3b.
+- **D3 (ImageNet)** is unchanged as authorized scope. The planner now proposes a cheaper, earlier N4 clean-image probe (≤0.75 GPU-hours), which needs Cheng's explicit go.
+- **Watch item W1** is added (LETTER_PLAN §7).
+
+**What does not change:** D1, D2, D4, and K1–K4.

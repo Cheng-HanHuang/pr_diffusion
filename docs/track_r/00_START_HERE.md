@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-10-23 by the planner (Claude).
+**Updated:** 2026-10-24 by the planner (Claude), after concurrent work PC-DAPS (arXiv 2610.31592). See the positioning note (document 2 below).
 
 **Track R** is reliability per compute for diffusion-prior Fourier phase retrieval.
 
@@ -29,13 +29,14 @@
 ## Documents (read in this order)
 
 1. **R0 decision** — results, gate rulings, the plan from here, publication image: [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
-2. **Letter plan:** [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md)
-3. **R0-N executor handoff:** [`docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md`](executors/r0n/00_EXECUTOR_HANDOFF.md), with config `configs/track_r/r0n_letter_analysis_v1.json` (FROZEN v1)
-4. **R0 record:**
+2. **PC-DAPS positioning (2026-10-24)** — full read, crosswalk, the gap, speed, the N4 proposal: [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
+3. **Letter plan (v1.2):** [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md)
+4. **R0-N executor handoff:** [`docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md`](executors/r0n/00_EXECUTOR_HANDOFF.md), with config `configs/track_r/r0n_letter_analysis_v1.json` (FROZEN v1) and amendments 1–2
+5. **R0 record:**
    - executor return on `codex/prdiff-track-r-r0-20261021`: `docs/track_r/executors/r0/R0_FROZEN_COMPLETE_SCIENTIFIC_RETURN_TO_PLANNER_20261023.md`;
    - R0 spec [`docs/planning/track_r/R0_EXPERIMENT_SPEC.md`](../planning/track_r/R0_EXPERIMENT_SPEC.md);
    - R0 handoff [`docs/track_r/executors/r0/00_EXECUTOR_HANDOFF.md`](executors/r0/00_EXECUTOR_HANDOFF.md).
-5. **Background:**
+6. **Background:**
    - roadmap (historical as of 2026-10-21) [`docs/planning/track_r/2026-10-21_TRACK_R_PLANNER_ROADMAP.md`](../planning/track_r/2026-10-21_TRACK_R_PLANNER_ROADMAP.md);
    - literature basis [`docs/planning/track_r/2026-10-21_LITERATURE_BASIS.md`](../planning/track_r/2026-10-21_LITERATURE_BASIS.md).
 
@@ -45,8 +46,9 @@
 |---|---|---|---|
 | R0.0–R0.8 | Inventory, environment, G0/G1, scoring of 2,520 historical candidates, 720 new FAST roots and their scoring, frozen analysis, independent audit (3.43 GPU-hours) | COMPLETE, accepted | executor and Cheng |
 | R0-D | R0 decision | COMPLETE (2026-10-23) | planner |
-| R0-N | Letter evidence package: N0 tables, N1 analyses, N2 CLIP baseline (optional), N3 ImageNet inventory | NEXT | executor writes, Cheng runs |
-| Letter | Draft, edit, submit (IEEE SPL target; time box 2026-12-11) | planned | planner drafts, Cheng and coauthors edit |
+| R0-N | Letter evidence package: N0 tables, N1 analyses, N2 CLIP baseline (optional), N3 ImageNet inventory; amendment 2 adds N1i (PC-DAPS-label crosswalk and protocol ladder) and N3b (held-out-data inventory), CPU only | IN PROGRESS | executor writes, Cheng runs |
+| N4 | Clean-image orientation probe (held-out faces, ImageNet), ≤0.75 GPU-hours | PROPOSED — needs Cheng's go | — |
+| Letter | Draft, edit, submit (IEEE SPL; submission target 2026-11-24; time box 2026-12-11) | drafting starts 2026-10-26 | planner drafts, Cheng and coauthors edit |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |
 | T1 | Theory note on per-step hard selection (√h drift) | parked | planner (desk only) |
 

@@ -142,3 +142,75 @@ Refresh this list before writing any paper text. Work published after October 20
 - "Prior first" scheduling as new.
 - Per-step selection as new.
 - The ES order-statistics lemma as new.
+
+---
+
+## 7. Addendum, 2026-10-24 (after PC-DAPS)
+
+Full analysis: [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md).
+
+### PC-DAPS — Kocabas, Burns, Geiger, Gauen, Fridovich-Keil, "Beyond Best-of-k: Prior-Consistent DAPS for Ambiguous Nonlinear Inverse Problems," arXiv 2610.31592v1 (22 Oct 2026); code github.com/voilalab/PC-DAPS @ `59b2f04` (MIT) [FULL] [CODE]
+
+**Method:**
+- K = 4 particles in one DAPS run, with a Gaussian-mixture denoiser posterior.
+- One-shot pruning when r̄ < r⋆ (a Jensen-gap test) and BIC clustering finds more than one cluster.
+- Cluster score: mean ‖x − D(x + σε; σ)‖² at σ ∈ {0.5, 1, 2} (≈ DDPM t 144/258/396). One draw, shared within the bag in code.
+
+**Code-only (not in the paper):** an exact global 180° twin test with paired noise.
+- 4 draws; run once when the annealing σ ≤ 0.3; the particle is flipped if the twin scores higher.
+- Enabled only for phase retrieval on ImageNet (`posterior_sample.py` L220–222).
+
+**Labels (`pr_outcomes.py`):** orientation-only.
+- Per-channel PSNR to GT and to rot180(GT), maximized over ±1 px circular shifts, with a 1 dB margin.
+- faithful: all channels upright; flipped: all channels assigned, not all upright; failed: otherwise.
+- No quality threshold.
+
+**Phase retrieval, DAPS-4K GT best-of-4 vs PC-DAPS mean of 4 particles:**
+- FFHQ: 29.66 vs 30.09 dB.
+- ImageNet: 20.98 vs 21.75 dB.
+- DAPS mean-of-4: 25.11 (FFHQ) and 15.70 (ImageNet).
+
+**Outcomes (DAPS → PC-DAPS):**
+
+| | FFHQ | ImageNet |
+|---|---|---|
+| Faithful | 79.5 → 97.5% | 38.5 → 45.0% |
+| Flipped | 14.5 → 1.5% | 42.0 → 30.5% |
+| Failed | 6.0 → 1.0% | 19.5 → 24.5% |
+
+**Consequence:** the protocol critique and a GT-free prior-based orientation fix are no longer ours. The open gaps are:
+- post hoc and solver-agnostic;
+- exact orbit, per-channel;
+- harm accounting;
+- cross-solver anatomy;
+- GT-free parity with GT best-of-K;
+- the complexity mechanism.
+
+### Other entries
+
+- **DAPS++** (arXiv 2511.17038; ECCV 2026) [MAIN, App. S2.2, via PDF fetch]
+  - Phase-retrieval failure is defined as PSNR < 25 on the "top 100" FFHQ test images; DAPS++ has a "noticeably lower failure rate" (values only in Fig. S2(d)).
+  - Failures are attributed to "the nonlinear frequency-domain measurement operator, which interacts unfavorably with the pixel-domain initialization."
+  - No discussion of rotations.
+  - Supports our Good25 threshold.
+- **Burns & Fridovich-Keil** (arXiv 2605.30330) [ABS + main-text excerpt + code README] — update to §3.
+  - Synthetic discrete, Gaussian and GMM priors only.
+  - DPS, ΠGDM and TMPD are compared with a finite-sample reference.
+  - No phase retrieval and no real-image test. Use it as mechanism background only.
+- **TGD / A-TGD** — Makris, Fearnhead, Nemeth (arXiv 2605.03712; NeurIPS 2026 poster page) [ABS]
+  - Annealed SMC with likelihood reweighting; A-TGD prunes to one high-likelihood trajectory.
+  - Phase-retrieval numbers seen only secondhand.
+- **deepECpr** (arXiv 2407.09687) [snippet via research pass]
+  - Aligns HIO channels to channel 1 by correlation: GT-free, heuristic.
+  - Prior art for per-channel alignment without GT.
+- **Provenance** (research pass, primary sources)
+  - The FFHQ README assigns the first 60,000 images to training.
+  - ILVR App. C.2 cites all 70,000 FFHQ images with no split named, so `ffhq_10m.pt` likely trained on all of them (inferred).
+  - The field's "first 100" test images are training-category.
+
+### Must not claim (additions)
+
+- First to show that GT best-of-k hides orientation errors, or first to report outcome frequencies or mean-of-k (PC-DAPS).
+- First GT-free prior-based orientation resolution (PC-DAPS).
+- The paired twin test as new (PC-DAPS code).
+- That PC-DAPS's cluster score is complexity-confounded (untested).
