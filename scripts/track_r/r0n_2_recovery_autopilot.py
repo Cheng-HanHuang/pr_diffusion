@@ -273,7 +273,7 @@ def main():
         "--physical-gpu",str(args.gpu),
         "--budget-seconds",str(args.budget_seconds),
         "--out",str(score_root)]
-    rc,wall=stage(out,statefile,state,"N2_CLIP_GPU_RETRY",cmd,
+    rc,wall=stage(out,state,"N2_CLIP_GPU_RETRY",cmd,
                   gpu=args.gpu,timeout=args.budget_seconds)
     if rc:
         state.update(status="STOP_R0N_N2_GPU_RETRY",
@@ -287,7 +287,7 @@ def main():
          "evaluate","--expected-head",args.expected_head,
          "--scores",str(score_root/"N2_GT_FREE_CLIP_SCORES.json"),
          "--out",str(eval_root)]
-    rc,_=stage(out,statefile,state,"N2_OFFLINE_CPU_EVAL",cmd,timeout=2400)
+    rc,_=stage(out,state,"N2_OFFLINE_CPU_EVAL",cmd,timeout=2400)
     if rc:
         state.update(status="STOP_R0N_N2_OFFLINE_EVAL",
                      failure="N2 evaluator RC "+str(rc))
