@@ -229,3 +229,56 @@ def test_n2_recovery_launch_pins_sha_and_cpu_test_gate():
     assert 'sha256sum' in src
     assert '--budget-seconds 870' in src
     assert 'LATEST_R0N_N2_RECOVERY_RUN' in src
+
+
+def test_n2_recovery_all_stage_call_sites_bind_to_actual_signature():
+    """Catch the previously missed extra statefile positional argument."""
+    import ast
+    import inspect
+    controller=mod("r0n_2_recovery_autopilot.py")
+    path=source("r0n_2_recovery_autopilot.py")
+    tree=ast.parse(path.read_text(encoding="utf-8"),filename=str(path))
+    calls=[node for node in ast.walk(tree)
+           if isinstance(node,ast.Call) and
+           isinstance(node.func,ast.Name) and node.func.id=="stage"]
+    assert len(calls)==2  # GPU scorer and CPU evaluator, not N0/N1/N3
+    signature=inspect.signature(controller.stage)
+    for call in calls:
+        assert len(call.args)==4
+        assert not any(k.arg is None for k in call.keywords)
+        signature.bind(*([object()]*len(call.args)),
+                       **{k.arg:object() for k in call.keywords})
+
+
+def test_n2_recovery_stage_gpu_and_cpu_invocations_without_real_subprocess(tmp_path,monkeypatch):
+    """Exercise the real stage function without PAC files or GPU jobs."""
+    controller=mod("r0n_2_recovery_autopilot.py")
+    (tmp_path/"logs").mkdir()
+    children=[]
+    class FakeChild:
+        pid=42
+        def wait(self,timeout):
+            assert timeout>0
+            return 0
+    def fake_popen(argv,**kwargs):
+        children.append((argv,kwargs))
+        return FakeChild()
+    monkeypatch.setattr(controller,"environment",
+                        lambda gpu=None:{"CUDA_VISIBLE_DEVICES":
+                                         "" if gpu is None else str(gpu)})
+    monkeypatch.setattr(controller.subprocess,"Popen",fake_popen)
+    state={"status":"TEST","active":None,"stages":[]}
+    gpu_rc,gpu_wall=controller.stage(
+        tmp_path,state,"N2_CLIP_GPU_RETRY",["no-process-launched"],
+        gpu=0,timeout=5)
+    cpu_rc,cpu_wall=controller.stage(
+        tmp_path,state,"N2_OFFLINE_CPU_EVAL",["no-process-launched"],
+        timeout=5)
+    assert gpu_rc==cpu_rc==0
+    assert gpu_wall>=0 and cpu_wall>=0
+    assert [entry["name"] for entry in state["stages"]]==[
+        "N2_CLIP_GPU_RETRY","N2_OFFLINE_CPU_EVAL"]
+    assert children[0][1]["env"]["CUDA_VISIBLE_DEVICES"]=="0"
+    assert children[1][1]["env"]["CUDA_VISIBLE_DEVICES"]==""
+    assert state["active"] is None
+    assert (tmp_path/"N2_RECOVERY_STATUS.json").is_file()
