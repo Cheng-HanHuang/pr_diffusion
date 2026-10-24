@@ -1,7 +1,7 @@
 # Letter plan — failure anatomy and exact-symmetry repair for diffusion phase retrieval
 
 **Status:** PLAN v1.2, 2026-10-24, planner Claude.
-- **v1.2** repositions the letter after concurrent work PC-DAPS (arXiv 2610.31592). See [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md).
+- **v1.2** repositions the letter after concurrent work PC-DAPS (arXiv 2610.31592); see [`2026-10-24_PC_DAPS_POSITIONING.md`](2026-10-24_PC_DAPS_POSITIONING.md). It also folds in the R0-N N1 return, accepted in decision §9.
 - **v1.1** (2026-10-23) updated §1–§2 after the R0.8 tables.
 - Numbers marked ⟨…⟩ come from R0-N.
 
@@ -37,11 +37,13 @@ The v1.1 titles are retired: "What best-of-K hides…" and "Do we need ground tr
    - Going from the first run to GT best-of-K gains 2.2–5.5 dB.
    - The GT-free protocol recovers 93–129% of that gain (planner arithmetic, see positioning note §3.2; ⟨mean-of-K ladder, N1i⟩).
 2. **What remains.** Repairable symmetry errors are a minority of failures: 7.1% pooled, 3.6% for FAST-DIPS. Most failures are generation failures.
-   - For DAPS and FAST-DIPS (78–89% of failures) they do not fit y.
-   - For SITCOM (57% of failures) they fit y, so no residual test can see them.
+   - After E1, 99 maximal-K image-strata still fail; **93 of those 99 are generation failures**, where no candidate reaches 25 dB in any orbit member (N1b).
+   - For DAPS and FAST-DIPS (78–89% of single-run failures) they do not fit y.
+   - For SITCOM (57%) they fit y, so no residual test can see them.
    - ⟨Crosswalk to PC-DAPS's orientation-only labels, N1i⟩.
 3. **The repair.** It compares only the exact orbit members of one candidate. These share one likelihood under any magnitude-noise model and the same rotation-invariant statistics, so the prior ratio decides and the complexity confound cancels.
-   - It fixes 84/85 orbit errors (S_mid 85/85) and harms 0/2,040 good outputs, at ⟨32⟩ forwards.
+   - The full score fixes 84/85 orbit errors (S_mid 85/85) and harms 0/2,040 good outputs.
+   - **Two UNet evaluations suffice.** The pre-registered dev-selected configuration (identity vs global 180° at t = 300, one paired noise draw) fixes 49/49 orbit errors on the held-out B22 split and harms 0/1,423 good outputs (N1d). Paired noise cuts the variance of the score difference by about 5× (median factor 0.20).
    - A learned realness detector fixes 62/85 and harms 220.
    - Used across candidates, the same score is only a mediocre failure detector (AUROC 0.83–0.86 on DAPS/FAST), as the complexity effect predicts.
 
@@ -53,9 +55,9 @@ The v1.1 titles are retired: "What best-of-K hides…" and "Do we need ground tr
 2. **GT-free parity with GT best-of-K:** the protocol ladder ⟨mean-of-K, E0, E1, E2, O_raw, O_orbit, with E_P exploratory⟩. What remains are generation failures.
 3. **Post-hoc, solver-agnostic exact-symmetry repair with harm accounting:**
    - Proposition 1, made explicit: posterior ratio = prior ratio on the exact orbit, for any magnitude-noise model; rotation-invariant statistics are constant on the orbit.
-   - The paired-noise estimator ⟨variance factor⟩. We claim its validation, not its invention.
-   - A cost curve ⟨N1d: cheapest dev-selected configuration, its forwards, its B22 accuracy⟩. Pre-registered per-t results already show that 32 forwards suffice in every family.
-   - Comparisons with UnivFD and ⟨CLIP zero-shot, N2⟩.
+   - The paired-noise estimator: median variance factor 0.20, IQR 0.08–0.43 on GOOD candidates. We claim its validation, not its invention.
+   - A cost curve: the cheapest dev-selected configuration uses 2 forwards and scores 49/49 with 0/1,423 harm on B22 (pre-registered DEV80 → B22). Other grid points are exploratory.
+   - Comparisons with UnivFD and ⟨CLIP zero-shot, N2 on CPU⟩.
 4. **Mechanism.** Across candidates, the denoising-loss score tracks image complexity: Spearman 0.43–0.46 with high-frequency energy among good DAPS/FAST outputs. Inside the exact orbit, that confound cancels.
    - The per-t results agree: the lowest noise level fails, consistent with CCLR's finding that DDPM complexity bias concentrates in low-noise ELBO terms.
    - PC-DAPS's mid-noise σ choice (≈ DDPM t 144–396) is consistent with this.
@@ -118,33 +120,38 @@ The v1.1 titles are retired: "What best-of-K hides…" and "Do we need ground tr
 
 ## 5. Evidence status
 
+R0-N N1 is complete and accepted (decision §9). R0-N.2 is the follow-up CPU block in amendment 2.
+
 | Item | Source | Status |
 |---|---|---|
 | Anatomy (pooled and per source, including per-family consistent counts) | R0.7 / R0.8 ZIP | have (planner-verified) |
-| Anatomy by image cohort, with S5 split into B22 and DEV80 | R0-N N1a | pending |
+| Anatomy by image cohort, with S5 split into B22 and DEV80 | R0-N N1a | **have** |
 | Repair success/harm: S, S_mid, UnivFD; per-t repair | R0.7 / R0.8 ZIP | have (planner-verified) |
-| Deployable vs O_raw / O_orbit for S1–S5 strata | R0.8 P4 matrix | have (planner-verified); FAST split by cohort pending N1g |
-| First-run → GT best-of-K → GT-free ladder | R0.8 P4 (planner arithmetic) | have; mean-of-K rung pending N1i |
-| PC-DAPS-label crosswalk; E_P prior-only selection | R0-N N1i (amendment 2) | pending (optional, non-blocking) |
-| DAPS configuration (NFE per run) from receipts | R0-N N1i A4.4 | pending |
+| Deployable vs O_raw / O_orbit for S1–S5 strata, FAST split by cohort | R0.8 P4 + R0-N N1g | **have** (A3 targets reproduced) |
+| First-run → GT best-of-K → GT-free ladder | R0.8 P4 (planner arithmetic) | have; mean-of-K rung pending (N1i, optional) |
+| PC-DAPS-label crosswalk; E_P prior-only selection | R0-N.2 A4 (N1i) | pending (optional, non-blocking) |
+| DAPS configuration (NFE per run) from receipts | R0-N.2 A4.4 | pending |
 | Complexity correlation (Spearman of S with high-frequency energy) | R0.7 secondary | have |
-| Checkpoint training membership of evaluation ids | R0-N N1h | pending |
-| Held-out data inventory | R0-N N3 / N3b | pending |
+| Checkpoint training membership of evaluation ids | R0-N.2 §B2 (N1h) | pending (required) |
+| ImageNet assets (`imagenet256.pt` present; `/data/imagenet` present) | R0-N N3 | **have** |
+| Held-out data inventory (faces, ImageNet val layout) | R0-N.2 A5 (N3b) | pending (optional) |
 | Clean-image orientation probe (held-out faces, ImageNet) | N4 | **proposed; needs Cheng's go** |
-| Cheap configuration (dev→eval) and paired-variance factor | R0-N N1d | pending |
-| CLIP zero-shot baseline | R0-N N2 | pending (optional, recommended) |
-| Post-selection decomposition with image identities; cohort-split tables | R0-N N1b / N1g | pending |
-| Residual distributions | R0-N N1c | pending |
-| Costs | R0-N N1e | pending |
-| Conditional detection (exploratory) | R0-N N1f | pending |
+| Cheap configuration (dev→eval) and paired-variance factor | R0-N N1d | **have**: 2 forwards; B22 49/49, 0/1,423 harm; factor median 0.20 |
+| CLIP zero-shot baseline (K2) | R0-N.2 §B3 (N2 on CPU) | pending (required for K2) |
+| Post-selection decomposition | R0-N N1b | **have** (93/99 remaining are generation failures); image identities pending (§B2) |
+| Residual distributions | R0-N N1c | **have** |
+| Costs | R0-N N1e | **have**: native per-run costs; scoring 2.755 s/candidate full S; ≈0.02 s projected for 2 forwards |
+| Conditional detection (exploratory) | R0-N N1f | **have** |
+| Draft figures (anatomy, cost–success, residual violins) | R0-N figures (Pillow) | have as drafts; final figures to be redrawn for SPL |
 
 ## 6. Timeline (v1.2, compressed: "submit fast")
 
 | Date | Milestone |
 |---|---|
-| 2026-10-24 → 10-31 | R0-N executed, including amendments 1–2. Cheng runs 2–3 CPU blocks, plus the optional N2 GPU block |
-| 2026-10-26 → 11-06 | Planner drafts the introduction, setup, method and related work; these do not depend on R0-N |
-| 2026-11-02 → 11-09 | Planner fills results, figures and tables from R0-N |
+| 2026-10-24 | R0-N N1 complete and accepted (K3 PASS, K1 not triggered) |
+| 2026-10-25 → 10-31 | R0-N.2: one CPU block (N1h, A3 identities, N2 on CPU for K2, optional N1i/N3b) |
+| 2026-10-26 → 11-06 | Planner drafts the full letter, using N1 numbers now and R0-N.2 numbers when they land |
+| 2026-11-06 | Draft freeze for planner content; optional items not back are dropped |
 | 2026-11-10 → 11-20 | Cheng and coauthor edits |
 | **2026-11-24** | **SPL submission target.** Optional same-day arXiv post; coauthors decide |
 | 2026-12-11 | K4 time box, unchanged: the hard stop |

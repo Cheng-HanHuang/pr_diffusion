@@ -46,7 +46,8 @@
 |---|---|---|---|
 | R0.0–R0.8 | Inventory, environment, G0/G1, scoring of 2,520 historical candidates, 720 new FAST roots and their scoring, frozen analysis, independent audit (3.43 GPU-hours) | COMPLETE, accepted | executor and Cheng |
 | R0-D | R0 decision | COMPLETE (2026-10-23) | planner |
-| R0-N | Letter evidence package: N0 tables, N1 analyses, N2 CLIP baseline (optional), N3 ImageNet inventory; amendment 2 adds N1i (PC-DAPS-label crosswalk and protocol ladder) and N3b (held-out-data inventory), CPU only | IN PROGRESS | executor writes, Cheng runs |
+| R0-N | Letter evidence package: N0 tables, N1 analyses, N2 CLIP baseline (optional), N3 ImageNet inventory | N1 COMPLETE, accepted 2026-10-24 (`5af47db`; K3 PASS, K1 not triggered); N2 unavailable on GPU | executor writes, Cheng runs |
+| R0-N.2 | One CPU block (amendment 2): N1h and A3 identities (owed from amendment 1); N2 on CPU (K2); N1d miss identity; optional N1i (PC-DAPS-label crosswalk, protocol ladder) and N3b | NEXT | executor writes, Cheng runs |
 | N4 | Clean-image orientation probe (held-out faces, ImageNet), ≤0.75 GPU-hours | PROPOSED — needs Cheng's go | — |
 | Letter | Draft, edit, submit (IEEE SPL; submission target 2026-11-24; time box 2026-12-11) | drafting starts 2026-10-26 | planner drafts, Cheng and coauthors edit |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |

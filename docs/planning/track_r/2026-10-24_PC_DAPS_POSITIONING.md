@@ -11,7 +11,9 @@ He noted that preprints can informally be ignored in our paper, but that this on
 
 **Effect on binding documents:**
 - **`LETTER_PLAN.md` → v1.2:** title, pitch, claim order, must-not-claim list, timeline.
-- **New executor amendment:** [`R0N_AMENDMENT_2_20261024.md`](../../track_r/executors/r0n/R0N_AMENDMENT_2_20261024.md). CPU only: the N1i crosswalk and protocol ladder, plus the N3b bounded inventory.
+- **New executor amendment:** [`R0N_AMENDMENT_2_20261024.md`](../../track_r/executors/r0n/R0N_AMENDMENT_2_20261024.md), the R0-N.2 follow-up block, CPU only.
+  - Required: N1h and A3 identities (owed from amendment 1), N2 on CPU, and the N1d miss identity.
+  - Optional: the N1i crosswalk and protocol ladder, and the N3b bounded inventory.
 - **Proposed, not authorized:** N4, a clean-image orientation probe (≤0.75 GPU-hours, §9). Needs Cheng's explicit go.
 - **Unchanged:** R0 v1, R0-N v1 definitions, decisions D1, D2 and D4, and kill criteria K1–K4.
 
@@ -52,6 +54,11 @@ He noted that preprints can informally be ignored in our paper, but that this on
 3. **Solver-agnostic repair with harm accounting:** 0/2,040 good outputs harmed, versus 220 for UnivFD, with a cost curve.
 4. **The complexity explanation** for why the same score is a near-perfect orbit selector but a mediocre cross-image failure detector.
 
+**The R0-N N1 return (same day) strengthens the parts that are ours** (rulings in decision §9):
+- K3 passes and K1 is not triggered.
+- The pre-registered cheapest repair is **2 UNet evaluations per candidate**: identity vs global 180° at t = 300, one paired draw. It scores 49/49 with 0/1,423 harm on held-out B22. PC-DAPS's code-path twin test uses 24 evaluations per particle.
+- After GT-free selection plus repair, **93 of the 99 still-failing image-strata are generation failures**.
+
 **The numbers reconcile in principle.**
 - PC-DAPS counts 14.5% of DAPS runs on FFHQ as upside-down/color-inverted.
 - We count 3.5% (B22) and 5.3% (DEV80) of DAPS runs as *repairable* orbit errors.
@@ -65,10 +72,14 @@ He noted that preprints can informally be ignored in our paper, but that this on
 ### My plan
 
 1. **Reposition now:** this note, plus LETTER_PLAN v1.2 with a new title, claim order and must-not-claim list.
-2. **One cheap CPU addition to R0-N** (amendment 2, non-blocking):
-   - PC-DAPS's outcome label computed on our 3,240 runs;
-   - the protocol ladder (mean-of-K → E0 → E1 → O_raw → O_orbit);
-   - an exploratory prior-only selection policy.
+2. **One more CPU block, R0-N.2** (amendment 2).
+   - Required:
+     - N1h (membership) and A3 identities, owed from amendment 1;
+     - N2 on CPU, for K2, because the GPU was unavailable.
+   - Optional:
+     - PC-DAPS's outcome label computed on our 3,240 runs;
+     - the protocol ladder (mean-of-K → E0 → E1 → O_raw → O_orbit);
+     - an exploratory prior-only selection policy.
 3. **Submit faster.**
    - SPL submission target: 2026-11-24.
    - K4 (2026-12-11) stays the hard stop.
@@ -184,7 +195,7 @@ He noted that preprints can informally be ignored in our paper, but that this on
 | Solvers studied | DAPS (others as GT best-of-4 baselines) | DAPS, SITCOM, FAST-DIPS, NP |
 | Prior signal | Cluster-mean denoising residual at σ ∈ {0.5, 1, 2} ≈ DDPM t ≈ 144 / 258 / 396; 1 draw. ImageNet code path: global twin, 4 draws | Paired-noise ε-MSE over the exact 8-member per-channel orbit. S: t ∈ {50…700}; S_mid: t ∈ {300…600}. Any single t ≥ 200 suffices (R0 per-t) |
 | What is compared | Different particles (clusters) for the same y | Exact orbit members of one candidate: identical likelihood, identical rotation-invariant statistics |
-| Trigger | Jensen-gap test plus BIC clustering | Always (⟨32⟩ forwards; 8 for global-only) |
+| Trigger and cost | Jensen-gap test plus BIC clustering; ImageNet twin test = 2 members × 3 σ × 4 draws = 24 evaluations per particle | Always. Dev-selected configuration: 2 evaluations per candidate (t = 300, 1 paired draw, identity vs global). Full 8-member S: 256 |
 | Harm accounting | None reported | 0/2,040 good outputs harmed; UnivFD harms 220 |
 | Labels | Orientation only (faithful / flipped / failed), no quality threshold | Quality-aware: GOOD ≥ 25 dB / ORBIT / CONSISTENT / INCONSISTENT |
 | Protocol compared | PC-DAPS mean-of-4 vs baselines' GT best-of-4 and mean-of-4 | First run, mean-of-K ⟨N1i⟩, E0/E1/E2 (GT-free) vs O_raw/O_orbit (GT) |
@@ -323,16 +334,18 @@ Cheng's point stands: a preprint posted about a month before our submission is c
 
 ## 9. Experiments: add, propose, defer
 
-**Added (authorized, CPU, non-blocking): amendment 2.**
-- **N1i:** PC-DAPS outcome rule on our runs; cross-tab; ladder with mean-of-K; prior-only selection E_P (exploratory); DAPS configuration record.
-- **N3b:** bounded inventory of held-out face data and of the DAPS ImageNet test subset.
+**Added (authorized, CPU): amendment 2, the R0-N.2 block.**
+- **Required:** N1h, A3 identities, N2 on CPU, and the N1d miss identity.
+- **Optional, non-blocking:**
+  - **N1i:** PC-DAPS outcome rule on our runs; cross-tab; ladder with mean-of-K; prior-only selection E_P (exploratory); DAPS configuration record.
+  - **N3b:** bounded inventory of held-out face data and of the ImageNet validation layout.
 
 **Proposed (needs Cheng's go): N4, a clean-image orientation probe, ≤0.75 GPU-hours, one block run by Cheng.**
 - **Question.** On clean upright images the solver's prior has *not* seen, does the frozen paired test pick the identity orbit member?
 - **N4a (memorization).** FFHQ checkpoint on up to 100 held-out face images from a non-FFHQ dataset, if N3b finds one. Control: the 100 B22 GT images. Do not draw new FFHQ ids; confirmation305 stays untouched.
 - **N4b (ImageNet).** ImageNet DDPM checkpoint (from N3) on the 100 DAPS ImageNet test images, or the first 100 ImageNet validation images selected by fixed file name (no directory enumeration).
 - **Score.**
-  - The frozen S and S_mid, plus the N1d-selected cheap configuration, with paired R_s ε noise.
+  - The frozen S and S_mid, plus the N1d-selected cheap configuration (`single_300|J1|global2`), with paired R_s ε noise.
   - Metric: identity-win rate over the 8 members and global-only (000 vs 111), with Wilson CIs.
 - **Pre-registered reading:**
   - **N4b:** identity-win ≥ 0.95 → one Discussion sentence ("separates orientation on held-out ImageNet images at X%"); otherwise a limitation consistent with PC-DAPS.

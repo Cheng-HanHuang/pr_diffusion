@@ -10,9 +10,9 @@
 
 **Amendments:** also read both:
 - [`R0N_AMENDMENT_1_20261023.md`](R0N_AMENDMENT_1_20261023.md) adds the N0 checksum list, the N1h training-membership check and the N1b/N1g reproduction targets.
-- [`R0N_AMENDMENT_2_20261024.md`](R0N_AMENDMENT_2_20261024.md) adds, CPU only and non-blocking:
-  - N1i: the PC-DAPS-label crosswalk, the protocol ladder and the DAPS configuration record;
-  - N3b: a bounded held-out-data inventory.
+- [`R0N_AMENDMENT_2_20261024.md`](R0N_AMENDMENT_2_20261024.md) defines the **R0-N.2 follow-up CPU block**, issued after the N1 return:
+  - required: N1h and A3 identities (owed from amendment 1), N2 on CPU (K2), and the N1d miss identity;
+  - optional: N1i (PC-DAPS-label crosswalk and protocol ladder) and N3b (held-out-data inventory).
 
 **Unchanged rules:** the R0 frozen spec and every R0 rule in `docs/track_r/executors/r0/00_EXECUTOR_HANDOFF.md` §5–§8 still apply: data rules, cost accounting, PAC command style, pitfalls.
 

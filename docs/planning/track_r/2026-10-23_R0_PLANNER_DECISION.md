@@ -269,3 +269,66 @@ Concurrent work PC-DAPS (arXiv 2610.31592, 22 Oct 2026) is analyzed in [`2026-10
 - **Watch item W1** is added (LETTER_PLAN §7).
 
 **What does not change:** D1, D2, D4, and K1–K4.
+
+---
+
+## 9. R0-N N1 return — planner rulings (2026-10-24)
+
+**What was read:**
+- branch `codex/prdiff-track-r-r0n-20261023` @ `5af47db`;
+- return `docs/track_r/executors/r0n/returns/R0N_20261024T061111Z/`: `R0N_EXECUTOR_RETURN.md`, `R0N_REPORT.md`, the N1 CSVs and `R0N_N3_INVENTORY.json`.
+
+**Provenance.**
+- The run merged planner `6686322`, so **amendment 1 was not applied**. N1h and the A3 image identities are still owed.
+- **N0:** the 7 committed tables match the amendment-1 SHA-256 list exactly. `R0_7_COMPLETE_RECEIPT.json` was not committed; amendment 2 §B2 asks the executor to commit it or state why not.
+
+### Kill criteria
+
+- **K3 — PASS.** The on-PAC replay reproduces:
+  - 3,240 candidates;
+  - GOOD 2,040 / ORBIT 85 / CONSISTENT 324 / INCONSISTENT 791;
+  - repair 84/85 with 0/2,040 harm;
+  - all 7 P4 witnesses.
+
+  The planner's A3 targets (E1 − O_raw at maximal K, in images) are reproduced exactly in N1g.
+- **K1 — NOT TRIGGERED.** On B22 at maximal K, post-selection repairs number DAPS 3 and SITCOM 5 (NP 0, FAST 0). The repair contribution stands.
+- **K2 — PENDING.** N2 returned UNAVAILABLE_GPU (the co-tenancy gate, RC 8). The frozen config allows CPU, so it is rerun on CPU in R0-N.2 (amendment 2 §B3). The letter's CLIP row waits on it.
+
+### New facts for the letter (planner-checked against the CSVs)
+
+1. **Repair needs two UNet evaluations.**
+   - The pre-registered dev selection (DEV80) chose `single_300|J1|global2`: identity versus global 180° at t = 300, with one paired noise draw, i.e. **2 forwards per candidate**.
+   - Dev result: 35/36 orbit errors fixed, 0/617 harm. The miss is expected to be the one partial-orbit error, which a global-only test cannot fix; confirmation is requested (§B4).
+   - **Held-out B22 evaluation: 49/49 orbit errors fixed, 0/1,423 good outputs harmed.** Image-cluster bootstrap CI [1, 1].
+   - Projected cost ≈ 0.02 s per candidate (throughput-scaled, not measured). For comparison, FAST costs 3.3 s per run and DAPS 156–195 s per run (N1e, native recorded).
+2. **Pairing is what makes one draw enough.** r_t = Var(l_000 − l_111) / (Var l_000 + Var l_111) has a pooled median of 0.20 for GOOD (IQR 0.08–0.43) and 0.17 for ORBIT. That is about a 5× variance reduction from the paired coupling.
+3. **What remains is generation failure.** Over the 8 maximal-K strata (B22 and DEV80 × DAPS, SITCOM, NP, FAST), E0 fails on 114 image-strata.
+   - E1 fixes 15, leaving 99.
+   - Of those 99: **93 generation failures** (no candidate reaches 25 dB in any orbit member), 5 selection misses, and 1 uncorrected orbit error. The uncorrected one is the marginal NP case at 25.10 dB.
+4. **FAST split by cohort:** E1 − O_raw is −1 image on B22 (0.94 vs 0.95) and +1 on DEV80 (0.7625 vs 0.75).
+5. **Anatomy by cohort (N1a): orbit share of raw failures, with image-cluster 95% CIs.**
+
+   | Family | B22 | DEV80 |
+   |---|---|---|
+   | DAPS | 18.8% [5.6, 33.3] | 11.3% [4.8, 19.1] |
+   | SITCOM | 11.4% [5.5, 18.1] | 5.8% [1.2, 11.5] |
+   | NP | 9.9% [4.4, 16.7] | 1.3% [0, 4.3] |
+   | FAST | 3.5% [0.8, 6.8] | 3.6% [0.6, 8.2] |
+
+6. **Residuals (N1c).** SITCOM's signed residual median is 0.04418 for GOOD and 0.04434 for CONSISTENT, so the two are indistinguishable. For DAPS and FAST, the INCONSISTENT q90 (0.0504 and 0.188) separates from GOOD. This is the numeric basis of the AUROC gap.
+7. **N3.** `imagenet256.pt` is present (2.21 GB); `/egr/research-pac/huang248/data/imagenet` exists, contents unknown; `256x256_diffusion_uncond.pt` is absent. N4b is feasible if validation images exist (N3b).
+
+### Next
+
+**R0-N.2**, one CPU block defined in amendment 2:
+- §B2: N1h, A3 identities, N0 receipt;
+- §B3: N2 on CPU, for K2;
+- §B4: the identity of the N1d miss;
+- optional: N1i and N3b.
+
+The planner starts drafting with the N1 numbers now.
+
+**Ledger:**
+- R0-N N1: COMPLETE, accepted.
+- R0-N.2: AUTHORIZED (CPU).
+- N4: PROPOSED.

@@ -1,22 +1,72 @@
-# R0-N amendment 2 (planner, 2026-10-24, after reading PC-DAPS)
+# R0-N amendment 2 (planner, 2026-10-24): the R0-N.2 follow-up CPU block
+
+**Status.**
+- The R0-N N1 return has been received and ruled on. It is `R0N_20261024T061111Z` on `codex/prdiff-track-r-r0n-20261023` @ `5af47db`; the planner's ruling is in `docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md` §9.
+- This amendment defines **one follow-up CPU block, R0-N.2**. It collects everything still owed:
+  - items from amendment 1 that were not executed: the R0-N run merged planner `6686322`, which predates amendment 1;
+  - N2 on CPU, because the GPU gate returned UNAVAILABLE;
+  - two new CPU items prompted by concurrent work PC-DAPS.
 
 **Scope.**
-- Adds two CPU-only items to R0-N.
+- CPU only (`CUDA_VISIBLE_DEVICES=""`).
 - Changes no frozen R0 or R0-N v1 definition.
 - **Excluded:** GPU work, new reconstructions or measurements, and any access to confirmation305.
+- Existing R0-N outputs are immutable. Write to a new `r0n2_<stage>_<UTCSTAMP>/` root.
 
-**Non-blocking.** If either item would delay the N1a–N1h return, return without it and write "N1i deferred" or "N3b deferred". Optional items not returned by 2026-11-06 are dropped from the submission.
+**Priority order.** If time runs short, finish B1–B4 and return; A4/A5 may be marked "deferred". Optional items not returned by 2026-11-06 are dropped from the submission.
+
+**Planner context for A4/A5:** `docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`.
+
+## B1 — branch
+
+1. Merge `origin/claude/prdiff-track-r-planner-20261021` (≥ the commit that adds this file) into `codex/prdiff-track-r-r0n-20261023`, or into a new `codex/prdiff-track-r-r0n2-<YYYYMMDD>` created from `5af47db`. This should be conflict-free, because planner-owned files are unchanged on the executor branch.
+2. Record both SHAs in the return.
+
+## B2 — amendment 1 items not yet executed (required)
+
+1. **N1h, training-membership lookup.** Run amendment 1 §A2 exactly:
+   - look up the FFHQ `category` by id only, for B22 and DEV80;
+   - report repair success and harm for prior S and S_mid, split by category;
+   - record any documentation of `ffhq_10m.pt`'s training set, from targeted greps of `external/dps` and `external/DiffFPR`; otherwise write "UNKNOWN".
+2. **A3 image identities.** List the image ids behind:
+   - each post-selection fix;
+   - each selection miss;
+   - each uncorrected orbit error;
+   - each generation failure
+
+   in the max-K N1b strata. These are the 15 fixes, 5 misses, 1 uncorrected and 93 generation failures counted by the planner from `N1b_POSTSELECTION.csv`.
+3. **N0 receipt.** `R0_7_COMPLETE_RECEIPT.json` (SHA `50ff1550…79c8`) was not committed with N0.
+   - If it is path-free, commit it and verify the SHA.
+   - If not, record "withheld: contains paths".
+
+## B3 — N2 CLIP zero-shot on CPU (required: kill criterion K2)
+
+1. Run `scripts/track_r/r0n_2_clip_orientation.py` on CPU. Keep the frozen config `n2_clip_zero_shot` unchanged (`cpu_allowed: true`): same model SHA, prompts, preprocessing, score and decision.
+2. No GT in scoring.
+3. Measure CPU seconds per encoding.
+4. **Report** success on GLOBAL orbit errors, harm on GOOD, and the partial orbit errors left unfixed, for:
+   - CLIP;
+   - prior global-only (S);
+   - prior global-only (S_mid);
+   - **the N1d-selected configuration** (`single_300|J1|global2`, 2 forwards);
+   - UnivFD global-only.
+
+   Give image-cluster CIs. Add measured or projected cost per candidate for each.
+5. **Stop rule.** If the CPU projection exceeds 3 hours wall time, stop and report the projection instead of running.
+
+## B4 — N1d miss identity (required, one line)
+
+Give the id and orbit pattern of the one DEV80 orbit error that `single_300|J1|global2` missed (35/36). The planner expects it to be the single partial-orbit error (DAPS, DEV80); confirm or correct.
+
+## A4 — N1i: outcome crosswalk and protocol ladder (optional, non-blocking)
 
 **Why.**
 - PC-DAPS (arXiv 2610.31592; code `github.com/voilalab/PC-DAPS` @ `59b2f04`, MIT) reports DAPS phase-retrieval outcomes on FFHQ with an orientation-only label: 14.5% of runs are upside-down or color-inverted.
 - We report 3.5% (B22) and 5.3% (DEV80) of DAPS runs as *repairable* orbit errors.
-- To make our tables comparable and to reconcile these numbers, compute their label on our runs.
-- Planner context: `docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`.
-
-## A4 — N1i: outcome crosswalk and protocol ladder (CPU; same PAC block as N1 if possible)
+- To reconcile these, compute their label on our runs.
 
 **Inputs.** Use the same candidate images and GT tensors that the R0.7 PSNR_raw replay used, per source.
-- Record which representation each source uses: float after clamp, or RGB8.
+- Record the representation each source uses: float after clamp, or RGB8.
 - GT is used for evaluation labels only, as in R0.7. It is never used in a deployable step.
 
 ### A4.1 PC-DAPS outcome label
@@ -56,7 +106,7 @@ For each (source, family), at K = 1 and at maximal K, report Good25 / mean / q05
 
   Also report E_P − E0 and E_P − E1. E_P is the post-hoc analogue of selecting by prior consistency alone, with no residual.
 
-**Planner reference values** (the R0.8 P4 matrix; use them to sanity-check your ladder, not as targets):
+**Planner reference values** (R0.8 P4 / N1g; use them to sanity-check your ladder, not as targets):
 
 | Stratum | First run, K=1 E0 (dB) | O_raw at max K (dB) | E1 at max K (dB) |
 |---|---|---|---|
@@ -66,7 +116,7 @@ For each (source, family), at K = 1 and at maximal K, report Good25 / mean / q05
 | DEV80 DAPS | 23.29 | 28.83 | 28.82 |
 | DEV80 SITCOM | 19.59 | 24.12 | 24.70 |
 | DEV80 NP | 22.32 | 26.07 | 25.86 |
-| FAST (S5) | 23.81 | 29.00 | 28.99 |
+| FAST (S5, both cohorts) | 23.81 | 29.00 | 28.99 |
 
 ### A4.4 DAPS configuration record (feeds N1e)
 
@@ -80,11 +130,11 @@ The planner reads the B21/B24 launch defaults as 400 annealing × 5 ODE steps, i
 ### A4.5 Outputs and labeling
 
 - **Status.** Every N1i number is DESCRIPTIVE or EXPLORATORY; no decision depends on it.
-- **Evidence file.** Add the numbers to `R0N_LETTER_EVIDENCE.json` under `n1i_*`.
+- **Evidence file.** Write `R0N2_LETTER_EVIDENCE.json` with the numbers under `n1i_*`.
 - **Tables.** One CSV per table.
 - **Figure (optional).** A small PDF/PNG of the cross-tab as a stacked bar for DAPS on B22 and DEV80.
 
-## A5 — N3b: bounded held-out-data inventory (CPU)
+## A5 — N3b: bounded held-out-data inventory (optional, non-blocking)
 
 Record presence and size only. No enumeration inside directories, no downloads.
 
@@ -96,11 +146,11 @@ Record presence and size only. No enumeration inside directories, no downloads.
 2. A DAPS-style 100-image ImageNet test subset, using `test -d` only:
    - `dataset/test-imagenet` or `datasets/test-imagenet` under the DAPS checkout(s) recorded in R0.0;
    - the same paths under `/egr/research-pac/huang248/external/FAST_DIPS_A15`.
-3. ImageNet validation images by fixed file name, without listing the directory. Only check a val directory under an `imagenet*` path that N3 already found at depth 1.
+3. ImageNet validation images by fixed file name, without listing the directory. N3 found `/egr/research-pac/huang248/data/imagenet`. Only test a val directory directly below it: `val` or `ILSVRC2012_val`, using `test -d`.
    - **Flat layout:** `test -f <val dir>/ILSVRC2012_val_00000001.JPEG` and `…00000100.JPEG`.
    - **Per-class layout** (detected with `test -d <val dir>/n01440764`): record "per-class layout" and stop. Do not search the class folders.
 
-**Output.** Add the results to the N3 section of the return. Each item is PRESENT (with size) or ABSENT.
+**Output.** Add the results to the return. Each item is PRESENT (with size) or ABSENT.
 
 ## A6 — explicitly not authorized here
 
@@ -108,6 +158,10 @@ Record presence and size only. No enumeration inside directories, no downloads.
 - Do not write or run GPU code for it under this amendment.
 - If Cheng forwards a go, the planner will issue amendment 3 with the frozen N4 spec.
 
-## Return additions
+## Return (`R0N2_EXECUTOR_RETURN.md`)
 
-Add sections **N1i** and **N3b** to `R0N_EXECUTOR_RETURN.md` §4, and record the amendment-2 commit SHA in §2 (Identity).
+1. **Status for Cheng** — at most 8 lines.
+2. **Identity** — branch, SHAs and interpreter.
+3. **Sections:** B2 (N1h, A3 identities, N0 receipt), B3 (N2 / K2 inputs), B4, A4 (N1i), A5 (N3b).
+4. **Anomalies.**
+5. **Artifacts** — PAC roots, committed outputs and SHA256SUMS.
