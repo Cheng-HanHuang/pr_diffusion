@@ -32,3 +32,21 @@ Commit and push R0-N.2 per-image label counts (2,040 G; 85 orbit;
 324 consistent; 791 inconsistent) after CPU replay. Complete the XP-0
 measurement-SHA and FFHQ-ID inventory, then implement/validate the full
 no-new-code runners and two-lane controller before any XP-T launch.
+
+## XP-0 inventory, first successful PAC pass (2026-10-26)
+
+The PAC executor reports `XP0_RC=0`: `XP_0_NEEDS_IMAGENET`,
+180 FFHQ identities and 180 unique measurement SHA files verified, with
+oversample 4.0 producing pad 128 and canvas 512. The expected
+`test-imagenet` dataset directory is absent (ImageNet manifest count 0);
+this blocks ImageNet launches but not the FFHQ input verification.
+GPU use remains unchanged (no XP GPU launch).
+
+The initial R0-N.2 B2/A8 full pass reached the aggregation of the
+3,240 historical R0.7 records and then raised a Python tuple-unpacking
+error. Cause: a previous migration to the 4-key
+`(source,cohort,family,category)` stratum retained three-key writes for
+other B2 counters. Corrected in the next executor commit; tests for
+same-key aggregation and output integrity are added. **No A8 counts
+have yet been published**, and the theory executor should await a
+successful commit of `R0N2_PER_IMAGE_COUNTS.csv`.

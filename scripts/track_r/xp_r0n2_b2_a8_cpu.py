@@ -76,6 +76,56 @@ def frozen_cohort_map(records):
             raise RuntimeError("STOP_FAST_ID_NOT_IN_FROZEN_180")
     return result
 
+def update_b2_counts(categories,key,r,choice,prior):
+    """Single 4-field stratum key throughout; no accidental tuple splitting."""
+    if len(key)!=4:
+        raise RuntimeError("STOP_B2_STRATUM_KEY")
+    stats=categories[key]
+    stats["n"]+=1
+    good=float(r["psnr_raw"])>=25
+    stats["good"]+=int(good)
+    choices={
+        "CLIP":choice,
+        "S":"111" if float(prior["S"]["111"])<float(prior["S"]["000"])-1e-7 else "000",
+        "SMID":"111" if float(prior["S_mid"]["111"])<float(prior["S_mid"]["000"])-1e-7 else "000"
+    }
+    for name,ch in choices.items():
+        if r["raw_label"]=="ORBIT_ERROR" and r["s_gt"]=="111":
+            stats[name+"_orb"]+=1
+            stats[name+"_fix"]+=int(float(r["psnr_by_orbit"][ch])>=25)
+        if good:
+            stats[name+"_harm"]+=int(float(r["psnr_by_orbit"][ch])<25)
+
+def validate_counts_export(output,count):
+    if count!=EXPECTED:
+        raise RuntimeError("STOP_A8_SUMS")
+    if len(output)!=760:
+        raise RuntimeError("STOP_A8_ROW_COUNT "+str(len(output)))
+    for row in output:
+        n=int(row["n_runs"])
+        labels=row["run_labels"]
+        rank_labels=row["e0_rank_labels"]
+        rank_order=[int(v) for v in row["e0_rank_order"].split(",")]
+        if (len(labels)!=n or len(rank_labels)!=n or
+            len(row["orbit_best_member"])!=n or
+            len(row["clip_fix_ok"])!=n or
+            len(row["dec_clip_face"])!=n or
+            len(row["dec_2f"])!=n or
+            len(row["dec_s_all8"])!=n or
+            sorted(rank_order)!=list(range(n)) or
+            rank_labels!="".join(labels[j] for j in rank_order) or
+            sum(int(row[k]) for k in
+               ("n_GOOD","n_ORBIT_global","n_ORBIT_partial",
+                "n_CONSISTENT","n_INCONSISTENT"))!=n):
+            raise RuntimeError("STOP_A8_ROW_INTEGRITY "+str(row["source"])+"/"+str(row["image_id"]))
+        if any(c not in "GOPCI" for c in labels):
+            raise RuntimeError("STOP_A8_LABEL_ALPHABET")
+        if any(c not in "01234567." for c in row["orbit_best_member"]):
+            raise RuntimeError("STOP_A8_MEMBER_ALPHABET")
+        if any(c not in "01234567" for c in row["dec_s_all8"]):
+            raise RuntimeError("STOP_A8_S_ALPHABET")
+    return True
+
 def check_row(row):
     for k in ("uid","source","family","image_id","run_index","raw_label",
               "psnr_raw","psnr_by_orbit","rho_signed_raw","s_gt"):
@@ -154,16 +204,7 @@ def main(a):
         if s_choice!=r["s_star"]:raise RuntimeError("STOP_PRIOR_REPLAY")
         key=(src,fam,iid)
         by_group[key].append((r,choice,choice2,s_choice))
-        categories[(src,cohort,fam,cat)]["n"]+=1
-        good=r["psnr_raw"]>=25
-        categories[(src,fam,cat)]["good"]+=int(good)
-        for name,ch in (("CLIP",choice),("S",("111" if prior["S"]["111"]<prior["S"]["000"]-1e-7 else "000")),
-                        ("SMID",("111" if prior["S_mid"]["111"]<prior["S_mid"]["000"]-1e-7 else "000"))):
-            if r["raw_label"]=="ORBIT_ERROR" and r["s_gt"]=="111":
-                categories[(src,fam,cat)][name+"_orb"]+=1
-                categories[(src,fam,cat)][name+"_fix"]+=int(r["psnr_by_orbit"][ch]>=25)
-            if good:
-                categories[(src,fam,cat)][name+"_harm"]+=int(r["psnr_by_orbit"][ch]<25)
+        update_b2_counts(categories,(src,cohort,fam,cat),r,choice,prior)
     output=[]
     count=Counter()
     for (src,fam,iid),group in sorted(by_group.items()):
@@ -191,7 +232,7 @@ def main(a):
              dec_clip_face="".join("1" if x[1]=="111" else "0" for x in group),
              dec_2f="".join("1" if x[2]=="111" else "0" for x in group),
              dec_s_all8="".join(str(int(x[3],2)) for x in group)))
-    if count!=EXPECTED:raise RuntimeError("STOP_A8_SUMS")
+    validate_counts_export(output,count)
     out.mkdir(parents=True,exist_ok=False)
     with (out/"R0N2_PER_IMAGE_COUNTS.csv").open("x",newline="",encoding="utf8") as f:
         w=csv.DictWriter(f,fieldnames=FIELDS);w.writeheader();w.writerows(output)
