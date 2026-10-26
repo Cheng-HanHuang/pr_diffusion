@@ -55,6 +55,35 @@ def sha(path):
         for part in iter(lambda:f.read(4*1024*1024),b""):h.update(part)
     return h.hexdigest()
 
+def external_checkpoint_provenance(checkpoint):
+    """Pin the one allowed external SITCOM checkpoint, including symlink cases.
+
+    All ordinary experiment sources still go through safe(), which refuses
+    symlinks. Only the exact native ffhq checkpoint path can be resolved.
+    """
+    p=Path(checkpoint)
+    if p!=SITCOM/"checkpoint/ffhq256.pt":
+        raise RuntimeError("STOP_XP_SITCOM_UNEXPECTED_CHECKPOINT")
+    if not p.is_symlink():
+        if sha(p)!=MODEL_SHA:
+            raise RuntimeError("STOP_XP_SITCOM_EXTERNAL_MODEL")
+        return {"checkpoint_path":str(p),"is_symlink":False,
+                "target_path":str(p.resolve(strict=True)),
+                "sha256":MODEL_SHA}
+    try:
+        target=p.resolve(strict=True)
+    except (OSError,RuntimeError) as exc:
+        raise RuntimeError("STOP_XP_SITCOM_CHECKPOINT_LINK") from exc
+    top=ROOT.resolve(strict=True)
+    if (target==p or not target.is_file() or target.is_symlink() or
+        not (target==top or top in target.parents) or
+        any(b in str(p).lower() or b in str(target).lower() for b in BAD)):
+        raise RuntimeError("STOP_XP_SITCOM_CHECKPOINT_LINK")
+    if sha(target)!=MODEL_SHA:
+        raise RuntimeError("STOP_XP_SITCOM_EXTERNAL_MODEL")
+    return {"checkpoint_path":str(p),"is_symlink":True,
+            "target_path":str(target),"sha256":MODEL_SHA}
+
 def read(path):
     return json.loads(safe(path).read_text())
 
@@ -188,10 +217,12 @@ def main(a):
              "posterior_sample.py"],text=True,timeout=30),
     )
     native_state["unused_cli_sha256"]=sha(SITCOM/"posterior_sample.py")
+    # Later inserted checkpoint proof is recorded in both GPU-safe manifest
+    # and CPU prep receipt; its target is never a GT input.
     if sha(MODEL)!=MODEL_SHA:
         raise RuntimeError("STOP_XP_SITCOM_MODEL_SHA")
-    if sha(SITCOM/"checkpoint/ffhq256.pt")!=MODEL_SHA:
-        raise RuntimeError("STOP_XP_SITCOM_EXTERNAL_MODEL")
+    checkpoint_state=external_checkpoint_provenance(
+        SITCOM/"checkpoint/ffhq256.pt")
     b22=read(WT/"configs/b22/b22_2_overnight.json")
     native=settings(b22)
     catalog=read(CATALOG)
@@ -246,6 +277,7 @@ def main(a):
        "gt_paths_supplied":False,"historical_paths_supplied":False,
        "config":native,"b22_master_seed":43,"b22_trajectory_count":4,
        "model_sha256":MODEL_SHA,"model_relpath":"checkpoint/ffhq256.pt",
+       "native_checkpoint_provenance":checkpoint_state,
        "native_checkout_provenance":native_state,
        "provenance":{"b22":"sequential post-model RNG reset per image",
                      "b24":"one independent seeded native model per run"},
@@ -265,6 +297,7 @@ def main(a):
        "source_b22":4,"source_b24":4,"n_shared_y":4,
        "model_sha256":MODEL_SHA,
        "native_checkout_provenance":native_state,
+       "native_checkpoint_provenance":checkpoint_state,
        "gt_access":False,
        "gpu_access":False}
     dump(out/"XP_SITCOM_REPLAY_PREP.json",receipt)

@@ -1,6 +1,11 @@
 """Synthetic CPU-only SITCOM B22/B24 replay provenance/selection checks."""
 from __future__ import annotations
 import unittest
+import tempfile
+import hashlib
+from pathlib import Path
+from unittest.mock import patch
+from scripts.track_r import xp_sitcom_replay_prepare_cpu as prep
 from scripts.track_r.xp_sitcom_replay_prepare_cpu import selection,settings,check_native_checkout,SITCOM_HEAD
 
 class SitcomReplayPreflightTests(unittest.TestCase):
@@ -70,6 +75,65 @@ class SitcomReplayPreflightTests(unittest.TestCase):
                                   "3\t2\tposterior_sample.py\n")
         clean=check_native_checkout(SITCOM_HEAD,"","")
         self.assertFalse(clean["tracked_modified"])
+
+    def test_exact_native_checkpoint_symlink_is_verified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp).resolve()
+            model=root/"models/ffhq_10m.pt"
+            model.parent.mkdir()
+            model.write_bytes(b"fixture-checkpoint")
+            native=root/"external/SITCOM_ODE/checkpoint/ffhq256.pt"
+            native.parent.mkdir(parents=True)
+            native.symlink_to(model)
+            expected=hashlib.sha256(model.read_bytes()).hexdigest()
+            with (patch.object(prep,"ROOT",root),
+                  patch.object(prep,"SITCOM",native.parent.parent),
+                  patch.object(prep,"MODEL_SHA",expected)):
+                got=prep.external_checkpoint_provenance(native)
+                self.assertTrue(got["is_symlink"])
+                self.assertEqual(got["target_path"],str(model))
+                self.assertEqual(got["sha256"],expected)
+                # General-purpose input verifier continues to refuse symlinks.
+                with self.assertRaisesRegex(RuntimeError,
+                                            "STOP_XP_SITCOM_BAD_SOURCE"):
+                    prep.safe(native)
+                native.unlink()
+                native.write_bytes(model.read_bytes())
+                got=prep.external_checkpoint_provenance(native)
+                self.assertFalse(got["is_symlink"])
+
+    def test_checkpoint_symlink_outside_pac_root_rejected(self):
+        with tempfile.TemporaryDirectory() as parent:
+            top=Path(parent).resolve()
+            root=top/"research"
+            native=root/"external/SITCOM_ODE/checkpoint/ffhq256.pt"
+            native.parent.mkdir(parents=True)
+            external=top/"outside.pt"
+            external.write_bytes(b"same-checkpoint-content")
+            native.symlink_to(external)
+            expected=hashlib.sha256(external.read_bytes()).hexdigest()
+            with (patch.object(prep,"ROOT",root),
+                  patch.object(prep,"SITCOM",native.parent.parent),
+                  patch.object(prep,"MODEL_SHA",expected)):
+                with self.assertRaisesRegex(RuntimeError,
+                                             "STOP_XP_SITCOM_CHECKPOINT_LINK"):
+                    prep.external_checkpoint_provenance(native)
+
+    def test_checkpoint_wrong_digest_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp).resolve()
+            target=root/"models/mismatched.pt"
+            target.parent.mkdir()
+            target.write_bytes(b"wrong")
+            native=root/"external/SITCOM_ODE/checkpoint/ffhq256.pt"
+            native.parent.mkdir(parents=True)
+            native.symlink_to(target)
+            with (patch.object(prep,"ROOT",root),
+                  patch.object(prep,"SITCOM",native.parent.parent),
+                  patch.object(prep,"MODEL_SHA","0"*64)):
+                with self.assertRaisesRegex(RuntimeError,
+                                            "STOP_XP_SITCOM_EXTERNAL_MODEL"):
+                    prep.external_checkpoint_provenance(native)
 
     def test_b22_native_contract_locked(self):
         m={

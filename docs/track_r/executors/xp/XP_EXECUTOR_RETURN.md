@@ -391,3 +391,7 @@ objects are not read; do not delete or reset those files.
 unverified until separately completed. New synthetic regression tests
 reject changed solver source, staged dirty files, changed/unknown
 cache paths, and altered CLI diff shape.
+
+## XP-SITCOM strict checkpoint symlink exemption (2026-10-26)
+
+The retry at executor commit `f0b41af6ed404f5d949f4141522ffe7d556859ed` passed 62 CPU tests and the narrow external checkout integrity gate, then STOPPED before any output was created: `safe(SITCOM/checkpoint/ffhq256.pt)` rejects symlink paths. PAC independently confirmed that both the external checkpoint path and the canonical `models/ffhq_10m.pt` path hash to `81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa`. The cause is therefore the path-safety policy, not an observed checksum mismatch; the external path may be a symlink. The updated CPU-only preparation exempts **only** the exact external SITCOM checkpoint path, resolves symlinks strictly within the PAC research root, forbids protected target substrings, requires an ordinary regular target file and its exact SHA, and records the resolved target and symlink status in both the GT-free manifest and its receipt. All ordinary candidate and measurement inputs continue to reject symbolic links. Three new synthetic tests cover pinned checkpoint symlink success, direct-file success, outside-root link rejection, and SHA drift rejection. This update does not change any original experiment, external code, or reconstruction, and replay remains pending.
