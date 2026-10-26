@@ -147,3 +147,33 @@ The executor implementation of this scheduling amendment is in
 GPU admission and controller code must pass CPU unit tests and are
 **not yet** an accepted XP-T or exchangeability/replay gate; no
 scientific execution is triggered by installing these files.
+
+## XP-T scientific entry gate: native FAST historical replay (prepared, not yet run)
+
+The first GPU operation on this branch is a bounded native FAST-DIPS
+replay of eight frozen roots from R0.5: the first two sorted R0 image IDs
+from B22 and DEV80, with the original R0 `rep = 0,1` seeds and
+byte-identical signed measurement inputs. The **generation manifest is
+GT-free** and is regenerated from the immutable, SHA-pinned R0.5 720-root
+manifest. The single-GPU worker uses the existing pinned FAST-DIPS
+source, official environment and R0.5 FFHQ pixel settings.
+
+The gate includes:
+1. CPU manifest replay + source/checkpoint/measurement SHA validation
+   before model inference;
+2. one 8-root native GPU canary on a safe-memory GPU, capturing
+   start/during/finish occupancy and process telemetry;
+3. isolated GT-accessing **CPU-only offline evaluation** comparing
+   each raw PSNR to the frozen R0.7 entry (absolute delta <= 0.1 dB)
+   and reproducing its exact failure label;
+4. PASS receipt only if all eight replayed roots meet those criteria.
+   The new candidate artifacts stay in the Track R XP output root,
+   not in existing R0 outputs. A failed gate stops FAST extension
+   pending diagnosis; it never auto-continues into K-scaling.
+
+The first canary is not an XP-T full multi-worker timing sweep, and
+the corresponding time measurement is only diagnostic. If foreign GPU
+processes overlap, mark its timing contaminated without invalidating
+an otherwise successful scientific replay. The approved scheduler's
+80% VRAM and 400 GPU-hour caps apply. No published XP outcomes are
+produced until the replay PASS is verified on PAC.

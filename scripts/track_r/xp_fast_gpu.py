@@ -318,8 +318,16 @@ if __name__=="__main__":
     parser.add_argument("--oversample",type=float,choices=(2.0,4.0),default=2.0)
     parser.add_argument("--resume",action="store_true")
     parser.add_argument("--roots-source-head",default=None)
+    parser.add_argument("--preflight-only",action="store_true")
     args=parser.parse_args()
-    try:sys.exit(execute(args))
+    try:
+        if args.preflight_only:
+            selected,paths,fast,conf,model,modelsha=preflight(args)
+            print("XP_FAST_PREFLIGHT_PASS roots="+str(len(selected))+
+                  " dataset="+args.dataset+" canvas="+
+                  str(256+64*int(args.oversample))+" head="+args.expected_head)
+            sys.exit(0)
+        sys.exit(execute(args))
     except Exception as err:
         print("STOP_R05_FAST_WORKER",repr(err),flush=True)
         traceback.print_exc()

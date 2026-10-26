@@ -18,12 +18,14 @@ def main():
     # Only named status JSONs. Never walk experimental data trees.
     directories=sorted((d for d in root.iterdir()
         if d.is_dir() and (d.name.startswith("xp_0_") or d.name.startswith("xp_t_")
-                          or d.name.startswith("xp_controller_") or d.name.startswith("r0n2_"))),
+                          or d.name.startswith("xp_controller_") or d.name.startswith("xp_fast_replay_")
+                          or d.name.startswith("r0n2_"))),
         key=lambda d:d.name,reverse=True)[:8]
     seen_inventory=False
     seen_a8=False
     seen_import=False
     seen_ladder=False
+    seen_fast_replay=False
     for d in directories:
         if any(t in str(d).lower() for t in BAD):raise RuntimeError("FORBIDDEN_PATH")
         if d.name.startswith("xp_0_imagenet_"):
@@ -51,6 +53,20 @@ def main():
                 seen_a8=True
                 v=read(fp);lines.append("R0N2 "+v.get("status","UNKNOWN")+
                     " n="+str(v.get("n_candidates")))
+        elif d.name.startswith("xp_fast_replay_"):
+            fp=d/"XP_FAST_REPLAY_STATUS.json"
+            if fp.is_file() and not seen_fast_replay:
+                seen_fast_replay=True
+                v=read(fp)
+                state=v.get("state","UNKNOWN")
+                lines.append("FAST-REPLAY "+state+" gpu="+str(v.get("gpu"))+
+                             " max_delta_db="+str(v.get("max_abs_psnr_delta_db","—"))+
+                             " timing="+str(v.get("timing_class","pending")))
+                if state in ("FAILED_PREFLIGHT","FAILED_GPU","REPLAY_GATE_FAILED"):
+                    action.append("FAST replay "+state+" log="+str(d/"XP_FAST_SUPERVISOR.log"))
+            elif not seen_fast_replay and (d/"XP_FAST_REPLAY_PREP_RECEIPT.json").is_file():
+                lines.append("FAST-REPLAY PREPARED (launch/worker pending)")
+                seen_fast_replay=True
         elif d.name.startswith("xp_controller_"):
             fp=d/"XP_CONTROLLER_STATUS.json"
             if fp.is_file():
