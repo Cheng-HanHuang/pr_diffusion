@@ -355,3 +355,39 @@ The second audit attempt passed its 55 CPU tests, and the Python traceback reach
 PAC read-only provenance preflight showed native SITCOM source `275ab67efbd8146bffca20155171ba6be1169c09` exactly pinned. The frozen R0.7 catalog has 400 B22 SITCOM candidates (100 images) and 320 B24 DEV80 SITCOM candidates (80 images). The first two sorted IDs per source, candidate runs 0 and 1, are 8 exact historical candidates with matching measurement and candidate SHA256. B22 image IDs `60044` and `60140` both use master seed 43, **sequential run-index RNG draws after model loading** and a reset of the same post-model state per image. DEV80 IDs `01113` and `02763` use **independent 32-bit native seeds and separate model loading for each run**; never conflate the two lineages. The pinned SITCOM source's `DAPS.get_start(ref)` is `torch.randn_like(ref) * annealing_sigma_max`, so a shape-only tensor can replace the historical GT reference for a strictly GT-free generation adapter, provided replay verifies equivalence.
 
 Frozen historic labels of selected B22 (60044 run0/1, 60140 run0/1): GOOD, GOOD, ORBIT_ERROR, GOOD. Selected DEV80 (01113 run0/1, 02763 run0/1): all GOOD. No GPU replay has been authorized or executed by this CPU preflight. `xp_sitcom_replay_prepare_cpu.py` creates a separate GT-free eight-row GPU manifest and CPU-only historical reference (candidate file SHA, labels, PSNR) after checking historic y, candidates, B22 native receipts, native solver settings, source and model SHA, and B24 native frozen runtime configurations. This is **only a manifest provenance step**. The next executor step must implement a GT-free SITCOM generator, compare saved historic and new reconstructions offline, and withhold any large-scale SITCOM work until the replay gate passes.
+
+## SITCOM replay integrity gate: tracked Python cache drift (2026-10-26)
+
+PAC diagnostic confirms external SITCOM checkout HEAD
+`275ab67efbd8146bffca20155171ba6be1169c09`,
+unchanged `sampler.py`, `model.py`, and `forward_operator.py`,
+and both copied FFHQ checkpoints SHA-256
+`81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa`.
+Its tracked working tree is modified in **exactly ten** `__pycache__/*.cpython-38.pyc`
+cache binaries and **one** `posterior_sample.py` CLI one-line substitution.
+These local modifications are not grounds to reset the original external source.
+
+The first XP-SITCOM CPU manifest attempt under
+`b2f2fa791b5c6eec4c26af7d2e42612484514620`
+correctly STOPPED at the blanket dirty-tree gate
+`STOP_XP_SITCOM_NATIVE_SOURCE`, before generating any manifest or
+spending GPU time. Follow-up code substitutes a *narrowly allowed
+tracked-diff provenance policy* for that blanket check: the native
+source must remain on the pinned HEAD, only the eleven exact known paths
+may be modified, the unused `posterior_sample.py` edit must have
+precisely one insertion and one deletion, and every changed source
+under `sampler`, `model`, and `forward_operator` still causes STOP.
+The non-imported CLI's current SHA256 and full allowed-dirty list
+are recorded in both frozen manifest and CPU receipt.
+
+**Important for subsequent GPU replay:** use pinned
+`get_sampler`, `get_model`, and `get_operator` APIs directly;
+never execute or import modified `posterior_sample.py`. Set a
+fresh `PYTHONPYCACHEPREFIX` under the PAC output/cache tree before
+importing any SITCOM Python code, so the tracked Python 3.8 cache
+objects are not read; do not delete or reset those files.
+`PYTHONDONTWRITEBYTECODE=1` alone does not prevent Python from
+*reading* an existing bytecode cache. Replay and timings remain
+unverified until separately completed. New synthetic regression tests
+reject changed solver source, staged dirty files, changed/unknown
+cache paths, and altered CLI diff shape.

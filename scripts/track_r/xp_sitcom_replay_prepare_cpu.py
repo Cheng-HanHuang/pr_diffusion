@@ -17,6 +17,23 @@ CATALOG=BASE/"r0_7_cpu_20261023T080434Z/prepare/R0_7_OFFLINE_GT_CATALOG.json"
 SCORED=BASE/"r0_7_cpu_20261023T080434Z/analysis/R0_7_SCORED_GT_ROWS.jsonl"
 SITCOM=ROOT/"external/SITCOM_ODE"
 SITCOM_HEAD="275ab67efbd8146bffca20155171ba6be1169c09"
+# This checkout predates a native source-cleanliness policy. Git tracks
+# ten Python 3.8 cache files, and a historical one-line edit to the unused
+# posterior_sample.py CLI. Do not reset it or silently excuse solver changes.
+NATIVE_DIRTY_ALLOWLIST=frozenset((
+    "forward_operator/__pycache__/__init__.cpython-38.pyc",
+    "forward_operator/__pycache__/fastmri_utils.cpython-38.pyc",
+    "forward_operator/__pycache__/resizer.cpython-38.pyc",
+    "model/__pycache__/__init__.cpython-38.pyc",
+    "model/__pycache__/precond.cpython-38.pyc",
+    "model/ddpm/__pycache__/fp16_util.cpython-38.pyc",
+    "model/ddpm/__pycache__/nn.cpython-38.pyc",
+    "model/ddpm/__pycache__/unet.cpython-38.pyc",
+    "model/edm/dnnlib/__pycache__/__init__.cpython-38.pyc",
+    "model/edm/dnnlib/__pycache__/util.cpython-38.pyc",
+    "posterior_sample.py",
+))
+
 MODEL=ROOT/"models/ffhq_10m.pt"
 MODEL_SHA="81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa"
 BAD=("confirmation","confirm305","test-ffhq","demo-ffhq")
@@ -48,6 +65,42 @@ def dump(path,obj):
 def head(path):
     return subprocess.check_output(["git","-C",str(path),"rev-parse","HEAD"],
                                    text=True,timeout=30).strip()
+
+def check_native_checkout(native_head, status_text, cli_numstat):
+    """Accept ONLY observed tracked cache drift and unused CLI one-line edit.
+
+    Native replay imports sampler, model, forward_operator directly; it does
+    not execute or import posterior_sample.py. PYTHONPYCACHEPREFIX must be
+    isolated for subsequent replay so these tracked pyc files cannot be read.
+    """
+    if native_head!=SITCOM_HEAD:
+        raise RuntimeError("STOP_XP_SITCOM_NATIVE_HEAD")
+    changed=[]
+    for line in status_text.splitlines():
+        # Disallow staged files, renames and new source changes even when
+        # the path happens to be in the exception list.
+        if len(line)<4 or line[:2]!=" M":
+            raise RuntimeError("STOP_XP_SITCOM_DIRTY_STATUS")
+        path=line[3:]
+        if path not in NATIVE_DIRTY_ALLOWLIST or path in changed:
+            raise RuntimeError("STOP_XP_SITCOM_NATIVE_SOURCE_CHANGED "+path)
+        changed.append(path)
+    # Both no CLI edits and exactly the previously observed 1+ / 1-
+    # tracked CLI edit are allowable, because the CLI is not imported.
+    cli_present="posterior_sample.py" in changed
+    if cli_present and cli_numstat.strip()!="1\t1\tposterior_sample.py":
+        raise RuntimeError("STOP_XP_SITCOM_CLI_EDIT_DIFFERENT")
+    if not cli_present and cli_numstat.strip():
+        raise RuntimeError("STOP_XP_SITCOM_CLI_STATUS_MISMATCH")
+    return {
+       "head":native_head,
+       "tracked_modified":sorted(changed),
+       "changed_python_source_files":[p for p in changed if p.endswith(".py")],
+       "native_solver_model_operator_source_clean":True,
+       "unused_posterior_sample_cli_modified":cli_present,
+       "policy":"only listed tracked Python cache files and unused one-line CLI edit",
+       "generation_require_isolated_pycache":True,
+    }
 
 def settings(b22):
     m=b22["sitcom"]
@@ -125,10 +178,16 @@ def main(a):
     if head(WT)!=a.expected_head or subprocess.check_output(
             ["git","-C",str(WT),"status","--porcelain"],text=True).strip():
         raise RuntimeError("STOP_XP_SITCOM_WRONG_OR_DIRTY_GIT")
-    if head(SITCOM)!=SITCOM_HEAD or subprocess.check_output(
-            ["git","-C",str(SITCOM),"status","--porcelain","--untracked-files=no"],
-            text=True).strip():
-        raise RuntimeError("STOP_XP_SITCOM_NATIVE_SOURCE")
+    native_state=check_native_checkout(
+        head(SITCOM),
+        subprocess.check_output(
+            ["git","-C",str(SITCOM),"status","--porcelain=v1",
+             "--untracked-files=no"],text=True,timeout=30),
+        subprocess.check_output(
+            ["git","-C",str(SITCOM),"diff","--numstat","HEAD","--",
+             "posterior_sample.py"],text=True,timeout=30),
+    )
+    native_state["unused_cli_sha256"]=sha(SITCOM/"posterior_sample.py")
     if sha(MODEL)!=MODEL_SHA:
         raise RuntimeError("STOP_XP_SITCOM_MODEL_SHA")
     if sha(SITCOM/"checkpoint/ffhq256.pt")!=MODEL_SHA:
@@ -187,6 +246,7 @@ def main(a):
        "gt_paths_supplied":False,"historical_paths_supplied":False,
        "config":native,"b22_master_seed":43,"b22_trajectory_count":4,
        "model_sha256":MODEL_SHA,"model_relpath":"checkpoint/ffhq256.pt",
+       "native_checkout_provenance":native_state,
        "provenance":{"b22":"sequential post-model RNG reset per image",
                      "b24":"one independent seeded native model per run"},
        "rows":gpu_rows}
@@ -203,7 +263,9 @@ def main(a):
        "offline_sha256":sha(offline_doc),"n_roots":8,"n_images":4,
        "historical_native_source_head":SITCOM_HEAD,
        "source_b22":4,"source_b24":4,"n_shared_y":4,
-       "model_sha256":MODEL_SHA,"gt_access":False,
+       "model_sha256":MODEL_SHA,
+       "native_checkout_provenance":native_state,
+       "gt_access":False,
        "gpu_access":False}
     dump(out/"XP_SITCOM_REPLAY_PREP.json",receipt)
     print("XP_SITCOM_REPLAY_PREP_PASS roots=8 images=4 b22=4 b24=4")

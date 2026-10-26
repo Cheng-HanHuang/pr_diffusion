@@ -1,7 +1,7 @@
 """Synthetic CPU-only SITCOM B22/B24 replay provenance/selection checks."""
 from __future__ import annotations
 import unittest
-from scripts.track_r.xp_sitcom_replay_prepare_cpu import selection,settings
+from scripts.track_r.xp_sitcom_replay_prepare_cpu import selection,settings,check_native_checkout,SITCOM_HEAD
 
 class SitcomReplayPreflightTests(unittest.TestCase):
     def test_select_two_first_ids_and_two_runs_per_cohort(self):
@@ -36,6 +36,41 @@ class SitcomReplayPreflightTests(unittest.TestCase):
         rows[0]["run_index"]=2
         with self.assertRaisesRegex(RuntimeError,"STOP_XP_SITCOM_HISTORICAL_FOUR_RUNS"):
             selection(rows)
+    def test_known_tracked_pycache_and_unused_cli_dirty_allowed(self):
+        changes=(
+            " M forward_operator/__pycache__/__init__.cpython-38.pyc\n"
+            " M model/ddpm/__pycache__/unet.cpython-38.pyc\n"
+            " M posterior_sample.py\n"
+        )
+        result=check_native_checkout(SITCOM_HEAD,changes,
+                                      "1\t1\tposterior_sample.py\n")
+        self.assertTrue(result["native_solver_model_operator_source_clean"])
+        self.assertTrue(result["generation_require_isolated_pycache"])
+        self.assertEqual(result["changed_python_source_files"],
+                         ["posterior_sample.py"])
+        self.assertEqual(len(result["tracked_modified"]),3)
+
+    def test_any_modified_native_sampler_or_unlisted_source_rejected(self):
+        for path in ("sampler.py","model/ddpm/unet.py",
+                     "forward_operator/__init__.py","posterior_sample_copy.py",
+                     "model/__pycache__/custom.cpython-38.pyc"):
+            with self.subTest(path=path):
+                with self.assertRaisesRegex(RuntimeError,
+                                            "STOP_XP_SITCOM_NATIVE_SOURCE_CHANGED"):
+                    check_native_checkout(SITCOM_HEAD," M "+path+"\n","")
+
+    def test_staged_changes_wrong_head_and_cli_shape_rejected(self):
+        with self.assertRaisesRegex(RuntimeError,"STOP_XP_SITCOM_NATIVE_HEAD"):
+            check_native_checkout("0"*40,"","")
+        with self.assertRaisesRegex(RuntimeError,"STOP_XP_SITCOM_DIRTY_STATUS"):
+            check_native_checkout(SITCOM_HEAD,"M  posterior_sample.py\n",
+                                  "1\t1\tposterior_sample.py\n")
+        with self.assertRaisesRegex(RuntimeError,"STOP_XP_SITCOM_CLI_EDIT_DIFFERENT"):
+            check_native_checkout(SITCOM_HEAD," M posterior_sample.py\n",
+                                  "3\t2\tposterior_sample.py\n")
+        clean=check_native_checkout(SITCOM_HEAD,"","")
+        self.assertFalse(clean["tracked_modified"])
+
     def test_b22_native_contract_locked(self):
         m={
           "anneal_schedule":"linear","anneal_sigma_max":100.0,
