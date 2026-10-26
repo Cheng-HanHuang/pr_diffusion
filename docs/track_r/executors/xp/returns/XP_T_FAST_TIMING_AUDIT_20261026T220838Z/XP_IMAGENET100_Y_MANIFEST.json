@@ -1,0 +1,812 @@
+{
+  "gt_paths_supplied": false,
+  "head": "b3d67d55a569e04f9467dc5dc4c7e796fab1a5f3",
+  "n_images": 100,
+  "noise_rule": "CPU torch.randn, independent generator; XPMEAS|imagenet|basename, unsigned big-endian SHA[:8] mod 2**63",
+  "preprocess": "FAST_DIPS_A15/data.py ToTensor Resize(256) CenterCrop(256)",
+  "rows": [
+    {
+      "basename": "ILSVRC2012_val_00049000.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_000.pt",
+      "measurement_sha256": "0d2bcb6b07bf94729ff0152f89e80f3ee958c69123bea93690da276517ed1ccb",
+      "seed": 415494906861109672,
+      "sigma": 0.05,
+      "source_image_sha256": "534c52a69676ba0026f50531bb07d6d4dc170092d559b1b562484e7cf6dbb6f0"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049001.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_001.pt",
+      "measurement_sha256": "6eef86e47786be4aa578e75c30bf69f675bcd8bc61358cdb392e7105e8a4ae2b",
+      "seed": 2654823753647334980,
+      "sigma": 0.05,
+      "source_image_sha256": "0e04889cb809fc7cb4fca24d3197bf8f1d3e5f34bb8189e6845bc34d24c17d25"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049002.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_002.pt",
+      "measurement_sha256": "bfcb5ab4b0782e932ad349675489e41030f7c30b478d7cb0284e8a587f615055",
+      "seed": 7469604448966763999,
+      "sigma": 0.05,
+      "source_image_sha256": "650691d0613b239da9696c729709516341d68a53e7969a66db6d223a03f037fe"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049003.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_003.pt",
+      "measurement_sha256": "8f5ee0f17a61a4a165a97f219ebb8c0b4cac797b28efd33e8c5abf57e480cd69",
+      "seed": 3713197482460865191,
+      "sigma": 0.05,
+      "source_image_sha256": "8dd85e4e0c20d22e1a842a9cd9ea4b49260b2c0c31bb48bb89b0d6ca804e2c41"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049004.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_004.pt",
+      "measurement_sha256": "c558f1a9b9a5d01917dacaf9dabd0a8dc8d5653407a54fc1e299687e57a3ae70",
+      "seed": 7125432794151406857,
+      "sigma": 0.05,
+      "source_image_sha256": "92066e69c6eac1cfc91ed523afb1761437179b79ae9c6c1768c99205920e30e8"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049005.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_005.pt",
+      "measurement_sha256": "ea6381b0b1dfd34a56cb122a7b779dfa2fd3a84efb25ec96a25de678ac46e69d",
+      "seed": 6238445712276170114,
+      "sigma": 0.05,
+      "source_image_sha256": "2e296a6b7f45a2f469ef5c9d220ad30850a0c5b3656621919bfd5e5be43a9403"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049006.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_006.pt",
+      "measurement_sha256": "74d775fd20d3193bb9e2dfca5bed977049dec51f3e7aa28355d624c3c99db9eb",
+      "seed": 1651131824807831696,
+      "sigma": 0.05,
+      "source_image_sha256": "4f11184c326414117ec5b1c007f0561b3bc777d2ad20ec6705ac7ceb6b6cb337"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049007.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_007.pt",
+      "measurement_sha256": "d798358a9a3a5e92db25b55593db5809cb6d1282243006592f0a27927090daac",
+      "seed": 2966725199992648950,
+      "sigma": 0.05,
+      "source_image_sha256": "acdac3d22dff4982e7b8618e0c347543e08724ed9ff7f1114376c45b619248d5"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049008.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_008.pt",
+      "measurement_sha256": "afe7c5e1378943bb38df7f7ca8911df39c2c830b5f0fe006e4b781ecfc7278c7",
+      "seed": 3107630248699151491,
+      "sigma": 0.05,
+      "source_image_sha256": "5eaac1eb5915f8d895b11ef32713338582f94558d50ab821295c368bf704440e"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049009.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_009.pt",
+      "measurement_sha256": "4c710e6a90db79536f5ef74c3163e979c5fb26b847a0e9375cb7413ff293211a",
+      "seed": 2351262457299957334,
+      "sigma": 0.05,
+      "source_image_sha256": "ffb2c2ffd596c2e733436d250039f435d1d8b0f32af3e4479588edce65f11bde"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049010.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_010.pt",
+      "measurement_sha256": "4056b477ebf687adfa1380bca263c11eedcd064a9b413b823ea86053308bf89b",
+      "seed": 2375026356299373399,
+      "sigma": 0.05,
+      "source_image_sha256": "5550ce4ce86d4e03bf275752930a8b16abb487516f24af41d55254a438aba514"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049011.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_011.pt",
+      "measurement_sha256": "39869ea9f401f2ff1b67ce952c3c18cb32f535d46e13d6a95340aab35a7cb266",
+      "seed": 8638652458795921061,
+      "sigma": 0.05,
+      "source_image_sha256": "a0e4e48212cee881b2785c92b28034d55690c55905f83068dafd9c3759c8f3a0"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049012.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_012.pt",
+      "measurement_sha256": "e981e0400b206ed81459d90c9dd301e4da778dbe85d57cd0146e7c05cfd0670d",
+      "seed": 662167828149025526,
+      "sigma": 0.05,
+      "source_image_sha256": "a17dbfac062850a9f133137d6967a65fd5981795b12dd9d4d853f51b2705d78f"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049013.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_013.pt",
+      "measurement_sha256": "ca1257188846009d234e32efab83c63e5a862d6459ecd023b63f32b747788b26",
+      "seed": 452345197848943665,
+      "sigma": 0.05,
+      "source_image_sha256": "1c0759d61a1349549c374458f416c381b1152002169ede6cfd94d923815b1fe1"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049014.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_014.pt",
+      "measurement_sha256": "5c056419e6115837191cf824c697bf208385c28038de75cc87772af18dc63a33",
+      "seed": 781608249086635042,
+      "sigma": 0.05,
+      "source_image_sha256": "5fe831c34b484b212796b7a3f236f094479acf3bd2045d7ddcd25d124ee73f3a"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049015.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_015.pt",
+      "measurement_sha256": "60caa4b2ce0a21781fbd9f2dbf4ba45d015a2bf152d0bdc4f066571fa9259b20",
+      "seed": 6265810586035933048,
+      "sigma": 0.05,
+      "source_image_sha256": "d748599afc56963c17b25cd80921b887669ff0a826eaf10bcd5c9af8dbe60242"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049016.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_016.pt",
+      "measurement_sha256": "fbde6152d1d5090172181625e8ee40b8fef2676ec513f0386967d98b740b5cd6",
+      "seed": 3024588189924763556,
+      "sigma": 0.05,
+      "source_image_sha256": "7ee7604f9c0c4112643f122f55154b0b6dbc34be4c09a7f0511f718739e4d17f"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049017.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_017.pt",
+      "measurement_sha256": "9dc4895d4733b5bba7a940f91af2b6adcc6d675b251c68eae1b977c039b8be11",
+      "seed": 132300608121178472,
+      "sigma": 0.05,
+      "source_image_sha256": "d12551a58d7c7d234abd2ee01427a258a34101bd2968b1bfdf5cc30c7f806a1f"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049018.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_018.pt",
+      "measurement_sha256": "afcbe88517acd8a6c2e0c1642b10cc085e751bbf56c16aaa964681e1bd6c4438",
+      "seed": 2002872755856457933,
+      "sigma": 0.05,
+      "source_image_sha256": "bf13a93e72186101c5da76f351ff54627980dd119eea30e2ba765dafe5dbad93"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049019.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_019.pt",
+      "measurement_sha256": "55d811b5e7ef5c01504ce27b0bb0b52ad448a529e63514be5e5f4054dab33b10",
+      "seed": 5490350683588043679,
+      "sigma": 0.05,
+      "source_image_sha256": "96b57b228cb4c2b6d55d8540b9930dddc1e4e35f04a3ce357d2ce1ef33d237fd"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049020.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_020.pt",
+      "measurement_sha256": "3c7bd9d7d04dad828d60a74820600f7aa57aae3b4ecb7c44af86376ad5d44116",
+      "seed": 1248140252082982500,
+      "sigma": 0.05,
+      "source_image_sha256": "b5d3bc724cc2327a8e165696217104a18715e73b7844d87ad8ef67b6be58bdf3"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049021.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_021.pt",
+      "measurement_sha256": "3ba33756b978044ebd0990cb1f505d32f172f8e52181b34f6aa509671df0cf6a",
+      "seed": 4229303411486368965,
+      "sigma": 0.05,
+      "source_image_sha256": "6d640c68e125d3889efb354c8e99c31033cd7ff237c58befc2fe937aae21269d"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049022.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_022.pt",
+      "measurement_sha256": "7b4838fc037b3145e9b0384af6f23b05720c8199b1e2cb8441d554cf5897411d",
+      "seed": 644616771332053030,
+      "sigma": 0.05,
+      "source_image_sha256": "212f8938635d52319ef3ce417c4b9921f035b0deb91cfca17295c29e4b6f7b8d"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049023.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_023.pt",
+      "measurement_sha256": "9f6eb1dce0522a988d3eec0d8f04fbda33b9f71879d4c847967e154f7e0d88d3",
+      "seed": 2987918345045025857,
+      "sigma": 0.05,
+      "source_image_sha256": "517c3e6b8c0ed4a7fecf02fc676e8b12269f4579bebafa663100cb5fdd064593"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049024.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_024.pt",
+      "measurement_sha256": "3475331d50640d1965243a8450a10ca4048e5c2ac6b2dc0e67c18f1158217683",
+      "seed": 8438390751860445241,
+      "sigma": 0.05,
+      "source_image_sha256": "3397bb31e6ec37091f44afd167899431c3eb4d801e69e8ce7285d6115880fdcb"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049025.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_025.pt",
+      "measurement_sha256": "0fdfc852b26bd9584dff827355a84b07671dee7a9daecd565da9b8ef41e76753",
+      "seed": 493499166656638768,
+      "sigma": 0.05,
+      "source_image_sha256": "6729e5ffc825b338e6aa16d2e5739fdb81ef0b92d384fcd1939278e18ea8a769"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049026.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_026.pt",
+      "measurement_sha256": "f323625918ff591c0aca33e7d70ef27ae32e89161f119e52e70da6d4fb8b6ba2",
+      "seed": 428395226706773572,
+      "sigma": 0.05,
+      "source_image_sha256": "745563b554b45cf6b163f3bb1575174cd244dc3823fb3abacf82d579488d57ee"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049027.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_027.pt",
+      "measurement_sha256": "54ecdda1cf30fa5234f8ade940ac0a08d322d1df72fc002d1f4386993652a958",
+      "seed": 3175475032846739440,
+      "sigma": 0.05,
+      "source_image_sha256": "8660a6521284b59d80fec1ae2c8c0c52995d1415fb83a458f8861648124998ce"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049028.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_028.pt",
+      "measurement_sha256": "9c622a25848cb9f731303bd18d762e9f373a9e8e83faae741e51fc1f1e19f2f9",
+      "seed": 6739917241622972742,
+      "sigma": 0.05,
+      "source_image_sha256": "e5a14b3211005fd17db8cb6497a0e6858a454f51e8369308cb8f5fd9795fc455"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049029.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_029.pt",
+      "measurement_sha256": "9172f4f2dae939e9d51a995ef5c9ae2ab556febd1a7acb4dd75364eb71485c3d",
+      "seed": 5000028559814692546,
+      "sigma": 0.05,
+      "source_image_sha256": "8eae92ea155fc1f69676d40cfc4316f067f48b4c8a148e8734ea3c40fc737525"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049030.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_030.pt",
+      "measurement_sha256": "9dfd6011a9876cc5ab0fde2a55028b4ecf0228e6556dac769c3ce2b597ba4560",
+      "seed": 8942670439740629234,
+      "sigma": 0.05,
+      "source_image_sha256": "9f6ba4b5f48123531a1ef4171f1226cb427354c3b75563aada269edbfc209908"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049031.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_031.pt",
+      "measurement_sha256": "2783387feaffbfbc94c66f747a08f97c14a923b75734bf8d6d00979cd0effe5a",
+      "seed": 5837273299003980680,
+      "sigma": 0.05,
+      "source_image_sha256": "b63995c51eabb51f5291fa46df72d3bd663636a65381cbc93768cad64310eb34"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049032.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_032.pt",
+      "measurement_sha256": "799df995a29a3f7a10b326614d7d3a4336242f4cfddea323c4b0c8d32c9e2431",
+      "seed": 1824621174157880669,
+      "sigma": 0.05,
+      "source_image_sha256": "e9a6bbd700d00de1f536045339fa2fc6a2633e8bff56235ebd4ebbcfcaee6cdc"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049033.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_033.pt",
+      "measurement_sha256": "014f805eea2292a775c8df5df730b1b9fb1c486fb196c26d99883e38bbb47ca0",
+      "seed": 1418763115896409453,
+      "sigma": 0.05,
+      "source_image_sha256": "e0fdbe825ccc93ee6ac82f69ec369aeec577255ee15baec2042596fca69d70a1"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049034.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_034.pt",
+      "measurement_sha256": "2bfc85736302684c20c4549fcbcaa85f4945bcafa2c13cda497e2103c0a9e84b",
+      "seed": 2735760784193806517,
+      "sigma": 0.05,
+      "source_image_sha256": "9ed84b28a8aba3fe1a6278b02a3a7a1d0e54f62ce36edb6f0676d725aa1e700c"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049035.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_035.pt",
+      "measurement_sha256": "95b7fc4e5f72eceda3e575ececdecc54bef71b133d509f5147a982fcd440e3a2",
+      "seed": 8444214556067796848,
+      "sigma": 0.05,
+      "source_image_sha256": "70e7bd3328e6c6f5658fb3249422e0a642c523c1a5185dd198f5b5e53cdeaa72"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049036.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_036.pt",
+      "measurement_sha256": "1a99d0890e9ce7c1068557ed7ee2832693afc47335c644a0091b18bc9bdaa651",
+      "seed": 3321930285340956082,
+      "sigma": 0.05,
+      "source_image_sha256": "c41eee1086bf836e2c929e65265df30127ff6fc6b5607ccd38414d0f7fc83bbb"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049037.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_037.pt",
+      "measurement_sha256": "46e16a30f1197da0cf9f07cc2ad59c692be4e17e8d32309eedfffa396047a3c3",
+      "seed": 6000823316466037851,
+      "sigma": 0.05,
+      "source_image_sha256": "9cbf6729475dc91816674dfa9e1162f51aa721b3843ef08f651e0df142793327"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049038.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_038.pt",
+      "measurement_sha256": "a43cb53f6333ede7cb25c2bba739e22513ecc193e4e96ab9e138812fa84764da",
+      "seed": 9119032729375034548,
+      "sigma": 0.05,
+      "source_image_sha256": "e4304ffc9bc592a14bbf1b47e2bab56da4c60eb607aa5d06b15874e30d7b5ca3"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049039.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_039.pt",
+      "measurement_sha256": "44f9d91568ee6fc5f52f321dc1e33f7c390d06d5f9f309124d557548e437496c",
+      "seed": 416075251097305675,
+      "sigma": 0.05,
+      "source_image_sha256": "4350ed3a4e83958b273072332d868e982e90a0b4d977f35fb79e6a40995bf90c"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049040.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_040.pt",
+      "measurement_sha256": "66c0fcebeb5748628839f1336cecd597d1fb7b78fb2c4c971ce9c4ace9fe403c",
+      "seed": 2312548865747260853,
+      "sigma": 0.05,
+      "source_image_sha256": "39aa526fb6e47e60cc591c5ddd7f597ce1da0c3178937827b6df7a7891520f78"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049041.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_041.pt",
+      "measurement_sha256": "6d57f6cec03ed795f5f4a338ae264d9ad6eecf7b423993da67abd79611b7429a",
+      "seed": 7123015613041181675,
+      "sigma": 0.05,
+      "source_image_sha256": "792a7d7db9bffd637f7022dbaf18450f87f6d712aaab85e6bc97208addb29d30"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049042.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_042.pt",
+      "measurement_sha256": "427fa46d93b95f547524a9790ff3ff52324f73af4ec62ee679591abd5054e608",
+      "seed": 940729754793285488,
+      "sigma": 0.05,
+      "source_image_sha256": "2aacd7a0a545cbb4110faf9c44931ea362d60b8fa427a43bdedbd42ba890276d"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049043.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_043.pt",
+      "measurement_sha256": "500014dea5b729c71f1b225b87ce55b7e46a11ee86dd7a45af2a28709b3fa664",
+      "seed": 3919353992393489536,
+      "sigma": 0.05,
+      "source_image_sha256": "511e6653938a824f31078c8541b71eaa0b3f5fddb4409e4a855747951d6b4afe"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049044.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_044.pt",
+      "measurement_sha256": "03bbd09ea522f03c078443c8faed2e6c0d6711a9a93f50846044924a6ac2b8f9",
+      "seed": 8252872366450200524,
+      "sigma": 0.05,
+      "source_image_sha256": "fe324d47f180d75391a671447317718daa3abf588bb8230afaf1437ca5f6f4a6"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049045.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_045.pt",
+      "measurement_sha256": "3202e0b8cc173b5fb792052755d2fbff788710502cf007984994bfcb536f7758",
+      "seed": 837665421058345003,
+      "sigma": 0.05,
+      "source_image_sha256": "f23e6616826ee526e7640949ef2477ddabc8960a7292aec4c0816f2a050bbb25"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049046.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_046.pt",
+      "measurement_sha256": "6f439cf03c4eaf9e37c15030fa0a84d8352d33a470b714230752f7af835e1008",
+      "seed": 8659858533124487592,
+      "sigma": 0.05,
+      "source_image_sha256": "a4cecff6e6bd755c725c017138e9e8023db4bbbeac381b2e09aeac889c919cb0"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049047.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_047.pt",
+      "measurement_sha256": "1657362001709752c875963ed956fff765392949dc9cf8b894dc6f28be54d8c8",
+      "seed": 2106263541166739931,
+      "sigma": 0.05,
+      "source_image_sha256": "a2371c90145f9ea57521810a29fa2999957cd049faabff388b008f6db9549f79"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049048.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_048.pt",
+      "measurement_sha256": "7588ff788978d6d4111ea9500968bab976677c9ed74f1017d27897c8098514f3",
+      "seed": 2401325480790625592,
+      "sigma": 0.05,
+      "source_image_sha256": "393035b0f7443f4cd6adeeddda951d0941ffdfdbce196a1cbefb6c02bf9779d2"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049049.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_049.pt",
+      "measurement_sha256": "2002a1d9d60c8888ad7d603c9cddaa7ab5b82ce46f39cc93ab74c1da7728a1ec",
+      "seed": 4881552265188746189,
+      "sigma": 0.05,
+      "source_image_sha256": "b1b636b112d9657f5abb0ec5b2b2471dd62e5cf2e24b69a6f77cadd2584d4f4d"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049050.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_050.pt",
+      "measurement_sha256": "1fc75b37ad022eb0df133323bbdf6301373c0893424c22aa4091c5fba605da2f",
+      "seed": 6611644499358743390,
+      "sigma": 0.05,
+      "source_image_sha256": "6ac9129513ffa352f126eddc9787b0a30f4abfe332f099f899ca85fd7cbebf84"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049051.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_051.pt",
+      "measurement_sha256": "36cf72caa1a4c29973c1412b8d01808460005a39ea539e2460c5d4347c5a058f",
+      "seed": 730213858766231459,
+      "sigma": 0.05,
+      "source_image_sha256": "65a31aaf7235afc63d616ee812d68be7280bb32db58892e67af2e7840e3d1daa"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049052.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_052.pt",
+      "measurement_sha256": "6cac37680843bc6a7fc233f146abeed87f00a36789520326f22b78ccc48ba7ce",
+      "seed": 7438447014466386765,
+      "sigma": 0.05,
+      "source_image_sha256": "7704385a988777effe30753baa12a56e87715e71a36977971aa66ba7bc7b1d84"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049053.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_053.pt",
+      "measurement_sha256": "81bcdc1743013d90e44c528ee73e5d730f309526665a1b6dd05a9ee972bdd4a0",
+      "seed": 5454963902962679282,
+      "sigma": 0.05,
+      "source_image_sha256": "91488ef55026772b3e29dd2d4b48ef9f8a78a96b30d1987b10ad5752f9de0a76"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049054.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_054.pt",
+      "measurement_sha256": "f6b575af627b8c1dedb96e854bff013f3db0e3ad76c18c73ba035a05c65d8a25",
+      "seed": 5271790784119760391,
+      "sigma": 0.05,
+      "source_image_sha256": "6d825bff39b262d95c76d95df76f866ca6653aba7af516ea800aee126265be20"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049055.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_055.pt",
+      "measurement_sha256": "6d872a9b13ca83811579aeae371f3736381de1a07fa10dc2276814a7dd97ac71",
+      "seed": 196720429305342327,
+      "sigma": 0.05,
+      "source_image_sha256": "fb9ccc8b0695e2747e7de2cc81221503de2605a82e0e662f14e366ce1afcc494"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049056.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_056.pt",
+      "measurement_sha256": "2a3db59ec24055d540350da342c76669c7b1ddd6eb8ffd3171d21dea29c5675d",
+      "seed": 1893341683107130240,
+      "sigma": 0.05,
+      "source_image_sha256": "defccaa38652d147050d69221524b78e487c11fd77d62c494b050048ef4f4c68"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049057.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_057.pt",
+      "measurement_sha256": "38344e4b33c65b6d603aefadfdca4fe2a3d2a205486182b2fc98f4de8bac6064",
+      "seed": 295030455144494417,
+      "sigma": 0.05,
+      "source_image_sha256": "dbff2363568b4758fe9c1e7209cf19a2a8d8fac9dbca1862a386d0830fddd4e9"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049058.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_058.pt",
+      "measurement_sha256": "43c4352c41b9ba5ca0442da228723ae7a23c428fd92b5a6b2fceb43f14cd0d06",
+      "seed": 7451406076024514467,
+      "sigma": 0.05,
+      "source_image_sha256": "b15e012329f29590d661aaf1257e7da9e29fc6d8bad8ddfa5f9da37edce989de"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049059.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_059.pt",
+      "measurement_sha256": "147010f90b5633ec00a33d9bb1b8ef2f70646fb3873e38eee3ee59ec61c1229a",
+      "seed": 1903419732028011821,
+      "sigma": 0.05,
+      "source_image_sha256": "3758b5885e89088d265aa23fad20f071a4cc8fa820038e202d53d64d41258831"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049060.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_060.pt",
+      "measurement_sha256": "c9dde7c230cca54b613b15ca39b3e69ebe5b3424838b26d9dc0e57d048f740e2",
+      "seed": 391419038496499966,
+      "sigma": 0.05,
+      "source_image_sha256": "70590dfcf2777e1991850827a12777de0cc81caa68e6c128f8e9719fe76dad63"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049061.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_061.pt",
+      "measurement_sha256": "cbc41869c63733030d6e29aafd35180a31c5d9aa0345e08f3a4c8c06fafd448f",
+      "seed": 3183126812623789114,
+      "sigma": 0.05,
+      "source_image_sha256": "ffd5201f91cf08996ffcb03a324cfdbdc4303b0de477d50eda37e260809bac1c"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049062.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_062.pt",
+      "measurement_sha256": "6ca8fc5a0f9e165425949a11c4f2279dc93e40b87d5ca7aaa6a8866e69a3904c",
+      "seed": 6883617010453264387,
+      "sigma": 0.05,
+      "source_image_sha256": "1fab55519c1c9112a323b9c087522dbf774daf85618bcdd3d81a2ac138896b21"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049063.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_063.pt",
+      "measurement_sha256": "962736c58ec9f223c9eb9f418633d9a29db3bc1899ca2a24ca46d6aa3a86c653",
+      "seed": 1682661384272813907,
+      "sigma": 0.05,
+      "source_image_sha256": "b129a94e773e8e64811e5723704b592fb4079a83d273e48eb3b0574dd92a16ee"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049064.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_064.pt",
+      "measurement_sha256": "235625d6b2db055f0ebac36e0c9f8ff5d28abf4a1640d711f24b4cf2fe07fb2c",
+      "seed": 7438717728553077077,
+      "sigma": 0.05,
+      "source_image_sha256": "1332a287fd89351fda34e35fe352239358343a0bb65f9d4fd0c7f2cdd1fdf6ad"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049065.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_065.pt",
+      "measurement_sha256": "4829ce66658925431b475443ea39af1426dd2cbac13ae8536f13f3ad79aeb615",
+      "seed": 3151354413328878104,
+      "sigma": 0.05,
+      "source_image_sha256": "1c3214daf1b77331f953f37e5ef2a0b291a565886af2d8aee8b3951255043d7e"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049066.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_066.pt",
+      "measurement_sha256": "bae20c64ee5b1ddbb1f5ef8b79c576695381a402ed98d7e7b21a845bac54a7a8",
+      "seed": 6022817910287731931,
+      "sigma": 0.05,
+      "source_image_sha256": "1fef074e7461442241a9f328c7010015220d211fdf92642031cac44dfb08651b"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049067.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_067.pt",
+      "measurement_sha256": "aa177ca52d4ce30a0a5fcd68f8a933ac1f9ef680744a180d8216cecc17c97c84",
+      "seed": 863684227118868607,
+      "sigma": 0.05,
+      "source_image_sha256": "20a0eede24c90b7834195d6a6d6817a5ae83d63addea3e8ec6373a42b6a06778"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049068.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_068.pt",
+      "measurement_sha256": "db544abee91c08526d1fb3af2925bddaecefcb8a88e7468a667b61c80dae2d6c",
+      "seed": 3066981790425571760,
+      "sigma": 0.05,
+      "source_image_sha256": "6b25f01d9814c797eb77dd5dcbfece4237c756c10c20b2abbf35c2665217c15f"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049069.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_069.pt",
+      "measurement_sha256": "e5ea719e1ceedd8a2f39798db53b030bd74df6da268255ca638cf4d97155c8c7",
+      "seed": 5785066398411810533,
+      "sigma": 0.05,
+      "source_image_sha256": "057af0647017de79eb4ea878ca46c5a086b489e72d45a2d824bedf21716c74e5"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049070.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_070.pt",
+      "measurement_sha256": "a253c8ebde0a64a0bf474576ecb675c5361a419576c9c6302c226acc6f390ba1",
+      "seed": 7960966096911462581,
+      "sigma": 0.05,
+      "source_image_sha256": "2bfe588c4d7dd408b1ac982a57888d5ab5f164a1ef3d2d0e0926d6f09434f379"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049071.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_071.pt",
+      "measurement_sha256": "b70dbf95a378154f203929c384652541ba11feb7d48a265a188124bc4add69e3",
+      "seed": 1767418734854251064,
+      "sigma": 0.05,
+      "source_image_sha256": "c56f69279c83da4396398f5cd9a7d6de426f55df974df2e6e4e4b3419a74ce52"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049072.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_072.pt",
+      "measurement_sha256": "3e1c2dc05d3ca31cf760a6d9d5eee98f9fdf2b7df9cc4306a5f7f22697781028",
+      "seed": 1507360374710802910,
+      "sigma": 0.05,
+      "source_image_sha256": "85b43c0cc9321e05aa3aa9c8d059f71f532b91e57d28b37ca9260003100ba00e"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049073.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_073.pt",
+      "measurement_sha256": "55288f6067f21b43c38306af62d9525bb2d7c0a5c3bec5e31de6e804c20f3b7b",
+      "seed": 9152944390480049680,
+      "sigma": 0.05,
+      "source_image_sha256": "a9a22dbf4fed89635732a67158027330dc3e749d210896fc909e45286c8580c5"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049074.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_074.pt",
+      "measurement_sha256": "03e8e5b1d5a03e607a467ec10f9411f7ffafafbee3f13521eb834bf76ded4e75",
+      "seed": 8341642083426721551,
+      "sigma": 0.05,
+      "source_image_sha256": "d05a05213402a4ac9d03df4b204f3b03d5ba6dcf299e2dd15b1e0e8f406d18bf"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049075.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_075.pt",
+      "measurement_sha256": "3692e27764464b00fc6adcab8de0682a91a4b358ef56998311209d28460d8d7e",
+      "seed": 4579739163953912483,
+      "sigma": 0.05,
+      "source_image_sha256": "94f4c39b73b8d9d1781c42d0567ea0edcdcdf549f57e06437fcb418be85c9688"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049076.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_076.pt",
+      "measurement_sha256": "cf29813614a3e5657e7f3f18a111eaca9eb1220a6397b536542866386eed23a0",
+      "seed": 477054672472245651,
+      "sigma": 0.05,
+      "source_image_sha256": "d90367b8db6add7197b8d02c22f985924c07bf5ee68c48a951556d2142114d5f"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049077.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_077.pt",
+      "measurement_sha256": "9716d126ddf50261818c76de7be20acdf8a7974e09aca0038a79d90a21df5926",
+      "seed": 2786226859576969433,
+      "sigma": 0.05,
+      "source_image_sha256": "333c143cac4325cc6fc61a26bd32dfde337f621684daa1c924138408b301cf9b"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049078.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_078.pt",
+      "measurement_sha256": "32dba8a41e43f12f2b5a5cef2e7316c0e3dd82ffc1d689b62348fdc253f6f041",
+      "seed": 5873378820220328410,
+      "sigma": 0.05,
+      "source_image_sha256": "0232005bc55d36bf6bcc83c00f724716751e4f387c2677ce3a321dd786adcc51"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049079.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_079.pt",
+      "measurement_sha256": "b9d90f7539a8d37900a20b337849310d9f791ea6d4790be9411211968ff500e8",
+      "seed": 6422644284112083809,
+      "sigma": 0.05,
+      "source_image_sha256": "e16e6e3a97895d2334ce4f644c25e9d62c5e33309945b889aeea65bfb607474e"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049080.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_080.pt",
+      "measurement_sha256": "c517b6382ab95ed63bdb7ee4f2bd8222df8d90e1565d8d7900f0a85abf4421c6",
+      "seed": 1241282310598216500,
+      "sigma": 0.05,
+      "source_image_sha256": "447ecd23e84ccbbde5e1e3db6921d7cf816b52edf496384d621730edbccabdb1"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049081.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_081.pt",
+      "measurement_sha256": "d163cd4887f15514a86952eab2b45738a09ffe88d3a41a3dec36ef88820dd424",
+      "seed": 9136695148829385086,
+      "sigma": 0.05,
+      "source_image_sha256": "f30d4f2d6aee9a9a8d113f3a89b05a3a1f99c86927b803866edbe8041f83d2c6"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049082.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_082.pt",
+      "measurement_sha256": "fd7f49c4513907e318af6af7c1bd93306a2a590dc0884973a3f994ffdaaf5656",
+      "seed": 4092994481416523020,
+      "sigma": 0.05,
+      "source_image_sha256": "2b40604645351ac3689cc835f224ce09a24588763355984219eaa03bd71099b0"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049083.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_083.pt",
+      "measurement_sha256": "b1002df61792134936dd648b9f609b8332bd0f3efa0e49ee148f12387c5ae847",
+      "seed": 3307454829988389854,
+      "sigma": 0.05,
+      "source_image_sha256": "a6b59b96765e48f3dec727ae40960a1b14836f7924ee6923bb224090afdd3b1b"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049084.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_084.pt",
+      "measurement_sha256": "92b6cf59a523136416fd486d1602263325e66822b84c0fbff852d188c3ce86e4",
+      "seed": 832526551550179786,
+      "sigma": 0.05,
+      "source_image_sha256": "822569d90a3671011cc7dfe435ddc95682351ed82e624cfb5c9e174fa9f8e07c"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049085.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_085.pt",
+      "measurement_sha256": "5cb96d5e086abdd3cb359439c4db0810e8cb5a2f9f4ed58dac01f0ada7428aff",
+      "seed": 4222685781032691984,
+      "sigma": 0.05,
+      "source_image_sha256": "eb09b56418ae794ae6c2d1036a7dfbf4b03df430d2deaef6509d9526ef54037c"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049086.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_086.pt",
+      "measurement_sha256": "e63335b5e05d01cfb2d21dbfcdeb0c402c91ca3fe9dd90f4a81b4388669bd0c3",
+      "seed": 5423037883368900343,
+      "sigma": 0.05,
+      "source_image_sha256": "9fa1378b1ff9f24c563dc5402c66a3b6b9ad766bd3d62c0a6a0fa21c5ed28c0e"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049087.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_087.pt",
+      "measurement_sha256": "4fa9233560e3351322b6c23a13e4fdda4225b7252cbb05196e4ee02ae35299f9",
+      "seed": 5652153359414211977,
+      "sigma": 0.05,
+      "source_image_sha256": "d0c82d8dd7cb322af0e43a14f7cca065bfa417398ab7cee740de558dab2c73d3"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049088.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_088.pt",
+      "measurement_sha256": "8973f28a4c77e8b979ea9be8f5c449a3e6a5e1683b8e0b14508dd8cd1f6c8fa9",
+      "seed": 6839804246702724392,
+      "sigma": 0.05,
+      "source_image_sha256": "029718813a8fbdd5d630de95fcfb6df0ec6c67e73c83201c70558182799988f0"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049089.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_089.pt",
+      "measurement_sha256": "98f0b80e081b1be1a710b35882bafd13af507a559999ba52e326a3ccd035ce86",
+      "seed": 6904177671044307833,
+      "sigma": 0.05,
+      "source_image_sha256": "a7b952a68db89a308e3a47b04923422505feab8ae96189b1b362b0f43cc2d324"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049090.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_090.pt",
+      "measurement_sha256": "2f0de2b8931069b28da86ef72ba049e519ef21bf8c12e096558bb341b24936e0",
+      "seed": 1196080953035283736,
+      "sigma": 0.05,
+      "source_image_sha256": "14ca9270a400e2c3695b8feca9fb3a09c5070d59392ca1bc0f21e2f410a93923"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049091.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_091.pt",
+      "measurement_sha256": "8dd7b03db9c251e6b9904ec3ee4523ed63ead6a613a55651735abf7b5decaa43",
+      "seed": 9098868104171405692,
+      "sigma": 0.05,
+      "source_image_sha256": "ee1cc8d5673150d697e33253263787505fae4012826124e11cb042b29079afc6"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049092.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_092.pt",
+      "measurement_sha256": "5d6e8404816c21affb4a803cf4cf255aee23e34b0390e99071d09f316c62b9c7",
+      "seed": 6376406073888590931,
+      "sigma": 0.05,
+      "source_image_sha256": "c551501e3f1d115ff0befd83edfd6a241b7b0564961a2e55b98701c2590e9463"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049093.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_093.pt",
+      "measurement_sha256": "f2dfefd907b265773885f67253a1495b798d715f359632b99c7dca52befd7ac0",
+      "seed": 1891908876689578710,
+      "sigma": 0.05,
+      "source_image_sha256": "77222bb98529f5cae6b6b46e8b027c897766e7a0f9deaeaae091f32b6eb7032c"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049094.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_094.pt",
+      "measurement_sha256": "83353aba45ca1221666078673293ba29e377b084622fef3699561f8a09a06220",
+      "seed": 2378450203277199707,
+      "sigma": 0.05,
+      "source_image_sha256": "59a3bd78f4b7b8f453e9734137046d3916dffd02ea472cbbe5b899e7a0668374"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049095.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_095.pt",
+      "measurement_sha256": "7ab78567cfdb9c36bbd68c4876171bb4517ac642b1d0be7692755c580eb57865",
+      "seed": 4258268193341033703,
+      "sigma": 0.05,
+      "source_image_sha256": "19c5933c2b8ce911cc44349af340a1c915d9b1e7dadcbd34332616ac8a3bf2cb"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049096.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_096.pt",
+      "measurement_sha256": "f32025846eae512b6f538414d238d5b5cac38e81802927658f3c822c5ebfd722",
+      "seed": 8503064038147021828,
+      "sigma": 0.05,
+      "source_image_sha256": "7c0527fcbbc0aa8d287ded6fc37c3867fd179ede81ab4247ca64d4245ba9f105"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049097.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_097.pt",
+      "measurement_sha256": "0d3ce84a0244245677d56e5387012a4e19254e54d52e7aa2fcab799bc913a136",
+      "seed": 1862145788310475979,
+      "sigma": 0.05,
+      "source_image_sha256": "9b36aea42bd41ebacec369079a628567aea925916989d768d491fcfb000baf9d"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049098.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_098.pt",
+      "measurement_sha256": "6d4a924f276186ec281ce62d5163f584d176160755520aeaadb8d334ba6b8e59",
+      "seed": 494465452435871513,
+      "sigma": 0.05,
+      "source_image_sha256": "e65c72865af0dc949bae059fe6c7ff83a3974de0d69cd8b7dc5fdd9d7e496c7e"
+    },
+    {
+      "basename": "ILSVRC2012_val_00049099.JPEG",
+      "measurement_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_fast_imagenet_20261026T212512Z/measurements/image_099.pt",
+      "measurement_sha256": "0edbf72eaea4139d5242b2fbdcdfea7980c351c3960b4c636d7552d70aeb2f33",
+      "seed": 1480234682734860619,
+      "sigma": 0.05,
+      "source_image_sha256": "22911f1744c5ec62b6680f4dcbd03a7ab2c13e0a2e8c924bf438c9007fbcc68b"
+    }
+  ],
+  "schema": "prdiff.track_r.xp.imagenet.y.v1",
+  "source_image_list_sha256": "258f0dfc2e2bf686911c82cc44e3d73b0849f65d84f70b190cb9568150f2cc59",
+  "status": "XP_IMAGENET100_Y_FROZEN"
+}
