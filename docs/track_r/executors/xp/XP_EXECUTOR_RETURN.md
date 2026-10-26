@@ -287,3 +287,57 @@ are scored. Do not merge with a new planner revision without reviewing
 changes; planner head remained
 `92e4c4d05356fa5bda27273776a2eeaa039c29b4`
 at the time of this preparation.
+
+
+## ImageNet XP-T FAST completed; post-hoc telemetry accounting audit (2026-10-26)
+
+Under commit \`b3d67d55a569e04f9467dc5dc4c7e796fab1a5f3\`,
+the CPU preparation generated the 100 **shared, signed ImageNet phase-retrieval
+measurements** using the selected official DAPS ImageNet set, the pinned
+FAST-DIPS loader's \`ToTensor -> Resize(256) -> CenterCrop(256)\`,
+and independent per-image \`XPMEAS\` seeds. The GT-free shared-y manifest
+SHA-256 is
+\`26619959e3a17aeb2c0ad413f87b1764ecd8bc7aabfc0415c862cbaf27873b78\`;
+the 9-root timing task manifest SHA-256 is
+\`2ea2c16a24ecebc3dd62fe852982a807a555bedb8d0afda2c49bb73722b39e61\`.
+The official image/checkpoint hashes were verified. Those 100 measurements
+are the common input to subsequent FAST, SITCOM and DAPS experiments;
+never regenerate y independently for another family.
+
+Native FAST/ImageNet XP-T batch-1 **PASS**: 9/9 distinct new roots;
+median native sample wall **7.19089462189 s**, CUDA-event
+**7.19086669922 s**, worker elapsed **112.51600675 s =
+0.03125444632 GPU-h**, GPU 0. Original completion receipt SHA-256
+\`ca66eb9cfcd84d8b567ff407f35e9027520d977d4f1963ea85a9ae94ce7e820d\`.
+The original timing monitor classified it \`UNVERIFIED\` because one
+HEARTBEAT observed **4,012 MiB GPU memory, utilization 0, and no compute
+PID**, after six active heartbeats showed the intended worker PID
+\`3833824\`, 4,023 MiB and 81–84% utilization, and before POST_GPU
+reported zero memory/processes. No foreign PID was observed anywhere
+in 13 snapshots. This sequence is consistent with **post-exit GPU
+memory accounting lag**, not proof of another process interfering.
+
+The historical FFHQ XP-T timing remained \`CLEAN\`: 8 snapshots,
+four with the owned worker visible under load, and zero foreign PIDs.
+The ImageNet and FFHQ GT-free reconstruction receipts both remain
+fully valid and immutable regardless of timing classification.
+
+A new CPU-only \`xp_t_timing_reaudit_cpu.py\` audits both exact frozen
+runs and **never modifies original status, event, or completion files**.
+It only upgrades publication *eligibility* to
+\`CLEAN_POSTHOC\` if (a) the trailing orphan-memory sample is unique,
+(b) it occurs after all observed owned computation, (c) utilization
+is zero, (d) its memory does not exceed the preceding owned peak,
+(e) the subsequent POST_GPU sample is idle, (f) no foreign PID or
+unknown process visibility is observed, and (g) the original completion
+SHA and every saved status identity match. It otherwise stops.
+The original label remains \`UNVERIFIED\`. Even an accepted post-hoc
+audit cannot exclude short external activity between sampling times;
+a prospectively clean repeat remains the best publication timing.
+
+**Next work:** finish the remaining XP-T family/dataset calibrations
+(SITCOM and DAPS-4K especially), the W=1,2,4 FAST/SITCOM concurrency
+checks, and scoring cost. Then populate and activate the guarded
+CRITICAL/BACKGROUND controller. The data cut is November 2 for Tier A.
+Only exact GT-free shared measurement manifests may be used by GPU
+generators. The original theory prediction embargo remains binding.

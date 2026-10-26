@@ -95,6 +95,16 @@ def main():
                 lines.append("GPU-H "+str(round(float(v.get("gpu_hours",0.)),3))+
                     "/400 projected="+str(v.get("projected_gpu_hours","UNKNOWN")))
                 if v.get("stop_flags"):action.extend(v["stop_flags"])
+        elif d.name.startswith("xp_t_timing_audit_"):
+            receipt=d/"XP_T_FAST_TIMING_REAUDIT.json"
+            if receipt.is_file():
+                v=read(receipt)
+                detail=", ".join(
+                    str(z.get("dataset"))+"="+str(z.get("qualified_timing_class"))
+                    for z in v.get("results",[]))
+                lines.append("XP-T TIMING AUDIT "+v.get("status","UNKNOWN")+" "+detail)
+                if v.get("status")!="XP_T_FAST_TIMING_REAUDIT_PASS":
+                    action.append("XP-T timing re-audit failed")
         elif d.name.startswith("xp_t_fast_"):
             complete=d/"XP_T_FAST_COMPLETE.json"
             status=d/"XP_T_FAST_STATUS.json"
