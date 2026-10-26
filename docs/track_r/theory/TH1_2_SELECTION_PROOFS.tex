@@ -1,0 +1,104 @@
+% Track R TH1.2 selection model (2026-10-26).
+% Standard imperfect-verifier ceiling: Stroebl, Kapoor and Narayanan,
+% ICLR 2026. Track R specializes this to Fourier residual selection.
+
+\section{Five-class best-of-K selection model}
+Fix an image and a solver. Let independent runs have probabilities
+\((p,o_g,o_p,c,u)\) for GOOD, global ORBIT, partial ORBIT, CONSISTENT,
+and INCONSISTENT. Define \(q=p+o_g+o_p\), \(s=q+c=1-u\) and
+\(a=(1-h)p+\tau_g o_g+\tau_p o_p\), with
+\(0\le h,\tau_g,\tau_p\le1\).
+S1: every INCONSISTENT run has a higher residual than every passing
+run. S2: conditional on labels and the passing set, residual ranks
+among passers are a uniform random permutation.
+S3: the orientation post-test has K-independent class-conditional
+success rates \(1-h,\tau_g,\tau_p,0\).
+
+\begin{proposition}[Closed curves]
+Under S1--S3, for every integer \(K\ge1\),
+\[
+\begin{aligned}
+ O_{\rm raw}(K)&=1-(1-p)^K,&
+ O_{\rm orbit}(K)&=1-(1-q)^K,\\
+ E_0(K)&=[1-(1-s)^K]p/s,&
+ E_1(K)&=[1-(1-s)^K]a/s.
+\end{aligned}
+\]
+For \(s=0\), the last two probabilities are defined to be zero.
+\end{proposition}
+\begin{proof}
+The two oracle events are unions of K independent GOOD and
+GOOD-or-ORBIT events, respectively. The event of any passer has
+probability \(1-(1-s)^K\). On this event S1 chooses a passer and
+S2 chooses uniformly among passers. Because the independent
+class labels are exchangeable, conditional on any passer its
+label law is \((p,o_g,o_p,c)/s\). Multiply by the corresponding
+success probabilities.
+\end{proof}
+
+\begin{proposition}[Imperfect-verifier correspondence]
+Under S1--S2, residual argmin and an accept-first rule applied
+to K independent runs have identical \emph{selected-label laws},
+including the no-selection outcome if none passes. The two
+rules need not choose the same physical candidate index.
+\end{proposition}
+\begin{proof}
+Conditional on the unordered multiset of K labels, iid generation
+uniformly randomly allocates the labels to chronological slots,
+so the first passing label is uniform over the passing multiset.
+S2 makes the residual minimum uniform over that same passing
+multiset conditional on the label assignment. Marginalize.
+\end{proof}
+
+\begin{theorem}[Monotone oracle--selector gaps]
+If \(h,\tau_g,\tau_p\) do not depend on K, then
+\[
+\begin{aligned}
+ &\Delta_K[O_{\rm orbit}-E_1]
+   =q(1-q)^K-a(1-s)^K\ge0,\\
+ &\Delta_K[O_{\rm raw}-E_0]
+   =p[(1-p)^K-(1-s)^K]\ge0.
+\end{aligned}
+\]
+The first gap tends to \(1-a/s\) if \(q>0\), and is identically
+zero if \(q=0\). The second tends to \(1-p/s\) if \(p>0\),
+and is identically zero if \(p=0\). When \(a=p+o_g\) and
+\(q>0\), the first ceiling equals \((o_p+c)/s\).
+These statements also hold after averaging over images.
+\end{theorem}
+\begin{proof}
+Subtract consecutive K curves. All signs follow from
+\(0\le a\le q\le s\le1\). Treat zero-positive mass cases before
+taking limits; expectation preserves monotonicity.
+\end{proof}
+
+\begin{proposition}[Generation versus selection failure]
+For \(s>0\) put \(b=s-a\). Then
+\[
+ 1-E_1(K)=(1-s)^K+[1-(1-s)^K]b/s.
+\]
+The first term decreases while the second increases to b/s.
+For \(0<s<1\) and \(b>0\), their continuous equality is
+\[
+ K_\times=\log(b/(s+b))/\log(1-s).
+\]
+A discrete strict crossover is the first allowed K at which
+the second term exceeds the first. For \(s=0\), failure is
+always no-generation; for \(s=1\), no-generation vanishes at
+K at least one; if \(b=0\), no strict crossover exists.
+\end{proposition}
+\begin{proof}
+Rearrange E1 and solve
+\((1-s)^K=[1-(1-s)^K]b/s\).
+\end{proof}
+
+\paragraph{Interpretation and limitations.}
+Stroebl et al. (ICLR 2026) establish the imperfect-verifier
+resampling ceiling generally. The new empirical question is
+whether Fourier residual argmin satisfies S1--S2 and whether
+the fitted five classes predict held-out K. Under global-only
+repair, failed passing mass includes both partial ORBIT and
+CONSISTENT, not only CONSISTENT. No consistent run has probability
+\((1-s)^K\); no orbit-correct run has probability \((1-q)^K\).
+Pairwise AUROC above one half does not guarantee better K-way
+argmin selection; it is not substituted for S2.
