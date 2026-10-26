@@ -37,14 +37,14 @@
 | Stage | What | Status |
 |---|---|---|
 | **R0-N.2** | Amendment 2 **revision D.1**, CPU: N1h → **A8 per-image strings (by Oct 28)** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
-| **XP** | `XP_PREREG_v1_1.md` (+ amendment A1):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1; cap 400 GPU-h** |
+| **XP** | `XP_PREREG_v1_1.md` (+ amendments A1–A3; A2 = DAPS-4K for the published-protocol replication):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1–A3; cap 400 GPU-h** |
 | **TH1** | Selection theory for the paper; predictions v1 frozen by **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **AUTHORIZED, start now** (theory executor, handoff rev B.1) |
 | **TH2** | Inner-functional theory (feasibility memo due Nov 13) | AUTHORIZED (memo only) |
 
 ## Documents (read in this order)
 
 1. **Top-venue plan** (2026-10-25; read the 2026-10-26 update box first): [`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`](../planning/track_r/2026-10-25_TOP_VENUE_PLAN.md)
-2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded; amendment A1), with handoff revision B.1 [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
+2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded; amendments A1–A3), with handoff revision B.2 [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
 3. **Theory:**
    - program v1.2 [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md);
    - literature digest [`2026-10-26_THEORY_LIT_DIGEST.md`](../planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md);
@@ -58,7 +58,8 @@
    - executor return on `codex/prdiff-track-r-r0-20261021`;
    - R0 spec [`docs/planning/track_r/R0_EXPERIMENT_SPEC.md`](../planning/track_r/R0_EXPERIMENT_SPEC.md);
    - R0 handoff [`executors/r0/00_EXECUTOR_HANDOFF.md`](executors/r0/00_EXECUTOR_HANDOFF.md).
-9. **Background:**
+9. **Paper draft:** [`docs/paper/track_r_cvpr27/`](../paper/track_r_cvpr27/README.md). Read `CLAIMS_LEDGER.md` before editing numbers.
+10. **Background:**
    - roadmap (historical) [`2026-10-21_TRACK_R_PLANNER_ROADMAP.md`](../planning/track_r/2026-10-21_TRACK_R_PLANNER_ROADMAP.md);
    - literature basis [`2026-10-21_LITERATURE_BASIS.md`](../planning/track_r/2026-10-21_LITERATURE_BASIS.md).
 
@@ -71,7 +72,7 @@
 | R0-N.2 | Amendment 2 revision D.1 (CPU) | NEXT, urgent (A8 Oct 28; return Oct 29) | executor and Cheng |
 | XP | `XP_PREREG_v1_1` (GPU, ≤ 400 GPU-hours, tiers A/B/C) | **GO given 2026-10-26** | executor and Cheng |
 | TH1 / TH2 | Theory program v1.2 | AUTHORIZED, starting | theory executor |
-| Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback | drafting from Oct 27 | planner drafts, Cheng and coauthors edit |
+| Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback. Draft in `docs/paper/track_r_cvpr27/` (claims ledger, figures plan) | skeleton and first prose done Oct 26 (builds, 7 pp. with placeholders) | planner drafts, Cheng and coauthors edit |
 | N4 | Clean-image probe (withdrawn) | — | — |
 | X5/X6 | PC-DAPS audit and noise robustness: now XP-I and XP-G (Tier C, supplement) | in XP v1.1 | executor and Cheng |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |

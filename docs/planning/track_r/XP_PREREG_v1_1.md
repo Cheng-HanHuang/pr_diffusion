@@ -23,7 +23,11 @@
 > - **XP-E′ condition** now reads: run only if the historical FFHQ DAPS configuration (A4.4) differs from DAPS-4K.
 > - **Cost.** DAPS-4K is about 4× DAPS-1K. XP-T measures it. If XP-D2's projection exceeds 80 GPU-h, apply the existing drop rule: reduce to 25 images by SHA-256(`XPD|<basename>`).
 
-**Status:** FROZEN v1.1 with amendments A1 and A2 (planner, 2026-10-26).
+> **Amendment A3 (minor, planner, 2026-10-26).** XP-C also reports, for every GT image (CPU; GT-only evaluation), the fraction of Fourier magnitudes |F_c P z| below σ = 0.05 on the 384² canvas, overall and in the outer half of the frequency radius, plus the ratio of signal energy to m·σ².
+> - This supports the paper's setup claim that measurement consistency constrains mainly coarse structure.
+> - A planner check on four generic natural images (scikit-image samples, not FFHQ or ImageNet) found 79–93% of magnitudes below σ overall and 92–98% in the outer half.
+
+**Status:** FROZEN v1.1 with amendments A1, A2 and A3 (planner, 2026-10-26).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

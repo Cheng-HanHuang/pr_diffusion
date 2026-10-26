@@ -1,0 +1,36 @@
+\section{Introduction}
+\label{sec:intro}
+
+Recovering an image from the magnitude of its Fourier transform is a classical, ill-posed inverse problem~\cite{fienup1982phase,shechtman2015phase}.
+Diffusion models now supply the image prior for many solvers of this task~\cite{chung2023dps,zhang2025daps,li2024difffpr,alkhouri2025sitcom,kim2026fastdips}, and their reported quality has risen quickly.
+The same papers also note that individual runs fail often: the reconstruction may be rotated, color-scrambled, or unrelated to the image~\cite{zhang2025daps,kocabas2026pcdaps}.
+The field's response has been to run each solver several times and report the best run.
+In the reference implementations we inspected, ``best'' is decided against the ground truth and, for every metric separately, so that the reported PSNR, SSIM and LPIPS may come from three different runs~\cite{zhang2025daps,kim2026fastdips}\claim{C-P1}.
+
+Two recent works question this practice.
+Kocabas~\etal\cite{kocabas2026pcdaps} show that ground-truth best-of-$k$ masks frequent orientation failures and replace it with prior-consistent particles; Makris~\etal\cite{makris2026tgd} select runs by their measurement error instead of the ground truth and remark that per-metric oracle selection is not available at test time.
+What has not been established is \emph{how much} of the published quality each layer of the protocol accounts for, \emph{why} measurement-based selection fails where it fails, and what one should expect as the number of runs grows.
+
+\paragraph{Symmetry is the key.}
+The oversampled Fourier operator used by these solvers is exactly invariant under eight transformations of the image: independent $180^\circ$ rotations of each color channel (\cref{fig:teaser}a).
+This ambiguity is classical~\cite{hayes1982reconstruction,fienup1986stagnation} and was observed for diffusion solvers by Zhang~\etal\cite[App.~F]{zhang2025daps}.
+We turn it into precise statements.
+Any selection rule or particle weight computed from the measurements is blind to the orientation of a run (\cref{sec:symmetry}).
+And if the denoiser were equivariant to these rotations, every guided sampler we study would choose among the eight orientations uniformly at random; the strong preference for upright images that we observe must therefore come from the network alone.
+We bound this preference by the network's equivariance defect, which we measure for an FFHQ and an ImageNet denoiser.
+
+\paragraph{A model of best-of-\texorpdfstring{$K$}{K}.}
+Selecting the run with the smallest measurement residual is resampling with an imperfect verifier~\cite{stroebl2026limits}: runs that fit the measurement but show the wrong image are false positives, and rotated runs are false positives that no measurement-based verifier can reject.
+We derive closed-form curves for the success of ground-truth-free and ground-truth selection as a function of $K$, exact estimators of these curves from a finite set of runs, and the fact that the gap between them never shrinks with $K$ (\cref{sec:selection}).
+We fit the model on four runs per image and freeze its predictions before collecting up to $64$ runs per image.
+
+\paragraph{An audit.}
+We then decompose the reported quality of \pending{three} solvers on FFHQ and ImageNet into the solver itself, ground-truth-free selection, the ground-truth oracle, and the per-metric oracle (\cref{sec:audit}).
+
+\paragraph{Contributions.}
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
+\item \textbf{Symmetry theory.} The orbit of the standard operator; the blindness of measurement-based selection and of likelihood-weighted particle methods to it; and a total-variation bound tying a sampler's orientation preference to the denoiser's equivariance defect, which we measure (\cref{sec:symmetry}).
+\item \textbf{A selection model} for best-of-$K$ in inverse problems, extending the imperfect-verifier model of~\cite{stroebl2026limits} with orbit classes; closed-form $K$-curves, exact estimators, and predictions frozen before the data and tested up to $K{=}64$ (\cref{sec:selection}).
+\item \textbf{An audit} of \pending{three solvers, two datasets, three metrics} that separates each layer of the protocol and characterizes the failures that remain (\cref{sec:audit}).
+\item \textbf{Reporting recommendations} (\cref{sec:discussion}).
+\end{itemize}

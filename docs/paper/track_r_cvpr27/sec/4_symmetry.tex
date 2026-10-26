@@ -1,0 +1,62 @@
+\section{What the measurement cannot see}
+\label{sec:symmetry}
+
+Let $\pi$ be the prior and assume the likelihood depends on $x$ only through $\cA(x)$, as for \cref{eq:operator}.
+Since every $g\in\cG$ is a permutation, it preserves Lebesgue measure, and \cref{lem:orbit} gives at once:
+
+\begin{proposition}
+\label{prop:ratio}
+For all $x$ and $g\in\cG$: $p(gx\mid y)/p(x\mid y)=\pi(gx)/\pi(x)$.
+\end{proposition}
+
+Within an orbit, the posterior therefore ranks images by the prior alone.
+
+\begin{corollary}[measurement-based selection is orientation-blind]
+\label{cor:blind}
+Let $S(\hat x_1,\dots,\hat x_K;y)$ select one of $K$ runs using only $\cA(\hat x_1),\dots,\cA(\hat x_K)$ and $y$; the residual rule $\Eo$ is an example.
+Then $S$ returns the same index when any run is replaced by any member of its orbit.
+The same holds for importance weights or resampling probabilities that depend on a particle only through $p(y\mid\hat x)$, as in likelihood-weighted sequential Monte Carlo and residual-based pruning~\cite{wu2023tds,makris2026tgd}.
+\end{corollary}
+
+\Cref{cor:blind} needs no assumption on the prior, the noise or the solver\claim{C-T2}.
+It explains why the measurement residual can remove runs that do not fit $y$ but can never correct a rotated run, and why particle methods that prune by prior consistency rather than likelihood reduce orientation errors~\cite{kocabas2026pcdaps}.
+
+\paragraph{Where the preference for upright images comes from.}
+The solvers we study are Markov chains $x_{i-1}=m_i(x_i;y)+s_i\xi_i$ with Gaussian $\xi_i$ and a Gaussian initial state.
+Every ingredient of the mean maps $m_i$ (measurement gradients, projections onto measurement-consistency sets, Langevin and optimizer steps, clipping) is equivariant under $\cG$, except the denoiser $D_i$\claim{C-T3}.
+
+\begin{theorem}[equivariant samplers]
+\label{thm:equivariant}
+If every $D_i$ is $\cG$-equivariant, i.e.\ $D_i(gx)=gD_i(x)$, the output law of the sampler is $\cG$-invariant.
+In particular, a run that lands near the orbit of $\xs$ lands near each of its eight members with probability $1/8$.
+\end{theorem}
+
+The argument is the invariance of marginals under equivariant kernels used in equivariant generative models~\cite{xu2022geodiff,hoogeboom2022edm}, applied to an inverse problem with a symmetric forward operator.
+It is the diffusion counterpart of the classical observation that iterative algorithms reconstruct an object or its twin with equal probability~\cite{fienup1986stagnation}, and of the finding that guidance cannot select between modes its gradient does not distinguish~\cite{dandapanthula2026tilting}.
+A learned denoiser is not equivariant: an upside-down face is not a typical face.
+The next result bounds how much this matters.
+
+\begin{theorem}[orientation preference is bounded by the equivariance defect]
+\label{thm:tv}
+Let $\Delta^g_i(x)=m_i(x)-g\,m_i(g^{-1}x)$ and let $L$ be the law of the output $x_0$.
+For every $g\in\cG$ and every set $B$,
+\begin{align}
+\bigl|\Prob(x_0\in B)-\Prob(x_0\in gB)\bigr| &\le \TV(L,g_\#L)\notag\\
+&\le\Bigl(\sum_i\frac{\E\|\Delta^g_i(x_i)\|^2}{4s_i^2}\Bigr)^{1/2}.
+\label{eq:tv}
+\end{align}
+\end{theorem}
+
+The proof compares the chain with its conjugate by $g$, whose output law is $g_\#L$, and combines Pinsker's inequality with the chain rule for the KL divergence of Gaussian transitions (supplement)\claim{C-T4}.
+It requires neither an exact score nor log-concavity nor uniqueness.
+Taking $B$ as a neighborhood of $\xs$, the left side of \cref{eq:tv} is the gap between the rates of \good runs and of orbit errors through $g$; the bound turns an observed orientation preference into a lower bound on the denoiser's lack of equivariance along the sampling path.
+
+\paragraph{Measurements.}
+\Cref{fig:teaser}b reports the relative equivariance defect $\tilde\delta(t)$ of the FFHQ and ImageNet denoisers on noised ground-truth images \pending{XP-C2}.
+On FFHQ, $85$ of $3{,}240$ runs across \pending{solver set} are orbit errors ($7.1\%$ of all failures; $3.6\%$ for FAST-DIPS)\claim{C-A1}; on ImageNet the share is \pending{XP-D}.
+\pending{Relate the per-dataset orbit shares to $\tilde\delta(t)$ at mid-trajectory noise levels, as predicted by \cref{thm:tv}.}
+
+\paragraph{Correcting orientation without the ground truth.}
+By \cref{prop:ratio}, the Bayes rule within an orbit maximizes $\pi$, so any test with the same ordering of orbit members is admissible.
+On FFHQ, a zero-shot CLIP~\cite{radford2021clip} test with fixed upright-vs-upside-down face prompts \pending{quote the frozen N2 prompts} fixes all $84$ global orbit errors among the $3{,}240$ runs and flips none of the $2{,}040$ \good runs, at $8.5$\,ms per candidate. A score built from the solver's own denoiser at intermediate noise levels does the same ($84/84$), while a generic real-vs-fake detector~\cite{ojha2023univfd} fixes $71/84$ and flips $108/2{,}040$\claim{C-A2}.
+Orientation correction is therefore generic and cheap on faces; \pending{XP-C and XP-D test whether this holds on ImageNet, where orientation is less canonical}.

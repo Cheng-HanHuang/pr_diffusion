@@ -1,0 +1,25 @@
+\begin{strip}
+\centering
+\fbox{\parbox[c][3.2cm][c]{0.31\linewidth}{\centering\small
+  \textbf{(a)} One FFHQ test image and its eight\\
+  per-channel $180^\circ$ rotations:\\
+  identical Fourier magnitudes\\[2pt]
+  \pending{render from XP-C GT set}}}\hfill
+\fbox{\parbox[c][3.2cm][c]{0.31\linewidth}{\centering\small
+  \textbf{(b)} Equivariance defect $\tilde\delta(t)$ of the FFHQ\\
+  and ImageNet denoisers vs.\ the share of\\
+  orbit errors per dataset\\[2pt]
+  \pending{XP-C2, XP-D1}}}\hfill
+\fbox{\parbox[c][3.2cm][c]{0.31\linewidth}{\centering\small
+  \textbf{(c)} What the published protocol reports:\\
+  first run $\to$ GT-free selection $\to$ GT oracle\\
+  $\to$ per-metric oracle (PSNR, dB)\\[2pt]
+  \pending{R0-N.2 A4.3/A7; XP-D2}}}
+\captionsetup{hypcap=false}
+\captionof{figure}{\textbf{Overview.}
+(a) The oversampled Fourier operator used throughout the diffusion phase-retrieval literature has an exact eight-element symmetry group; every image in a row has the same measurement.
+(b) Measurement guidance cannot tell these images apart; a sampler's preference for the upright one comes only from the denoiser's lack of equivariance, which we bound and measure (\cref{sec:symmetry}).
+(c) Each layer of the standard best-of-$K$ protocol adds reported quality that is not available at test time (\cref{sec:audit}).}
+\captionsetup{hypcap=true}
+\label{fig:\currfilebase}%
+\end{strip}

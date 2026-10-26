@@ -1,0 +1,56 @@
+%% Packages and macros for the Track R CVPR 2027 draft.
+\usepackage{cuted}      % 2-column teaser (strip)
+\usepackage{currfile}
+\usepackage{caption}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{xspace}
+\usepackage{xcolor}
+
+%% ---------- Draft markers ----------
+\newif\ifdraftmarks
+\draftmarkstrue   % set \draftmarksfalse for submission (and check: grep -n "\\pending" sec/*.tex must be empty)
+\ifdraftmarks
+  \newcommand{\pending}[1]{{\color{red}[\textbf{PENDING}: #1]}}
+  \newcommand{\claim}[1]{\textsuperscript{\color{cvprblue}\tiny[#1]}}
+  \newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+\else
+  \newcommand{\pending}[1]{}
+  \newcommand{\claim}[1]{}
+  \newcommand{\TODO}[1]{}
+\fi
+
+%% ---------- Theorem environments ----------
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+%% ---------- Notation ----------
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cG}{G}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\TV}{\mathrm{TV}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\xs}{x^\star}
+\newcommand{\Kruns}{K}
+\newcommand{\good}{\textsc{good}\xspace}
+\newcommand{\orbit}{\textsc{orbit}\xspace}
+\newcommand{\cons}{\textsc{consistent}\xspace}
+\newcommand{\incons}{\textsc{inconsistent}\xspace}
+\newcommand{\Eo}{E_0\xspace}
+\newcommand{\Eone}{E_1\xspace}
+\newcommand{\Oraw}{O_{\mathrm{raw}}\xspace}
+\newcommand{\Oorb}{O_{\mathrm{orbit}}\xspace}
+\newcommand{\goodrate}{\mathrm{Good}_{25}}
