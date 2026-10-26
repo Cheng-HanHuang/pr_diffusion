@@ -1,0 +1,106 @@
+% Track R TH1.3/TH1.4 supplement fragment, 2026-10-26.
+% Hoeffding (1948) U-statistics; Chen et al. (2021) pass@k are
+% inherited tools, not novel inference theory.
+
+\section{Exact subset estimators and oracle inflation}
+\label{app:track-r-estimators}
+
+Fix one image, solver, hyperparameter set, and iid run law \(P\).
+Suppose \(Z_1,\ldots,Z_n\) are iid and \(h_K\) is a measurable
+permutation-invariant K-run policy statistic, depending only on
+the K runs supplied as its argument. Ties are resolved by an
+independent randomized tie rule or a predetermined total order
+intrinsic to the supplied runs; the chosen tie rule must not
+inspect runs outside that K-subset.
+
+\begin{proposition}[Unbiased subset averaging]
+\label{prop:th1-u}
+For \(1\le K\le n\), define
+\[
+ \widehat\theta_K=
+ \binom nK^{-1}\sum_{S\subseteq[n],\,|S|=K}h_K(Z_S).
+\]
+Then \(\mathbb E\widehat\theta_K
+=\mathbb E\,h_K(Z_1,\ldots,Z_K)\).
+\end{proposition}
+\begin{proof}
+Each summand has the same expectation by iid exchangeability.
+Average the expectations of the \(\binom nK\) terms.
+\end{proof}
+
+\paragraph{Closed rank weights.}
+Suppose a total tie-broken residual order has indices
+\(r=1,\ldots,n\), from smallest to largest residual.
+For the rank-r sample to be the minimum of a K-subset,
+the sample must belong to the subset and the other K-1 samples
+must be drawn from its \(n-r\) worse-ranked competitors.
+Thus its inclusion-selection weight is exactly
+\[
+ w_r^{\min}=\frac{\binom{n-r}{K-1}}{\binom nK}.
+\]
+For a total score order indexed \(j=1,\ldots,n\), from
+lowest to highest score, the analogous maximum-selection weight is
+\[
+ w_j^{\max}=\frac{\binom{j-1}{K-1}}{\binom nK}.
+\]
+These weights sum to one. For fixed success indicators \(Y_r\),
+the exact sample-conditional min-policy estimator is
+\(\widehat\theta_K=\sum_r w_r^{\min}Y_r\);
+the max-policy version uses \(w_j^{\max}\).
+
+\paragraph{Pass-at-K.}
+If precisely g of n runs are successful, exactly
+\(\binom{n-g}{K}\) K-subsets contain no success.
+The unconditional-oracle estimator obtained by subset averaging is
+therefore
+\[
+ \widehat{\mathrm{pass@K}}
+ =1-\frac{\binom{n-g}{K}}{\binom nK}.
+\]
+This is the standard unbiased combinatorial pass@k estimator
+used by Chen et al. (2021). Plugging the empirical per-run
+fraction \(g/n\) into \(1-(1-g/n)^K\) is generally biased
+relative to independent K-run success probability.
+
+\paragraph{Tie logic.}
+A total order must match the actual policy: a min selector choosing
+the smallest original run index on a residual tie is not the same
+as an arbitrary alphabetical or value-based ordering. If a policy
+chooses an index using information outside the sampled K inputs,
+the resulting average is not the U-statistic for that K-run policy.
+Reusing a score calibrator trained on all n runs also violates the
+simple iid/subset-local interpretation unless calibration is
+separately cross-fitted or independently fixed.
+
+\begin{proposition}[Per-metric oracle is an upper envelope]
+\label{prop:th1-metric-inflation}
+For higher-is-better metrics \(M_1,\ldots,M_d\) of K
+candidate reconstructions and a single-output rule returning
+\(r^\star\in\{1,\ldots,K\}\), each metric satisfies
+\[
+ M_j(X_{r^\star})\le\max_{r\le K}M_j(X_r).
+\]
+The vector of coordinatewise maxima need not be attained
+by any single candidate. For lower-is-better metrics, replace
+\(M_j\) by its negative.
+\end{proposition}
+\begin{proof}
+The inequality follows because the chosen candidate is
+one of the K candidates. If two metrics have strict maxima
+on different candidates, no single returned candidate
+can realize both maxima simultaneously.
+\end{proof}
+
+\paragraph{Protocol interpretation.}
+The published best-of-four PSNR, SSIM, LPIPS tuple may be a
+coordinatewise oracle envelope if each metric selects a different
+run; it must be distinguished from a GT-free single-pick policy.
+Track R will report which interpretation is used by the native
+evaluation code. Neither the U-statistic calculation nor the
+oracle envelope is a proposed new selection method.
+
+\paragraph{References.}
+Hoeffding (1948), original U-statistics;
+Chen et al. (2021), Evaluating Large Language Models Trained
+on Code, pass@k estimator; Track R's frozen evaluator policy
+definitions in THEORY_PROGRAM_v1.md, v1.2.
