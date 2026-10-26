@@ -518,3 +518,56 @@ comparability across all five historical and future execution modes**.
 The clean 8-root result establishes source-faithful replay and provides
 one measured SITCOM FFHQ reference. Dedicated XP-T W=1/W=2/W=4
 benchmarks are still required.
+
+## XP-T SITCOM batch-1 dual-dataset input freeze (CPU implementation, execution pending)
+
+SITCOM reproduction and timing evidence have been published to the executor
+branch at `26204137db23fa80a281e744719450f09ae62ac4`. The PAC commit
+contains full `XP_SITCOM_REPLAY_STATUS.json`,
+`XP_SITCOM_REPLAY_GPU_SUMMARY.json` and
+`XP_SITCOM_REPLAY_OFFLINE_SCORE.json` (plus SHA256SUMS):
+**8/8 exactly reproduced native reconstructions, 8/8 historical
+labels, max PSNR difference 1.9713e-6 dB; 48 telemetry samples,
+CLEAN; 0.1077891 GPU-hours.**
+
+The next ready implementation
+`scripts/track_r/xp_t_sitcom_prepare_cpu.py` validates and freezes
+**18 new independent SITCOM XP-T batch-1 timing roots**
+(three runs per each of the first three sorted FFHQ B22 images and first
+three sorted ImageNet benchmark basenames). It reuses only the exact
+signed-magnitude measurements from the original frozen FAST XP-T
+FFHQ and ImageNet pilot manifests, verifying both source pilot
+manifests, each y-file SHA, and the 100-image common ImageNet
+measurement manifest SHA
+`26619959e3a17aeb2c0ad413f87b1764ecd8bc7aabfc0415c862cbaf27873b78`.
+The GPU-safe output contains no GT or historical candidate paths.
+These new timing seeds use
+`SHA256("XP|SITCOM|dataset|uid|rep")[:8] mod 2^31` and are
+**timing-only runs, not silently appended to the B22 or DEV80
+historical populations**. Each timing row references exactly the
+same y as the corresponding FAST calibration.
+
+Model profiles are pinned separately:
+FFHQ DDPM has 128 channels, one residual block and attention
+resolution 16 with `ffhq_10m.pt` SHA
+`81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa`;
+ImageNet DDPM has 256 channels, two residual blocks and attention
+resolutions `32,16,8`, using the pinned
+`models/imagenet256.pt` SHA
+`a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1`.
+SITCOM's *phase retrieval* sampler configuration remains the frozen
+B22 200-step/5-ODE/100-LGVD settings on both datasets, consistent
+with XP prereg amendment A4's ImageNet fallback. Native model
+loading must be **fail-closed**, since the external loader catches
+checkpoint exceptions and otherwise silently uses randomly initialized
+weights. The next GPU implementation must validate the native model
+preset/checkpoint tensor shapes and require a successful
+`load_state_dict` before sampling.
+
+Only the CPU manifest preparation is implemented in this commit.
+**Do not claim SITCOM FFHQ or ImageNet XP-T timing calibration PASS
+until separate GT-free GPU generation and clean timing receipts exist.**
+The eventual multi-GPU experiment may distribute independent roots
+over four physical GPUs, but the scientific per-candidate timing
+reference uses W=1, and the preregistered one-GPU W={1,2,4}
+worker-throughput test remains a distinct experiment.
