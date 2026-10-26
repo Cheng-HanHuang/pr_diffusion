@@ -1,0 +1,26 @@
+{
+  "completed_roots": 8,
+  "gpu": 0,
+  "gpu_hours": 0.10778908291249537,
+  "head": "8eaa106740b134a3edc051d8f10cbb8f3ea37321",
+  "manifest_sha256": "82d38a2cadc47c8ad864e97809e9cea9baafd62c261fa26d50fc1d332d48d525",
+  "median_sampling_wall_s": 31.592317841015756,
+  "n_exact": 8,
+  "prep_head": "c055423234441fe907fef8dfda825815632ca15f",
+  "reason": null,
+  "replay_max_abs_delta_db": 1.971301713865614e-06,
+  "stage": "XP_SITCOM_REPLAY_8",
+  "state": "PASS",
+  "telemetry_missing": 0,
+  "timing": {
+    "foreign_pids": [],
+    "n_samples": 48,
+    "reasons": [],
+    "timing_class": "CLEAN",
+    "timing_valid": true
+  },
+  "worker_index": 7,
+  "worker_mode": "b24",
+  "worker_pid": null,
+  "worker_rc": 0
+}
