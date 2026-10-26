@@ -84,9 +84,28 @@ def main():
                 lines.append("FAST-REPLAY PREPARED (launch/worker pending)")
                 seen_fast_replay=True
         elif d.name.startswith("xp_t_sitcom_"):
-            file=d/"XP_T_SITCOM_PREP.json"
-            if file.is_file():
-                v=read(file)
+            prep=d/"XP_T_SITCOM_PREP.json"
+            live=d/"XP_T_SITCOM_STATUS.json"
+            done=d/"XP_T_SITCOM_COMPLETE.json"
+            if done.is_file():
+                v=read(done)
+                ff=v.get("per_dataset",{}).get("ffhq",{})
+                im=v.get("per_dataset",{}).get("imagenet",{})
+                lines.append("XP-T SITCOM "+v.get("status","UNKNOWN")+
+                    " roots="+str(v.get("n_roots"))+
+                    " ffhq_s="+str(round(float(ff.get("sampling_wall_s_median",0)),3))+
+                    " image_s="+str(round(float(im.get("sampling_wall_s_median",0)),3))+
+                    " timing_clean="+str(v.get("clean_timing_eligible")))
+            elif live.is_file():
+                v=read(live)
+                lines.append("XP-T SITCOM "+v.get("state","UNKNOWN")+
+                    " roots="+str(v.get("completed_roots",0))+"/18"+
+                    " active="+str(v.get("running_roots",0))+
+                    " gpu_h="+str(round(float(v.get("gpu_hours",0)),4)))
+                if v.get("state","").startswith(("FAILED","STOP")):
+                    action.append("XP-T SITCOM "+str(v.get("reason")))
+            elif prep.is_file():
+                v=read(prep)
                 lines.append("XP-T SITCOM "+str(v.get("status","UNKNOWN"))+
                     " ffhq="+str(v.get("ffhq_roots"))+
                     " imagenet="+str(v.get("imagenet_roots")))

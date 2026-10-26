@@ -571,3 +571,62 @@ The eventual multi-GPU experiment may distribute independent roots
 over four physical GPUs, but the scientific per-candidate timing
 reference uses W=1, and the preregistered one-GPU W={1,2,4}
 worker-throughput test remains a distinct experiment.
+
+## XP-T SITCOM FFHQ+ImageNet: 4-GPU W1 calibration implementation (execution pending)
+
+PAC completed CPU stage `XP_T_SITCOM_PREP_PASS`, 77 XP CPU tests,
+9 native timing candidates for 3 frozen FFHQ B22 images and 9 for the
+first 3 frozen ImageNet-100 benchmark images. Source directory is
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_sitcom_20261026T233451Z`.
+The immutable GT-free input manifest SHA256 is
+`995915c3b7b7a00b1d4d678a4a013c8cc9c2445a513704a92e513d93d6d97131`.
+It reuses the very same noisy signed y used by the earlier FFHQ and
+ImageNet FAST calibration, and leaves their original source records
+untouched.
+
+The new `xp_t_sitcom_worker_gpu.py` and
+`xp_t_sitcom_supervisor.py` implement a prospective calibration on
+four physical PAC GPUs, **W=1 native process per GPU**, with up to four
+concurrent independent SITCOM roots. Each candidate is run in its own
+native SITCOM Python 3.8 process with seed set *before* the model
+construction, as in validated B24 independent-seed mode. ImageNet uses
+the exact pinned SITCOM `imagenet256ddpm.yaml` architecture
+(256 channels, 2 residual blocks, attention `32,16,8`) and the
+pinned ImageNet checkpoint. FFHQ retains its native
+`ffhq256ddpm.yaml` architecture. Both use the frozen B22 200×5
+phase-retrieval solver configuration (no ImageNet-specific PR
+hyperparameters are published).
+
+**Checkpoint load fail-closed:** the upstream native
+`model/ddpm/unet.py` catches `torch.load`/`load_state_dict`
+exceptions, prints a warning, and otherwise silently returns a
+randomly initialized UNet. This would invalidate ImageNet timing
+and quality. The worker first SHA256-verifies the entire checkpoint,
+then temporarily instruments `torch.nn.Module.load_state_dict`
+only during native `get_model` construction and requires one
+successful strict `UNetModel.load_state_dict` call, zero missing
+and unexpected parameters, and at least 100 loaded tensors; otherwise
+**STOP** before any sampling or receipt. The native code is never
+modified. The worker records its successful strict loading proof,
+model-config and exact checkpoint hash in every GT-free candidate
+receipt.
+
+The supervisor performs clean NVIDIA-GPU admission for each worker,
+one worker per GPU, a hard 80% VRAM ceiling, a conservative 2 GPU-hour
+aggregate cap, and no killing foreign processes. It preserves any
+partial results if a task fails. Per-root timing uses CUDA events
+and synchronized process wall from `get_start` through native
+`sampler.sample`; model load time is separately reported. Full
+GPU-event telemetry is recorded across all used physical GPUs and
+co-tenancy/visibility qualify timing independently of generation
+quality. The worker records reconstruction PNG/float32 tensor and
+SHA256, but no GT evaluation or historical output labels; timing
+calibration roots are **never appended** to historical K populations.
+This is *not* the separate preregistered W={1,2,4} simultaneous-worker
+throughput experiment on one physical GPU.
+
+No new GPU results exist when authoring this implementation. Do not
+claim `XP_T_SITCOM_BATCH1_PASS` until PAC reports the exact native
+18-root completion receipt. Preserve all existing B22, DEV80,
+FAST and SITCOM replay outputs. Do not inspect held-out cohorts,
+and do not release embargoed K>=4 outcome data.
