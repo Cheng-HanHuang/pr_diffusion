@@ -27,7 +27,33 @@
 > - This supports the paper's setup claim that measurement consistency constrains mainly coarse structure.
 > - A planner check on four generic natural images (scikit-image samples, not FFHQ or ImageNet) found 79–93% of magnitudes below σ overall and 92–98% in the outer half.
 
-**Status:** FROZEN v1.1 with amendments A1, A2 and A3 (planner, 2026-10-26).
+> **Amendment A4 (planner, 2026-10-26 14:30, before any XP data).** Two lanes, three scope decisions, one analysis.
+> 1. **Two lanes replace the tier order for scheduling.** The tiers still decide what is dropped (§3.5).
+>    - **CRITICAL lane** (time-aware; feeds the paper):
+>      - XP-0, XP-T and the replay gates;
+>      - XP-A16, XP-C, XP-C2, XP-D1 (data cut Nov 2);
+>      - XP-B16, XP-D2, XP-D3, XP-A64, XP-F8 (data cut Nov 6).
+>    - **BACKGROUND lane** (not time-sensitive; fills idle GPU capacity):
+>      - XP-B32, XP-D4, XP-G, XP-G2, XP-H, XP-I, the new XP-J and the conditional XP-E′.
+>      - Results that arrive by Nov 20 go into the supplement; later ones go to the fallback or journal version.
+>    - **Scheduling rule.** A free GPU slot always takes a ready CRITICAL job first, and takes BACKGROUND work only when no CRITICAL job is ready.
+>      - BACKGROUND jobs are cut into units of at most about 20 minutes (one or a few runs), so a CRITICAL job never waits longer than that.
+>      - Running jobs are never killed.
+> 2. **NP is dropped from the paper.** It is an in-house, unpublished variant. Its R0 runs stay in the internal record but are excluded from every paper aggregate. Counts quoted in the paper are recomputed on {DAPS, SITCOM, FAST-DIPS}.
+> 3. **SITCOM, resolved from its phase-retrieval repository** (`sjames40/SITCOM_ODE` @ `275ab67`, verified by the planner):
+>    - selection is GT-based and per metric (`eval.py` lines 72–73 and 81–83, as in DAPS);
+>    - the README phase-retrieval command uses 4 runs (the config default is 10);
+>    - the repository has ImageNet model and data configs but no ImageNet-specific phase-retrieval hyperparameters, so **XP-D3 uses the FFHQ phase-retrieval settings with the ImageNet model**, exactly as §1's fallback says.
+> 4. **New XP-J** (BACKGROUND, conditional): DiffFPR (Li & Wang, ICML 2024), a published solver built for oversampled Fourier PR, n = 4 on the 180 FFHQ ids.
+>    - Its code uses oversample 4.0 (the 512 canvas), so run it **at 512 with the XP-G2 measurements**. Run it also at 384 with the R0 measurements **only if** that is a parameter change plus our y, with no code edits.
+>    - Use its published settings and record them. Run selection follows our policies.
+>    - XP-0 checks the code at `/egr/research-pac/huang248/external/DiffFPR` (read-only) and whether our y can be fed in; if not, skip it and say so.
+> 5. **New analysis** (CPU, CRITICAL analysis, not exploratory): **does a prior score separate GOOD from CONSISTENT runs?**
+>    - Among runs with ρ ≤ τ (the GOOD, ORBIT and CONSISTENT runs, with ORBIT taken after orientation correction), report per family and dataset the AUROC of each GT-free score for GOOD vs CONSISTENT: the stored R0 S score (R0 runs), S_mid identity member, 2-forward score, CLIP upright score, UnivFD and ρ itself.
+>    - Also report the K-curve of a two-stage selector: "residual threshold τ, then the best prior score among passing runs, then the orientation test".
+>    - This is an analysis of what selection *could* gain from a prior term, not a proposed method. It answers whether failure type (ii) is fixable without the ground truth.
+
+**Status:** FROZEN v1.1 with amendments A1–A4 (planner, 2026-10-26).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
@@ -123,17 +149,18 @@ GPU-hour figures are planner estimates from historical timings (FAST 3.3 s/run w
 | **XP-D4** | FAST on ImageNet, run indices 16–63 (n = 64) | 4,800 | ≈ 9–17 |
 | **XP-G2** | 512-canvas control (§1) on all 180 ids: FAST n = 8 and SITCOM n = 4 | 2,160 | ≈ 11–20 |
 | **XP-E′** | **Conditional:** DAPS-4K (the published PR configuration), n = 4 on all 180 ids. Runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-4K | 720 | ≈ 20–40 |
+| **XP-J** | **Conditional (A4):** DiffFPR, n = 4 on all 180 ids, at the 512 canvas (its native setting; XP-G2 measurements), and at 384 only if that needs no code edits | 720–1,440 | ≈ 10–40 |
 | ~~XP-E~~ | **Cancelled (A1).** DAPS `test-ffhq` overlaps the locked holdout | — | — |
 
 **Scoring** (CLIP, 2-forward, S_mid, LPIPS) adds about 5–15 GPU-h in total. Estimated grand total: ≈ 250–450 GPU-h. The upper end exceeds the cap, so the drop order (§3.5) will bind if the XP-T projections land high.
 
 ## 3. Queue rules
 
-1. **Order of value** (launch priority): XP-T → XP-A16, XP-C, XP-C2, XP-D1 phase 1 → XP-D1 phase 2, XP-A64 → XP-B16 ∥ XP-D2 → XP-D3 ∥ XP-F8 → XP-B32 → XP-I → XP-H → XP-G2 → XP-G → XP-D4 → XP-E′ (conditional).
+1. **Order of value** (launch priority): XP-T → XP-A16, XP-C, XP-C2, XP-D1 phase 1 → XP-D1 phase 2, XP-A64 → XP-B16 ∥ XP-D2 → XP-D3 ∥ XP-F8 → XP-B32 → XP-I → XP-H → XP-G2 → XP-J → XP-G → XP-D4 → XP-E′ (conditional). Amendment A4 assigns these stages to the CRITICAL and BACKGROUND lanes.
 2. **Work-conserving.** No GPU is left idle while any authorized, smoke-passed job is ready. A lower-priority job that is ready may fill a GPU while a higher one is still in engineering. Example: XP-B32 needs no new code, so it may run while XP-H/XP-I are being built.
 3. **Concurrency:** W\* workers per GPU, per family, from XP-T. Never exceed 80% GPU memory.
 4. **Smoke test per (family, dataset):** 2 images × 2 runs. Runtime must be within ±50% of the XP-T projection, and the configuration must replay the frozen settings. Otherwise stop that family and report.
-5. **Drop order** if over budget or late (the reverse of value): XP-E′ → XP-D4 → XP-G → XP-G2 → XP-H → XP-I → XP-B32 → XP-F8 → XP-D3 → XP-B16 reduced to the 60 ids of v1 (SHA-256(`XPB|<id>`), first 30 B22 + first 30 DEV80) → XP-D2 reduced to 25 images (SHA-256(`XPD|<basename>`)) → XP-A64. **Tier A is never dropped.**
+5. **Drop order** if over budget or late (the reverse of value): XP-E′ → XP-J → XP-D4 → XP-G → XP-G2 → XP-H → XP-I → XP-B32 → XP-F8 → XP-D3 → XP-B16 reduced to the 60 ids of v1 (SHA-256(`XPB|<id>`), first 30 B22 + first 30 DEV80) → XP-D2 reduced to 25 images (SHA-256(`XPD|<basename>`)) → XP-A64. **Tier A is never dropped.**
 6. **Budget check.** Before launching each stage, project its GPU-h from XP-T. Stop if the cumulative projection exceeds 400.
 
 ## 4. Gates for adding runs to historical families (XP-B, XP-F)

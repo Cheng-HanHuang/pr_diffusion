@@ -4,7 +4,7 @@
 - Revision B.1 adds the TGD read and the phase-retrieval-theory research pass (program v1.2; digest §§4–5).
 - Revision A (2026-10-25) was never started.
 
-**To:** a separate theory executor (a new chat or agent). **No PAC access is needed or allowed.**
+**To:** a separate theory executor (a new chat or agent). **No PAC access is needed or allowed.** The kickoff prompt is `docs/track_r/executors/theory/KICKOFF_PROMPT.md`.
 
 **Cheng's decision (2026-10-26): start now.**
 
@@ -49,7 +49,11 @@
   - `docs/track_r/executors/r0/returns/R0_20261023/R0_8_P4_MATRIX.csv` (policy × K × stratum) and `R0_7_ANALYSIS.json`;
   - R0-N N1 CSVs under `docs/track_r/executors/r0n/returns/R0N_20261024T061111Z/` (on branch `codex/prdiff-track-r-r0n-20261023`);
   - the N2 comparison JSON (same branch, `R0N_N2_RECOVERY_20261024T073405Z/`);
-  - **A8 per-image strings**, committed by the PAC executor in R0-N.2 (amendment 2 revision D.1). The planner will tell you the path; expected Oct 28–29. Columns:
+  - **A8 per-image strings**, committed by the PAC executor in R0-N.2 (amendment 2 revision D.1), expected Oct 28–29.
+    - **Path:** `docs/track_r/executors/r0n/returns/R0N2_<stamp>/R0N2_PER_IMAGE_COUNTS.csv` on `codex/prdiff-track-r-r0n-20261023` or `codex/prdiff-track-r-xp-*`. Fetch daily.
+    - **If A8 is not committed by Oct 29 noon ET,** fit on P4 at K ≤ 4 and say so.
+    - **Families:** DAPS, SITCOM, FAST-DIPS only. NP is out of the paper (XP prereg A4).
+    - Columns:
     - counts per class;
     - `run_labels`;
     - `e0_rank_order`;

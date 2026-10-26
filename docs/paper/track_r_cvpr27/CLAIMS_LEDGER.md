@@ -12,7 +12,7 @@ A claim may appear in the submission only if it is VERIFIED, or if it is proven 
 
 | ID | Claim (short) | Source | Status |
 |---|---|---|---|
-| C-P1 | Protocols. DPS, DAPS, SITCOM and FAST-DIPS report best-of-4 for PR. The DAPS and FAST-DIPS reference code pick the best run **per metric** against GT. TGD selects by lowest measurement error. PC-DAPS baselines are GT best-of-4 | DAPS arXiv v3 Sec. 4.1 ("best result out of four independent samples"); DAPS code `e7a77d0` `eval.py` 66–84; FAST-DIPS `a9758b38` `misc.py` 665–668; TGD App. F.4 and Tab. 2; PC-DAPS full read (2026-10-24); SITCOM "best results from 4 independent runs" (earlier read) | VERIFIED for DAPS, FAST-DIPS, TGD, PC-DAPS. **SITCOM and DPS criteria not stated** (ask Cheng for SITCOM). DiffFPR protocol unknown |
+| C-P1 | Protocols. DPS, DAPS, SITCOM and FAST-DIPS report best-of-4 for PR. The DAPS, SITCOM and FAST-DIPS reference code pick the best run **per metric** against GT. TGD selects by lowest measurement error. PC-DAPS baselines are GT best-of-4 | DAPS arXiv v3 Sec. 4.1 ("best result out of four independent samples"); DAPS code `e7a77d0` `eval.py` 66–84; SITCOM PR repo `sjames40/SITCOM_ODE` @ `275ab67` `eval.py` 72–73, 81–83 (README command `num_runs=4`; config default 10); FAST-DIPS `a9758b38` `misc.py` 665–668; TGD App. F.4 and Tab. 2; PC-DAPS full read (2026-10-24) | VERIFIED for DAPS, SITCOM, FAST-DIPS, TGD, PC-DAPS. DPS criterion not stated. DiffFPR protocol unknown |
 | C-S1 | The operator equals the DPS/DAPS PR operator (pad 64, ortho FFT, σ = 0.05) | R0 spec l. 59–60; TGD App. F.3; DAPS `configs/task/phase_retrieval.yaml` | VERIFIED |
 | C-S2 | The noise exceeds the signal at most high frequencies | Planner check on generic natural images: 79–93% of magnitudes < σ, 92–98% in the outer half. To be measured on our GT (XP-C, A3) | PENDING-DATA (plausible) |
 | C-S3 | The standard canvas violates Hayes's support condition (2/3 > 1/2) | Barnett et al. §1.1 (verified on ar5iv); arithmetic | VERIFIED |
@@ -30,7 +30,7 @@ A claim may appear in the submission only if it is VERIFIED, or if it is proven 
 | C-A4 | Of 114 failed residual picks: 15 fixed, 93 generation failures, 5 selection misses, 1 uncorrected | R0-N N1b @ `5af47db` | VERIFIED for the R0 run set; recount for the solver set |
 | C-A5 | 57% of SITCOM's failed runs are CONSISTENT | R0-N N1a | VERIFIED |
 
-**Open decisions for Cheng:**
-1. **NP.** The in-house DiffFPR-based family: drop it, or keep it in the supplement as an in-house variant?
-2. **SITCOM.** Its selection criterion over 4 runs (C-P1), and its ImageNet PR settings, if defined (Cheng co-authored SITCOM).
-3. **Title.**
+**Decisions:**
+1. **NP:** planner recommends **dropping it from the paper** (XP prereg A4). Recount C-A1 and C-A4 on {DAPS, SITCOM, FAST-DIPS} from the A8 file. *Awaiting Cheng's confirmation.*
+2. **SITCOM:** resolved 2026-10-26 from its PR repository. Selection is GT per metric. There are no ImageNet-specific PR settings, so ImageNet uses the FFHQ PR settings with the ImageNet model.
+3. **Title:** working title kept (Cheng, 2026-10-26).

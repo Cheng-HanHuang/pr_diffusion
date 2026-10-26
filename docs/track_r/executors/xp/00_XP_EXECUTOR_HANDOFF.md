@@ -1,146 +1,169 @@
-# Track R · XP executor handoff: evaluation-only extensions (GPU), revision B.2
+# Track R · XP executor handoff: evaluation-only extensions (GPU), revision C (autopilot)
 
-**From:** planner (Claude), 2026-10-26.
-- **Revision B.2 (11:30) follows prereg amendment A2.** XP-D2 (DAPS on ImageNet) and XP-E′ use **DAPS-4K** (400 annealing × 10 ODE steps), the configuration of the DAPS paper's phase-retrieval results. They do **not** use the repository's `commands/pixel_*.sh` (200 × 5).
-- **Standing rule:** before launching each tier, re-merge `origin/claude/prdiff-track-r-planner-20261021` and check `XP_PREREG_v1_1.md` for new amendments. Report the planner commit you ran against.
-- Revision B.1 followed prereg **amendment A1**:
-  - XP-E is cancelled;
-  - a bundled-FFHQ data ban;
-  - new Tier C items XP-G2 (512 canvas) and the conditional XP-E′;
-  - exploratory CPU analyses.
-- Revision A (2026-10-25) was never started.
+**From:** planner (Claude), 2026-10-26 14:30.
+- **Revision C replaces B.2.** It adds:
+  - **two lanes** (CRITICAL / BACKGROUND);
+  - an **autopilot protocol** that minimizes back-and-forth with Cheng;
+  - prereg amendment A4: NP dropped from the paper, SITCOM settings resolved, XP-J (DiffFPR), and the prior-separation analysis.
+- **Kickoff prompt** for a new or continuing executor chat: `docs/track_r/executors/xp/KICKOFF_PROMPT.md`.
 
-**To:** the PAC-side executor (the one that ran R0 and R0-N). Cheng runs every PAC block.
+**To:** the PAC-side executor (GPT/Codex). You have **no PAC access**. Cheng runs every PAC block you write.
 
-**GO is given.** Cheng, 2026-10-26 00:57: *"GO aggressively … even if some runs failed it's no hurts. Try to get as much as possible out."*
-- You may proceed through Tiers A → B → C without asking again.
-- **You still stop** on any §6 condition. Any external download or clone is done by Cheng.
-
-**Hard data rule (A1).** Never load the DAPS, FAST-DIPS or PC-DAPS bundled FFHQ sets (`test-ffhq`, `demo-ffhq`, any DAPS FFHQ archive). This includes smoke tests, timing and debugging; the repositories' default commands point to them, so override them. One of those images belongs to the locked holdout. FFHQ inputs come only from the R0 manifests of the 180 ids.
+**GO is given** (Cheng, 2026-10-26: *"GO aggressively … Try to get as much as possible out."*). Proceed through all lanes without asking again. Stop only on a §7 condition.
 
 **Binding:**
-- `docs/planning/track_r/XP_PREREG_v1_1.md` (FROZEN v1.1; supersedes v1; self-contained);
-- `docs/track_r/executors/r0n/R0N_AMENDMENT_2_20261024.md`, revision D.1 (R0-N.2, CPU);
-- `docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`;
-- all R0 and R0-N data, PAC-safety and accounting rules.
+- `docs/planning/track_r/XP_PREREG_v1_1.md`, FROZEN v1.1 with amendments A1–A4. Read the amendment boxes first.
+- `docs/track_r/executors/r0n/R0N_AMENDMENT_2_20261024.md`, revision D.1 (R0-N.2, CPU).
+- All R0 and R0-N data, PAC-safety and accounting rules (`AGENTS.md`, Track R section).
+
+**Hard data rules:**
+- Never load the DAPS, FAST-DIPS or PC-DAPS bundled FFHQ sets (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives): one of those images belongs to the locked holdout. FFHQ inputs come only from the R0 manifests of the 180 ids.
+- Never access confirmation305.
+- Never merge `main` or `docs/daps-test-ffhq-confirmation305-audit-*` into a Track R branch.
 
 ## 0. Planner's view
 
-**Results.** The FFHQ audit is done. GT-free selection recovers 89–97% of the orbit oracle's gain, and what remains is mostly generation failure. K2 means orientation repair is generic (CLIP), not a method.
+**Results.** The FFHQ audit is done. Residual selection plus an orientation test recovers 93–97% of the orbit oracle's gain for the three published solvers; what remains is mostly generation failure.
 
-**Plan.** XP adds what a top venue needs:
-- a second dataset (ImageNet), including the published DAPS protocol on all 100 images;
-- K-scaling to 64 (FAST) and 16–32 (SITCOM), plus DAPS to 8. These **test frozen theory predictions** in both regimes the theory distinguishes;
-- same-GPU timing;
-- the network's equivariance defect (XP-C2), which tests the theory's mechanism for orbit errors.
+**What XP adds.** The paper argues that measurement-based selection fails in exactly three ways:
+1. orientation (provably invisible to the residual);
+2. consistent-but-wrong runs;
+3. no good run at all.
 
-**Publication image.**
-- CVPR 2027 attempt: paper Nov 16, go/no-go Nov 8. SPL and EUSIPCO 2027 are the fallbacks.
-- **Data cuts:** Tier A by Nov 2, Tier B by Nov 6 (main paper), Tier C by Nov 20 (supplement, due Nov 23).
+XP measures each of these:
+- K-scaling against frozen predictions (FAST to 64, SITCOM to 32, DAPS to 8);
+- ImageNet, including the published DAPS-4K protocol;
+- the denoiser's equivariance defect;
+- whether a prior score can separate type-2 failures (A4.5).
+
+**Publication image.** CVPR 2027: paper Nov 16, go/no-go Nov 8. The binding constraint is **time**, not GPUs.
 
 ## 1. Branch and environment
 
-- **Branch.** Create `codex/prdiff-track-r-xp-<YYYYMMDD>` from `codex/prdiff-track-r-r0n-20261023` @ `33a34bd` (or from your R0-N.2 branch head, if R0-N.2 is already committed). Then merge `origin/claude/prdiff-track-r-planner-20261021`. Record both SHAs.
-  - **Merge nothing else.** In particular, never merge `main` or the data-governance audit branch `docs/daps-test-ffhq-confirmation305-audit-*`: its file path contains a forbidden token.
-- **Environments.** Reuse the historical ones read-only: DAPS env, `sitcom_ode_bw`, `fast_dips_a15_blackwell`, `prdiff_track_r`. If a package is missing (e.g. for DPS or PC-DAPS), create a **new** environment by cloning; never modify a historical one.
+- **Branch.** `codex/prdiff-track-r-xp-<YYYYMMDD>`, from `codex/prdiff-track-r-r0n-20261023` @ `33a34bd` (or your R0-N.2 head), then merge `origin/claude/prdiff-track-r-planner-20261021`. **Re-merge the planner branch before each new launch** and report the planner commit you ran against.
+- **Environments.** Use the historical ones read-only (DAPS env, `sitcom_ode_bw`, `fast_dips_a15_blackwell`, `prdiff_track_r`). For new needs (DPS, PC-DAPS, DiffFPR), clone a new environment; never modify a historical one.
 - **Paths.**
-  - Outputs: `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_<stage>_<UTC>/`.
-  - Caches: `/egr/research-pac/huang248/outputs/.cache/track_r/`.
-  - New external code, if Cheng clones it: `/egr/research-pac/huang248/external/<name>_xp/`.
+  - outputs: `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_<stage>_<UTC>/`;
+  - caches: `/egr/research-pac/huang248/outputs/.cache/track_r/`;
+  - new external code: `/egr/research-pac/huang248/external/<name>_xp/` (Cheng clones it).
 
-## 2. Order of work (critical path first)
+## 2. The two lanes (prereg A4.1)
 
-1. **R0-N.2, B2 + A8 (CPU).** Commit A8 **by Oct 28 if at all possible**. The theory executor's frozen predictions (due Oct 31) are fitted on it.
-2. **XP-0 (CPU), in parallel.** Inventory per prereg §2, plus:
-   - the per-id y-SHA equality check (prereg §1);
-   - the pad formula for oversample 4.0, which must give a 512 canvas (XP-G2);
-   - `test -d` for `test-imagenet`, DPS and PC-DAPS. For anything absent, **write the exact command for Cheng** (the DAPS README gdown link; `git clone` + `git checkout <pinned SHA>`), then continue with what is present.
-   - If the DAPS download bundles FFHQ and ImageNet together, ask Cheng to place **only** `test-imagenet` in the new data path.
-3. **XP-T (GPU, ≈1 h).** Batch-1 timing for every (family, dataset) available, plus the W ∈ {1, 2, 4} throughput test. Output: a projection table per stage, which replaces the planner's estimates.
-4. **Tier A queue.**
-   - XP-A16, after the FAST replay gate (prereg §4.4);
-   - XP-C and XP-C2;
-   - XP-D1: ImageNet measurements, then phase 1 (runs 0–3), then phase 2 (runs 4–15).
-5. **R0-N.2 remainder (CPU) while the GPUs run:** A4.3 → A7 → A4.1–A4.2 → A3.
-6. **Tier B queue.**
-   - Replay gates for SITCOM and DAPS first (prereg §4);
-   - then XP-A64, XP-B16, XP-D2, XP-D3 and XP-F8, in the prereg §3 priority, work-conserving.
-7. **Tier C queue:** XP-B32 (no new code, so it can start first), then XP-I, XP-H, XP-G2, XP-G and XP-D4. XP-E′ runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-4K, the published PR configuration (amendment A2). XP-E is cancelled.
-8. **Analysis (CPU).** Prereg §6, respecting the §5 embargo and freeze checks. The exploratory analyses (GT-free reliability diagnostics; mixed-twin anatomy) come last and are optional.
+| Lane | Stages | Data cut |
+|---|---|---|
+| **CRITICAL** | XP-0, XP-T, replay gates → XP-A16, XP-C, XP-C2, XP-D1 (phase 1, then 2) | **Nov 2** |
+| **CRITICAL** | XP-B16, XP-D2 (DAPS-4K), XP-D3, XP-A64, XP-F8 | **Nov 6** |
+| **BACKGROUND** (fills idle slots) | **No new code** (start as soon as XP-T is done): XP-G, XP-G2 (FAST part), XP-D4, then XP-B32 once XP-B16's replay gate passes | Supplement if by Nov 20 |
+| **BACKGROUND** | **New code** (build while the CRITICAL lane runs): XP-H (DPS), XP-I (PC-DAPS), XP-J (DiffFPR), XP-G2 (SITCOM part); XP-E′ only if A4.4 says so | Supplement if by Nov 20; otherwise the journal version |
 
-## 3. Controller (recommended design)
+**Scheduling rules:**
+- A free GPU slot takes the highest-priority **ready CRITICAL** job; only if none is ready does it take **BACKGROUND** work.
+- BACKGROUND jobs are units of at most about 20 minutes.
+- Never kill a running job to free a slot.
+- **Target:** all 4 GPUs busy from the end of XP-T to Nov 20, with W\* workers per GPU from XP-T.
 
-The aim is one PAC launch per tier, not one per stage.
+## 3. Autopilot protocol (minimal back-and-forth)
 
-- **One job manifest per tier.** One row per (stage, family, dataset, uid, run index, seed, settings hash).
-- **Workers.** W\* per GPU per family (from XP-T), each bound by `CUDA_VISIBLE_DEVICES`.
-- **Work-conserving.** A worker takes the highest-priority ready job.
-- **Resumable.** Skip any job whose output and receipt already exist and verify.
-- **Receipts.** Write per-job receipts: status, seconds, GPU, commit.
-- **Shell and logs.** `nohup` with a PID file, a status command (jobs done/failed/remaining, GPU-h used, projection) and a graceful stop that finishes running jobs. Logs are bounded.
-- **Scoring is a separate GPU pass:** batched CLIP, the 2-forward prior, S_mid, and LPIPS. Solver workers only write candidates and residuals.
-- **Failures.** A failed job is retried once with the same seed, then marked failed. Failures are counted and reported, **never silently resampled with a new seed**.
+1. **Front-load the code.** Before the first GPU launch, push in one go:
+   - the runners for every no-new-code stage;
+   - the manifests;
+   - the two-lane controller;
+   - the scoring pass;
+   - the analysis and publish scripts;
+   - CPU unit tests on synthetic tensors.
 
-## 4. Embargo and freeze checks (prereg §5)
+   Build the new-code BACKGROUND items afterwards, while the GPUs run.
+2. **One block per launch.** Each message to Cheng contains:
+   - (a) one PAC block (`git fetch`, checkout of the pushed SHA, clean-tree check, then the command);
+   - (b) its expected duration and what success looks like;
+   - (c) the exact command whose output Cheng pastes back.
 
-- **Before v1 is registered** (`docs/track_r/theory/PREDICTIONS_REGISTRY.md` on the planner branch), commit and report **no outcomes** for:
-  - FFHQ XP-A, XP-B and XP-F runs with index ≥ 4;
-  - B22 DAPS runs with index ≥ 2.
+   No questions unless you are blocked; batch any questions you have.
+3. **Pre-authorized auto-continue.** Inside a launch, a stage's smoke test passes into its full run **without a stop** if all of these hold:
+   - runtime within ±50% of the XP-T projection;
+   - the frozen settings replay;
+   - the replay gate passes (historical families);
+   - the measurement SHA matches.
 
-  Receipts with run counts and failures only are fine.
-- **Before v2 is registered, or 48 h after the phase-1 counts if none is made,** the same applies to ImageNet FAST runs with index ≥ 4.
-- **Do commit XP-D1 phase-1 per-image counts promptly.** The theory executor needs them for v2.
-- **For each prediction file used,** the analysis verifies:
-  - its registry entry;
-  - the SHA-256 of `git show <commit>:<path>`;
-  - that its commit time precedes your first commit containing the matching outcomes.
+   A failing family stops alone; everything else continues.
+4. **Controller.**
+   - Resumable: skip jobs whose outputs and receipts verify.
+   - Every job carries a time limit of 3× its projection; on breach it is marked failed and retried once with the **same** seed.
+   - New manifests (more stages) enter through an inbox directory, with no restart.
+   - New **code** means a graceful restart from the new pushed commit: running jobs finish first, then the controller resumes from receipts.
+   - `nohup` with a PID file, `status`, and a graceful `stop`.
+5. **Status digest.** `status` prints **at most 20 lines**:
+   - per lane: done / running / failed / queued;
+   - GPU-h used against the 400 cap, and the projection;
+   - ETA per data cut;
+   - any STOP flags;
+   - a final line, either `ACTION NEEDED: …` or `OK`.
 
-  Report all three.
+   Cheng pastes it when it says ACTION, at milestones, or about twice a day.
+6. **Publishing.** `publish_return.sh <stage>` (run by Cheng) copies only committable aggregates and per-image strings (prereg §7) into `docs/track_r/executors/xp/returns/XP_<UTC>/`, writes SHA256SUMS, **enforces the embargo** (§5 below), and commits and pushes from the PAC checkout on your branch. You then read the pushed return from GitHub and write the report.
+7. **Analysis runs automatically** on CPU when a stage completes: U-statistics, bootstrap, anatomy, the A4.5 prior-separation analysis. Exploratory items come last.
 
-## 5. PAC command style (unchanged)
+## 4. Order of work
+
+1. **Now:**
+   - R0-N.2 **B2 + A8** (CPU), committed **by Oct 28**. It gates the theory freeze on Oct 31.
+   - In parallel, write the XP-0 block, the runners and the controller (§3.1).
+2. **XP-0 block** (CPU):
+   - inventory;
+   - y-SHA equality check;
+   - pad formula (oversample 4.0 → 512);
+   - `test -d` checks for `test-imagenet`, DPS, PC-DAPS and DiffFPR. For anything absent, write the exact command for Cheng; if the DAPS download bundles FFHQ, Cheng keeps only `test-imagenet`.
+   - **Same block:** the R0-N.2 A8 job, if not already run.
+3. **XP-T plus first launch** (one block). XP-T, then the replay gates; then the controller starts the **CRITICAL** Tier A queue and the **BACKGROUND** no-new-code queue automatically, with the auto-continue rules.
+4. **R0-N.2 remainder** (CPU, while the GPUs run): A4.3 → A7 → A4.1–A4.2 → A3.
+5. **CRITICAL Tier B:** enqueue after XP-T projections (prereg §3.6). XP-D2 uses **DAPS-4K** (A2), and XP-D3 uses the FFHQ SITCOM settings with the ImageNet model (A4.3).
+6. **BACKGROUND new-code items** as their smoke tests pass.
+
+## 5. Embargo and freezes (prereg §5)
+
+- **FFHQ:** no outcome data for runs with index ≥ 4 in XP-A/B/F (index ≥ 2 for B22 DAPS) until v1 is listed in `docs/track_r/theory/PREDICTIONS_REGISTRY.md` (due Oct 31).
+- **ImageNet FAST:** no outcome data for runs with index ≥ 4 until v2 is listed, or until 48 h after the phase-1 counts if no v2 is made.
+- **Commit the XP-D1 phase-1 counts promptly.** The theory executor needs them.
+- **Runs are never embargoed; only outcomes are.** Run everything as soon as possible.
+- `publish_return.sh` refuses embargoed files.
+
+## 6. PAC command style (unchanged)
 
 - One consolidated block per launch.
-- `nohup` with PID file, status command and graceful stop.
-- Logs are bounded, and outputs saved to file with only a short printed summary.
+- `nohup` with PID, status and graceful stop.
+- Bounded logs; output saved to file, with only a short printed summary.
 - No `set -e`, `set -u`, `set -o pipefail`, `exit`, `logout` or broad `pkill`.
 - Explicit return-code checks.
-- Run from a **pushed, clean commit**. Print the SHA at start.
-- Before any GPU block, print `nvidia-smi`. Refuse a GPU with foreign processes using more than 2 GiB unless Cheng passes an explicit override.
+- Run from a pushed, clean commit, and print the SHA at start.
+- Print `nvidia-smi` first, and refuse a GPU with foreign processes above 2 GiB unless Cheng passes an override.
 
-## 6. Stop and escalate
+## 7. Stop conditions (affected family or stage only)
 
-**Stop the affected family or stage on any of:**
-- a smoke-test runtime more than 50% off the XP-T projection;
+- smoke runtime > ±50% off the projection;
 - a frozen-setting mismatch;
 - a replay-gate failure;
 - a measurement-SHA mismatch;
-- a projected cumulative total above 400 GPU-h;
-- any path matching the forbidden tokens ("confirmation", "confirm305");
-- any code path that would load a bundled FFHQ set (`test-ffhq`, `demo-ffhq`, a DAPS FFHQ archive).
+- a projected cumulative total > 400 GPU-h;
+- a path with a forbidden token ("confirmation", "confirm305");
+- any code path that would load a bundled FFHQ set.
 
-Other stages continue.
+**Drop order if late or over budget:** prereg §3.5 (CRITICAL Tier A is never dropped).
 
-**Drop order if late or over budget:** prereg §3.5. Tier A is never dropped.
+## 8. Milestone returns (`XP_EXECUTOR_RETURN.md`)
 
-## 7. Returns (`XP_EXECUTOR_RETURN.md`, one per batch)
-
-**Schedule:**
-
-| Return | Content | Target |
+| Milestone | Content | Target |
 |---|---|---|
-| 1 | XP-0 + XP-T (projections) | Oct 28 |
-| 2 | Tier A receipts; XP-C, XP-C2; XP-D1 phase-1 counts | Oct 30 |
-| 3 | After the v1 (and v2) freezes: FFHQ FAST K-curves vs predictions; ImageNet FAST | Nov 2 |
-| 4 | Tier B, with the SITCOM and DAPS prediction checks | Nov 5–6 |
-| 5 | Tier C | Nov 20 |
+| M1 | XP-0 + XP-T projections; A8 committed; both lanes running | Oct 28 |
+| M2 | CRITICAL Tier A receipts; XP-C/C2; XP-D1 phase-1 counts | Oct 30 |
+| M3 | After the v1 (v2) freeze: FAST FFHQ (and ImageNet) K-curves vs predictions | Nov 2 |
+| M4 | CRITICAL Tier B, with the SITCOM/DAPS prediction checks and the A4.5 analysis | Nov 5–6 |
+| M5 | BACKGROUND results | Nov 20 |
 
 **Each return contains:**
-1. **Status for Cheng:** at most 8 lines.
-2. **Identity:** branch, SHAs, environments, GPU model.
-3. **GPU-hours** per stage and cumulative, against the 400 cap.
-4. **Per stage:** tables (numbers only, with n and CIs), figures, anomalies, failed-job counts.
-5. **Theory check:** the registry entries used, the SHA and commit-time verification, and per-prediction consistent/rejected, including the shape predictions.
-6. **Artifacts:**
-   - committed: aggregates, per-image strings (prereg §7), SHA256SUMS;
-   - planner ZIP (SHA only in git): per-candidate tables, contact sheets.
-7. **Executor opinion:** optional, and kept clearly separate.
+1. Status for Cheng (≤ 8 lines).
+2. Identity: branch, SHAs, planner commit, environments, GPU.
+3. GPU-h per stage and lane, cumulative against 400.
+4. Tables with n and CIs, figures, anomalies, failed-job counts.
+5. Theory check: registry entries, SHA/time verification, consistent/rejected per prediction (including shape).
+6. Artifacts: committed aggregates and strings, SHA256SUMS; the planner ZIP (SHA only).
+7. Executor opinion (optional, separate).

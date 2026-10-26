@@ -12,7 +12,7 @@ Method & Runs & Selected by & Per metric \\
 \midrule
 DPS~\cite{chung2023dps} & 4 & n/s & n/s \\
 DAPS~\cite{zhang2025daps} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
-SITCOM~\cite{alkhouri2025sitcom} & 4 & n/s\pending{?} & n/s \\
+SITCOM~\cite{alkhouri2025sitcom} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
 FAST-DIPS~\cite{kim2026fastdips} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
 PC-DAPS~\cite{kocabas2026pcdaps} & 4 particles & GT for baselines & n/s \\
 TGD~\cite{makris2026tgd} & 4 & residual & no \\
@@ -24,7 +24,7 @@ TGD~\cite{makris2026tgd} & 4 & residual & no \\
 
 \paragraph{How much of the reported quality is available at test time.}
 \Cref{tab:ffhq} decomposes the FFHQ results at the largest $K$ we had before the extensions.
-Residual selection followed by an orientation test recovers $93$--$97\%$ of the gain from the first run to the orbit oracle for the public solvers \pending{and 89--93\% for the in-house variant, if kept}, and stays within two images of the orbit oracle in $\goodrate$\claim{C-A3}.
+Residual selection followed by an orientation test recovers $93$--$97\%$ of the gain from the first run to the orbit oracle, and stays within two images of the orbit oracle in $\goodrate$\claim{C-A3}.
 Because $\Oraw$ cannot correct orientation, $\Eone$ exceeds it wherever the oracle's own pick is rotated.
 \pending{Per-metric inflation (PSNR, SSIM, LPIPS) and the mean-of-$K$ column: R0-N.2 A4.3/A7.}
 

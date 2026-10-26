@@ -50,6 +50,6 @@ Only the first run, mean-of-$K$, $\Eo$ and $\Eone$ are available at test time.
 \paragraph{Data and solvers.}
 FFHQ~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts of $100$ and $80$ \pending{describe provenance and training-set membership (R0-N.2 B2)}, with the $256\times256$ denoiser used by DPS~\cite{chung2023dps}.
 ImageNet~\cite{deng2009imagenet}: the $100$-image test set used by DAPS, FAST-DIPS and PC-DAPS~\cite{zhang2025daps,kim2026fastdips,kocabas2026pcdaps}, with the unconditional denoiser of~\cite{dhariwal2021diffusion} and measurements drawn once per image.
-Solvers: DAPS~\cite{zhang2025daps} (DAPS-4K, the configuration of its phase-retrieval results), SITCOM~\cite{alkhouri2025sitcom} and FAST-DIPS~\cite{kim2026fastdips} with their published phase-retrieval settings \pending{confirm per solver; FFHQ DAPS configuration from R0-N.2 A4.4}; DPS~\cite{chung2023dps} and PC-DAPS~\cite{kocabas2026pcdaps} in the supplement.
+Solvers: DAPS~\cite{zhang2025daps} (DAPS-4K, the configuration of its phase-retrieval results), SITCOM~\cite{alkhouri2025sitcom} and FAST-DIPS~\cite{kim2026fastdips} with their published phase-retrieval settings \pending{FFHQ DAPS configuration from R0-N.2 A4.4}; DPS~\cite{chung2023dps}, PC-DAPS~\cite{kocabas2026pcdaps} and DiffFPR~\cite{li2024difffpr} in the supplement \pending{if run}.
 Each run uses an independent seed and the same $y$.
 All timings are measured on one GPU model \pending{XP-T}.
