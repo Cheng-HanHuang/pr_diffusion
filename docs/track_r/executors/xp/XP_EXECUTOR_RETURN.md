@@ -395,3 +395,49 @@ cache paths, and altered CLI diff shape.
 ## XP-SITCOM strict checkpoint symlink exemption (2026-10-26)
 
 The retry at executor commit `f0b41af6ed404f5d949f4141522ffe7d556859ed` passed 62 CPU tests and the narrow external checkout integrity gate, then STOPPED before any output was created: `safe(SITCOM/checkpoint/ffhq256.pt)` rejects symlink paths. PAC independently confirmed that both the external checkpoint path and the canonical `models/ffhq_10m.pt` path hash to `81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa`. The cause is therefore the path-safety policy, not an observed checksum mismatch; the external path may be a symlink. The updated CPU-only preparation exempts **only** the exact external SITCOM checkpoint path, resolves symlinks strictly within the PAC research root, forbids protected target substrings, requires an ordinary regular target file and its exact SHA, and records the resolved target and symlink status in both the GT-free manifest and its receipt. All ordinary candidate and measurement inputs continue to reject symbolic links. Three new synthetic tests cover pinned checkpoint symlink success, direct-file success, outside-root link rejection, and SHA drift rejection. This update does not change any original experiment, external code, or reconstruction, and replay remains pending.
+
+## SITCOM 8-root native GT-free replay implementation (pending PAC execution)
+
+After the successful CPU source/measurement gate under commit
+`c055423234441fe907fef8dfda825815632ca15f`, PAC prepared
+`xp_sitcom_replay_20261026T223925Z`:
+`XP_SITCOM_REPLAY_PREP_PASS`, eight roots, four FFHQ images,
+GT-free manifest SHA-256
+`82d38a2cadc47c8ad864e97809e9cea9baafd62c261fa26d50fc1d332d48d525`.
+The selected B22 images are 60044 and 60140, with runs 0/1 from
+a **single per-image reset post-model RNG stream** (seed 43); DEV80
+images 01113 and 02763 replay runs 0/1 as **four independently seeded
+native model processes**. Historical candidate tensors/PNGs, R0.7
+labels, and GT paths remain in a separate CPU-only manifest.
+
+`xp_sitcom_replay_gpu.py` is a GT-free wrapper that calls the pinned
+SITCOM `get_operator`, `get_sampler` and `get_model` APIs and
+preserves the exact historical construction/seed order. The original
+`sampler.get_start(gt)` call is replaced only by a shape/device-matched
+empty float32 tensor because the verified native method
+`get_start(ref) = torch.randn_like(ref) * sigma_max` has no dependence
+on reference pixel values. B22's historical `record=True` and
+step-160 lightweight selector are retained; B24's one-run
+`record=False` is retained. No GT file or historical candidate path
+is read by GPU generation. Each completed root persists float32
+reconstruction, RGB8 PNG, SHA-256 hashes, and wall/CUDA timing.
+
+`xp_sitcom_replay_supervisor.py` sequentially dispatches one four-run
+B22 process and four independent one-run DEV80 processes; it enforces
+clean GPU admission, an 80%-VRAM utilization budget, a 2.0 GPU-hour
+execution cap, a stop sentinel, worker-local termination only, and
+per-sample GPU occupancy telemetry. Any partial/mismatching original
+or new receipt fails closed, with outputs preserved. It invokes
+`xp_sitcom_replay_score_cpu.py` in a separate subprocess with
+`CUDA_VISIBLE_DEVICES=""` only after all GPU workers succeed.
+The scorer verifies SHA-locked candidates and shared y again, computes
+raw RGB8 PSNR and frozen R0.7 labels using offline GT, compares each
+to the historical score (|delta| <= 0.1 dB plus exact label match),
+and separately records exact tensor/PNG equality.
+
+**None of these replay execution or scientific PASS statuses should be
+claimed until PAC returns the supervisor and offline receipts.** Never
+reset the external SITCOM checkout or touch protected cohort paths.
+The worker sets a fresh Python bytecode cache prefix so it cannot
+load the ten changed tracked Python 3.8 .pyc files. The edited native
+`posterior_sample.py` CLI is never imported or executed.

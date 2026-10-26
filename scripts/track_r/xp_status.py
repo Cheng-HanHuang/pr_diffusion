@@ -86,10 +86,21 @@ def main():
         elif d.name.startswith("xp_sitcom_replay_"):
             receipt=d/"XP_SITCOM_REPLAY_PREP.json"
             status=d/"XP_SITCOM_REPLAY_STATUS.json"
+            offline=d/"XP_SITCOM_REPLAY_OFFLINE_SCORE.json"
             if status.is_file():
                 v=read(status)
                 lines.append("SITCOM-REPLAY "+v.get("state","UNKNOWN")+
-                    " gpu="+str(v.get("gpu")))
+                    " roots="+str(v.get("completed_roots","?"))+"/8"+
+                    " gpu="+str(v.get("gpu"))+
+                    " gpu_h="+str(round(float(v.get("gpu_hours",0)),4)))
+                if v.get("state","").startswith(("FAILED","STOP")) or (
+                    v.get("state")=="REPLAY_GATE_FAILED"):
+                    action.append("SITCOM replay stopped: "+str(v.get("reason")))
+                if offline.is_file():
+                    v=read(offline)
+                    lines.append("SITCOM-EQUIVALENCE "+str(v.get("status","UNKNOWN"))+
+                        " delta_db="+str(round(float(v.get("max_abs_delta_db",0)),5))+
+                        " exact="+str(v.get("n_exact_historical","?"))+"/8")
             elif receipt.is_file():
                 v=read(receipt)
                 lines.append("SITCOM-REPLAY "+v.get("status","UNKNOWN")+
