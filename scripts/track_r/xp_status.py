@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""Read-only XP digest; bounded to <=20 lines, ends OK or ACTION NEEDED."""
+from __future__ import annotations
+import argparse,json
+from pathlib import Path
+BAD=("confirmation","confirm305")
+BASE=Path("/egr/research-pac/huang248/outputs/pr_diffusion/track_r")
+def read(p):
+    if any(t in str(p).lower() for t in BAD):raise RuntimeError("FORBIDDEN_PATH")
+    return json.loads(p.read_text())
+def main():
+    p=argparse.ArgumentParser()
+    p.add_argument("--root",default=str(BASE))
+    a=p.parse_args()
+    root=Path(a.root)
+    if any(t in str(root).lower() for t in BAD):raise RuntimeError("FORBIDDEN_PATH")
+    lines=[];action=[]
+    # Only named status JSONs. Never walk experimental data trees.
+    directories=sorted((d for d in root.iterdir()
+        if d.is_dir() and (d.name.startswith("xp_0_") or d.name.startswith("xp_t_")
+                          or d.name.startswith("xp_controller_") or d.name.startswith("r0n2_"))),
+        key=lambda d:d.name,reverse=True)[:8]
+    for d in directories:
+        if any(t in str(d).lower() for t in BAD):raise RuntimeError("FORBIDDEN_PATH")
+        if d.name.startswith("xp_0_"):
+            fp=d/"XP_0_INVENTORY.json"
+            if fp.is_file():
+                v=read(fp);lines.append("XP-0 "+v.get("status","UNKNOWN")+
+                    " FFHQ="+str(v.get("ffhq_n"))+" IN="+str(v.get("imagenet_n")))
+                if v.get("status")!="XP_0_PASS":action.append("XP-0 missing ImageNet")
+        elif d.name.startswith("r0n2_"):
+            fp=d/"B2_A8_RECEIPT.json"
+            if fp.is_file():
+                v=read(fp);lines.append("R0N2 "+v.get("status","UNKNOWN")+
+                    " n="+str(v.get("n_candidates")))
+        elif d.name.startswith("xp_controller_"):
+            fp=d/"XP_CONTROLLER_STATUS.json"
+            if fp.is_file():
+                v=read(fp)
+                lines.append("XP-CONTROLLER "+v.get("state","UNKNOWN")+" head="+str(v.get("head",""))[:12])
+                for lane in ("CRITICAL","BACKGROUND"):
+                    q=v.get("lanes",{}).get(lane,{})
+                    lines.append(lane+" done/running/failed/queued "+
+                                 "/".join(str(q.get(k,0)) for k in ("done","running","failed","queued")))
+                lines.append("GPU-H "+str(round(float(v.get("gpu_hours",0.)),3))+
+                    "/400 projected="+str(v.get("projected_gpu_hours","UNKNOWN")))
+                if v.get("stop_flags"):action.extend(v["stop_flags"])
+        else:
+            fp=d/"XP_T_RECEIPT.json"
+            if fp.is_file():
+                v=read(fp);lines.append("XP-T "+v.get("status","UNKNOWN"))
+    if not lines:lines.append("NO_XP_RECEIPTS")
+    for s in lines[:16]:print(s)
+    print("ACTION NEEDED: "+"; ".join(action[:2]) if action else "OK")
+if __name__=="__main__":
+    try:main()
+    except Exception as e:print("ACTION NEEDED: "+str(e))
