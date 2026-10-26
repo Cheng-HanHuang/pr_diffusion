@@ -54,8 +54,24 @@ def main():
                 v=read(fp);lines.append("R0N2 "+v.get("status","UNKNOWN")+
                     " n="+str(v.get("n_candidates")))
         elif d.name.startswith("xp_fast_replay_"):
+            recovered=d/"XP_FAST_REPLAY_RECOVERY_STATUS.json"
             fp=d/"XP_FAST_REPLAY_STATUS.json"
-            if fp.is_file() and not seen_fast_replay:
+            if recovered.is_file() and not seen_fast_replay:
+                seen_fast_replay=True
+                v=read(recovered)
+                status=v.get("status","UNKNOWN")
+                if (status=="XP_FAST_REPLAY_RECOVERY_PASS" and
+                    v.get("r07_label_matches")==8 and
+                    v.get("n_roots")==8 and
+                    float(v.get("max_abs_delta_db",1e6))<=0.1 and
+                    v.get("gpu_rerun_performed") is False and
+                    (d/"XP_FAST_REPLAY_OFFLINE_RECEIPT.json").is_file()):
+                    lines.append("FAST-REPLAY PASS n=8 max_delta_db="+str(v["max_abs_delta_db"])+
+                                 " timing="+str(v.get("timing",{}).get("timing_class","UNKNOWN")))
+                else:
+                    lines.append("FAST-REPLAY RECOVERY_UNVERIFIED")
+                    action.append("FAST replay recovery receipt failed audit")
+            elif fp.is_file() and not seen_fast_replay:
                 seen_fast_replay=True
                 v=read(fp)
                 state=v.get("state","UNKNOWN")

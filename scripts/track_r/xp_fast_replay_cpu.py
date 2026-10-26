@@ -103,6 +103,36 @@ def prepare(args):
     print("TASK_SHA="+report["manifest_sha256"])
     print("OK")
 
+
+def validate_historical_identity(row, historical, catalog):
+    """R0.7 scored rows intentionally omit y SHA. Catalog is its provenance.
+
+    Refuse a missing or mismatched catalog SHA rather than weakening the gate.
+    """
+    uid=row["uid"]
+    required_h=("uid","source","family","image_id","run_index",
+                "measurement_source","candidate_path","gt_path",
+                "psnr_raw","raw_label","tau_signed_good_q95")
+    required_c=("uid","source","family","image_id","run_index",
+                "measurement_source","measurement_path","measurement_sha256",
+                "candidate_path","candidate_sha256","gt_path","gt_format")
+    if any(k not in historical for k in required_h):
+        raise RuntimeError("STOP_REPLAY_R07_SCORE_SCHEMA "+uid)
+    if any(k not in catalog for k in required_c):
+        raise RuntimeError("STOP_REPLAY_R07_CATALOG_SCHEMA "+uid)
+    if not (historical["uid"]==catalog["uid"]==uid and
+            historical["source"]==catalog["source"]=="S5_r0_fast" and
+            historical["family"]==catalog["family"]=="FAST" and
+            str(historical["image_id"])==str(catalog["image_id"])==str(row["image_id"]) and
+            historical["measurement_source"]==catalog["measurement_source"]==row["measurement_source"] and
+            int(historical["run_index"])==int(catalog["run_index"])==int(row["rep"]) and
+            historical["candidate_path"]==catalog["candidate_path"] and
+            historical["gt_path"]==catalog["gt_path"] and
+            catalog["measurement_path"]==row["measurement_path"] and
+            catalog["measurement_sha256"]==row["measurement_sha256"]):
+        raise RuntimeError("STOP_REPLAY_R07_IDENTITY "+uid)
+    return True
+
 def score(args):
     if os.environ.get("CUDA_VISIBLE_DEVICES")!="":
         raise RuntimeError("STOP_REPLAY_SCORER_NOT_CPU")
@@ -114,9 +144,16 @@ def score(args):
     from scripts.track_r.xp_fast_gpu import validate_complete,root_folder,frozen_roots
     manifest_path=Path(args.out)/"XP_FAST_REPLAY_TASKS.json"
     manifest=obj(manifest_path)
-    rows=frozen_roots(manifest,args.expected_head)
+    # SOURCE_HEAD is the immutable GPU-generation commit. The CPU scorer
+    # has a newer HEAD; it must not claim the old roots were generated on it.
+    source_head=args.source_head
+    if (source_head!="314180b314674a24d5ddc40a0186b24b6082a5e0" or
+        manifest.get("head")!=source_head):
+        raise RuntimeError("STOP_REPLAY_GPU_SOURCE_HEAD")
+    rows=frozen_roots(manifest,source_head)
     receipt=obj(Path(args.out)/"XP_FAST_REPLAY_PREP_RECEIPT.json")
-    if sha(manifest_path)!=receipt["manifest_sha256"] or len(rows)!=8:
+    if (sha(manifest_path)!=receipt["manifest_sha256"] or
+        receipt.get("head")!=source_head or len(rows)!=8):
         raise RuntimeError("STOP_REPLAY_TASK_DRIFT")
     chunk=Path(args.out)/"gpu"
     chunk_receipt=obj(chunk/"R0_5_CHUNK_COMPLETE.json")
@@ -133,12 +170,12 @@ def score(args):
         if uid not in old or uid not in oldcat:raise RuntimeError("STOP_REPLAY_UID")
         prev=old[uid]
         meta=oldcat[uid]
-        if (meta["measurement_sha256"]!=r["measurement_sha256"] or
-            prev["measurement_sha256"]!=r["measurement_sha256"] or
-            prev["run_index"]!=r["rep"]):
-            raise RuntimeError("STOP_REPLAY_IDENTITY")
+        validate_historical_identity(r,prev,meta)
+        # Re-hash frozen y here too: stage prepare ran under a different HEAD.
+        if sha(safe(meta["measurement_path"]))!=r["measurement_sha256"]:
+            raise RuntimeError("STOP_REPLAY_Y_HASH_DRIFT "+uid)
         folder=root_folder(chunk,r)
-        native=validate_complete(folder,r,args.expected_head,sha(manifest_path))
+        native=validate_complete(folder,r,source_head,sha(manifest_path))
         safe(meta["gt_path"])
         gt8=to_rgb8(gt_source(meta))
         x8=load_png_rgb8(folder/"reconstruction.png")
@@ -164,6 +201,7 @@ def score(args):
                        "pass":delta<=0.1 and label==prev["raw_label"]})
     status="XP_FAST_REPLAY_PASS" if len(output)==8 and all(x["pass"] for x in output) else "XP_FAST_REPLAY_FAIL"
     report={"status":status,"head":args.expected_head,
+        "generation_head":source_head,
         "n_runs":len(output),"max_abs_delta_db":max(x["abs_delta_db"] for x in output),
         "n_png_exact":sum(x["exact_png_match"] for x in output),
         "measurement_gate":"FROZEN_R0_SHA_PASS",
@@ -182,9 +220,12 @@ if __name__=="__main__":
     ap.add_argument("mode",choices=("prepare","score"))
     ap.add_argument("--expected-head",required=True)
     ap.add_argument("--out",required=True)
+    ap.add_argument("--source-head",default="314180b314674a24d5ddc40a0186b24b6082a5e0")
     try:
         a=ap.parse_args()
         prepare(a) if a.mode=="prepare" else score(a)
     except Exception as exc:
+        import traceback
         print("ACTION NEEDED: XP_FAST_REPLAY "+str(exc))
+        traceback.print_exc()
         raise SystemExit(8)

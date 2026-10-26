@@ -177,3 +177,39 @@ processes overlap, mark its timing contaminated without invalidating
 an otherwise successful scientific replay. The approved scheduler's
 80% VRAM and 400 GPU-hour caps apply. No published XP outcomes are
 produced until the replay PASS is verified on PAC.
+
+## Native FAST replay CPU scoring repair (2026-10-26)
+
+The bounded replay launched under commit
+`314180b314674a24d5ddc40a0186b24b6082a5e0`
+and completed 8/8 native FAST-DIPS roots successfully on GPU 0.
+The run is immutable at
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_fast_replay_20261026T203415Z`.
+PAC reported `worker_returncode=0`, `R05_CHUNK_PASS`,
+8 new roots, zero reused, 29.359 seconds native worker allocated time,
+and approximately 0.01991 GPU-hours including model startup.
+
+The subsequent **CPU-only scorer** exited 8 before comparison,
+reporting `KeyError: 'measurement_sha256'`. This is a schema-join bug:
+the R0.7 evaluated GT JSONL contains labels, PSNR, run index, image,
+source and candidate/GT paths but **does not** carry the measurement SHA.
+The frozen R0.7 offline catalog carries both measurement path and SHA,
+and was itself SHA-verified in XP-0. The original scorer incorrectly
+accessed `prev["measurement_sha256"]`; this is not a scientific replay
+mismatch. No per-run comparison receipt was written; this replay
+remains scientifically unaccepted until CPU scoring succeeds.
+
+The repaired scorer uses explicit `validate_historical_identity` to
+cross-check the scored JSONL, offline catalog, frozen source manifest,
+run index, candidate path, GT path, measurement path and digest; it
+**rehashes** the measurement before comparing the eight reconstructions.
+It distinguishes the **generation head** (the already completed
+`314180b...` GPU commit) from the newer CPU scoring head.
+New regression tests verify that omission of the scored-row
+`measurement_sha256` is permitted **only when** the catalog identity
+and hash join passes. The repair runs in `CUDA_VISIBLE_DEVICES=""`,
+writes a new, auditable recovery receipt instead of modifying the
+original `REPLAY_GATE_FAILED` supervisor status, and publishes
+a return **only if all eight** historical PSNRs replay to within 0.1 dB
+and the R0.7 labels match exactly. Failed science is a STOP; no
+GPU rerun or XP K-scaling is automatically authorized.
