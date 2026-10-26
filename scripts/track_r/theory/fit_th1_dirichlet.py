@@ -112,7 +112,7 @@ def cross_given_theta(theta):
 def predict(C,rng,reps,Kgrid):
     a=fit(C)
     points={K:curves_conditional(C,a,K).mean(axis=0) for K in Kgrid}
-    boot={K:[] for K in Kgrid}; crosses=[]; n=len(C)
+    boot={K:[] for K in Kgrid}; crosses=[]; cross_parts_boot=[]; n=len(C)
     for _ in range(reps):
         ix=rng.integers(0,n,n)
         B=C[ix]; ab=fit(B)
@@ -120,6 +120,16 @@ def predict(C,rng,reps,Kgrid):
         latent/=latent.sum(axis=1,keepdims=True)
         for K in Kgrid: boot[K].append(curves_given_theta(latent,K).mean(axis=0))
         crosses.append(cross_given_theta(latent))
+        # For pooled curves, preserve independently bootstrapped stratum
+        # generation/miss terms, not just the nonlinear crossover index.
+        uu=latent[:,4]; ss=1-uu; bb=latent[:,2]+latent[:,3]
+        boot_components=[]
+        for kk in range(1,65):
+            no_passer=uu**kk
+            boot_components.append((float(np.mean(no_passer)),
+                  float(np.mean((1-no_passer)*np.divide(bb,ss,
+                  out=np.zeros_like(ss),where=ss>0)))))
+        cross_parts_boot.append(np.asarray(boot_components).T)
     bands={K:np.quantile(np.asarray(boot[K]),(.025,.975),axis=0) for K in Kgrid}
     crosses_finite=[v for v in crosses if v is not None]
     # Compute crossover from the SAME posterior-predictive beta moments
@@ -131,20 +141,24 @@ def predict(C,rng,reps,Kgrid):
     success_miss=posterior[:,2]+posterior[:,3]
     passing=total-u
     Kstar=None
+    cross_parts_point=[]
     for kk in range(1,65):
         # posterior E[u^K], not E[(1-u)^K]; Dirichlet pass proportions
         # are independent of the total passing mass.
         prob_no_passer=beta_zero(passing,total,kk)
         gen=float(np.mean(prob_no_passer))
         miss=float(np.mean((1-prob_no_passer)*success_miss/passing))
-        if miss>gen:
+        cross_parts_point.append((gen,miss))
+        if Kstar is None and miss>gen:
             Kstar=kk
-            break
     # Null upper if bootstrap includes no crossing by K=64.
     crosslo=(float(np.quantile(crosses_finite,.025)) if crosses_finite else None)
     crosshi=(float(np.quantile(crosses_finite,.975)) if len(crosses_finite)==len(crosses)
              else None)
-    return a,points,bands,(Kstar,crosslo,crosshi)
+    aux={"boot":{k:np.asarray(v) for k,v in boot.items()},
+         "cross_boot":np.asarray(cross_parts_boot),
+         "cross_point":np.asarray(cross_parts_point).T}
+    return a,points,bands,(Kstar,crosslo,crosshi),aux
 
 
 def main():
@@ -161,13 +175,45 @@ def main():
     preds=[];shape=[];cross=[];fits=[]
     for fam,Kgrid in KGRID.items():
         cohorts=("S5_180",) if fam=="FAST" else ("B22","DEV80","POOLED")
+        cached={}
         for cohort in cohorts:
-            C=(np.concatenate([groups[fam,"B22"],groups[fam,"DEV80"]])
-               if cohort=="POOLED" else groups[fam,cohort])
-            a,points,bands,(ks,kl,kh)=predict(C,rng,args.bootstrap,Kgrid)
-            fits.append({"family":fam,"cohort":cohort,"images":len(C),
-                         "alpha":a.tolist(),"class_totals":C.sum(axis=0).tolist()})
+            if cohort=="POOLED":
+                # Pooled = known 100:80 cohort mixture, NOT a falsely
+                # homogeneous Dirichlet fitted to both dissimilar strata.
+                wa,wb=100/180,80/180
+                A,B=cached["B22"],cached["DEV80"]
+                a=None
+                points={K:wa*A[1][K]+wb*B[1][K] for K in Kgrid}
+                bands={}
+                for K in Kgrid:
+                    joint=(wa*A[4]["boot"][K]+wb*B[4]["boot"][K])
+                    bands[K]=np.quantile(joint,(.025,.975),axis=0)
+                comp=wa*A[4]["cross_point"]+wb*B[4]["cross_point"]
+                ks=next((kk for kk in range(1,65) if comp[1,kk-1]>comp[0,kk-1]),None)
+                compboot=wa*A[4]["cross_boot"]+wb*B[4]["cross_boot"]
+                crossings=[next((kk for kk in range(1,65)
+                                if cb[1,kk-1]>cb[0,kk-1]),None)
+                           for cb in compboot]
+                finite=[v for v in crossings if v is not None]
+                kl=float(np.quantile(finite,.025)) if finite else None
+                kh=(float(np.quantile(finite,.975))
+                    if len(finite)==len(crossings) else None)
+                total_counts=(groups[fam,"B22"].sum(axis=0)+
+                              groups[fam,"DEV80"].sum(axis=0)).tolist()
+                fits.append({"family":fam,"cohort":cohort,"images":180,
+                             "alpha":None,"components":{"B22":100,"DEV80":80},
+                             "class_totals":total_counts})
+            else:
+                C=groups[fam,cohort]
+                result=predict(C,rng,args.bootstrap,Kgrid)
+                cached[cohort]=result
+                a,points,bands,(ks,kl,kh),aux=result
+                fits.append({"family":fam,"cohort":cohort,"images":len(C),
+                             "alpha":a.tolist(),"class_totals":C.sum(axis=0).tolist()})
             for K in Kgrid:
+                # Historical DEV80 DAPS K=4 is already calibrated; K=4
+                # is prospective only for the B22 DAPS stratum.
+                if fam=="DAPS" and cohort!="B22" and K==4: continue
                 lo,hi=bands[K]
                 for j,policy in enumerate(POLICIES):
                     preds.append({"family":fam,"dataset":"FFHQ","cohort":cohort,
@@ -180,7 +226,7 @@ def main():
             cross.append({"family":fam,"cohort":cohort,"K_star":ks,
                           "lo95":kl,"hi95":kh})
     obj={"version":"v1",
-         "model":"Five-type image-heterogeneous Dirichlet-multinomial empirical Bayes; ideal global-only orientation repair (tau_g=1,tau_p=h=0)",
+         "model":"Five-type image-heterogeneous Dirichlet-multinomial empirical Bayes per stratum; 100:80 stratified pooled mixture; ideal global-only orientation repair (tau_g=1,tau_p=h=0)",
          "fit_data":["A8 strings K<=4"],"fit_commit":args.fit_commit,
          "code_commit":args.code_commit,
          "uncertainty":"Seeded image-cluster bootstrap with refitting empirical Bayes concentrations and drawing latent per-image probabilities; extrapolation sensitivity to structural zeros and S1-S3 is not covered by bands.",
