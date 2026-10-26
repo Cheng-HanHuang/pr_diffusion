@@ -85,7 +85,10 @@ def beta_zero(a,t,K):
 
 def curves_conditional(C,a,K):
     B=C+a; t=B.sum(axis=1); p,og,op,c,u=B.T
-    surv=1-beta_zero(u,t,K)
+    # A passer exists iff at least one run is NOT in class u.
+    # beta_zero(a,t,K) returns E[(1-theta_a)^K]. To obtain E[u^K],
+    # take theta_a = s = 1-u, so a=t-u.
+    surv=1-beta_zero(t-u,t,K)
     return np.stack((surv*p/(t-u),surv*(p+og)/(t-u),
                      1-beta_zero(p,t,K),1-beta_zero(p+og+op,t,K)),axis=1)
 
@@ -129,8 +132,11 @@ def predict(C,rng,reps,Kgrid):
     passing=total-u
     Kstar=None
     for kk in range(1,65):
-        gen=float(np.mean(beta_zero(u,total,kk)))
-        miss=float(np.mean((1-beta_zero(u,total,kk))*success_miss/passing))
+        # posterior E[u^K], not E[(1-u)^K]; Dirichlet pass proportions
+        # are independent of the total passing mass.
+        prob_no_passer=beta_zero(passing,total,kk)
+        gen=float(np.mean(prob_no_passer))
+        miss=float(np.mean((1-prob_no_passer)*success_miss/passing))
         if miss>gen:
             Kstar=kk
             break
