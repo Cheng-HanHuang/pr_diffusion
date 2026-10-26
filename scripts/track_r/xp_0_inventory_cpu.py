@@ -8,12 +8,22 @@ BASE=ROOT/"outputs/pr_diffusion/track_r"
 CATALOG=BASE/"r0_7_cpu_20261023T080434Z/prepare/R0_7_OFFLINE_GT_CATALOG.json"
 BAD=("confirmation","confirm305")
 def safe(p,require_file=False):
+    """Permit read-only in-root aliases; fail closed on actual targets."""
     p=Path(p)
-    if any(t in str(p).lower() for t in BAD):raise RuntimeError("STOP_FORBIDDEN_PATH")
-    if p.is_symlink():raise RuntimeError("STOP_SYMLINK")
-    if require_file and not p.is_file():raise RuntimeError("STOP_MISSING "+str(p))
-    if p.exists() and any(t in str(p.resolve()).lower() for t in BAD):raise RuntimeError("STOP_REALPATH")
+    if any(t in str(p).lower() for t in BAD):
+        raise RuntimeError("STOP_FORBIDDEN_PATH")
+    # Do not enumerate the target of a symlink. Resolve once to check its
+    # destination before any file read or direct-path directory probe.
+    resolved=p.resolve(strict=False)
+    if any(t in str(resolved).lower() for t in BAD):
+        raise RuntimeError("STOP_REALPATH")
+    root=ROOT.resolve(strict=False)
+    if resolved != root and root not in resolved.parents:
+        raise RuntimeError("STOP_PATH_OUTSIDE_PAC_ROOT")
+    if require_file and not resolved.is_file():
+        raise RuntimeError("STOP_MISSING "+str(p))
     return p
+
 def sha(p):
     h=hashlib.sha256()
     with safe(p,True).open("rb") as f:
