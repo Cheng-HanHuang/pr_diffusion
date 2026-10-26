@@ -49,6 +49,10 @@ def main():
             fp=d/"XP_T_RECEIPT.json"
             if fp.is_file():
                 v=read(fp);lines.append("XP-T "+v.get("status","UNKNOWN"))
+    if not any(d.name.startswith("r0n2_") and (d/"B2_A8_RECEIPT.json").is_file() for d in directories):
+        action.append("A8 receipt missing")
+    if not any(d.name.startswith("xp_0_") and (d/"XP_0_INVENTORY.json").is_file() for d in directories):
+        action.append("XP-0 inventory missing")
     if not lines:lines.append("NO_XP_RECEIPTS")
     for s in lines[:16]:print(s)
     print("ACTION NEEDED: "+"; ".join(action[:2]) if action else "OK")
