@@ -102,7 +102,7 @@ def cross_given_theta(theta):
     for K in range(1,65):
         gen=np.mean(u**K)
         miss=np.mean((1-u**K)*np.divide(op+c,s,out=np.zeros_like(s),where=s>0))
-        if miss>=gen:return K
+        if miss>gen:return K   # strict overtake; a zero-zero tie is not a crossover
     return None
 
 
