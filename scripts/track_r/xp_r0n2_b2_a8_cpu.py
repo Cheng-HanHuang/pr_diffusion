@@ -45,7 +45,7 @@ def rows_jsonl(p):
 
 def category_lookup(meta,iid):
     ident=str(iid)
-    candidates=(ident,ident.zfill(5),Path(ident).stem,Path(ident).stem.zfill(5))
+    candidates=(str(int(Path(ident).stem)),ident,ident.zfill(5))
     for key in candidates:
         x=meta.get(key) if isinstance(meta,dict) else None
         if isinstance(x,dict):
@@ -125,7 +125,8 @@ def main(a):
         if choice not in ("000","111"):raise RuntimeError("STOP_N2_CHOICE")
         # Recorded N1d t=300,J=1,global2 corresponds to t index 3, draw j=0.
         choice2="111" if float(draws["111"][12])<float(draws["000"][12])-1e-7 else "000"
-        s_choice=min(sorted(prior["S"]),key=lambda x:prior["S"][x])
+        s_choice=min(sorted(prior["S"]),key=lambda x:float(prior["S"][x]))
+        s_choice="000" if float(prior["S"]["000"])-float(prior["S"][s_choice])<=1e-7 else s_choice
         if s_choice!=r["s_star"]:raise RuntimeError("STOP_PRIOR_REPLAY")
         key=(src,fam,iid)
         by_group[key].append((r,choice,choice2,s_choice))
