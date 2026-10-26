@@ -42,4 +42,6 @@ go() {
   echo "OK"
 }
 go
-echo "SITCOM_PREP_SCRIPT_RC=$?"
+RC=$?
+echo "SITCOM_PREP_SCRIPT_RC=$RC"
+exit "$RC"
