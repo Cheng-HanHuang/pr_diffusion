@@ -119,7 +119,21 @@ def predict(C,rng,reps,Kgrid):
         crosses.append(cross_given_theta(latent))
     bands={K:np.quantile(np.asarray(boot[K]),(.025,.975),axis=0) for K in Kgrid}
     crosses_finite=[v for v in crosses if v is not None]
-    Kstar=cross_given_theta((C+a)/(C+a).sum(axis=1,keepdims=True))
+    # Compute crossover from the SAME posterior-predictive beta moments
+    # that produced the point forecasts; posterior plug-in means are biased
+    # for nonlinear power functions when calibration n is only 2 or 4.
+    posterior=C+a
+    total=posterior.sum(axis=1)
+    u=posterior[:,4]
+    success_miss=posterior[:,2]+posterior[:,3]
+    passing=total-u
+    Kstar=None
+    for kk in range(1,65):
+        gen=float(np.mean(beta_zero(u,total,kk)))
+        miss=float(np.mean((1-beta_zero(u,total,kk))*success_miss/passing))
+        if miss>gen:
+            Kstar=kk
+            break
     # Null upper if bootstrap includes no crossing by K=64.
     crosslo=(float(np.quantile(crosses_finite,.025)) if crosses_finite else None)
     crosshi=(float(np.quantile(crosses_finite,.975)) if len(crosses_finite)==len(crosses)
