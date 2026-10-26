@@ -50,3 +50,30 @@ other B2 counters. Corrected in the next executor commit; tests for
 same-key aggregation and output integrity are added. **No A8 counts
 have yet been published**, and the theory executor should await a
 successful commit of `R0N2_PER_IMAGE_COUNTS.csv`.
+
+## M1 update — A8 accepted and published
+
+PAC reported 14/14 CPU tests passing, and the R0-N.2 B2/A8 run succeeded:
+`R0N2_B2_A8_CPU_PASS`, 760 source/family/image rows and 3,240
+historical candidates. Immutable label totals replay as
+2,040 GOOD / 85 ORBIT / 324 CONSISTENT / 791 INCONSISTENT.
+Committed and pushed on the XP branch at
+`83abf2614b30f8e02d63ca15886e6e23c3604187`, with
+`R0N2_PER_IMAGE_COUNTS.csv` SHA-256
+`197d0c8ea2aa47fa17dd379d518f647d7a47d89b3c614449fb106959b7bb45a6`
+and B2 membership report SHA-256
+`cec48fc01d99eebcb8983f84efd99400fdac8d8cb76aa98a8cbb928086a278da`.
+
+The theory executor can now read the pushed A8 data to fit its
+pre-registered FFHQ predictions; this publication is historical
+and does not violate the XP run-index embargo.
+
+The CPU-only XP-0 inventory completed:
+`XP_0_NEEDS_IMAGENET`, with 180 R0 FFHQ measurements checked for SHA
+equality and the exact 512-canvas pad=128 formula verified.
+No ImageNet inputs were present at the two inventoried paths.
+Next: import only the official DAPS 100-image ImageNet test archive
+(File ID `1pqVO-LYrRRL4bVxUidvy-Eb22edpuFCs`), validate every ZIP member
+before extraction, then repeat XP-0 against the new asset.
+The R0-N.2 A4.3 historical protocol ladder is also queued CPU-only,
+without any new inference.

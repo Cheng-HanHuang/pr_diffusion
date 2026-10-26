@@ -20,17 +20,35 @@ def main():
         if d.is_dir() and (d.name.startswith("xp_0_") or d.name.startswith("xp_t_")
                           or d.name.startswith("xp_controller_") or d.name.startswith("r0n2_"))),
         key=lambda d:d.name,reverse=True)[:8]
+    seen_inventory=False
+    seen_a8=False
+    seen_import=False
+    seen_ladder=False
     for d in directories:
         if any(t in str(d).lower() for t in BAD):raise RuntimeError("FORBIDDEN_PATH")
-        if d.name.startswith("xp_0_"):
+        if d.name.startswith("xp_0_imagenet_"):
+            receipt=d/"XP_IMAGENET100_IMPORT_RECEIPT.json"
+            if receipt.is_file() and not seen_import:
+                obj=read(receipt)
+                lines.append("ImageNet "+obj.get("status","UNKNOWN")+" n="+str(obj.get("image_count")))
+                seen_import=True
+        elif d.name.startswith("xp_0_"):
             fp=d/"XP_0_INVENTORY.json"
-            if fp.is_file():
+            if fp.is_file() and not seen_inventory:
+                seen_inventory=True
                 v=read(fp);lines.append("XP-0 "+v.get("status","UNKNOWN")+
                     " FFHQ="+str(v.get("ffhq_n"))+" IN="+str(v.get("imagenet_n")))
                 if v.get("status")!="XP_0_PASS":action.append("XP-0 missing ImageNet")
+        elif d.name.startswith("r0n2_a43_"):
+            fp=d/"R0N2_A43_COMPLETE.json"
+            if fp.is_file() and not seen_ladder:
+                seen_ladder=True
+                v=read(fp);lines.append("A4.3 "+v.get("status","UNKNOWN")+
+                    " strata="+str(v.get("n_strata")))
         elif d.name.startswith("r0n2_"):
             fp=d/"B2_A8_RECEIPT.json"
-            if fp.is_file():
+            if fp.is_file() and not seen_a8:
+                seen_a8=True
                 v=read(fp);lines.append("R0N2 "+v.get("status","UNKNOWN")+
                     " n="+str(v.get("n_candidates")))
         elif d.name.startswith("xp_controller_"):
@@ -49,9 +67,9 @@ def main():
             fp=d/"XP_T_RECEIPT.json"
             if fp.is_file():
                 v=read(fp);lines.append("XP-T "+v.get("status","UNKNOWN"))
-    if not any(d.name.startswith("r0n2_") and (d/"B2_A8_RECEIPT.json").is_file() for d in directories):
+    if not seen_a8:
         action.append("A8 receipt missing")
-    if not any(d.name.startswith("xp_0_") and (d/"XP_0_INVENTORY.json").is_file() for d in directories):
+    if not seen_inventory:
         action.append("XP-0 inventory missing")
     if not lines:lines.append("NO_XP_RECEIPTS")
     for s in lines[:16]:print(s)
