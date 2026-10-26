@@ -12,7 +12,7 @@
 - [Estimator/metric proofs](TH1_3_4_ESTIMATORS_AND_INFLATION.tex): exact U-statistic rank weights, pass@K with iid/subset-local/tie requirements, per-metric oracle envelope (standard tools; empirical protocol contribution).
 - [Literature/story bridge](TH1_TH2_LITERATURE_BRIDGE_20261026.md): the proposed scientific narrative combines (a) measurement quotient, (b) learned posterior and actual solver occupancy, and (c) GT-free selection bottlenecks. Underlying classical results are credited rather than rediscovered.
 - [TH2 toy](TH2_FOURIER_FIBER_FUNCTIONALS_20261026.md): two classical non-reversal real nonnegative zero-flip candidates have exactly equal magnitudes but potentially different frequencies under exact posterior sampling, conditional MAP, and anchor projection. The anchor-projection probability is `lambda Phi(d/(2sigma)) + (1-lambda)(1-Phi(d/(2sigma)))`. **PROVED** for a two-point fiber, **not** a native solver prediction.
-- [CPU bridge tests](../../../../scripts/track_r/theory/check_th1_theory_bridges.py): executed on CPU on synthetic numbers, passing 10,000 randomized monotone-gap checks, exact finite quotient-KL decomposition, TV inequalities, zero-flip Fourier equality and Gaussian residual-rank Monte Carlo.
+- [CPU bridge tests](../../../scripts/track_r/theory/check_th1_theory_bridges.py): executed on CPU on synthetic numbers, passing 10,000 randomized monotone-gap checks, exact finite quotient-KL decomposition, TV inequalities, zero-flip Fourier equality and Gaussian residual-rank Monte Carlo.
 
 ## Code-verification finding that merits planner attention
 
