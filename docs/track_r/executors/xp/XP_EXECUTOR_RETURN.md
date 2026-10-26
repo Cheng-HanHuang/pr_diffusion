@@ -441,3 +441,80 @@ reset the external SITCOM checkout or touch protected cohort paths.
 The worker sets a fresh Python bytecode cache prefix so it cannot
 load the ten changed tracked Python 3.8 .pyc files. The edited native
 `posterior_sample.py` CLI is never imported or executed.
+
+## XP-SITCOM replay gate: scientific PASS and timing CLEAN (PAC 2026-10-26)
+
+PAC returned the **final**, independently computed GPU and offline receipts for
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_sitcom_replay_20261026T223925Z`.
+The supervisor state is `PASS`, `reason=null`, `completed_roots=8`,
+`gpu_hours=0.10778908291249537`.
+`XP_SITCOM_REPLAY_GPU_SUMMARY.json` is
+`XP_SITCOM_REPLAY_GENERATION_PASS`, `n_roots=8`, median native
+sampling wall time **31.592317841015756 s**. GPU telemetry was **CLEAN**
+(48 samples, foreign PIDs `[]`, reasons `[]`, `timing_valid=true`).
+The five native generator groups completed:
+- B22: four runs in one seeded, post-model sequential RNG stream,
+  `XP_SITCOM_WORKER_PASS`, worker wall 114.73747853701934 s
+  (supervised group elapsed 153.11 s including wrapper/admission/observation overhead).
+- DEV80: four independent seeded native workers, each one candidate,
+  wall 31.76293940236792, 37.070267603732646,
+  33.42947893915698, 33.10923477308825 s
+  (supervised groups 51.05, 71.50, 61.35, 51.03 s).
+
+The fully separated CPU-only historical equivalence gate
+`XP_SITCOM_REPLAY_OFFLINE_SCORE.json` reports **`XP_SITCOM_REPLAY_PASS`**,
+`n_roots=8`, `n_label_match=8`, `n_exact_historical=8`,
+maximum |raw PSNR difference| **1.971301713865614e-06 dB**.
+All four B22 and four DEV80 candidates are exact (native B22
+float32 tensor hash equality, native DEV80 PNG SHA256 equality).
+B22 image 60140 run0 remains the originally observed
+`ORBIT_ERROR`; the other seven remain `GOOD`.
+No GT data reached generation; offline GT was used solely for scoring.
+Original candidate/measurement/receipt files were never overwritten.
+
+**Evidence SHA256 (verbatim PAC receipt values):**
+- frozen GT-free manifest: `82d38a2cadc47c8ad864e97809e9cea9baafd62c261fa26d50fc1d332d48d525`
+- GPU summary: `f96f534a820c6c1f59c6e8f63b5eebd91a3dda5b2aec299a6d18410563d816e2`
+- offline science: `d59c10a34b1b1986d6e78d86d125306f0b88862122123a20740d0941c6035d4f`
+The CPU publisher `xp_sitcom_replay_publish_cpu.py` validates exact hashes
+and success fields, including the 48-sample clean timing proof, then stages
+only the non-GT final receipts and their SHA-256 sidecar for publication. It
+is a separate operation from the already completed native replay.
+
+### Immediate execution priorities under frozen XP prereg v1.1
+
+1. **Close the SITCOM FFHQ exchangeability/replay gate:** PASS, exact 8/8.
+   No further SITCOM historical replay GPU work is needed.
+2. **XP-T:** native SITCOM on three FFHQ and three ImageNet images,
+   three new timing candidates per (family,dataset), using strictly
+   source-matched y. ImageNet uses pinned ImageNet checkpoint with the
+   FFHQ phase-retrieval settings: prereg A4 established the native
+   repository has no separate ImageNet PR hyperparameters.
+   **One GPU W=1 baseline is required for per-candidate timing**;
+   W={1,2,4} co-tenancy on *one GPU* (FAST and SITCOM, FFHQ) is a
+   separate prereg throughput comparison. Four physical GPUs are then
+   available for **data parallelism across independent tasks**.
+   Do not conflate those distinct experiments or claim that 4 devices
+   substitute for the W throughput study.
+3. **CRITICAL lane and data cuts:** prioritize Tier A XP-A16, XP-C,
+   XP-C2 and XP-D1 before Nov 2; then Tier B XP-B16, XP-D2,
+   XP-D3, XP-A64 and XP-F8 before Nov 6. The four-slot scheduler
+   admits CRITICAL work first; background work uses genuinely idle
+   slots and is never allowed to interrupt active jobs.
+4. **Freeze protection:** do not expose FFHQ K>=4 labels or image-level
+   outcome data to the prediction planner before the TH1 v1 freeze is
+   registered. For SITCOM B22 new runs use the same historical
+   post-model RNG stream, continuing sequential stream indices 4–15.
+   For DEV80 use independent native seeds, with collision checks
+   against the original four. The seven- or nine-root calibration
+   cases are not silently merged with historical K populations.
+5. **DAPS-4K:** do not substitute DAPS-1K. Published nonlinear PR
+   setting is 400 annealing × 10 diffusion, 100 Langevin steps per
+   iteration at the preregistered parameters; perform its own native
+   timing/replay gates before scaling.
+
+Reconstruction equivalence **does not itself certify timing
+comparability across all five historical and future execution modes**.
+The clean 8-root result establishes source-faithful replay and provides
+one measured SITCOM FFHQ reference. Dedicated XP-T W=1/W=2/W=4
+benchmarks are still required.
