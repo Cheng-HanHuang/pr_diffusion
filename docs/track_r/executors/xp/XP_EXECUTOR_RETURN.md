@@ -77,3 +77,43 @@ Next: import only the official DAPS 100-image ImageNet test archive
 before extraction, then repeat XP-0 against the new asset.
 The R0-N.2 A4.3 historical protocol ladder is also queued CPU-only,
 without any new inference.
+
+## M1 update: R0-N.2 A4.3 and ImageNet archive correction (2026-10-26)
+
+PAC returned 23/23 CPU unit tests passing and
+`R0N2_A43_CPU_PASS`: 14 strata and 224 aggregated policy-ladder rows.
+Ladder CSV SHA-256:
+`2797220bb489bba620392435480996b663901373081331937907b138e96d0115`.
+The four-file return is committed to the XP executor branch at
+`b4ca7fe65ca78ca664e92dc11582cb7ee4c0994a`, under
+`docs/track_r/executors/r0n/returns/R0N2_A43_20261026T193644Z/`.
+
+Historical cohort-wise anatomy from this frozen analysis, *not* new XP outcomes:
+- S1 B22 DAPS (100 images, K2): 95 selected repaired Good25, 5 generation failures;
+  SITCOM (100, K4): 94 selected Good25, 4 generation failures, 2 selection misses;
+  NP (100, K8): 95 selected Good25, 4 generation failures, 1 selection miss.
+- S2 DEV80 DAPS (80, K4): 68 selected Good25, 11 generation failures,
+  1 orientation miss; SITCOM: 58 selected Good25, 22 generation failures;
+  NP: 56 selected Good25, 23 generation failures, 1 selection miss.
+- R0 FAST pooled (180, K4): 155 selected Good25, 24 generation failures,
+  1 selection miss. These use the GT-free CLIP orientation selector on
+  the E0-residual chosen reconstruction and a GT-only label for analysis.
+
+**ImageNet source mismatch identified.** The official Google Drive archive
+for the DAPS `test-imagenet` images
+(`1pqVO-LYrRRL4bVxUidvy-Eb22edpuFCs`) was successfully downloaded
+once to
+`outputs/pr_diffusion/track_r/xp_imagenet_download_20261026T193644Z/test-imagenet.zip`.
+Its ZIP member audit found **1,000 ImageNet images**, although DAPS README
+describes a supplied subset of 100. The importer correctly refused its
+previous exact-100 assumption without extracting any images. The XP
+preregistration *already* specifies indices 0 through 99 of the files
+sorted in DAPS loader order; the subsequent guarded importer implements
+this first 100 of the 1,000, storing original archive SHA, total image
+count, canonical relative paths, selected file SHAs, and a manifest.
+The importer does **not** assert that this first-100 sample equals the
+published DAPS paper's exact evaluation sample; note the distinction when
+comparing reported publication PSNRs.
+
+No extra archive download, dataset-bundle FFHQ import, new GPU work, or
+time-aware experiment is authorized during this recovery.

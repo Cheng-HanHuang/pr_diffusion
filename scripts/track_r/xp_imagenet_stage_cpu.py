@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CPU-only import of the official DAPS 100-image ImageNet test archive.
+"""CPU-only import of the preregistered first 100 from DAPS ImageNet ZIP.
 
 Never open other dataset bundles or walk outside the passed ZIP and new target.
 Only image-file members of the approved ImageNet archive can be extracted.
@@ -50,6 +50,7 @@ def image_members(z):
     chosen = []
     total = 0
     names = set()
+    roots = set()
     for info in z.infolist():
         raw = info.filename.replace("\\", "/")
         if any(t in raw.lower() for t in BAD):
@@ -77,6 +78,10 @@ def image_members(z):
         if len(parts)>1 and not any("imagenet" in x.lower() for x in parts[:-1]):
             raise RuntimeError("STOP_ARCHIVE_UNEXPECTED_DATASET_ROOT")
         name = path.name
+        if len(parts)>1:
+            roots.add(parts[0])
+        else:
+            roots.add(".")
         if name in names:
             raise RuntimeError("STOP_ARCHIVE_DUPLICATE_BASENAME")
         names.add(name)
@@ -84,10 +89,29 @@ def image_members(z):
         if total > MAX_TOTAL_BYTES:
             raise RuntimeError("STOP_ARCHIVE_TOTAL_BYTES")
         chosen.append((info,name))
-    chosen.sort(key=lambda pair:pair[1])
-    if len(chosen)!=100:
-        raise RuntimeError("STOP_ARCHIVE_EXPECT_100_IMAGENET_GOT_"+str(len(chosen)))
-    return chosen
+    if len(roots)!=1:
+        raise RuntimeError("STOP_ARCHIVE_MULTIPLE_IMAGE_ROOTS")
+    # The official Google Drive archive contains 1,000 ImageNet entries even
+    # though the DAPS README refers to 100 test examples. Our prereg selects
+    # the first 100 in loader order: sorted(Path(root).rglob(ext))[0:100].
+    # This is not an assertion of identity with every published DAPS figure.
+    chosen.sort(key=lambda pair:PurePosixPath(pair[0].filename).parts)
+    if len(chosen) not in (100,1000):
+        raise RuntimeError("STOP_ARCHIVE_EXPECT_100_OR_1000_IMAGENET_GOT_"+str(len(chosen)))
+    all_members=list(chosen)
+    selection=all_members[:100]
+    if len(selection)!=100:
+        raise RuntimeError("STOP_IMAGENET_SELECTED_NOT_100")
+    return selection
+
+def image_relative_path(info):
+    """Retain in-dataset hierarchy so rglob sort reproduces ZIP-loader sort."""
+    parts=PurePosixPath(info.filename.replace(chr(92),"/")).parts
+    if len(parts)>1 and "imagenet" in parts[0].lower():
+        parts=parts[1:]
+    if not parts or any(x in (".","..","") for x in parts):
+        raise RuntimeError("STOP_ARCHIVE_RELATIVE_PATH")
+    return Path(*parts)
 
 def main(args):
     if os.environ.get("CUDA_VISIBLE_DEVICES")!="":
@@ -113,6 +137,9 @@ def main(args):
     if temporary.exists() or temporary.is_symlink():
         raise RuntimeError("STOP_STAGING_COLLISION")
     with zipfile.ZipFile(archive) as z:
+        archive_image_count=sum(
+            1 for info in z.infolist() if not info.is_dir()
+            and PurePosixPath(info.filename.replace("\\","/")).suffix.lower() in EXTENSIONS)
         # Validate ALL member names before decompressing a single ZIP member.
         # ZipFile.open checks CRC of each approved image as it is read.
         entries=image_members(z)
@@ -120,7 +147,8 @@ def main(args):
         manifest=[]
         from PIL import Image
         for i,(entry,name) in enumerate(entries):
-            dst=temporary/name
+            dst=temporary/image_relative_path(entry)
+            dst.parent.mkdir(parents=True,exist_ok=True)
             with z.open(entry,"r") as src, dst.open("xb") as sink:
                 h=hashlib.sha256()
                 while True:
@@ -130,20 +158,26 @@ def main(args):
                     sink.write(blob)
             with Image.open(dst) as im:
                 im.verify()
-            manifest.append({"index":i,"basename":name,"sha256":h.hexdigest(),
-                             "bytes":entry.file_size})
-    if len(list(temporary.iterdir()))!=100:
+            manifest.append({"index":i,"basename":name,"archive_member":entry.filename,
+                             "relative_path":str(image_relative_path(entry)),
+                             "sha256":h.hexdigest(),"bytes":entry.file_size})
+    if sum(1 for p in temporary.rglob("*") if p.is_file())!=100:
         raise RuntimeError("STOP_STAGE_IMAGE_COUNT")
     destination.parent.mkdir(parents=True,exist_ok=True)
     temporary.rename(destination)
     payload={"status":"XP_IMAGENET100_IMPORTED_PASS","source":"DAPS README test-imagenet",
              "google_drive_file_id":OFFICIAL_ID,
              "archive_sha256":digest(archive),"image_count":100,
+        "archive_image_count":archive_image_count,
+        "selection_rule":"sorted(Path(test-imagenet).rglob(image extensions)) indices 0..99",
+        "daps_readme_claim":"100 images; observed delivered ZIP has 1000; original publisher subset equivalence not asserted",
+        "selection_indices":[0,99],"excluded_image_count":archive_image_count-100,
              "head":head,"destination":str(destination),
              "images":manifest}
     (stage/"XP_IMAGENET100_IMPORT_RECEIPT.json").write_text(
         json.dumps(payload,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-    print("XP_IMAGENET100_IMPORTED_PASS n=100 archive_sha256="+payload["archive_sha256"])
+    print("XP_IMAGENET100_IMPORTED_PASS selected=100 archive_images="+str(archive_image_count)
+          +" archive_sha256="+payload["archive_sha256"])
     print("IMAGE_MANIFEST_SHA256="+digest(stage/"XP_IMAGENET100_IMPORT_RECEIPT.json"))
     print("OK")
 
