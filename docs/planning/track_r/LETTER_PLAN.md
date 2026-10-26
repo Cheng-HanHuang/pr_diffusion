@@ -1,5 +1,11 @@
 # Paper plan — a ground-truth-free audit of diffusion-prior phase retrieval
 
+> **2026-10-25: this file is now the FALLBACK plan** (EUSIPCO 2027 / SPL condensed version).
+>
+> The primary plan is the top-venue attempt: CVPR 2027, enrollment Nov 10, paper Nov 16, go/no-go Nov 8. See [`2026-10-25_TOP_VENUE_PLAN.md`](2026-10-25_TOP_VENUE_PLAN.md), with [`XP_PREREG_v1.md`](XP_PREREG_v1.md) and [`THEORY_PROGRAM_v1.md`](THEORY_PROGRAM_v1.md).
+>
+> **Headline correction:** GT-free selection recovers **89–97% of the orbit-oracle (O_orbit) gain**. The 93–129% figure below was measured against O_raw, which cannot change orientation (top-venue plan §2).
+
 **Status:** PLAN v1.3, 2026-10-24, planner Claude.
 - **v1.3** applies the K2 ruling (decision §10): CLIP zero-shot matches the diffusion prior on global orientation, so prior repair is no longer a contribution. The paper becomes an audit. SPL is replaced by EUSIPCO 2027 as the recommended venue.
   - **Late-morning addendum:** extension options X1–X6 are in [`2026-10-24_EXTENSION_OPTIONS.md`](2026-10-24_EXTENSION_OPTIONS.md). X1/X2 are CPU work, in R0-N.2 revision C. X3–X6 await pre-registration and Cheng's go.

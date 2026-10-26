@@ -1,4 +1,10 @@
-# R0-N amendment 2, revision C (planner, 2026-10-24): the R0-N.2 CPU block
+# R0-N amendment 2, revision D (planner, 2026-10-25): the R0-N.2 CPU block
+
+**Revision D (2026-10-25) is additive to revision C and makes R0-N.2 urgent**, because of the top-venue attempt (`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`).
+- **New §A8:** committable per-image label counts, which feed the theory executor's frozen predictions (TH1.5).
+- **New §A4.3 requirement:** report every ladder rung against **O_orbit** as well as O_raw. The recovered share must use O_orbit as the oracle.
+- **Return target: 2026-10-29.** Priority order: B2 (N1h) → A8 → A4.3 → A7 → A4.1–A4.2 → A3.
+- This block can run in parallel with XP-0 (CPU) from the XP handoff.
 
 **Revision C (2026-10-24 late morning) is additive to revision B.** It adds §A7, a planner observation export plus SSIM/LPIPS on CPU, for extensions X1/X2 in `docs/planning/track_r/2026-10-24_EXTENSION_OPTIONS.md`. Nothing in revision B changes. If R0-N.2 is already running, finish it and run §A7 as a small add-on in the same environment.
 
@@ -159,6 +165,31 @@ The planner needs this to put all four solvers on one compute axis (X3).
 - Read-only inputs. New output root `r0n2_obs_<UTCSTAMP>/`.
 - Stop if the LPIPS projection exceeds 2 CPU-hours. Then deliver everything except the LPIPS columns.
 
+## A8 — per-image label counts (required; revision D; **committed to git**)
+
+**Purpose.** The theory executor fits the selection model to per-image outcome counts. Counts are aggregates: no paths, no PSNR values, no images. They may be committed.
+
+**File.** `docs/track_r/executors/r0n/returns/R0N2_<UTCSTAMP>/R0N2_PER_IMAGE_COUNTS.csv`. One row per (image_id, cohort, source, family). Columns:
+
+| Column | Content |
+|---|---|
+| `n_runs` | Number of runs |
+| `n_GOOD` | GOOD runs |
+| `n_ORBIT_global`, `n_ORBIT_partial` | Orbit errors, global and partial |
+| `n_CONSISTENT`, `n_INCONSISTENT` | Non-orbit failures, by residual class |
+| `run_labels` | The labels in frozen run order, as a compact string such as `GGOCI…` (G = GOOD, O = ORBIT, C = CONSISTENT, I = INCONSISTENT) |
+| `e0_rank_labels` | The labels sorted by ascending ρ_signed, same alphabet |
+| `clip_fix_ok` | For ORBIT runs only: did the frozen N2 CLIP decision fix it? Encoded 1/0 in run order, empty for other runs |
+| `ffhq_category` | From B2 |
+
+`e0_rank_labels` lets the theory executor test assumptions S1/S2 without any per-run residual values.
+
+**Data-rule note.** The label strings are derived from GT per run, but contain no paths, metric values or images. The planner judges them compatible with the "no per-run GT records" rule. **If Cheng vetoes**, commit only the count columns, and put `run_labels`, `e0_rank_labels` and `clip_fix_ok` in the A7 planner ZIP.
+
+**Checks.**
+- The row sums reproduce the K3 totals: 2,040 / 85 / 324 / 791.
+- `run_labels` reproduces N1b's maximal-K decomposition.
+
 ## Not authorized here
 
 - Any new inference: CLIP, UNet or UnivFD. The only exception is the A7 LPIPS evaluation metric, on CPU.
@@ -171,6 +202,6 @@ The planner needs this to put all four solvers on one compute axis (X3).
 
 1. **Status for Cheng** — at most 8 lines.
 2. **Identity** — branch, SHAs and interpreter.
-3. **Sections:** B2 (N1h), A4.3 (ladder, with E1_CLIP), A4.4, A4.1–A4.2 (crosswalk), A3, A7 (the ZIP's SHA-256 and a row and column count; the ZIP itself goes to Cheng for the planner).
+3. **Sections:** B2 (N1h), A8 (per-image counts: path and SHA), A4.3 (ladder, with E1_CLIP; both O_raw and O_orbit), A4.4, A4.1–A4.2 (crosswalk), A3, A7 (the ZIP's SHA-256 and a row and column count; the ZIP itself goes to Cheng for the planner).
 4. **Anomalies.**
 5. **Artifacts** — PAC root, committed CSV/JSON files and SHA256SUMS.

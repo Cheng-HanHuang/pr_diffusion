@@ -1,62 +1,67 @@
 # Track R — start here
 
-**Updated:** 2026-10-24 by the planner (Claude).
-- After concurrent work PC-DAPS (arXiv 2610.31592): see the positioning note (document 2 below).
-- After the N2 CLIP result: K2 triggered, so the paper is now an audit (decision §10, LETTER_PLAN v1.3).
+**Updated:** 2026-10-25 by the planner (Claude).
+- After PC-DAPS (arXiv 2610.31592): see the positioning note (document 3).
+- After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
+- **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
 
 **Track R** is reliability per compute for diffusion-prior Fourier phase retrieval.
 
 **Status:**
-- R0 and R0-N are complete.
-- The method-paper line is **stopped**: no R1, no R2.
+- R0 and R0-N are complete. The method-paper line is **stopped**: no R1, no R2.
 - K2 removed diffusion-prior orientation repair as a contribution.
-- The remaining deliverable is one short **audit paper**, recommended for EUSIPCO 2027.
-- After that, the project winds down.
+- **The deliverable is an audit paper with a selection theory.**
+  - Attempt: CVPR 2027 (enrollment Nov 10, paper Nov 16, planner go/no-go Nov 8).
+  - Fallbacks: SPL, or EUSIPCO 2027 (Feb 6).
+- After that, the project winds down, except a possible separate TH2 theory study.
 
 **Relation to earlier tracks:** Track R superseded the parked Track A (NP method paper). Track B is paused.
 
 **Roles:**
 - Planner: Claude.
-- Executor: a GPT/Codex session chosen by Cheng (no PAC access).
+- PAC-side executor: a GPT/Codex session (no PAC access itself).
+- **Theory executor:** a separate chat or agent (no PAC).
 - PAC operator: Cheng.
 
-## Current stage
+## Current stages
 
-**R0-N.2 — last CPU block for the audit paper** (amendment 2, revision B):
-- N1h (membership lookup);
-- the protocol ladder with mean-of-K and E1_CLIP;
-- the PC-DAPS-label crosswalk;
-- stored decisions only, no new inference.
-
-**Status:** authorized (decision §10, 2026-10-24). Return by 2026-11-07.
+| Stage | What | Status |
+|---|---|---|
+| **R0-N.2** | Amendment 2 **revision D**, CPU: N1h → **A8 per-image counts** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
+| **XP** | `XP_PREREG_v1.md`: XP-0/T inventory and timing; XP-A FAST K → 16; XP-C orientation tests on ImageNet and FFHQ ground truth; XP-D ImageNet audit; XP-B optional SITCOM K → 16; XP-E optional bridge | **FROZEN v1 — awaiting Cheng's "GO XP"** (CPU prep may start) |
+| **TH1** | Selection theory for the paper; predictions frozen by **Oct 31**; note due Nov 6 | **AUTHORIZED** (theory executor) |
+| **TH2** | Inner-functional theory (feasibility memo due Nov 13) | AUTHORIZED (memo only) |
 
 ## Documents (read in this order)
 
-1. **R0 decision** — results, gate rulings, the plan from here, publication image: [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
-2. **PC-DAPS positioning (2026-10-24)** — full read, crosswalk, the gap; read its K2 update box first: [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
-3. **Paper plan (v1.3, audit):** [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md). Extension options X1–X6: [`docs/planning/track_r/2026-10-24_EXTENSION_OPTIONS.md`](../planning/track_r/2026-10-24_EXTENSION_OPTIONS.md)
-4. **R0-N executor handoff:** [`docs/track_r/executors/r0n/00_EXECUTOR_HANDOFF.md`](executors/r0n/00_EXECUTOR_HANDOFF.md), with config `configs/track_r/r0n_letter_analysis_v1.json` (FROZEN v1) and amendments 1–2
-5. **R0 record:**
-   - executor return on `codex/prdiff-track-r-r0-20261021`: `docs/track_r/executors/r0/R0_FROZEN_COMPLETE_SCIENTIFIC_RETURN_TO_PLANNER_20261023.md`;
+1. **Top-venue plan (2026-10-25):** [`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`](../planning/track_r/2026-10-25_TOP_VENUE_PLAN.md)
+2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1.md`](../planning/track_r/XP_PREREG_v1.md), with handoff [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
+3. **Theory:** [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md), with handoff [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md)
+4. **R0 decision and rulings** (§§1–10; §10 is K2): [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
+5. **PC-DAPS positioning** (read its K2 update box first): [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
+6. **Fallback paper plan** (EUSIPCO/SPL condensed): [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md). Extension options: [`2026-10-24_EXTENSION_OPTIONS.md`](../planning/track_r/2026-10-24_EXTENSION_OPTIONS.md)
+7. **R0-N executor handoff and amendments 1–2:** [`executors/r0n/00_EXECUTOR_HANDOFF.md`](executors/r0n/00_EXECUTOR_HANDOFF.md)
+8. **R0 record:**
+   - executor return on `codex/prdiff-track-r-r0-20261021`;
    - R0 spec [`docs/planning/track_r/R0_EXPERIMENT_SPEC.md`](../planning/track_r/R0_EXPERIMENT_SPEC.md);
-   - R0 handoff [`docs/track_r/executors/r0/00_EXECUTOR_HANDOFF.md`](executors/r0/00_EXECUTOR_HANDOFF.md).
-6. **Background:**
-   - roadmap (historical as of 2026-10-21) [`docs/planning/track_r/2026-10-21_TRACK_R_PLANNER_ROADMAP.md`](../planning/track_r/2026-10-21_TRACK_R_PLANNER_ROADMAP.md);
-   - literature basis [`docs/planning/track_r/2026-10-21_LITERATURE_BASIS.md`](../planning/track_r/2026-10-21_LITERATURE_BASIS.md).
+   - R0 handoff [`executors/r0/00_EXECUTOR_HANDOFF.md`](executors/r0/00_EXECUTOR_HANDOFF.md).
+9. **Background:**
+   - roadmap (historical) [`2026-10-21_TRACK_R_PLANNER_ROADMAP.md`](../planning/track_r/2026-10-21_TRACK_R_PLANNER_ROADMAP.md);
+   - literature basis [`2026-10-21_LITERATURE_BASIS.md`](../planning/track_r/2026-10-21_LITERATURE_BASIS.md).
 
 ## Stage ledger
 
 | Stage | Content | Status | Who |
 |---|---|---|---|
-| R0.0–R0.8 | Inventory, environment, G0/G1, scoring of 2,520 historical candidates, 720 new FAST roots and their scoring, frozen analysis, independent audit (3.43 GPU-hours) | COMPLETE, accepted | executor and Cheng |
-| R0-D | R0 decision | COMPLETE (2026-10-23) | planner |
-| R0-N | Letter evidence package: N0 tables, N1 analyses, N2 CLIP baseline, N3 ImageNet inventory | COMPLETE, accepted 2026-10-24 (N1 `5af47db`; N2 recovery `33a34bd`). K1 not triggered, **K2 TRIGGERED**, K3 PASS | executor writes, Cheng runs |
-| R0-N.2 | One CPU block (amendment 2, revision C): N1h; protocol ladder with mean-of-K and E1_CLIP (required); PC-DAPS-label crosswalk (recommended); A3 identities (optional); **A7 observation export with SSIM/LPIPS** (recommended, for X1/X2) | NEXT (return by 2026-11-07) | executor writes, Cheng runs |
-| X3–X6 | GPU extensions: FAST K-scaling, ImageNet, PC-DAPS, operator robustness | OPTIONS — need a planner pre-registration and Cheng's go (decision by 2026-11-07) | — |
-| N4 | Clean-image orientation probe | WITHDRAWN (K2) | — |
-| Paper | GT-free audit of diffusion PR (LETTER_PLAN v1.3). Recommended venue EUSIPCO 2027 (deadline 2027-02-06, to verify); draft submission-ready by 2026-12-11 | drafting | planner drafts, Cheng and coauthors edit |
+| R0.0–R0.8 | Inventory → frozen analysis and audit (3.43 GPU-hours) | COMPLETE, accepted | executor and Cheng |
+| R0-N | N0 tables, N1 analyses, N2 CLIP baseline, N3 inventory | COMPLETE, accepted (N1 `5af47db`; N2 `33a34bd`). K1 not triggered, **K2 TRIGGERED**, K3 PASS | executor and Cheng |
+| R0-N.2 | Amendment 2 revision D (CPU) | NEXT, urgent (Oct 29) | executor and Cheng |
+| XP | `XP_PREREG_v1` (GPU, ≤ 45 GPU-hours) | FROZEN, awaiting GO | executor and Cheng |
+| TH1 / TH2 | Theory program v1 | AUTHORIZED | theory executor |
+| Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback | drafting from Oct 27 | planner drafts, Cheng and coauthors edit |
+| N4; X5/X6 | Clean-image probe (withdrawn); PC-DAPS audit and operator robustness (deferred to a journal version) | — | — |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |
-| T1 | Theory note on per-step hard selection (√h drift) | parked | planner (desk only) |
+| T1 | √h hard-selection theory | parked | — |
 
 ## Branches
 
@@ -64,10 +69,12 @@
 |---|---|
 | Planner | `claude/prdiff-track-r-planner-20261021` |
 | Executor, R0 (finished) | `codex/prdiff-track-r-r0-20261021` @ `c8eb608` |
-| Executor, R0-N | `codex/prdiff-track-r-r0n-<YYYYMMDD>`, created from `c8eb608` and merged with the planner branch |
-| Historical, read-only | Track A parked: `docs/planning/track_a/TRACK_A_PARKED_README_2026-10-21.md`. Track B TB0 STOP: `docs/track_b/executors/tb0-homometric-bridge/TB0_STOP_REPORT.md`. |
+| Executor, R0-N / R0-N.2 | `codex/prdiff-track-r-r0n-20261023` (N2 return @ `33a34bd`) |
+| Executor, XP | `codex/prdiff-track-r-xp-<YYYYMMDD>`, from `33a34bd`, merged with the planner branch |
+| Theory executor | `theory/prdiff-track-r-th-<YYYYMMDD>`, from the planner branch; writes only `docs/track_r/theory/` and `scripts/track_r/theory/` |
+| Historical, read-only | Track A parked; Track B TB0 STOP |
 
-## PAC namespaces (verified in R0.0; see `configs/track_r/pac_paths_track_r_verified.json` on the executor branch)
+## PAC namespaces (verified in R0.0)
 
 | Item | Path |
 |---|---|
@@ -80,7 +87,7 @@
 
 ## Governance (unchanged)
 
-- No agent launches GPU jobs.
+- No agent launches GPU jobs; Cheng runs every PAC block.
 - Runs only from pushed, clean commits.
 - Historical outputs are read-only; nothing is overwritten.
 - Bounded inventory only; no recursive scans of large trees.
