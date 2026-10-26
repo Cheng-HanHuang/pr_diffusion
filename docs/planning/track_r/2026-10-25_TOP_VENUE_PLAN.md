@@ -13,7 +13,7 @@
 > **XP v1.1 in one line.**
 > - **Tier A, by Nov 2:** FAST FFHQ n = 16; XP-C; the XP-C2 equivariance defect; FAST ImageNet n = 16.
 > - **Tier B, by Nov 6:** FAST FFHQ n = 64; SITCOM FFHQ n = 16 on all 180 ids; DAPS ImageNet n = 4 on all 100 (the published DAPS-1K command); SITCOM ImageNet n = 4; DAPS FFHQ n = 8.
-> - **Tier C, by Nov 20, for the supplement:** SITCOM n = 32; DPS; PC-DAPS on the same ids; noise robustness; FAST ImageNet n = 64; XP-E (still gated on your confirmation).
+> - **Tier C, by Nov 20, for the supplement:** SITCOM n = 32; DPS; PC-DAPS on the same ids; noise robustness; FAST ImageNet n = 64. XP-E was later cancelled; see the second update below.
 >
 > **Theory v1.1, from the full reads** (`2026-10-26_THEORY_LIT_DIGEST.md`):
 > - **Our E0 formula is Stroebl et al.'s App. C model.** Argmin equals accept-first in law under S1–S2. We credit them. The novelty is the exact symmetry, the estimators and the frozen out-of-sample predictions.
@@ -35,6 +35,33 @@
 > **Papers.**
 > - The file labeled "TGD" was TDS (Wu et al. 2023). TGD (arXiv 2605.03712) is still missing, and a direct fetch was not permitted.
 > - Received and read in full: Stroebl et al.; Dandapanthula & Boffi; TDS.
+>
+> **Second update, 2026-10-26 (03:00).**
+> - **XP-E is cancelled.** Cheng's audit found that DAPS `test-ffhq` shares one id with the locked holdout. A new hard rule bans loading any bundled FFHQ set (prereg amendment A1). The FFHQ bridge to published settings remains through S5 (FAST), XP-H (DPS) and the conditional XP-E′ (DAPS-1K on our 180 ids).
+> - **TGD is now read in full** (digest §4). Facts for the novelty map:
+>   - its App. F.4 remark on DAPS's per-metric oracle is verbatim and verified;
+>   - residual-selected DAPS best-of-4 reaches **31.40 ± 2.38 dB at about 17 s/img on FFHQ PR**, beating A-TGD (its Table 4);
+>   - A-TGD for phase retrieval *is* an early-pruned, residual-selected best-of-4 (λ ≡ 1, no resampling).
+>
+>   So "residual selection is a strong GT-free baseline" is **TGD's empirical point, not ours.** We add:
+>   - the theory that residual and likelihood selection (including SMC weights and pruning) is **G-blind** (Cor. 1, 1′);
+>   - an orientation step;
+>   - a cross-solver decomposition;
+>   - K-scaling against frozen predictions;
+>   - the anatomy.
+> - **Research pass** (digest §5):
+>   - our canvas violates the classical uniqueness hypothesis, so we assume orbit identifiability and add a 512-canvas control (XP-G2);
+>   - **coherent diffraction imaging already selects multi-start runs by Fourier error** (GHIO 2007; Chapman et al. 2006), so E0 has precedents we must cite;
+>   - a weak-assumption theorem is now in scope: Cor. 4(b), a TV bound on orientation preference by the network's equivariance defect.
+>
+> **Novelty map, revised:**
+>
+> | Point | Already taken | What remains ours |
+> |---|---|---|
+> | GT best-of-k misleads | PC-DAPS (qualitative); TGD F.4 (per-metric oracle remark) | The measured decomposition across 4–6 solvers × 2 datasets × 3 metrics |
+> | Residual-selected best-of-K | TGD (DAPS; matched wall-clock); CDI multi-start practice | G-blindness theory (Cor. 1, 1′); orientation step; K to 64 with frozen predictions |
+> | 8-fold orbit | DAPS App. I.2 (to verify); classical trivial associates | Prop. 1 and Cor. 4/4(b) (equivariance mechanism, measured defect) |
+> | Imperfect-verifier model | Stroebl et al. | Orbit classes, exact estimators, out-of-sample test, monotone gap |
 
 **Trigger.** Cheng (2026-10-25 23:17) asked to:
 - aim higher than EUSIPCO (SPL or CVPR), keeping EUSIPCO as the fallback;
@@ -206,7 +233,7 @@ If any is missing, switch to SPL, targeting ≈ Dec 10. The same draft is conden
 | XP-C | Orientation tests on 100 ImageNet GT images: CLIP generic and ensemble prompts vs ImageNet prior vs UnivFD | Minutes | Required |
 | XP-D | ImageNet audit (the field's 100-image test set): FAST K=8 (all), SITCOM K=4 (all), DAPS K=4 (25 images) | ≈20–30 GPU-h, parallel over GPUs | FAST required; SITCOM/DAPS best effort by Nov 6 |
 | XP-B | SITCOM K-scaling (K → 16) on 60 FFHQ ids: tests the model's predicted SITCOM ceiling | ≈14 GPU-h | Optional, by Nov 6 |
-| XP-E | FAST K=4 on the field's `test-ffhq` set, as a bridge to published numbers | ≈0.4 GPU-h | Optional; **only if Cheng confirms these ids are disjoint from confirmation305** (agents must not check) |
+| XP-E | FAST K=4 on the field's `test-ffhq` set, as a bridge to published numbers | ≈0.4 GPU-h | **Cancelled 2026-10-26:** not disjoint from the holdout (one shared id) |
 
 The total cap is 45 GPU-hours. All of it is evaluation only, with no new method.
 
@@ -253,7 +280,7 @@ The total cap is 45 GPU-hours. All of it is evaluation only, with no new method.
 | 1 | GO for XP GPU stage (≤ 45 GPU-h, evaluation only) | **No GPU until "GO"** |
 | 2 | CVPR attempt with the Nov 8 go/no-go, or SPL directly | CVPR attempt |
 | 3 | Start the theory executor on TH1 now | Yes |
-| 4 | XP-E: confirm that DAPS `test-ffhq` ids are not in confirmation305 (you check; agents do not) | Skip XP-E |
+| 4 | XP-E: confirm that DAPS `test-ffhq` ids are not in confirmation305 (you check; agents do not) | Skip XP-E. **Resolved 2026-10-26: not disjoint, XP-E cancelled** |
 | 5 | Title A or B | A |
 
 ## 10. Papers to attach, if you can (only abstracts or excerpts read so far; in priority order)

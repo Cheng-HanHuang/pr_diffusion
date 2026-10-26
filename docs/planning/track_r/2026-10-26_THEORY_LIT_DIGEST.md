@@ -7,7 +7,9 @@
 2. Dandapanthula & Boffi, *Are we really tilting? The mechanics of reward guidance in flow and diffusion models*, arXiv 2606.02884v1 (1 Jun 2026): §§1–6 and App. C.10.
 3. Wu, Trippe, Naesseth, Blei, Cunningham, *Practical and Asymptotically Exact Conditional Sampling in Diffusion Models* (TDS), NeurIPS 2023: §§1–4 and App. A.5.
 
-**Still missing:** Makris, Fearnhead, Nemeth, *Tempered Guided Diffusion* (TGD), arXiv 2605.03712. The file Cheng labeled "TGD" was TDS. What we know of TGD (App. F.4 notes the per-metric oracle; residual-selected DAPS at matched wall-clock) comes from earlier excerpts, not a full read.
+**Added later on 2026-10-26:**
+- **§4:** TGD (Makris, Fearnhead, Nemeth, *Tempered Guided Diffusion*, arXiv 2605.03712v1, 5 May 2026), read in full by the planner (main text and Apps. A–G), from the PDF Cheng attached.
+- **§5:** the condensed findings of the research pass "Phase-retrieval theory by assumption strength". These are **not** planner-verified unless marked; verify before citing.
 
 ---
 
@@ -89,7 +91,80 @@
 - **(D11) Why practical samplers are far from exact here.** At σ = 0.05 and m = 3·384², the likelihood is extremely concentrated. Conditions (b) and (c) hold only with astronomically large bounds, and the KL in the particle requirement is huge. This is context for the paper (exact SMC is not a practical fix), not a theorem we prove.
 - **(D12) S2 as an expectation statement** (TH2 P-b). Suppose decoys are exact preimages, A(ν) = A(x★), each mode is locally Gaussian, and the likelihood dominates the measurement-sensitive directions. Then a posterior sample's residual has the same law in every mode **on average over the measurement noise**, while for a fixed y each mode gets a mode-specific offset. Between GOOD and ORBIT, S2 holds **exactly** for an equivariant sampler, because ρ is G-invariant. Decoys that are only approximately consistent (‖A(ν) − A(x★)‖ ≈ δ) break S2 in a known direction, toward GOOD, with a_GC increasing in δ/σ.
 
-## 4. Lineage to cite (the executor checks each before citing)
+## 4. TGD: annealed SMC over clean-space posteriors
+
+### Verified (main text and appendices)
+
+- **Targets.** π_r(x₀) ∝ p(x₀) p(y | x₀)^{λ_r} with 0 ≤ λ_R ≤ … ≤ λ₀ = 1. Noisy diffusion states are auxiliary variables only.
+- **Each stage** reconstructs (DPS-, MPGD- or DAPS-style module), reweights by p(y | x₀)^{λ_{r−1}−λ_r}, optionally resamples, and re-noises (Alg. 1).
+- **Theorem 3.1 / B.1** (consistency of ideal TGD). Assume:
+  - λ_R = 0, with initial particles i.i.d. from the noisy prior;
+  - **exact** stagewise reconstruction kernels;
+  - bounded incremental potentials G_r = p(y | x₀)^{λ_{r−1}−λ_r} with π_r(G_r) > 0;
+  - consistent resampling.
+
+  Then the weighted particles converge weakly in probability to p(x₀ | y) as N → ∞. The theorem does not cover practical modules or the A-TGD pruning.
+- **A-TGD** (Alg. 2). Run N particles for a fraction ρ of the outer stages, then keep i* = argmax_i p(y | x̂₀^{(i)}) (F.6: equivalently the smallest ‖A(x̂₀) − y‖²) and finish that single trajectory.
+- **Phase-retrieval configuration** (Table 2, F.9): DAPS module, **λ_r ≡ 1 (no annealing), never resample**, N = 4, ρ = 0.5 (FFHQ) and 0.8 (ImageNet). With λ_r ≡ 1 the weights are constant (App. D), so **A-TGD for PR is "run four DAPS trajectories partway, keep the lowest-residual one, finish it"**: an early-pruned, residual-selected best-of-4.
+- **App. D.** With λ_r ≡ 1 and no resampling, TGD reduces exactly to DAPS. N > 1 independent trajectories is "best-of-N baselines, which run several independent trajectories and select the final reconstruction using a data-consistency score".
+- **Operator (F.3).** y ~ N(|FP(0.5x₀ + 0.5)|, σ²I), oversampling k = 2 and n = 8 (pad 64), σ = 0.05. **The same as ours.**
+- **F.4, verbatim:** "All image inverse-problem generation and evaluation protocols follow DAPS [55], except that DAPS reports oracle best-of-N scores using the trajectory with the best LPIPS, PSNR, or SSIM against the ground truth, whereas we select the trajectory with the lowest measurement error. Since the ground-truth image is unavailable in practical inverse problems, oracle LPIPS/PSNR/SSIM selection is not possible at test time, while measurement-error selection depends only on the observation."
+- **F.8.** Hyperparameters were tuned on 5 images disjoint from the 100-image validation set.
+- **Matched wall-clock** (Tables 1 and 3). Batched on one H200; time per image = total time / 100. Mean ± s.d. over 100 images:
+  - **FFHQ PR, ≈ 4.3 s/img:** A-TGD 29.43 ± 4.07 dB; DAPS N = 1 26.98 ± 8.35; DAPS N = 4 (residual-selected) 27.81 ± 5.12; DPS 12.65 ± 2.42.
+  - **ImageNet PR, ≈ 345–357 s/img:** A-TGD 22.18 ± 8.75; DAPS N = 1 19.42 ± 9.31; DAPS N = 4 22.41 ± 9.26; DPS 12.58 ± 2.48.
+- **Table 4, FFHQ PR sweep.** At ≈ 17 s/img:
+  - **residual-selected DAPS N = 4: 31.40 ± 2.38 dB, LPIPS 0.135**;
+  - A-TGD 30.63 ± 4.60, LPIPS 0.152;
+  - DAPS N = 1 27.52 ± 8.68, LPIPS 0.225.
+- **Table 5** (A-TGD particle ablation, PR, MPGD module): N = 1 gives 22.26 ± 7.61, N = 4 26.38 ± 5.63, N = 16 27.24 ± 4.85. Returns diminish.
+- **§6:** pruning "can discard a good trajectory and increase variance, especially in challenging phase retrieval settings".
+- **Fig. 9 (planner's visual reading only; the authors do not say this):** several ImageNet PR outputs at 7–9 dB look like orientation errors.
+
+### Transfer
+
+- **(D13) Likelihood weights and residual pruning are G-blind.** SMC weights built from p(y | x₀) are G-invariant, and so is residual-based pruning (TDS, TGD, A-TGD). They cannot correct orientation; only the proposals, i.e. the prior, can. This is TH1.1 Cor. 1′. It also explains why PC-DAPS prunes by *prior* consistency.
+- **(D14) A-TGD is selection on an intermediate residual:** a cheaper, noisier verifier. In TH1.2 terms, the orbit class stays verifier-indistinguishable at every ρ.
+- **(D15) External support** (not ours to claim):
+  - residual-selected best-of-4 is a strong GT-free baseline on FFHQ PR (s.d. 8.68 → 2.38 dB at matched 17 s/img);
+  - on ImageNet the s.d. stays ≈ 9 dB after residual selection. This is consistent with frequent G-blind (orientation) failures, which XP-D tests directly.
+
+## 5. Research pass of 2026-10-26: phase-retrieval theory by assumption strength (condensed)
+
+Labels: **[V]** = verified by the planner; **[R]** = from the research report only, so verify before citing.
+
+- **Identifiability gap [R; arithmetic checked by the planner].**
+  - Hayes-type generic uniqueness (Hayes 1982; Bruck & Sodin 1979) assumes the support is at most half the DFT grid per axis. Ours is 256 of 384 = 2/3, and the autocorrelation width 511 exceeds 384, so it aliases. **The classical theorem does not cover our operator.**
+  - Per channel there are about 384²/2 ≈ 73.7k independent magnitudes (Hermitian symmetry) for 65.5k unknowns, a ratio of ≈ 1.125.
+  - The Miao–Sayre–Chapman oversampling heuristic (total ratio 2.25 ≥ 2) is a heuristic, not a theorem.
+  - **Consequence for TH1:** state orbit identifiability as an assumption, or work modulo an ambiguity set Amb(x★) ⊇ G·x★. XP-G2 (512 canvas, which satisfies the hypothesis) is the empirical control.
+- **Noise scale [V].** The R0 operator uses `fftn(norm="ortho")` (R0 spec line 59). By Parseval, per-channel signal energy is ≈ 65.5k × E[z²] ≈ 1.6×10⁴, against noise energy ≈ 147k × σ² ≈ 3.7×10², with the signal concentrated at low frequencies. So **σ = 0.05 is comparable to or larger than the signal at most high frequencies.** The CONSISTENT class can be noise-sized slack as well as near-ambiguity.
+- **Barnett, Epstein, Greengard, Magland 2020** (*Inverse Problems* 36; arXiv 1808.10747) [R]:
+  - the local inverse is Lipschitz iff the magnitude torus meets the support subspace transversally; otherwise it is at best Hölder of order α < 1, "often α ≤ 1/2";
+  - images convolved with inversion-symmetric kernels inherit non-transversality.
+  - **Use:** a deterministic explanation of why consistent-but-wrong images exist at distance ~ε^α. It is an explanation, not a rate; their hypotheses do not match our canvas exactly.
+- **Twin stagnation [R].** Fienup & Wackerman 1986 (*JOSA A* 3:1897) and Guizar-Sicairos & Fienup 2012 (*JOSA A* 29:2367): iterative algorithms stagnate in simultaneous-twin states. This is the source of XP's exploratory mixed-twin anatomy.
+- **Exact 1-D decoys [R].** In 1-D, the non-trivial ambiguities are exactly the zero-flips of the z-transform, up to 2^{N−1} signals with identical magnitudes (Beinert & Plonka 2015; Edidin 2019). These give **exact (δ = 0) measurement-identical decoys** for TH2 (P-b).
+- **Ready-made toys:**
+  - TGD's 2-D |x| toy [V; App. F.1]: a 5-component GMM prior, τ = 0.005, y = |x₀| + ε with noise 0.01, exact posterior samples via separability;
+  - Dandapanthula & Boffi's symmetric GMM [V];
+  - Burns & Fridovich-Keil's finite-sample (empirical) prior as an exact-posterior oracle [R].
+- **Equivariance propagation [R; quote to verify].** Hoogeboom et al. 2022 (EDM, arXiv 2203.17003): "if the transition distributions p(z_{t−1} | z_t) are equivariant and p(z_T) is invariant, then every marginal distribution p(z_t) is invariant". Also Xu et al. 2022 (GeoDiff) and Köhler et al. 2020.
+- **Precedents for E0 in coherent diffraction imaging [R]. Must cite:**
+  - GHIO (Chen, Miao, Wang, Lee 2007, *PRB* 76:064113): from 16 random starts, select the image with the smallest Fourier error as the template;
+  - Raines et al. (ankylography): 50 random starts, best by minimum R_Ewald;
+  - Chapman et al. 2006 (*JOSA A* 23:1179): averaging > 300 trials, and the PRTF.
+- **DAPS App. I.2 / Fig. 18 [R; verify in the DAPS PDF]:** "eight images … with exactly the same measurement". If confirmed, DAPS already observed the 8-fold orbit. Our contribution is then the formal proposition and its corollaries, not the observation.
+- **An over-claim to avoid.** The report calls the large-K orbit share of residual selection "assumption-free". It is not. Residual G-blindness (Cor. 1) is assumption-free. The ceiling also needs the GOOD and ORBIT outputs to have the same within-mode residual law (S2 restricted to {GOOD, ORBIT}), which holds exactly only for equivariant samplers (D12).
+- **Lines to use only as contrast [R]:**
+  - random-sensing theory: PhaseLift, Wirtinger flow, landscape results, minimax rates;
+  - AMP and statistical physics (Barbier et al. 2019; Maillard et al. 2020). Dudeja–Lu–Sen universality needs a random sign diagonal, which is close to a random mask and does not cover a plain oversampled DFT;
+  - random-weight generative-prior PR (Hand, Leong, Voroninski 2018).
+- **Other [R]:**
+  - orbit-recovery / MRA (Bandeira et al.): report errors modulo G (we already report O_orbit and all 8 members);
+  - Luby–Sinclair–Zuckerman restarts assume a Las Vegas verifier, which fails here, so they are motivation only.
+
+## 6. Lineage to cite (the executor checks each before citing)
 
 | Lineage | Items |
 |---|---|
@@ -99,3 +174,8 @@
 | Asymptotic exactness | TDS (above); DAPS time-marginal argument (research report, not planner-verified) |
 | Invariance propagation for equivariant diffusion | Hoogeboom et al. 2022 (EDM, molecules); Xu et al. 2022 (GeoDiff). The lemma "an invariant initial law plus an equivariant kernel gives an invariant law" is standard there; our use is for inverse problems with an exactly symmetric forward operator |
 | Speciation / early mode commitment | Biroli, Bonnaire, de Bortoli, Mézard 2024 (*Nat. Commun.*; research report, not planner-verified) |
+| Residual selection in diffusion PR; the per-metric-oracle remark | TGD (§4, verified): App. F.4 and Tables 1, 3, 4 |
+| Residual selection of multi-start runs in CDI | GHIO (Chen et al. 2007); Raines et al. (ankylography); Chapman et al. 2006 (PRTF) (§5, [R]) |
+| Twin ambiguity and stagnation | Hayes 1982; Bruck & Sodin 1979; Fienup & Wackerman 1986; Guizar-Sicairos & Fienup 2012; DAPS App. I.2 (§5, [R]) |
+| Conditioning of Fourier PR | Barnett, Epstein, Greengard, Magland 2020 (§5, [R]) |
+| 1-D exact ambiguities | Beinert & Plonka 2015; Edidin 2019 (§5, [R]) |

@@ -29,10 +29,13 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
   - **XP** (`docs/planning/track_r/XP_PREREG_v1.md`, FROZEN v1) is GPU work. It needs **Cheng's explicit "GO XP"**. CPU preparation may start before that.
   - **Theory executors** work only on `theory/prdiff-track-r-*` branches, per `docs/track_r/executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`: no PAC, no GT images, and writes only under `docs/track_r/theory/` and `scripts/track_r/theory/`.
 - **Update 2026-10-26 (Cheng's decisions):**
-  - **XP has GO.** `docs/planning/track_r/XP_PREREG_v1_1.md` (FROZEN v1.1) supersedes v1: tiers A/B/C and a 400 GPU-hour cap, run per XP handoff revision B. The XP executor proceeds through the tiers without a new GO, but still stops on every stop condition. XP-E stays gated on Cheng's written confirmation. External downloads and clones are done by Cheng.
+  - **XP has GO.** `docs/planning/track_r/XP_PREREG_v1_1.md` (FROZEN v1.1 with amendment A1) supersedes v1: tiers A/B/C and a 400 GPU-hour cap, run per XP handoff revision B.1. The XP executor proceeds through the tiers without a new GO, but still stops on every stop condition. External downloads and clones are done by Cheng.
+  - **XP-E is cancelled** (A1): DAPS `test-ffhq` shares one id with the locked holdout.
+  - **Never load** any bundled FFHQ set of DAPS, FAST-DIPS or PC-DAPS (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives), for any purpose.
+  - **Never merge** `main` or the data-governance audit branch (`docs/daps-test-ffhq-confirmation305-audit-*`) into a Track R branch.
   - **Embargo.** No FFHQ K > 4 (B22 DAPS: K > 2) or ImageNet-FAST K > 4 outcome is committed or reported before the matching theory freeze is listed in `docs/track_r/theory/PREDICTIONS_REGISTRY.md`. Only the planner edits that file.
   - **R0-N.2** follows amendment 2 revision D.1. The A8 label strings are approved for commit.
-  - **The theory executor starts now**, per handoff revision B.
+  - **The theory executor starts now**, per handoff revision B.1 (theory program v1.2).
 
 ## B26 branch override
 

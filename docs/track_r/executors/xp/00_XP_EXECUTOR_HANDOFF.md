@@ -1,11 +1,20 @@
-# Track R · XP executor handoff: evaluation-only extensions (GPU), revision B
+# Track R · XP executor handoff: evaluation-only extensions (GPU), revision B.1
 
-**From:** planner (Claude), 2026-10-26 (revision B; revision A of 2026-10-25 was never started).
+**From:** planner (Claude), 2026-10-26.
+- Revision B.1 follows prereg **amendment A1**:
+  - XP-E is cancelled;
+  - a bundled-FFHQ data ban;
+  - new Tier C items XP-G2 (512 canvas) and the conditional XP-E′;
+  - exploratory CPU analyses.
+- Revision A (2026-10-25) was never started.
+
 **To:** the PAC-side executor (the one that ran R0 and R0-N). Cheng runs every PAC block.
 
 **GO is given.** Cheng, 2026-10-26 00:57: *"GO aggressively … even if some runs failed it's no hurts. Try to get as much as possible out."*
 - You may proceed through Tiers A → B → C without asking again.
-- **You still stop** on any §6 condition, and for the gated items: XP-E, and any external download or clone (Cheng does those).
+- **You still stop** on any §6 condition. Any external download or clone is done by Cheng.
+
+**Hard data rule (A1).** Never load the DAPS, FAST-DIPS or PC-DAPS bundled FFHQ sets (`test-ffhq`, `demo-ffhq`, any DAPS FFHQ archive). This includes smoke tests, timing and debugging; the repositories' default commands point to them, so override them. One of those images belongs to the locked holdout. FFHQ inputs come only from the R0 manifests of the 180 ids.
 
 **Binding:**
 - `docs/planning/track_r/XP_PREREG_v1_1.md` (FROZEN v1.1; supersedes v1; self-contained);
@@ -30,6 +39,7 @@
 ## 1. Branch and environment
 
 - **Branch.** Create `codex/prdiff-track-r-xp-<YYYYMMDD>` from `codex/prdiff-track-r-r0n-20261023` @ `33a34bd` (or from your R0-N.2 branch head, if R0-N.2 is already committed). Then merge `origin/claude/prdiff-track-r-planner-20261021`. Record both SHAs.
+  - **Merge nothing else.** In particular, never merge `main` or the data-governance audit branch `docs/daps-test-ffhq-confirmation305-audit-*`: its file path contains a forbidden token.
 - **Environments.** Reuse the historical ones read-only: DAPS env, `sitcom_ode_bw`, `fast_dips_a15_blackwell`, `prdiff_track_r`. If a package is missing (e.g. for DPS or PC-DAPS), create a **new** environment by cloning; never modify a historical one.
 - **Paths.**
   - Outputs: `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_<stage>_<UTC>/`.
@@ -41,7 +51,9 @@
 1. **R0-N.2, B2 + A8 (CPU).** Commit A8 **by Oct 28 if at all possible**. The theory executor's frozen predictions (due Oct 31) are fitted on it.
 2. **XP-0 (CPU), in parallel.** Inventory per prereg §2, plus:
    - the per-id y-SHA equality check (prereg §1);
+   - the pad formula for oversample 4.0, which must give a 512 canvas (XP-G2);
    - `test -d` for `test-imagenet`, DPS and PC-DAPS. For anything absent, **write the exact command for Cheng** (the DAPS README gdown link; `git clone` + `git checkout <pinned SHA>`), then continue with what is present.
+   - If the DAPS download bundles FFHQ and ImageNet together, ask Cheng to place **only** `test-imagenet` in the new data path.
 3. **XP-T (GPU, ≈1 h).** Batch-1 timing for every (family, dataset) available, plus the W ∈ {1, 2, 4} throughput test. Output: a projection table per stage, which replaces the planner's estimates.
 4. **Tier A queue.**
    - XP-A16, after the FAST replay gate (prereg §4.4);
@@ -51,8 +63,8 @@
 6. **Tier B queue.**
    - Replay gates for SITCOM and DAPS first (prereg §4);
    - then XP-A64, XP-B16, XP-D2, XP-D3 and XP-F8, in the prereg §3 priority, work-conserving.
-7. **Tier C queue:** XP-B32 (no new code, so it can start first), then XP-I, XP-H, XP-G and XP-D4. XP-E only after Cheng's written confirmation.
-8. **Analysis (CPU).** Prereg §6, respecting the §5 embargo and freeze checks.
+7. **Tier C queue:** XP-B32 (no new code, so it can start first), then XP-I, XP-H, XP-G2, XP-G and XP-D4. XP-E′ runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-1K. XP-E is cancelled.
+8. **Analysis (CPU).** Prereg §6, respecting the §5 embargo and freeze checks. The exploratory analyses (GT-free reliability diagnostics; mixed-twin anatomy) come last and are optional.
 
 ## 3. Controller (recommended design)
 
@@ -101,7 +113,8 @@ The aim is one PAC launch per tier, not one per stage.
 - a replay-gate failure;
 - a measurement-SHA mismatch;
 - a projected cumulative total above 400 GPU-h;
-- any path matching the forbidden tokens ("confirmation", "confirm305").
+- any path matching the forbidden tokens ("confirmation", "confirm305");
+- any code path that would load a bundled FFHQ set (`test-ffhq`, `demo-ffhq`, a DAPS FFHQ archive).
 
 Other stages continue.
 

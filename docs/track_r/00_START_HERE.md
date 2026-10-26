@@ -9,6 +9,10 @@
   - CVPR;
   - the theory executor starts now (handoff revision B; program v1.1; literature digest);
   - the A8 label strings may be committed (amendment 2 revision D.1).
+- **2026-10-26, later:**
+  - **XP-E is cancelled.** DAPS `test-ffhq` overlaps the locked holdout by one id.
+  - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
+  - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
 **Track R** is reliability per compute for diffusion-prior Fourier phase retrieval.
 
@@ -33,18 +37,18 @@
 | Stage | What | Status |
 |---|---|---|
 | **R0-N.2** | Amendment 2 **revision D.1**, CPU: N1h → **A8 per-image strings (by Oct 28)** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
-| **XP** | `XP_PREREG_v1_1.md`:<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, FAST ImageNet n=64, XP-E (gated) | **GO given (2026-10-26); FROZEN v1.1; cap 400 GPU-h** |
-| **TH1** | Selection theory for the paper; predictions v1 frozen by **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **AUTHORIZED, start now** (theory executor, handoff rev B) |
+| **XP** | `XP_PREREG_v1_1.md` (+ amendment A1):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1; cap 400 GPU-h** |
+| **TH1** | Selection theory for the paper; predictions v1 frozen by **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **AUTHORIZED, start now** (theory executor, handoff rev B.1) |
 | **TH2** | Inner-functional theory (feasibility memo due Nov 13) | AUTHORIZED (memo only) |
 
 ## Documents (read in this order)
 
 1. **Top-venue plan** (2026-10-25; read the 2026-10-26 update box first): [`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`](../planning/track_r/2026-10-25_TOP_VENUE_PLAN.md)
-2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded), with handoff revision B [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
+2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded; amendment A1), with handoff revision B.1 [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
 3. **Theory:**
-   - program v1.1 [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md);
+   - program v1.2 [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md);
    - literature digest [`2026-10-26_THEORY_LIT_DIGEST.md`](../planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md);
-   - handoff revision B [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md);
+   - handoff revision B.1 [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md);
    - predictions registry [`theory/PREDICTIONS_REGISTRY.md`](theory/PREDICTIONS_REGISTRY.md).
 4. **R0 decision and rulings** (§§1–10; §10 is K2): [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
 5. **PC-DAPS positioning** (read its K2 update box first): [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
@@ -66,7 +70,7 @@
 | R0-N | N0 tables, N1 analyses, N2 CLIP baseline, N3 inventory | COMPLETE, accepted (N1 `5af47db`; N2 `33a34bd`). K1 not triggered, **K2 TRIGGERED**, K3 PASS | executor and Cheng |
 | R0-N.2 | Amendment 2 revision D.1 (CPU) | NEXT, urgent (A8 Oct 28; return Oct 29) | executor and Cheng |
 | XP | `XP_PREREG_v1_1` (GPU, ≤ 400 GPU-hours, tiers A/B/C) | **GO given 2026-10-26** | executor and Cheng |
-| TH1 / TH2 | Theory program v1.1 | AUTHORIZED, starting | theory executor |
+| TH1 / TH2 | Theory program v1.2 | AUTHORIZED, starting | theory executor |
 | Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback | drafting from Oct 27 | planner drafts, Cheng and coauthors edit |
 | N4 | Clean-image probe (withdrawn) | — | — |
 | X5/X6 | PC-DAPS audit and noise robustness: now XP-I and XP-G (Tier C, supplement) | in XP v1.1 | executor and Cheng |
@@ -105,4 +109,4 @@
 - Full compute accounting.
 - Raw-oriented RGB8 PSNR is primary.
 - No GT in deployable steps.
-- **B24 confirmation305 is locked.**
+- **B24 confirmation305 is locked.** Because DAPS `test-ffhq` contains one of its images, **no bundled FFHQ set is ever loaded** in Track R.

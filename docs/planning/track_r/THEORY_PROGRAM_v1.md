@@ -1,6 +1,14 @@
-# Theory program v1.1: selection theory (TH1) and inner-functional theory (TH2)
+# Theory program v1.2: selection theory (TH1) and inner-functional theory (TH2)
 
-**Status:** v1.1 (planner, 2026-10-26). Executed by a **separate theory executor** with no PAC access; see `docs/track_r/executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`.
+**Status:** v1.2 (planner, 2026-10-26). Executed by a **separate theory executor** with no PAC access; see `docs/track_r/executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`.
+
+**v1.2 changes (2026-10-26, later the same day).** These follow the full TGD read and the phase-retrieval-theory research pass (digest §§4–5). No theory work had started.
+- **TH1.1:**
+  - an identifiability caveat: the classical uniqueness theorem does not cover our 384 canvas;
+  - new **Cor. 1′**: likelihood-weighted SMC and residual pruning are G-blind;
+  - **Cor. 4(b)** is now a theorem target with a proof route: a total-variation bound on orientation preference by the sampler's equivariance defect (KL chain rule + Pinsker), with weak assumptions.
+- **TH1.2:** where the CONSISTENT class comes from (non-transversality; noise slack at high frequencies), and the 512-canvas control (XP-G2).
+- **TH2:** exact zero-flip decoys (δ = 0) and ready-made exactly solvable toys.
 - **TH1** feeds the paper (note due Nov 6; predictions frozen by **Oct 31**). CVPR attempt.
 - **TH2** is a separate study (feasibility memo due Nov 13).
 
@@ -61,9 +69,16 @@
 - **(a) Lemma.** For the canvas convention above, A(R_s x) = A(x) for every s.
   - Proof route: the 180° rotation inside the 256² frame equals index negation on the 384² canvas composed with a one-pixel shift (the canvas is even). The shift theorem then gives a pure phase factor.
   - Also record the out-of-domain exact symmetry z ↦ −z, where z = (x+1)/2, and why the prior gives it zero mass.
+  - **Precedents.** These are the classical trivial associates (Hayes 1982; Barnett et al. 2020) and the twin image (Fienup & Wackerman 1986). DAPS App. I.2 / Fig. 18 reportedly shows "eight images … with exactly the same measurement"; **verify this in the DAPS PDF.** Our contribution is the formal proposition and its corollaries, not the observation.
+  - **Identifiability caveat (digest §5).** Hayes-type generic uniqueness needs the support to be at most half the grid per axis. Ours is 256/384 = 2/3, so the autocorrelation aliases. **Do not cite Hayes as covering our operator.** Wherever identifiability is needed, either assume it explicitly ("x★ is identifiable up to G") or work modulo an ambiguity set Amb(x★) ⊇ G·x★. The 512-canvas run (XP-G2) is the empirical control.
 - **(b) Proposition 1.** Let G act by measure-preserving maps with A∘g = A, let the likelihood have the form ℓ(y, A(x)), and let π be the prior. Then p(gx | y) / p(x | y) = π(gx) / π(x).
 - **(c) Region form.** P(gS | y) = ∫_S ℓ(y, A(u)) π(gu) du.
-- **Corollary 1.** Any selector depending on (A(x), y) alone is G-invariant, so it cannot resolve orbit errors.
+- **Corollary 1.** Any selector depending on (A(x), y) alone is G-invariant, so it cannot resolve orbit errors. This statement is **assumption-free**.
+- **Corollary 1′ (new; digest D13).** The same holds for likelihood-weighted particle methods:
+  - SMC weights built from p(y | x₀) (TDS, TGD) are G-invariant;
+  - residual pruning (A-TGD) is G-invariant.
+
+  So reweighting, resampling and pruning cannot correct orientation; only the proposals (the prior) can. This is why prior-consistency pruning (PC-DAPS) is the mechanism that works. State it for a generic SMC step.
 - **Corollary 2.** The Bayes rule within an orbit is argmax_g π(gx). Any proxy with the same within-orbit ordering is Bayes-consistent. CLIP uprightness and the solver's denoising loss are two such proxies; their consistency is an empirical question (N2, XP-C).
 - **Corollary 3.** For a proxy log q = log π + h(s(x)) + e with s G-invariant (per-channel power spectrum; pixel histogram; total variation under 180° rotation), h cancels within the orbit.
 - **Corollary 4 (equivariant samplers; new).** Model each solver as a chain x_{i−1} = Φ_i(x_i, ξ_i; y), where:
@@ -73,8 +88,22 @@
   **Claim.** If every D_i is G-equivariant (D_i(gx) = gD_i(x)), the output law is G-invariant. Hence the orbit member is uniform given the orbit, and the orbit-error share among outputs landing in G·x★ is 7/8.
   - **To verify per family:** DAPS (Langevin), FAST-DIPS (projection / Gauss–Newton with backtracking), SITCOM (optimization over v), DPS (gradient guidance) and NP. State which steps need care, such as ties in projections or data-dependent step sizes.
   - **Contrapositive** (the paper's statement): **any orientation preference comes only from the learned network's non-equivariance.** Measurement guidance is orientation-blind. This is the inverse-problem analog of Dandapanthula & Boffi's Theorem 6(ii) (digest D6). Cite the invariance-propagation lemma from equivariant generative modeling (Hoogeboom et al. 2022; Xu et al. 2022).
-  - **Quantitative version** (optional; CONJECTURE unless proven): couple the chains from (x_T, ξ) and (gx_T, gξ). Bound ‖X₀(gx_T, gξ) − gX₀(x_T, ξ)‖ by the propagated equivariance defects δ_i = sup ‖D_i(gx) − gD_i(x)‖.
-  - **Measurement:** XP-C2 measures δ(t) on noised GT images for both checkpoints. The prediction is that the domain with the smaller defect at mid-trajectory times has the higher orbit-error share (ImageNet vs FFHQ).
+  - **Corollary 4(b): a quantitative version (theorem target; weak assumptions).**
+    - **Assumptions.** The chain has stochastic steps x_{i−1} = m_i(x_i) + s_i ξ_i, with ξ_i ~ N(0, I) and state-independent s_i > 0, and x_T has a G-invariant law. Deterministic sub-steps (ODE steps, inner optimizers, projections) are folded into the mean maps m_i. Let Δ_i(x) = m_i(x) − g m_i(g⁻¹x).
+    - **Claim.** TV(Law(x₀), g#Law(x₀)) ≤ √( Σ_i E_P‖Δ_i(x_i)‖² / (4 s_i²) ). Hence, for every set B (for example the GOOD neighborhood of x★), |P(x₀ ∈ B) − P(x₀ ∈ gB)| obeys the same bound.
+    - **Proof route:**
+      - the g-conjugated chain, with means g m_i(g⁻¹·), has output law g#Law(x₀);
+      - data processing on path measures;
+      - Pinsker;
+      - the KL chain rule for Gaussian-transition chains with equal covariances.
+    - **Scope.** DAPS (Langevin steps), FAST-DIPS and SITCOM (deterministic inner steps followed by Gaussian re-noising) and DPS (ancestral steps) fit this form. Purely deterministic samplers (s_i = 0) need a coupling/Lipschitz argument instead.
+    - **Reduction.** Every component except the network is G-equivariant, so bound Δ_i by Lipschitz-weighted denoiser defects δ_i(x) = ‖D_i(gx) − gD_i(x)‖.
+      - For steps that differentiate through D (DPS guidance; SITCOM's optimization over v), the defect of the Jacobian J_D also enters. Bound it separately.
+      - DAPS and FAST-DIPS act on x₀ given D(x_t), so there the defect enters only through D(x_t).
+    - This is a probabilistic result needing **no** exact score, log-concavity or uniqueness. It turns the observed orientation preference (GOOD rate minus ORBIT_g rate) into a **lower bound** on the network's equivariance defect along the trajectory.
+  - **Measurement.** XP-C2 measures δ(t) on noised GT images for both checkpoints, a proxy for E_P‖Δ_i‖² along trajectories. Predictions:
+    - the domain with the smaller defect at mid-trajectory times has the higher orbit-error share (ImageNet vs FFHQ);
+    - the Cor. 4(b) inequality, evaluated with the proxy, is not violated.
 - **Corollary 5 (exact-sampler limit; new).** If a sampler is exact for the model posterior pθ(x₀ | y) (TDS in the infinite-particle limit, digest D10):
   - its orbit-member probabilities are πθ(gx)/Σ_{g'} πθ(g'x) (Prop. 1);
   - its consistent-decoy rate is the posterior mass of decoys;
@@ -114,9 +143,14 @@
 6. **Relaxations:**
    - imperfect separation, with pairwise violation rate ε;
    - informative residual within the consistent classes, with AUROC a_GC (argmin then beats accept-first; digest D2).
+   - **Avoid this over-claim** (digest §5). The research report calls the large-K orbit share of residual selection "assumption-free". It needs S2 restricted to {GOOD, ORBIT}: the same within-mode residual law in both classes. That holds exactly for equivariant samplers (D12) and only approximately otherwise.
+7. **Where the CONSISTENT class comes from** (a remark, not a rate):
+   - **Non-transversality.** At non-transversal points the local inverse is only Hölder (Barnett et al. 2020), so wrong images can exist at distance ~ε^α with residual ≤ ε. Smooth images are prone to this.
+   - **Noise slack.** With the ortho FFT, σ = 0.05 is comparable to or larger than the signal at most high frequencies (digest §5), so images that differ mainly at high frequencies can stay within the noise.
+   - **Directional hypothesis for XP-G2** (stated before the data; descriptive, not a frozen prediction): at the 512 canvas, the CONSISTENT share falls for SITCOM.
 
    Give first-order corrections, and show how to **test S1/S2** from `e0_rank_order` with the labels (A8).
-7. **Inflation identity.** O_raw(K) − first run = [E1(K) − first run] + [O_raw(K) − E1(K)].
+8. **Inflation identity.** O_raw(K) − first run = [E1(K) − first run] + [O_raw(K) − E1(K)].
    - The second term is the only part attributable to GT information.
    - Bound it with (c + o_p)/s and the orbit terms.
 
@@ -181,6 +215,12 @@
   - Instance 2 (preferred): **1D Fourier phase retrieval**, x ∈ ℝ^d with d = 8–64, A(x) = |DFT(pad x)|, and g = reversal (exactly invariant).
   - The exact denoiser of this mixture is **not** g-equivariant when w ≠ ½. This makes Corollary 4's mechanism explicit: the orbit preference comes from w.
 - **(P-b) Near-ambiguous decoy.** Add a decoy component ν with ‖A(ν) − A(μ)‖ = δ, at or below the noise level. This models ill-conditioned consistent-wrong modes, cf. Barnett et al.'s Hölder ill-conditioning.
+  - **δ = 0 exactly:** in 1-D, take ν as a **zero-flip** of μ's z-transform (Beinert & Plonka 2015; Edidin 2019). It is measurement-identical and distinguishable only by the prior.
+  - **δ > 0:** perturb the zero-flip.
+- **Ready-made, exactly solvable testbeds** for external validity (digest §§2, 4, 5):
+  - TGD's 2-D |x| toy (5-component GMM prior, τ = 0.005, noise 0.01, exact posterior by separability);
+  - Dandapanthula & Boffi's symmetric GMM;
+  - Burns & Fridovich-Keil's finite-sample prior as an exact-posterior oracle.
 
 **Targets:**
 - **(a) T^S exact.** The orbit weight equals 1 − w, the prior ratio. This combines the DAPS exactness argument with Proposition 1.
@@ -202,7 +242,7 @@
 - What is tractable.
 - First numerics on the 1D Fourier toy.
 - Candidate theorems with proof sketches.
-- Overlap check against PC-DAPS, Burns & Fridovich-Keil, Dandapanthula & Boffi, *Local MAP Sampling* (arXiv 2510.07343) and arXiv 2606.24516.
+- Overlap check against PC-DAPS, Burns & Fridovich-Keil, Dandapanthula & Boffi, TGD, *Local MAP Sampling* (arXiv 2510.07343) and arXiv 2606.24516.
 - A go/no-go recommendation for a standalone paper.
 
 ## Rules for both

@@ -1,13 +1,18 @@
-# Track R · theory executor handoff (TH1 now, TH2 memo), revision B
+# Track R · theory executor handoff (TH1 now, TH2 memo), revision B.1
 
-**From:** planner (Claude), 2026-10-26 (revision B; revision A was 2026-10-25 and was never started).
+**From:** planner (Claude), 2026-10-26.
+- Revision B.1 adds the TGD read and the phase-retrieval-theory research pass (program v1.2; digest §§4–5).
+- Revision A (2026-10-25) was never started.
+
 **To:** a separate theory executor (a new chat or agent). **No PAC access is needed or allowed.**
 
 **Cheng's decision (2026-10-26): start now.**
 
 **Binding:**
-- `docs/planning/track_r/THEORY_PROGRAM_v1.md`, now **v1.1** (problem statements; read it first);
-- `docs/planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md` (main-text digests of Stroebl et al., Dandapanthula & Boffi and TDS, with planner derivations D1–D12 to prove or refute);
+- `docs/planning/track_r/THEORY_PROGRAM_v1.md`, now **v1.2** (problem statements; read it first);
+- `docs/planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md`:
+  - main-text digests of Stroebl et al., Dandapanthula & Boffi, TDS and TGD (§§1–4), with planner derivations D1–D15 to prove or refute;
+  - the condensed research pass on phase-retrieval theory (§5), whose items marked [R] are not yet verified;
 - `docs/planning/track_r/XP_PREREG_v1_1.md` §5 (freeze order and embargo);
 - `docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md` (why and when).
 
@@ -26,7 +31,10 @@
   - exact estimators;
   - predictions **frozen before the data and then tested**.
 - **The equivariance corollary is the strongest single result available.** Measurement guidance is provably orientation-blind, so orientation preference comes only from the network. XP-C2 measures the network's equivariance defect directly.
+- **Cor. 4(b) makes it quantitative with weak assumptions.** It is a total-variation bound on orientation preference in terms of the equivariance defect, via the KL chain rule and Pinsker. It needs no exact score, no log-concavity and no uniqueness: exactly the kind of result Cheng asked for.
+- **Cor. 1′ extends G-blindness to particle methods.** Likelihood-weighted SMC and residual pruning (TDS, TGD, A-TGD) cannot fix orientation.
 - **The monotone-gap theorem** (digest D3) is a falsifiable shape prediction. It costs nothing to state.
+- **Do not overreach on uniqueness.** Our 384 canvas lies outside the classical (Hayes) uniqueness hypothesis. Assume orbit identifiability explicitly.
 
 **Publication image.**
 - CVPR 2027 attempt: paper Nov 16, planner go/no-go Nov 8. Fallbacks are SPL and EUSIPCO 2027.
@@ -58,14 +66,14 @@
 
 | # | Task | Due |
 |---|---|---|
-| 1 | Read the digest and the program. Then, as available to you: Chen et al. 2021 §2.1 (pass@k); Burns & Fridovich-Keil (arXiv 2605.30330); Biroli et al. 2024 (*Nat. Commun.*); PC-DAPS (arXiv 2610.31592) §3–4; Hoogeboom et al. 2022 (equivariant diffusion). The PDFs of Stroebl, Dandapanthula & Boffi and TDS may not be available to you; the digest is enough | Oct 27 |
-| 2 | TH1.1: lemma, Proposition 1, Corollaries 1–5, written and proved. Check Corollary 4's conditions family by family | Oct 29 |
+| 1 | Read the digest and the program. Then, as available to you:<br>• Chen et al. 2021 §2.1 (pass@k)<br>• Burns & Fridovich-Keil (arXiv 2605.30330)<br>• Biroli et al. 2024 (*Nat. Commun.*)<br>• PC-DAPS (arXiv 2610.31592) §3–4<br>• Hoogeboom et al. 2022 (equivariant diffusion)<br>• Barnett, Epstein, Greengard, Magland 2020 (arXiv 1808.10747)<br>• DAPS (arXiv 2407.01521) App. I.2, to verify the "eight images" claim<br>The PDFs of Stroebl, Dandapanthula & Boffi, TDS and TGD may not be available to you; the digest is enough | Oct 27 |
+| 2 | TH1.1: lemma (with the identifiability caveat), Proposition 1, Corollaries 1, 1′, 2–5 and **4(b)**, written and proved. Check Corollary 4's conditions family by family | Oct 29 |
 | 3 | TH1.2: closed forms; the Stroebl correspondence; ceilings; the **monotone-gap theorem**; the bottleneck shift; relaxations; the population model | Oct 30 |
 | 4 | **TH1.5 v1:** fit on K ≤ 4 only (A8 strings; P4 at K ≤ 4 if A8 is late). **Commit `docs/track_r/theory/TH1_PREDICTIONS_v1.json` and tell the planner** (via Cheng) with the commit SHA | **Oct 31 (hard)** |
 | 5 | TH1.3 estimators (with the order-statistic identity and unbiasedness proofs) and TH1.4 per-metric inflation | Nov 3 |
 | 6 | **TH1.5 v2** (optional): ImageNet FAST from phase-1 counts, within 48 h of receiving them | ≈ Nov 1–3 |
 | 7 | TH1 note (LaTeX + PDF) + scripts + paper-ready half-page and one-page text | **Nov 6** |
-| 8 | TH2 feasibility memo: first 1D-Fourier-toy numerics, candidate theorems (priority: TH2(e), S2 as an expectation statement), overlap check, go/no-go | Nov 13 |
+| 8 | TH2 feasibility memo:<br>• first 1D-Fourier-toy numerics, with exact zero-flip decoys<br>• candidate theorems (priority: TH2(e), S2 as an expectation statement)<br>• overlap check<br>• go/no-go | Nov 13 |
 
 **`TH1_PREDICTIONS_v1.json` schema:**
 ```
@@ -94,7 +102,18 @@
 
 - **Rigor.** Every statement is either proven, with its assumptions listed, or labeled CONJECTURE / NUMERICAL.
 - **No over-reach.** Never claim a result about real solvers beyond what the numbers show. Give the planner predictions, not conclusions.
-- **Citations.** Cite the primary source for every borrowed result: pass@k; the Stroebl model and ceiling (state the correspondence plainly); the D&B mode-selection result; TDS; the DAPS exactness argument; invariance propagation; speciation. Mark which statements you verified in the main text, and which came from the digest.
+- **Citations.** Cite the primary source for every borrowed result:
+  - pass@k;
+  - the Stroebl model and ceiling (state the correspondence plainly);
+  - the D&B mode-selection result;
+  - TDS and TGD;
+  - the DAPS exactness argument;
+  - invariance propagation;
+  - speciation;
+  - trivial associates and twin stagnation;
+  - the CDI precedents for residual selection (GHIO; Chapman et al.).
+
+  Mark which statements you verified in the main text, which came from the digest's [V] items, and which from its [R] items.
 - **Reproducibility.** Every script reproduces from a committed commit.
 
 ## 4. Return (`docs/track_r/theory/TH_RETURN_<date>.md`)

@@ -1,6 +1,18 @@
 # XP pre-registration v1.1: evaluation-only extensions, aggressive tiered scope
 
-**Status:** FROZEN v1.1 (planner, 2026-10-26).
+> **Amendment A1 (planner, 2026-10-26, before any XP data or handoff delivery).**
+> 1. **XP-E is cancelled.** Cheng reports (2026-10-26 02:56) that DAPS's `test-ffhq` set is **not** disjoint from the locked B24 holdout: there is one shared FFHQ id. The overlapping id is withheld, so excluding it would require membership information that agents must not hold.
+>    - **Replacement:** **XP-E′** (Tier C, conditional). The published DAPS-1K command runs on the 180 R0 ids, n = 4, **only if** the R0-N.2 A4.4 record shows that the historical FFHQ DAPS configuration differs from DAPS-1K.
+>    - The FFHQ bridge to published settings is otherwise already covered by S5 (FAST, published command), XP-H (DPS, published config) and XP-F8.
+> 2. **New data rule (§1, §7).** Track R never loads any bundled FFHQ set of DAPS, FAST-DIPS or PC-DAPS: `test-ffhq`, `demo-ffhq`, or any DAPS FFHQ archive. This applies to smoke tests, timing and debugging as well. FFHQ inputs come **only** from the R0 manifests of the 180 ids.
+> 3. **New XP-G2** (Tier C), the 512-canvas control: oversample 4.0, i.e. pad 128 per side, so the 256² support is exactly half the canvas per axis.
+>    - **Why:** our 384 canvas lies outside the hypothesis of the classical generic-uniqueness theorem (support ≤ half the grid per axis; research pass of 2026-10-26). XP-G2 measures whether the CONSISTENT class shrinks when that hypothesis holds.
+> 4. **New exploratory analyses (§6, CPU, optional):**
+>    - GT-free reliability diagnostics, including cross-run agreement after G-alignment and a PRTF-style reproducibility score (Chapman et al. 2006);
+>    - a "mixed-twin" anatomy of INCONSISTENT failures (Fienup & Wackerman 1986).
+> 5. Nothing else changes. Tiers A and B are unchanged.
+
+**Status:** FROZEN v1.1 with amendment A1 (planner, 2026-10-26).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
@@ -38,23 +50,24 @@
 | Object | Frozen choice |
 |---|---|
 | Operator | R0 pinned operator A(x) = \|F_c(pad₆₄((x+1)/2))\|, 384² canvas, channel-wise, σ = 0.05, signed y. This is the DPS/DAPS standard (`oversample: 2.0`, `sigma: 0.05`) |
-| FFHQ ids | The 180 ids of B22 (100) and DEV80 (80), exactly as in the R0 manifests. **No other FFHQ id** (XP-E is the gated exception) |
+| FFHQ ids | The 180 ids of B22 (100) and DEV80 (80), exactly as in the R0 manifests. **No other FFHQ id.** XP-E is cancelled (A1). **Never load** the DAPS, FAST-DIPS or PC-DAPS bundled FFHQ sets (`test-ffhq`, `demo-ffhq`, any DAPS FFHQ archive), not even for smoke tests, timing or debugging. Override every repository default that points to them |
 | FFHQ measurements | **Reuse the R0 measurement file per id.** Before any re-run of a historical family, verify per id that this y has the same SHA-256 as the y used by that family's historical runs. **On mismatch, stop and report.** Never substitute silently |
 | XP-G measurements | The same 180 ids, **paired noise**: n_R0 = (y_R0 − A(x★))/0.05, then y_σ = A(x★) + σ·n_R0 for σ ∈ {0.02, 0.10}. Only σ changes. Save each y_σ and its SHA |
+| XP-G2 operator and measurements | The same operator with oversample 4.0 in the DAPS/FAST convention: pad = 128 per side, canvas 512², m = 3·512². **Verify in XP-0** that the code's pad formula gives 512. σ = 0.05; y = A₅₁₂(x★) + σ·n with seed = first 8 bytes of SHA-256(`XPG2MEAS\|ffhq\|<id>`) mod 2⁶³. Save y and its SHA. Solver settings are unchanged apart from the operator; if SITCOM cannot take the oversample setting without code edits, run FAST only and record this |
 | ImageNet images | DAPS's 100-image `test-imagenet` set (also used by FAST-DIPS and PC-DAPS), in the DAPS/FAST-DIPS loader order `sorted(Path(root).rglob(ext))`, indices 0–99. Record each file's SHA-256 in the XP-0 manifest |
 | ImageNet measurements | New. y = A(x) + σ·n with n ~ N(0, I) and σ = 0.05. Seed = first 8 bytes of SHA-256(`XPMEAS\|imagenet\|<basename>`) as an unsigned integer mod 2⁶³. Save y and its SHA. **The same y serves every family** |
 | Checkpoints | FFHQ: `ffhq_10m.pt` (SHA `81d53574…7faa`), also DPS's FFHQ model. ImageNet: `/egr/research-pac/huang248/models/imagenet256.pt` (2,211,383,297 bytes; record SHA-256 in XP-0) |
 | FAST-DIPS | R0.5 frozen settings (T = 150, K = 2, S = 5, ρ = 200, ε = 0.05), `FAST_DIPS_A15` @ `a9758b38`, env `fast_dips_a15_blackwell`. These equal the repository's published phase-retrieval command for both FFHQ and ImageNet (`configs_fast_dips_cli.txt`). ImageNet uses the `imagenet256ddpm` preset. **XP-G keeps every setting**, including ε (a fixed constraint tolerance in the code, not a noise parameter) |
 | SITCOM | FFHQ: the B22 native settings (`configs/b22/b22_2_overnight.json`, `sitcom` block). ImageNet: SITCOM's own ImageNet phase-retrieval settings if its code or paper defines them; otherwise the FFHQ settings with the ImageNet model. Record which |
 | DAPS, FFHQ | The historical configuration of the B22/DEV80 DAPS runs (confirm against the R0-N.2 A4.4 record) |
-| DAPS, ImageNet and XP-E | The published DAPS-1K command at `e7a77d0` (`commands/pixel_imagenet.sh` / `pixel_ffhq.sh`): annealing 200 × diffusion 5 steps; pixel task group with 100 Langevin steps, lr 5e-5, τ = 0.01, lr_min_ratio 0.01. Our frozen y and per-(image, run) seeds are fed in through the in-repository wrapper. Record any deviation |
+| DAPS, ImageNet and XP-E′ | The published DAPS-1K command at `e7a77d0` (`commands/pixel_imagenet.sh` / `pixel_ffhq.sh`): annealing 200 × diffusion 5 steps; pixel task group with 100 Langevin steps, lr 5e-5, τ = 0.01, lr_min_ratio 0.01. Our frozen y and per-(image, run) seeds are fed in through the in-repository wrapper. Record any deviation |
 | DPS (XP-H) | The official DPS repository (`DPS2022/diffusion-posterior-sampling`) at a commit pinned in XP-0, using its phase-retrieval config (record the guidance scale) with `ffhq_10m.pt`. Our y is fed in. If the code is absent, **Cheng** clones it into a new external path |
 | PC-DAPS (XP-I) | PC-DAPS @ `59b2f046` with its own FFHQ phase-retrieval command (4 particles). Our y is fed in. Save every particle, plus the method's own returned estimate. If the code is absent, **Cheng** clones it |
-| Seeds | **Continue each family's historical rule** for new run indices. Document the rule, and show that no new seed equals an existing one for the same (family, image). For families or datasets with no history (all ImageNet, XP-G, XP-H, XP-I, XP-E): the first 8 bytes of SHA-256(`XP\|<family>\|<dataset>\|<uid>\|<r>`) mod 2³¹, where XP-G uses dataset `ffhq_s<σ>` |
+| Seeds | **Continue each family's historical rule** for new run indices. Document the rule, and show that no new seed equals an existing one for the same (family, image). For families or datasets with no history (all ImageNet, XP-G, XP-G2, XP-H, XP-I, XP-E′): the first 8 bytes of SHA-256(`XP\|<family>\|<dataset>\|<uid>\|<r>`) mod 2³¹, where XP-G uses dataset `ffhq_s<σ>` |
 | Batching | Batching across (image, run) pairs is allowed **only if** each sample draws from its own generator seeded by the rule above, and the replay gate (§4) passes for batched vs single execution. **Timing claims use XP-T batch-1 measurements only** |
 | Labels, FFHQ (σ = 0.05) | R0 frozen labels: GOOD = PSNR_raw ≥ 25; ORBIT = raw < 25 and some non-identity member ≥ 25; CONSISTENT/INCONSISTENT by the **frozen R0.7 τ for that (source, family)**. τ is not re-estimated |
 | Labels, ImageNet | **Primary threshold 20 dB**: GOOD_IN = PSNR_raw ≥ 20; ORBIT_IN = raw < 20 and orbit-best ≥ 20. τ_IN = the 0.95 quantile of ρ_signed over GOOD_IN runs per family, **computed on run indices 0–3 only and then frozen** for all later runs. **Secondary:** Good@{15, 18, 22, 25}, and the PC-DAPS orientation labels (amendment 2, A4.1 rule) |
-| Labels, XP-G | As FFHQ with GOOD at 25 dB. τ_σ is computed per σ on run indices 0–3 and then frozen |
+| Labels, XP-G and XP-G2 | As FFHQ with GOOD at 25 dB. τ is computed per setting (each σ; the 512 canvas) and per family, on run indices 0–3, and then frozen |
 | Labels, new families (DPS, PC-DAPS) | As FFHQ. τ is computed on that family's runs 0–3 (all its runs, for PC-DAPS) and reported as such |
 | Orientation tests | **FFHQ:** the frozen N2 CLIP face prompts. **Generic set G1:** "a photo." vs "an upside-down photo.". **Ensemble G2:** upright {"a photo.", "a photo of a scene.", "a photo of an object.", "a good photo.", "a natural photo.", "a photo of something."} vs inverted {"an upside-down photo.", "an upside-down photo of a scene.", "an upside-down photo of an object.", "a photo that is upside down.", "a photo rotated by 180 degrees.", "an inverted photo."}. Embedding, normalization and the rule "choose 111 iff u(R₁₁₁x) > u(x)" exactly as N2. **Prior:** the 2-forward rule (t = 300, J = 1, paired R ε, global2) and S_mid (t ∈ {300, 400, 500, 600}, J = 4; global2 and all8), each with the dataset's own checkpoint. **UnivFD:** as N2 |
 | Evaluation metrics | PSNR raw and for all 8 orbit members; SSIM and LPIPS (piq, as DAPS) for raw and member 111 (LPIPS may run on GPU: it is evaluation only); ρ_signed, ρ_clipped |
@@ -93,17 +106,19 @@ GPU-hour figures are planner estimates from historical timings (FAST 3.3 s/run w
 | **XP-I** | PC-DAPS on FFHQ, 1 run (4 particles) on all 180 ids. Compare at matched NFE with DAPS + E1_CLIP | 180 | ≈ 16–32 |
 | **XP-G** | FAST on FFHQ, σ ∈ {0.02, 0.10}, n = 8 per σ on all 180 ids | 2,880 | ≈ 3 |
 | **XP-D4** | FAST on ImageNet, run indices 16–63 (n = 64) | 4,800 | ≈ 9–17 |
-| **XP-E** | DAPS `test-ffhq` (100): FAST n = 4 and DAPS-1K n = 4 (bridge to published FFHQ numbers). **Only after Cheng confirms in writing that these ids are disjoint from confirmation305.** Agents never check membership | 800 | ≈ 10–18 |
+| **XP-G2** | 512-canvas control (§1) on all 180 ids: FAST n = 8 and SITCOM n = 4 | 2,160 | ≈ 11–20 |
+| **XP-E′** | **Conditional:** the published DAPS-1K command, n = 4 on all 180 ids. Runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-1K | 720 | ≈ 10–20 |
+| ~~XP-E~~ | **Cancelled (A1).** DAPS `test-ffhq` overlaps the locked holdout | — | — |
 
-**Scoring** (CLIP, 2-forward, S_mid, LPIPS) adds about 5–15 GPU-h in total. Estimated grand total: ≈ 210–370 GPU-h.
+**Scoring** (CLIP, 2-forward, S_mid, LPIPS) adds about 5–15 GPU-h in total. Estimated grand total: ≈ 220–390 GPU-h.
 
 ## 3. Queue rules
 
-1. **Order of value** (launch priority): XP-T → XP-A16, XP-C, XP-C2, XP-D1 phase 1 → XP-D1 phase 2, XP-A64 → XP-B16 ∥ XP-D2 → XP-D3 ∥ XP-F8 → XP-B32 → XP-I → XP-H → XP-G → XP-D4 → XP-E.
+1. **Order of value** (launch priority): XP-T → XP-A16, XP-C, XP-C2, XP-D1 phase 1 → XP-D1 phase 2, XP-A64 → XP-B16 ∥ XP-D2 → XP-D3 ∥ XP-F8 → XP-B32 → XP-I → XP-H → XP-G2 → XP-G → XP-D4 → XP-E′ (conditional).
 2. **Work-conserving.** No GPU is left idle while any authorized, smoke-passed job is ready. A lower-priority job that is ready may fill a GPU while a higher one is still in engineering. Example: XP-B32 needs no new code, so it may run while XP-H/XP-I are being built.
 3. **Concurrency:** W\* workers per GPU, per family, from XP-T. Never exceed 80% GPU memory.
 4. **Smoke test per (family, dataset):** 2 images × 2 runs. Runtime must be within ±50% of the XP-T projection, and the configuration must replay the frozen settings. Otherwise stop that family and report.
-5. **Drop order** if over budget or late (the reverse of value): XP-E → XP-D4 → XP-G → XP-H → XP-I → XP-B32 → XP-F8 → XP-D3 → XP-B16 reduced to the 60 ids of v1 (SHA-256(`XPB|<id>`), first 30 B22 + first 30 DEV80) → XP-D2 reduced to 25 images (SHA-256(`XPD|<basename>`)) → XP-A64. **Tier A is never dropped.**
+5. **Drop order** if over budget or late (the reverse of value): XP-E′ → XP-D4 → XP-G → XP-G2 → XP-H → XP-I → XP-B32 → XP-F8 → XP-D3 → XP-B16 reduced to the 60 ids of v1 (SHA-256(`XPB|<id>`), first 30 B22 + first 30 DEV80) → XP-D2 reduced to 25 images (SHA-256(`XPD|<basename>`)) → XP-A64. **Tier A is never dropped.**
 6. **Budget check.** Before launching each stage, project its GPU-h from XP-T. Stop if the cumulative projection exceeds 400.
 
 ## 4. Gates for adding runs to historical families (XP-B, XP-F)
@@ -161,6 +176,18 @@ The K-scaling estimators pool new runs with historical runs, so the two must be 
 - XP-D2: the published DAPS protocol (per-metric oracle over 4 runs) next to GT-free E1_CLIP and first run;
 - XP-I: PC-DAPS vs DAPS + E1_CLIP at matched NFE on the same ids;
 - XP-G: anatomy and E1_CLIP vs O_orbit at σ ∈ {0.02, 0.05, 0.10}.
+- XP-G2: anatomy at the 384 vs 512 canvas, with the CONSISTENT share per family as the primary descriptive quantity.
+
+**Exploratory analyses** (A1; CPU; optional; after the Tier B analysis; labeled EXPLORATORY; no threshold is tuned for claims):
+- **GT-free reliability diagnostics** for the E1_CLIP pick. Report AUROC for predicting that the pick is a failure, from:
+  - (a) the pick's ρ_signed;
+  - (b) cross-run agreement: the median PSNR between the pick and the other K − 1 runs, each first aligned to the pick by its best orbit member (GT-free);
+  - (c) a PRTF-style score in the spirit of Chapman et al. (2006): the magnitude of the mean of the G-aligned runs' Fourier transforms over the measured magnitudes, averaged over frequency bands.
+
+  Report per family and per dataset at K = 4 and K = 16.
+- **Mixed-twin anatomy** (Fienup & Wackerman 1986) of INCONSISTENT runs. For each frequency, ask whether the run's Fourier phase is closer to the phase of x★ or of its global twin R₁₁₁x★. Report the magnitude-weighted fraction closer to x★, and its spatial-frequency profile.
+  - A value near 0.5 with a structured profile indicates a simultaneous-twin stagnation state.
+  - This uses GT, so it is evaluation only.
 
 ## 7. Outputs and data rules
 
@@ -173,4 +200,9 @@ The K-scaling estimators pool new runs with historical runs, so the two must be 
   - **No paths, metric values or images.** Labels are GT-derived; Cheng approved committing such strings on 2026-10-26.
 - **Delivered as a planner ZIP, not committed:** per-candidate tables (with metric values) and contact sheets (as in amendment 2 §A7).
 - **GT** is used only for evaluation and labels. Selection policies never read GT.
-- **Forbidden:** access to confirmation305; FFHQ ids beyond §1; any change to a historical environment, output or checkout.
+- **Forbidden:**
+  - access to confirmation305;
+  - FFHQ ids beyond §1;
+  - loading any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives);
+  - merging the data-governance audit branch (`docs/daps-test-ffhq-confirmation305-audit-*`) into any Track R branch: its file path contains a forbidden token;
+  - any change to a historical environment, output or checkout.
