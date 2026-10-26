@@ -95,6 +95,23 @@ def main():
                 lines.append("GPU-H "+str(round(float(v.get("gpu_hours",0.)),3))+
                     "/400 projected="+str(v.get("projected_gpu_hours","UNKNOWN")))
                 if v.get("stop_flags"):action.extend(v["stop_flags"])
+        elif d.name.startswith("xp_t_fast_"):
+            complete=d/"XP_T_FAST_COMPLETE.json"
+            status=d/"XP_T_FAST_STATUS.json"
+            if complete.is_file():
+                v=read(complete)
+                lines.append("XP-T FAST "+v.get("status","UNKNOWN")+
+                    " roots="+str(v.get("new_roots"))+
+                    " median_s="+str(round(float(v.get("sampling_wall_s_median",0)),3))+
+                    " timing="+str(v.get("timing",{}).get("timing_class","UNKNOWN")))
+            elif status.is_file():
+                v=read(status)
+                state=v.get("state","UNKNOWN")
+                lines.append("XP-T FAST "+state+" gpu="+str(v.get("gpu")))
+                if state.startswith("FAILED"):
+                    action.append("XP-T FAST "+state+" log="+str(d/"XP_T_FAST_SUPERVISOR.log"))
+            elif (d/"XP_T_FAST_PREP.json").is_file():
+                lines.append("XP-T FAST PREPARED")
         else:
             fp=d/"XP_T_RECEIPT.json"
             if fp.is_file():

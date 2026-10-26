@@ -213,3 +213,37 @@ original `REPLAY_GATE_FAILED` supervisor status, and publishes
 a return **only if all eight** historical PSNRs replay to within 0.1 dB
 and the R0.7 labels match exactly. Failed science is a STOP; no
 GPU rerun or XP K-scaling is automatically authorized.
+
+## M1 PASS — Native FAST replay + bounded XP-T FAST calibration launch design
+
+On 2026-10-26, the CPU recovery of the native FAST-DIPS replay passed:
+`XP_FAST_REPLAY_RECOVERY_PASS` with **8/8** historical raw-PSNR
+reconstructions matching within `1.9032504212646018e-06` dB, identical
+canonical PNG SHA for **8/8**, and matching `GOOD/ORBIT/CONSISTENT/`
+R0.7 labels on **8/8**. No GPU reruns were needed. The replay timing was
+`CLEAN`, 71.6706793 s allocation elapsed / 0.01990852 GPU-hours.
+Return published at GitHub commit
+`eb7d5b27c003f6ee9b64db690939414bf03613e8` in
+`docs/track_r/executors/xp/returns/XP_FAST_REPLAY_RECOVER_20261026T204735Z/`.
+No outcome embargo was breached; the historical runs only were replayed.
+
+**Next authorized step: XP-T FAST FFHQ batch-1 subset.**
+The new `xp_t_fast_prepare_cpu.py` freezes an independently seeded
+nine-root GT-free timing manifest using the first three sorted B22 image
+IDs (3 runs each, original SHA-pinned y). The frozen XP seed rule is
+`SHA256('XP|FAST|ffhq|B22_<id>|<rep>')[:8] mod 2^31`.
+The official FAST-DIPS source/model/settings and measurement SHA are checked
+in a **preflight-only** worker before CUDA is allocated. One-GPU
+`xp_t_fast_supervisor.py` records initial/heartbeat/final GPU occupancy,
+foreign PIDs, process wall, per-root native and CUDA-event timings,
+sampled peak VRAM and 80%-cap compliance. It uses opportunistic
+co-tenancy and automatic WAIT_VRAM polling. Nine valid root receipts
+and `R0_5_CHUNK_PASS` are required for `XP_T_FAST_FFHQ_BATCH1_PASS`.
+
+**Scientific limitations:** This is **only FAST/FFHQ batch-1 calibration**,
+not the full XP-T prereg suite. SITCOM, DAPS-4K, ImageNet, W=1/2/4
+throughput, and scoring costs remain pending. No GT is used during
+generation; new XP candidate outcome labels are not evaluated, committed,
+or reported. Timing from a contaminated GPU must be marked unsuitable
+for publication and rerun later. The 400 GPU-hour cap and original
+reconstruction run embargo remain unchanged.
