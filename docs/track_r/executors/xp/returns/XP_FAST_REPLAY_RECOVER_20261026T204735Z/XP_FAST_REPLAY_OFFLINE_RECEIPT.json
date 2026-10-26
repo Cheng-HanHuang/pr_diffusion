@@ -1,0 +1,107 @@
+{
+  "generation_head": "314180b314674a24d5ddc40a0186b24b6082a5e0",
+  "head": "36a6a7dfb1b325667a23d671fc058cce4479628e",
+  "max_abs_delta_db": 1.9032504212646018e-06,
+  "measurement_gate": "FROZEN_R0_SHA_PASS",
+  "n_png_exact": 8,
+  "n_runs": 8,
+  "results": [
+    {
+      "abs_delta_db": 5.796931681345541e-07,
+      "exact_png_match": true,
+      "historical_label": "NONORBIT_INCONSISTENT",
+      "historical_psnr": 12.948262588641793,
+      "label": "NONORBIT_INCONSISTENT",
+      "pass": true,
+      "raw_psnr": 12.948263168334961,
+      "rep": 0,
+      "source": "S1_b22",
+      "uid": "S5_r0_fast|FAST|S1_b22_60044|rep0"
+    },
+    {
+      "abs_delta_db": 4.529871091563109e-07,
+      "exact_png_match": true,
+      "historical_label": "GOOD",
+      "historical_psnr": 30.279133296004687,
+      "label": "GOOD",
+      "pass": true,
+      "raw_psnr": 30.279132843017578,
+      "rep": 1,
+      "source": "S1_b22",
+      "uid": "S5_r0_fast|FAST|S1_b22_60044|rep1"
+    },
+    {
+      "abs_delta_db": 6.300814909820929e-07,
+      "exact_png_match": true,
+      "historical_label": "GOOD",
+      "historical_psnr": 30.51662191325347,
+      "label": "GOOD",
+      "pass": true,
+      "raw_psnr": 30.51662254333496,
+      "rep": 0,
+      "source": "S1_b22",
+      "uid": "S5_r0_fast|FAST|S1_b22_60140|rep0"
+    },
+    {
+      "abs_delta_db": 4.895981859931453e-07,
+      "exact_png_match": true,
+      "historical_label": "GOOD",
+      "historical_psnr": 30.7838702074233,
+      "label": "GOOD",
+      "pass": true,
+      "raw_psnr": 30.783870697021484,
+      "rep": 1,
+      "source": "S1_b22",
+      "uid": "S5_r0_fast|FAST|S1_b22_60140|rep1"
+    },
+    {
+      "abs_delta_db": 6.442575610776657e-07,
+      "exact_png_match": true,
+      "historical_label": "GOOD",
+      "historical_psnr": 31.680950809052483,
+      "label": "GOOD",
+      "pass": true,
+      "raw_psnr": 31.680950164794922,
+      "rep": 0,
+      "source": "S2_b24_dev80",
+      "uid": "S5_r0_fast|FAST|S2_b24_dev80_01113|rep0"
+    },
+    {
+      "abs_delta_db": 3.463432349803952e-07,
+      "exact_png_match": true,
+      "historical_label": "NONORBIT_INCONSISTENT",
+      "historical_psnr": 10.368905413787083,
+      "label": "NONORBIT_INCONSISTENT",
+      "pass": true,
+      "raw_psnr": 10.368905067443848,
+      "rep": 1,
+      "source": "S2_b24_dev80",
+      "uid": "S5_r0_fast|FAST|S2_b24_dev80_01113|rep1"
+    },
+    {
+      "abs_delta_db": 1.9032504212646018e-06,
+      "exact_png_match": true,
+      "historical_label": "GOOD",
+      "historical_psnr": 33.834810252859796,
+      "label": "GOOD",
+      "pass": true,
+      "raw_psnr": 33.834808349609375,
+      "rep": 0,
+      "source": "S2_b24_dev80",
+      "uid": "S5_r0_fast|FAST|S2_b24_dev80_02763|rep0"
+    },
+    {
+      "abs_delta_db": 1.1149144540922862e-07,
+      "exact_png_match": true,
+      "historical_label": "GOOD",
+      "historical_psnr": 33.81190861043238,
+      "label": "GOOD",
+      "pass": true,
+      "raw_psnr": 33.81190872192383,
+      "rep": 1,
+      "source": "S2_b24_dev80",
+      "uid": "S5_r0_fast|FAST|S2_b24_dev80_02763|rep1"
+    }
+  ],
+  "status": "XP_FAST_REPLAY_PASS"
+}

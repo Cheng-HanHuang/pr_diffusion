@@ -1,0 +1,27 @@
+{
+  "cpu_only_evaluation": true,
+  "cpu_recovery_head": "36a6a7dfb1b325667a23d671fc058cce4479628e",
+  "gpu_hours_original": 0.019908522032977393,
+  "gpu_rerun_performed": false,
+  "gpu_source_head": "314180b314674a24d5ddc40a0186b24b6082a5e0",
+  "gt_access_in_generation": false,
+  "immutable_gpu_manifest_sha256": "a908efa54a45aa31bf234eee9e4f5f01a223b630c9b2ed7fe257d330b1916ae3",
+  "max_abs_delta_db": 1.9032504212646018e-06,
+  "n_png_exact": 8,
+  "n_roots": 8,
+  "original_chunk_receipt_sha256": "04df5a6d48a629e727211bf1cab774287871bbbae9e7329f86a1d0b223b0d49e",
+  "original_gpu_worker_rc": 0,
+  "original_supervisor_state": "REPLAY_GATE_FAILED",
+  "r07_label_matches": 8,
+  "root": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_fast_replay_20261026T203415Z",
+  "science": "XP_FAST_REPLAY_PASS",
+  "scored_replay_sha256": "6e3f6896371e4d0f19221907a3293e5b26f469d9de4054ea7917ef149735a0e2",
+  "status": "XP_FAST_REPLAY_RECOVERY_PASS",
+  "timing": {
+    "foreign_pids": [],
+    "n_samples": 9,
+    "reasons": [],
+    "timing_class": "CLEAN",
+    "timing_valid": true
+  }
+}

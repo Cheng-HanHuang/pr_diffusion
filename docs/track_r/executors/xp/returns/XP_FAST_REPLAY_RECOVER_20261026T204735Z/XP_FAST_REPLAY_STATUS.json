@@ -1,0 +1,17 @@
+{
+  "cpu_score_rc": 8,
+  "gpu": 0,
+  "gpu_hours": 0.019908522032977393,
+  "head": "314180b314674a24d5ddc40a0186b24b6082a5e0",
+  "model": "ffhq",
+  "n_roots": 8,
+  "pid": 3809118,
+  "reason": "SCORER_RC_8",
+  "run_index": [
+    0,
+    1
+  ],
+  "state": "REPLAY_GATE_FAILED",
+  "worker_pid": 3809174,
+  "worker_returncode": 0
+}

@@ -1,0 +1,11 @@
+{
+  "count": 8,
+  "elapsed_gpu_allocation_seconds": 29.358805612660944,
+  "head": "314180b314674a24d5ddc40a0186b24b6082a5e0",
+  "meta_sha256": "a57b2ad5bd7c75a8beb14ee694155ce989468ed062825ff8fae1ffe6a2c27da4",
+  "new": 8,
+  "reused": 0,
+  "schema": "prdiff.track_r.r0.5.fast-chunk-complete.v1",
+  "start": 0,
+  "status": "R0_5_CHUNK_PASS"
+}

@@ -1,0 +1,17 @@
+{
+  "clean_timing_eligible": true,
+  "gpu_hours": 0.019908522032977393,
+  "head": "314180b314674a24d5ddc40a0186b24b6082a5e0",
+  "quality_eligible_if_replay_passes": true,
+  "seconds": 71.67067931871861,
+  "selected_gpu": 0,
+  "status": "XP_FAST_REPLAY_GPU_TIMING_RECORDED",
+  "timing": {
+    "foreign_pids": [],
+    "n_samples": 9,
+    "reasons": [],
+    "timing_class": "CLEAN",
+    "timing_valid": true
+  },
+  "worker_returncode": 0
+}
