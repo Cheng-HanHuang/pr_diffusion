@@ -136,3 +136,16 @@ Therefore report the preregistered Dirichlet-mixture forecasts as **model-condit
 - Leo Gao, John Schulman, Jacob Hilton. **Scaling Laws for Reward Model Overoptimization**, ICML 2023. https://proceedings.mlr.press/v202/gao23h.html
 - Stroebl, Kapoor, Narayanan, ICLR 2026 imperfect-verifier model (see THEORY_PROGRAM and existing theory literature digest).
 - Hoeffding (1948) U-statistics; Fisher--Tippett--Gnedenko classical extreme-value theory.
+
+
+## 8. Counterexample: the S1--S2 monotone gap is not a universal best-of-K law
+
+**PROVED explicit three-stratum counterexample.** Consider three per-run outcomes with ordered disjoint residual supports: GOOD_low-residual (mass 0.1), WRONG_mid-residual (mass 0.5), and GOOD_high-residual (mass 0.4), with low < mid < high. All may pass a consistency threshold, so S1 is not the issue. GOOD probability per run is 0.5; class-conditional residual rank exchangeability S2 is false.
+
+An oracle finding at least one GOOD gives \(O_{raw}(K)=1-0.5^K\). The argmin returns GOOD if there is any low-residual GOOD or if every run is high-residual GOOD, giving \(E_0(K)=1-0.9^K+0.4^K\). Thus
+\[
+ O_{raw}(K)-E_0(K)=0.9^K-0.5^K-0.4^K.
+\]
+The gap is 0 at K=1, 0.400 at K=2, 0.568 at K=4, 0.426 at K=8, and tends to 0 as K goes to infinity. **It is not monotone.** These residual classes can be represented with nonoverlapping continuous uniforms to avoid tie artifacts.
+
+This does not contradict the already proved TH1.2 monotone-gap theorem, which requires S1 **and S2**. It means an observed post-freeze decrease in the oracle--selector gap is a valid potential model falsification, rather than a numerical impossibility. Do not describe gap monotonicity as assumption-free or extrapolate it after discovering such a violation.
