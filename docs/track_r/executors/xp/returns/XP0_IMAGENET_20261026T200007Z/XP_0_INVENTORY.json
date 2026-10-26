@@ -1,0 +1,66 @@
+{
+  "assets": {
+    "difffpr_code": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/external/DiffFPR"
+    },
+    "dps_code": {
+      "exists": false,
+      "path": "/egr/research-pac/huang248/external/dps_xp"
+    },
+    "ffhq_model": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/models/ffhq_10m.pt"
+    },
+    "imagenet_alternate": {
+      "exists": false,
+      "path": "/egr/research-pac/huang248/external/DAPS/test-imagenet"
+    },
+    "imagenet_model": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/models/imagenet256.pt"
+    },
+    "imagenet_root": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/data/imagenet/test-imagenet"
+    },
+    "pc_daps_code": {
+      "exists": false,
+      "path": "/egr/research-pac/huang248/external/PC_DAPS_xp"
+    },
+    "python_daps": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/conda-envs/daps/bin/python"
+    },
+    "python_fast": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/conda-envs/fast_dips_a15_blackwell/bin/python"
+    },
+    "python_sitcom": {
+      "exists": true,
+      "path": "/egr/research-pac/huang248/conda-envs/sitcom_ode_bw/bin/python"
+    }
+  },
+  "canvas_oversample_4": 512,
+  "environments": {
+    "daps": true,
+    "fast_dips_a15_blackwell": true,
+    "prdiff_track_r": true,
+    "sitcom_ode_bw": true
+  },
+  "ffhq_n": 180,
+  "gpu_lines": [
+    "0, NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887, 0",
+    "1, NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887, 0",
+    "2, NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887, 0",
+    "3, NVIDIA RTX PRO 6000 Blackwell Server Edition, 97887, 0"
+  ],
+  "head": "02662bebe5b44952e3bcf0a504e919ffcd513e55",
+  "historical_candidates_checked": 3240,
+  "imagenet_model_sha256": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1",
+  "imagenet_n": 100,
+  "pad_oversample_4": 128,
+  "planner_ref": "92e4c4d05356fa5bda27273776a2eeaa039c29b4",
+  "status": "XP_0_PASS",
+  "unique_y_files_sha_checked": 180
+}
