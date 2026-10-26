@@ -117,3 +117,33 @@ comparing reported publication PSNRs.
 
 No extra archive download, dataset-bundle FFHQ import, new GPU work, or
 time-aware experiment is authorized during this recovery.
+
+## M1 — XP-0 successfully closed; GPU co-tenancy amendment
+
+The PAC CPU return confirms:
+- `TEST_RC=0` (26 synthetic tests);
+- `XP_IMAGENET100_IMPORTED_PASS`, first 100 of the official
+  1,000-image DAPS archive in sorted-loader order, archive SHA-256
+  `34af8a05cc5d603465ced5c7b0af97ecd152fc7074dd3519afac4765e0fab5bd`;
+- `XP_0_PASS`, 180/180 FFHQ SHA identities plus ImageNet 100/100,
+  exact 128-pixel pad and 512 canvas; import manifest crosscheck 100/100;
+- commit `6f81d1ed4368d2229e49711d677698fcf5a19e0e` pushed with
+  ImageNet file SHA manifest. No GPU inference has run.
+
+Cheng authorizes GPU co-tenancy while other jobs are active. An
+otherwise eligible quality run may launch on a device with foreign processes.
+Record foreign PIDs, current free/used memory at every launch and repeated
+intervals, and tag timing `CONTAMINATED` or `UNVERIFIED` if a foreign
+process is seen or process visibility is insufficient. Quality results
+remain eligible if all scientific receipts and replay gates pass. A timing
+benchmark on a contaminated GPU **must be rerun later**, without presenting
+that duration as a valid performance comparison. When no device can hold
+the next job while maintaining the 80% device memory ceiling, enter an
+automatically polled `WAIT_VRAM` state and resume when feasible. Other
+running jobs must never be preempted. Preserve the 400 GPU-hour cap.
+
+The executor implementation of this scheduling amendment is in
+`docs/track_r/executors/xp/GPU_COTENANCY_POLICY_20261026.md`.
+GPU admission and controller code must pass CPU unit tests and are
+**not yet** an accepted XP-T or exchangeability/replay gate; no
+scientific execution is triggered by installing these files.
