@@ -54,6 +54,28 @@ def category_lookup(meta,iid):
                     return y["category"]
     raise RuntimeError("STOP_B2_CATEGORY_UNRESOLVED "+ident)
 
+def frozen_cohort_map(records):
+    """Recover the 100/80 split from R0 sources, not the mixed FAST label."""
+    result={}
+    seen={"S1_b22":set(),"S2_b24_dev80":set()}
+    names={"S1_b22":"B22_random","S2_b24_dev80":"DEV80_enriched"}
+    for r in records:
+        source=r["source"]
+        if source not in names:
+            continue
+        iid=str(int(r["image_id"]))
+        cohort=names[source]
+        if iid in result and result[iid]!=cohort:
+            raise RuntimeError("STOP_COHORT_ID_OVERLAP")
+        result[iid]=cohort
+        seen[source].add(iid)
+    if len(seen["S1_b22"])!=100 or len(seen["S2_b24_dev80"])!=80 or len(result)!=180:
+        raise RuntimeError("STOP_COHORT_100_80_SPLIT")
+    for r in records:
+        if r["source"]=="S5_r0_fast" and str(int(r["image_id"])) not in result:
+            raise RuntimeError("STOP_FAST_ID_NOT_IN_FROZEN_180")
+    return result
+
 def check_row(row):
     for k in ("uid","source","family","image_id","run_index","raw_label",
               "psnr_raw","psnr_by_orbit","rho_signed_raw","s_gt"):
@@ -90,6 +112,7 @@ def main(a):
     all_counts=Counter(r["raw_label"] for r in records)
     if all_counts!=EXPECTED:raise RuntimeError("STOP_K3_GLOBAL_REPLAY")
     for r in records:check_row(r)
+    cohort_ids=frozen_cohort_map(records)
     cats=obj(META)
     category={str(r["image_id"]):category_lookup(cats,r["image_id"]) for r in records}
     scores=obj(N2/"N2_GT_FREE_CLIP_SCORES.json")
@@ -111,6 +134,7 @@ def main(a):
     categories=defaultdict(Counter)
     for r in records:
         src=r["source"]; fam=r["family"];iid=str(r["image_id"])
+        cohort=cohort_ids.get(str(int(iid)),"OTHER_EXPOSED")
         cat=category[iid]
         # Read exactly the receipt named by the approved R0.7 catalog, never its GT/candidate paths.
         catrow=catalog_rows[r["uid"]]
@@ -130,7 +154,7 @@ def main(a):
         if s_choice!=r["s_star"]:raise RuntimeError("STOP_PRIOR_REPLAY")
         key=(src,fam,iid)
         by_group[key].append((r,choice,choice2,s_choice))
-        categories[(src,fam,cat)]["n"]+=1
+        categories[(src,cohort,fam,cat)]["n"]+=1
         good=r["psnr_raw"]>=25
         categories[(src,fam,cat)]["good"]+=int(good)
         for name,ch in (("CLIP",choice),("S",("111" if prior["S"]["111"]<prior["S"]["000"]-1e-7 else "000")),
@@ -155,8 +179,7 @@ def main(a):
         labels="".join(lbl(x[0]) for x in group)
         cc=Counter(labels)
         count.update(x[0]["raw_label"] for x in group)
-        output.append(dict(image_id=iid,cohort=("B22_random" if src=="S1_b22" else
-                 "DEV80_enriched" if src=="S2_b24_dev80" else "MIXED_B22_DEV80"),
+        output.append(dict(image_id=iid,cohort=cohort_ids.get(str(int(iid)),"OTHER_EXPOSED"),
              source=src,family=fam,ffhq_category=category[iid],n_runs=len(group),
              n_GOOD=cc["G"],n_ORBIT_global=cc["O"],n_ORBIT_partial=cc["P"],
              n_CONSISTENT=cc["C"],n_INCONSISTENT=cc["I"],
@@ -173,11 +196,11 @@ def main(a):
     with (out/"R0N2_PER_IMAGE_COUNTS.csv").open("x",newline="",encoding="utf8") as f:
         w=csv.DictWriter(f,fieldnames=FIELDS);w.writeheader();w.writerows(output)
     with (out/"B2_MEMBERSHIP_REPORT.csv").open("x",newline="",encoding="utf8") as f:
-        keys=("source","family","category","n","good","CLIP_orb","CLIP_fix","CLIP_harm",
+        keys=("source","cohort","family","category","n","good","CLIP_orb","CLIP_fix","CLIP_harm",
               "S_orb","S_fix","S_harm","SMID_orb","SMID_fix","SMID_harm")
         w=csv.DictWriter(f,fieldnames=keys);w.writeheader()
-        for (src,fam,cat),stats in sorted(categories.items()):
-            w.writerow(dict(source=src,family=fam,category=cat,**{k:stats[k] for k in keys[3:]}))
+        for (src,cohort,fam,cat),stats in sorted(categories.items()):
+            w.writerow(dict(source=src,cohort=cohort,family=fam,category=cat,**{k:stats[k] for k in keys[4:]}))
     manifest={"status":"R0N2_B2_A8_CPU_PASS","source_r07_sha256":sha(evaluation),
               "source_n2_sha256":sha(N2/"N2_GT_FREE_CLIP_SCORES.json"),
               "categories_sha256":sha(META),"n_candidates":len(records),

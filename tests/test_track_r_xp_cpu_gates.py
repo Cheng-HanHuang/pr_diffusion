@@ -22,6 +22,22 @@ class CpuGates(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError,"STOP_B2_CATEGORY_UNRESOLVED"):
             a8.category_lookup({"1":{"category":"training"}},"02763")
 
+    def test_fast_cohort_provenance_from_original_180(self):
+        rows=[{"source":"S1_b22","image_id":f"{i:05d}"} for i in range(100)]
+        rows += [{"source":"S2_b24_dev80","image_id":f"{i:05d}"} for i in range(100,180)]
+        rows += [{"source":"S5_r0_fast","image_id":"00001"}]
+        mapping=a8.frozen_cohort_map(rows)
+        self.assertEqual(mapping["1"],"B22_random")
+        self.assertEqual(mapping["101"],"DEV80_enriched")
+        self.assertEqual(len(mapping),180)
+
+    def test_fast_cohort_rejects_external_image(self):
+        rows=[{"source":"S1_b22","image_id":str(i)} for i in range(100)]
+        rows += [{"source":"S2_b24_dev80","image_id":str(i)} for i in range(100,180)]
+        rows += [{"source":"S5_r0_fast","image_id":"999"}]
+        with self.assertRaisesRegex(RuntimeError,"STOP_FAST_ID_NOT_IN_FROZEN_180"):
+            a8.frozen_cohort_map(rows)
+
     def test_symlink_read_only_inside_pac_sandbox(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d)
