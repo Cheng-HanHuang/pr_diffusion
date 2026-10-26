@@ -49,6 +49,43 @@ class PosthocTiming(unittest.TestCase):
     def test_original_clean_retained(self):
         a,b,c=sample(False)
         self.assertEqual(audit_timing_events(a,b,c)["qualified_timing_class"],"CLEAN_ORIGINAL")
+
+    def test_actual_ffhq_small_vram_owned_worker_is_active(self):
+        # Real XP-T FFHQ was only 1,603 MiB, below the classifier's
+        # separate 2,048 MiB threshold for unattributed orphan memory.
+        # Confirm a normal sampling PID is not discarded by that cutoff.
+        events=[
+            record("PRE_GPU",0,used=0,util=0),
+            record("HEARTBEAT",1,used=3,util=0),
+            record("HEARTBEAT",2,pid=42,used=3,util=0),
+            record("HEARTBEAT",3,pid=42,used=1603,util=65),
+            record("HEARTBEAT",4,pid=42,used=1603,util=70),
+            record("HEARTBEAT",5,pid=42,used=1603,util=69),
+            record("HEARTBEAT",6,used=0,util=0),
+            record("POST_GPU",7,used=0,util=0)
+        ]
+        _,state,receipt=sample(False)
+        state["timing"]["n_samples"]=len(events)
+        result=audit_timing_events(events,state,receipt)
+        self.assertEqual(result["n_active_worker_visible"],3)
+        self.assertEqual(result["sampled_peak_used_mib"],1603)
+        self.assertEqual(result["qualified_timing_class"],"CLEAN_ORIGINAL")
+
+    def test_small_owned_memory_without_compute_is_not_active(self):
+        # PID visibility alone with no GPU utilization cannot establish
+        # that a timing interval actually contains computation.
+        events=[
+            record("PRE_GPU",0),
+            record("HEARTBEAT",1,pid=42,used=1603,util=0),
+            record("HEARTBEAT",2,pid=42,used=1603,util=0),
+            record("HEARTBEAT",3,pid=42,used=1603,util=0),
+            record("HEARTBEAT",4,used=0,util=0),
+            record("POST_GPU",5)
+        ]
+        _,state,receipt=sample(False)
+        state["timing"]["n_samples"]=len(events)
+        with self.assertRaisesRegex(RuntimeError,"STOP_XPT_AUDIT_TOO_FEW_ACTIVE"):
+            audit_timing_events(events,state,receipt)
     def test_interference_in_middle_rejected(self):
         a,b,c=sample(True)
         a.insert(3,record("HEARTBEAT",2.5,used=4012,util=0))

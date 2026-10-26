@@ -341,3 +341,7 @@ checks, and scoring cost. Then populate and activate the guarded
 CRITICAL/BACKGROUND controller. The data cut is November 2 for Tier A.
 Only exact GT-free shared measurement manifests may be used by GPU
 generators. The original theory prediction embargo remains binding.
+
+## XP-T post-hoc timing audit hotfix (2026-10-26)
+
+The initial CPU-only re-audit at executor commit `68531c40f5c9abeb48419c968e799c940846ada4` STOPPED with `STOP_XPT_AUDIT_TOO_FEW_ACTIVE` before writing any re-audit receipt or publication. Root cause: the audit reused the telemetry classifier's **2,048 MiB threshold for unattributed memory** when identifying *owned active sampling*. The FFHQ FAST native worker's observed working set was only **1,603 MiB**, despite its tracked PID and 65–70% GPU utilization. This created a false negative on FFHQ, not a scientific or timing-source failure. The corrected audit accepts owned active snapshots with tracked worker PID, positive GPU utilization and >512 MiB observed memory; it retains the original >2,048 MiB threshold for unattributed-process memory and otherwise unchanged strict post-exit checks. New synthetic regression tests mirror the observed FFHQ 8-snapshot sequence and reject an idle process with memory but no utilization. No prior timing record, measurement, reconstruction, or original status has been modified. An audit PASS is not claimed until the corrected PAC CPU execution finishes.

@@ -56,9 +56,14 @@ def audit_timing_events(events, state, completion):
         samples[-1]["utilization_pct"]!=0):
         raise RuntimeError("STOP_XPT_AUDIT_SNAPSHOT_ORDER")
 
+    # Unlike unattributed memory, which must clear the conservative
+    # 2048 MiB threshold, owned active computation is positively identified
+    # by its tracked PID and utilization. The actual FFHQ worker only used
+    # 1603 MiB, so reusing the ghost-memory threshold here would incorrectly
+    # erase all four legitimate FFHQ sampling heartbeats.
     active=[i for i,x in enumerate(samples)
         if x["action"]=="HEARTBEAT" and
-           x["worker_visible"] and x["used_mib"]>2048 and
+           x["worker_visible"] and x["used_mib"]>512 and
            x["utilization_pct"]>0]
     if len(active)<2:raise RuntimeError("STOP_XPT_AUDIT_TOO_FEW_ACTIVE")
     # Any high memory with the worker absent must be in a post-exit heartbeat,
