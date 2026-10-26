@@ -1,4 +1,40 @@
-# Top-venue attempt — planner plan (2026-10-25)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-26)
+
+> **Update 2026-10-26 (Cheng's decisions, 00:57).**
+>
+> | # | Decision | Cheng's answer | Effect |
+> |---|---|---|---|
+> | 1 | GO for XP | **"GO aggressively … Try to get as much as possible out."** | `XP_PREREG_v1_1.md` supersedes v1 (no data yet): tiers A/B/C, cap 400 GPU-h on 4 × RTX PRO 6000 |
+> | 2 | CVPR or SPL | **CVPR** | Unchanged: go/no-go Nov 8, enrollment Nov 10, paper Nov 16 |
+> | 3 | Start the theory executor | **Yes** | Handoff revision B; `THEORY_PROGRAM_v1.md` is now v1.1 |
+> | 4 | Commit the A8 label strings | **Yes** | Amendment 2 revision D.1. A8 also gains `e0_rank_order` and the decision strings |
+> | 5 | Title | **No fixed title**; keep A as a candidate, stay flexible | See below |
+>
+> **XP v1.1 in one line.**
+> - **Tier A, by Nov 2:** FAST FFHQ n = 16; XP-C; the XP-C2 equivariance defect; FAST ImageNet n = 16.
+> - **Tier B, by Nov 6:** FAST FFHQ n = 64; SITCOM FFHQ n = 16 on all 180 ids; DAPS ImageNet n = 4 on all 100 (the published DAPS-1K command); SITCOM ImageNet n = 4; DAPS FFHQ n = 8.
+> - **Tier C, by Nov 20, for the supplement:** SITCOM n = 32; DPS; PC-DAPS on the same ids; noise robustness; FAST ImageNet n = 64; XP-E (still gated on your confirmation).
+>
+> **Theory v1.1, from the full reads** (`2026-10-26_THEORY_LIT_DIGEST.md`):
+> - **Our E0 formula is Stroebl et al.'s App. C model.** Argmin equals accept-first in law under S1–S2. We credit them. The novelty is the exact symmetry, the estimators and the frozen out-of-sample predictions.
+> - **New Corollary 4.** Measurement guidance is provably orientation-blind, so orientation preference comes only from the network's non-equivariance. This is the inverse-problem analog of Dandapanthula & Boffi's Theorem 6. XP-C2 measures it.
+> - **New monotone-gap theorem.** The GT-free gap is non-decreasing in K. It is a free, falsifiable shape prediction.
+> - **TDS.** Asymptotic exactness is with respect to the model posterior, which keeps orbit and decoy mass. Exact sampling bounds what selection can achieve but does not remove failures.
+>
+> **Prediction freeze.**
+> - v1 (FFHQ) by **Oct 31**. v2 (ImageNet FAST) is optional.
+> - **Embargo** on K > 4 outcomes until each freeze. The registry is `docs/track_r/theory/PREDICTIONS_REGISTRY.md`.
+>
+> **Go/no-go on Nov 8.** The four conditions of §3 still apply. **XP-B16 (SITCOM, at least partly back) is now strongly desired**, because it is the theory's c ≫ 0 regime.
+>
+> **Title candidates** (flexible; choose at enrollment, Nov 10):
+> - A: "Best-of-K Without Ground Truth: An Audit and a Selection Theory for Diffusion Phase Retrieval"
+> - C: "What Does Best-of-K Measure? Symmetry, Selection Ceilings and an Audit of Diffusion Phase Retrieval"
+> - D: "Orientation-Blind Guidance and Ground-Truth-Free Selection in Diffusion Phase Retrieval"
+>
+> **Papers.**
+> - The file labeled "TGD" was TDS (Wu et al. 2023). TGD (arXiv 2605.03712) is still missing, and a direct fetch was not permitted.
+> - Received and read in full: Stroebl et al.; Dandapanthula & Boffi; TDS.
 
 **Trigger.** Cheng (2026-10-25 23:17) asked to:
 - aim higher than EUSIPCO (SPL or CVPR), keeping EUSIPCO as the fallback;
@@ -159,6 +195,8 @@ If any is missing, switch to SPL, targeting ≈ Dec 10. The same draft is conden
 | Selection theory | pass@k; Stroebl et al. (LLMs) | First transfer to diffusion inverse solvers, with out-of-sample predictions |
 
 ## 5. Experiments (details and frozen choices in `XP_PREREG_v1.md`)
+
+> **Superseded on 2026-10-26** by `XP_PREREG_v1_1.md` (the tiers and the 400 GPU-h cap in the update box). The table below is the v1 scope, kept for the record.
 
 | ID | What | Compute | Priority |
 |---|---|---|---|

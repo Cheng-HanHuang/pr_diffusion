@@ -1,5 +1,7 @@
 # XP pre-registration v1 — evaluation-only extensions for the audit paper
 
+> **SUPERSEDED (2026-10-26) by [`XP_PREREG_v1_1.md`](XP_PREREG_v1_1.md)**, before any XP data existed. Cheng gave GO with an aggressive scope. Do not execute from this file; it is kept for the record.
+
 **Status:** FROZEN v1 (planner, 2026-10-25). **Execution requires Cheng's explicit "GO XP".** Until then, no GPU work.
 
 **Purpose.** Strengthen the audit (top-venue attempt; plan in `2026-10-25_TOP_VENUE_PLAN.md`) with:

@@ -1,10 +1,14 @@
-# Track R · theory executor handoff (TH1 now, TH2 memo)
+# Track R · theory executor handoff (TH1 now, TH2 memo), revision B
 
-**From:** planner (Claude), 2026-10-25
+**From:** planner (Claude), 2026-10-26 (revision B; revision A was 2026-10-25 and was never started).
 **To:** a separate theory executor (a new chat or agent). **No PAC access is needed or allowed.**
 
+**Cheng's decision (2026-10-26): start now.**
+
 **Binding:**
-- `docs/planning/track_r/THEORY_PROGRAM_v1.md` (problem statements; read it first);
+- `docs/planning/track_r/THEORY_PROGRAM_v1.md`, now **v1.1** (problem statements; read it first);
+- `docs/planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md` (main-text digests of Stroebl et al., Dandapanthula & Boffi and TDS, with planner derivations D1–D12 to prove or refute);
+- `docs/planning/track_r/XP_PREREG_v1_1.md` §5 (freeze order and embargo);
 - `docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md` (why and when).
 
 ## 0. Planner's view
@@ -15,9 +19,14 @@
 - SITCOM's failures fit y in 57% of cases. DAPS and FAST-DIPS failures mostly do not fit y.
 - CLIP zero-shot fixes 84/84 global 180° errors with no harm observed in 2,040 good outputs. Prior-based repair is therefore **not** a method contribution.
 
-**Your job** is to supply the theory that **explains and predicts** these numbers:
-- TH1: the orbit proposition, the selection model, estimators, per-metric inflation, and frozen predictions.
-- Then scope TH2: inner functionals in exactly symmetric toys.
+**What the new reading changes:**
+- **Stroebl et al. already have our core model.** Their App. C imperfect-verifier model equals our E0 formula once argmin is shown to equal accept-first in law (digest D1). **Credit them.** Our theory is new in four ways:
+  - the exact symmetry: Prop. 1 and the equivariance Corollary 4;
+  - the orbit classes and the symmetry-aware selector;
+  - exact estimators;
+  - predictions **frozen before the data and then tested**.
+- **The equivariance corollary is the strongest single result available.** Measurement guidance is provably orientation-blind, so orientation preference comes only from the network. XP-C2 measures the network's equivariance defect directly.
+- **The monotone-gap theorem** (digest D3) is a falsifiable shape prediction. It costs nothing to state.
 
 **Publication image.**
 - CVPR 2027 attempt: paper Nov 16, planner go/no-go Nov 8. Fallbacks are SPL and EUSIPCO 2027.
@@ -26,14 +35,19 @@
 
 ## 1. Setup
 
-- **Branch.** Create `theory/prdiff-track-r-th-<YYYYMMDD>` from `origin/claude/prdiff-track-r-planner-20261021`. Commit only under `docs/track_r/theory/` and `scripts/track_r/theory/`.
+- **Branch.** Create `theory/prdiff-track-r-th-<YYYYMMDD>` from `origin/claude/prdiff-track-r-planner-20261021`. Commit only under `docs/track_r/theory/` and `scripts/track_r/theory/`. **Do not edit** `PREDICTIONS_REGISTRY.md`: the planner maintains it.
 - **Tools.** Python 3, numpy/scipy/matplotlib, and LaTeX for the note. CPU only. Seed everything.
-- **Data you may use** (path-free, already committed):
-  - `docs/track_r/executors/r0/returns/R0_20261023/R0_8_P4_MATRIX.csv` (policy × K × stratum);
-  - `R0_7_ANALYSIS.json`;
+- **Data you may use** (path-free, committed):
+  - `docs/track_r/executors/r0/returns/R0_20261023/R0_8_P4_MATRIX.csv` (policy × K × stratum) and `R0_7_ANALYSIS.json`;
   - R0-N N1 CSVs under `docs/track_r/executors/r0n/returns/R0N_20261024T061111Z/` (on branch `codex/prdiff-track-r-r0n-20261023`);
   - the N2 comparison JSON (same branch, `R0N_N2_RECOVERY_20261024T073405Z/`);
-  - **A8 per-image label counts**, committed by the PAC executor in R0-N.2. The planner will tell you the path; expected Oct 29.
+  - **A8 per-image strings**, committed by the PAC executor in R0-N.2 (amendment 2 revision D.1). The planner will tell you the path; expected Oct 28–29. Columns:
+    - counts per class;
+    - `run_labels`;
+    - `e0_rank_order`;
+    - `orbit_best_member`;
+    - the stored decisions `dec_clip_face`, `dec_s_all8`, `dec_2f`.
+- **Embargo.** Read **no XP return** until your v1 predictions are registered. After that, read only what the planner forwards (XP-D1 phase-1 counts for v2).
 - **Forbidden:**
   - PAC;
   - ground-truth images;
@@ -44,28 +58,43 @@
 
 | # | Task | Due |
 |---|---|---|
-| 1 | Read the program, plus at least: Burns & Fridovich-Keil (arXiv 2605.30330); Stroebl et al. (arXiv 2411.17501); pass@k (Chen et al. 2021, §2.1); Dandapanthula & Boffi (arXiv 2606.02884); Biroli et al. 2024 (*Nat. Commun.*); PC-DAPS (arXiv 2610.31592) §3–4 | Oct 27 |
-| 2 | TH1.1: lemma + Proposition 1 + corollaries, written and proved | Oct 29 |
-| 3 | TH1.2: closed forms, ceilings, relaxations, population model | Oct 30 |
-| 4 | **TH1.5:** fit on K ≤ 4 data only (P4 aggregates now; A8 counts if they arrive in time). **Commit `docs/track_r/theory/TH1_PREDICTIONS_v1.json` and notify the planner.** It must exist **before** the XP-A/XP-B returns | **Oct 31 (hard)** |
-| 5 | TH1.3 estimators (with unbiasedness proofs) and TH1.4 per-metric inflation | Nov 3 |
-| 6 | TH1 note (LaTeX + PDF) + scripts + paper-ready half-page and one-page text | **Nov 6** |
-| 7 | TH2 feasibility memo: first 1D-Fourier-toy numerics, candidate theorems, overlap check, go/no-go | Nov 13 |
+| 1 | Read the digest and the program. Then, as available to you: Chen et al. 2021 §2.1 (pass@k); Burns & Fridovich-Keil (arXiv 2605.30330); Biroli et al. 2024 (*Nat. Commun.*); PC-DAPS (arXiv 2610.31592) §3–4; Hoogeboom et al. 2022 (equivariant diffusion). The PDFs of Stroebl, Dandapanthula & Boffi and TDS may not be available to you; the digest is enough | Oct 27 |
+| 2 | TH1.1: lemma, Proposition 1, Corollaries 1–5, written and proved. Check Corollary 4's conditions family by family | Oct 29 |
+| 3 | TH1.2: closed forms; the Stroebl correspondence; ceilings; the **monotone-gap theorem**; the bottleneck shift; relaxations; the population model | Oct 30 |
+| 4 | **TH1.5 v1:** fit on K ≤ 4 only (A8 strings; P4 at K ≤ 4 if A8 is late). **Commit `docs/track_r/theory/TH1_PREDICTIONS_v1.json` and tell the planner** (via Cheng) with the commit SHA | **Oct 31 (hard)** |
+| 5 | TH1.3 estimators (with the order-statistic identity and unbiasedness proofs) and TH1.4 per-metric inflation | Nov 3 |
+| 6 | **TH1.5 v2** (optional): ImageNet FAST from phase-1 counts, within 48 h of receiving them | ≈ Nov 1–3 |
+| 7 | TH1 note (LaTeX + PDF) + scripts + paper-ready half-page and one-page text | **Nov 6** |
+| 8 | TH2 feasibility memo: first 1D-Fourier-toy numerics, candidate theorems (priority: TH2(e), S2 as an expectation statement), overlap check, go/no-go | Nov 13 |
 
 **`TH1_PREDICTIONS_v1.json` schema:**
 ```
-{"model": "...", "fit_data": ["P4 K<=4" | "A8 counts K<=4"],
- "fit_commit": "<sha>", "predictions": [
-   {"family": "FAST", "dataset": "FFHQ", "ids": "S5_180",
-    "policy": "E1_CLIP|O_raw|O_orbit", "metric": "good25",
-    "K": 8|12|16, "point": x, "lo95": a, "hi95": b}, ...]}
+{"version": "v1", "model": "<short description, e.g. 3-type mixture of (p, o_g, o_p, c, u)>",
+ "fit_data": ["A8 strings K<=4" | "P4 K<=4"], "fit_commit": "<sha of the data commit>",
+ "code_commit": "<sha of your fitting script>",
+ "uncertainty": "<how model and sampling uncertainty are combined>",
+ "predictions": [
+   {"family": "FAST|SITCOM|DAPS", "dataset": "FFHQ",
+    "cohort": "S5_180|B22|DEV80|POOLED",
+    "policy": "E0|E1_CLIP|O_raw|O_orbit", "metric": "good25",
+    "K": <int>, "point": <x>, "lo95": <a>, "hi95": <b>}, ...],
+ "shape_predictions": [
+   {"family": "...", "cohort": "...", "statement": "O_orbit - E1_CLIP non-decreasing in K"},
+   {"family": "...", "cohort": "...", "statement": "O_raw - E0 non-decreasing in K"}],
+ "crossover_K": [{"family": "...", "cohort": "...", "K_star": <x>, "lo95": <a>, "hi95": <b>}]}
 ```
+**K grids:**
+- FAST: {8, 12, 16, 24, 32, 48, 64};
+- SITCOM: {8, 12, 16, 24, 32};
+- DAPS: {4 (B22 only), 6, 8}.
+
+`crossover_K` is the K at which selection misses overtake generation failures (TH1.2 item 4). Give `null` when it never happens within K ≤ 64.
 
 ## 3. Standards
 
 - **Rigor.** Every statement is either proven, with its assumptions listed, or labeled CONJECTURE / NUMERICAL.
 - **No over-reach.** Never claim a result about real solvers beyond what the numbers show. Give the planner predictions, not conclusions.
-- **Citations.** Cite the primary source for every borrowed result: pass@k, the Stroebl ceiling, the DAPS exactness argument, speciation. Mark which statements you verified in the main text.
+- **Citations.** Cite the primary source for every borrowed result: pass@k; the Stroebl model and ceiling (state the correspondence plainly); the D&B mode-selection result; TDS; the DAPS exactness argument; invariance propagation; speciation. Mark which statements you verified in the main text, and which came from the digest.
 - **Reproducibility.** Every script reproduces from a committed commit.
 
 ## 4. Return (`docs/track_r/theory/TH_RETURN_<date>.md`)
@@ -73,7 +102,7 @@
 1. **Status:** at most 8 lines.
 2. **Identity:** branch and SHAs.
 3. **Results:** the list of propositions (statement, assumptions, proof status).
-4. **Predictions:** the predictions-file SHA and commit time.
-5. **Model fit:** quality, and checks of S1/S2 where data allow.
+4. **Predictions:** the predictions-file SHA-256, commit SHA and commit time.
+5. **Model fit:** quality, and checks of S1/S2 where the data allow.
 6. **Open problems:** including a TH2 go/no-go.
 7. **Opinion:** optional, and clearly separated.

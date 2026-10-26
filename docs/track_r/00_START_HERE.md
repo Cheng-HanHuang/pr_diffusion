@@ -1,9 +1,14 @@
 # Track R — start here
 
-**Updated:** 2026-10-25 by the planner (Claude).
-- After PC-DAPS (arXiv 2610.31592): see the positioning note (document 3).
+**Updated:** 2026-10-26 by the planner (Claude).
+- After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
+- **2026-10-26:** Cheng's decisions, recorded in the update box of document 1:
+  - **GO XP, aggressively.** `XP_PREREG_v1_1.md` supersedes v1: tiers A/B/C, 400 GPU-h cap;
+  - CVPR;
+  - the theory executor starts now (handoff revision B; program v1.1; literature digest);
+  - the A8 label strings may be committed (amendment 2 revision D.1).
 
 **Track R** is reliability per compute for diffusion-prior Fourier phase retrieval.
 
@@ -27,16 +32,20 @@
 
 | Stage | What | Status |
 |---|---|---|
-| **R0-N.2** | Amendment 2 **revision D**, CPU: N1h → **A8 per-image counts** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
-| **XP** | `XP_PREREG_v1.md`: XP-0/T inventory and timing; XP-A FAST K → 16; XP-C orientation tests on ImageNet and FFHQ ground truth; XP-D ImageNet audit; XP-B optional SITCOM K → 16; XP-E optional bridge | **FROZEN v1 — awaiting Cheng's "GO XP"** (CPU prep may start) |
-| **TH1** | Selection theory for the paper; predictions frozen by **Oct 31**; note due Nov 6 | **AUTHORIZED** (theory executor) |
+| **R0-N.2** | Amendment 2 **revision D.1**, CPU: N1h → **A8 per-image strings (by Oct 28)** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
+| **XP** | `XP_PREREG_v1_1.md`:<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, FAST ImageNet n=64, XP-E (gated) | **GO given (2026-10-26); FROZEN v1.1; cap 400 GPU-h** |
+| **TH1** | Selection theory for the paper; predictions v1 frozen by **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **AUTHORIZED, start now** (theory executor, handoff rev B) |
 | **TH2** | Inner-functional theory (feasibility memo due Nov 13) | AUTHORIZED (memo only) |
 
 ## Documents (read in this order)
 
-1. **Top-venue plan (2026-10-25):** [`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`](../planning/track_r/2026-10-25_TOP_VENUE_PLAN.md)
-2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1.md`](../planning/track_r/XP_PREREG_v1.md), with handoff [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
-3. **Theory:** [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md), with handoff [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md)
+1. **Top-venue plan** (2026-10-25; read the 2026-10-26 update box first): [`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`](../planning/track_r/2026-10-25_TOP_VENUE_PLAN.md)
+2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded), with handoff revision B [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
+3. **Theory:**
+   - program v1.1 [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md);
+   - literature digest [`2026-10-26_THEORY_LIT_DIGEST.md`](../planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md);
+   - handoff revision B [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md);
+   - predictions registry [`theory/PREDICTIONS_REGISTRY.md`](theory/PREDICTIONS_REGISTRY.md).
 4. **R0 decision and rulings** (§§1–10; §10 is K2): [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
 5. **PC-DAPS positioning** (read its K2 update box first): [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
 6. **Fallback paper plan** (EUSIPCO/SPL condensed): [`docs/planning/track_r/LETTER_PLAN.md`](../planning/track_r/LETTER_PLAN.md). Extension options: [`2026-10-24_EXTENSION_OPTIONS.md`](../planning/track_r/2026-10-24_EXTENSION_OPTIONS.md)
@@ -55,11 +64,12 @@
 |---|---|---|---|
 | R0.0–R0.8 | Inventory → frozen analysis and audit (3.43 GPU-hours) | COMPLETE, accepted | executor and Cheng |
 | R0-N | N0 tables, N1 analyses, N2 CLIP baseline, N3 inventory | COMPLETE, accepted (N1 `5af47db`; N2 `33a34bd`). K1 not triggered, **K2 TRIGGERED**, K3 PASS | executor and Cheng |
-| R0-N.2 | Amendment 2 revision D (CPU) | NEXT, urgent (Oct 29) | executor and Cheng |
-| XP | `XP_PREREG_v1` (GPU, ≤ 45 GPU-hours) | FROZEN, awaiting GO | executor and Cheng |
-| TH1 / TH2 | Theory program v1 | AUTHORIZED | theory executor |
+| R0-N.2 | Amendment 2 revision D.1 (CPU) | NEXT, urgent (A8 Oct 28; return Oct 29) | executor and Cheng |
+| XP | `XP_PREREG_v1_1` (GPU, ≤ 400 GPU-hours, tiers A/B/C) | **GO given 2026-10-26** | executor and Cheng |
+| TH1 / TH2 | Theory program v1.1 | AUTHORIZED, starting | theory executor |
 | Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback | drafting from Oct 27 | planner drafts, Cheng and coauthors edit |
-| N4; X5/X6 | Clean-image probe (withdrawn); PC-DAPS audit and operator robustness (deferred to a journal version) | — | — |
+| N4 | Clean-image probe (withdrawn) | — | — |
+| X5/X6 | PC-DAPS audit and noise robustness: now XP-I and XP-G (Tier C, supplement) | in XP v1.1 | executor and Cheng |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |
 | T1 | √h hard-selection theory | parked | — |
 

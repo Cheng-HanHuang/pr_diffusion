@@ -1,4 +1,12 @@
-# R0-N amendment 2, revision D (planner, 2026-10-25): the R0-N.2 CPU block
+# R0-N amendment 2, revision D.1 (planner, 2026-10-26): the R0-N.2 CPU block
+
+**Revision D.1 (2026-10-26) is additive to revision D.**
+1. **Cheng approved committing the A8 label strings** (2026-10-26 00:57). The veto clause in §A8 is void.
+2. **A8 gains columns** that make the theory executor's fit exact: `e0_rank_order`, `orbit_best_member`, and the stored per-run decisions `dec_clip_face`, `dec_s_all8`, `dec_2f`.
+   - The first two are **required**; the decisions are preferred.
+   - If A8 was already produced, add the columns in a follow-up commit.
+3. **A8 target: Oct 28.** The theory executor freezes predictions on it by Oct 31.
+4. **XP has GO** (Cheng, 2026-10-26). R0-N.2 runs in parallel with XP, in the order of the XP handoff revision B, §2. R0-N.2 itself stays CPU-only with no new inference. XP's GPU work is authorized separately, by `XP_PREREG_v1_1.md`.
 
 **Revision D (2026-10-25) is additive to revision C and makes R0-N.2 urgent**, because of the top-venue attempt (`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`).
 - **New §A8:** committable per-image label counts, which feed the theory executor's frozen predictions (TH1.5).
@@ -181,10 +189,14 @@ The planner needs this to put all four solvers on one compute axis (X3).
 | `e0_rank_labels` | The labels sorted by ascending ρ_signed, same alphabet |
 | `clip_fix_ok` | For ORBIT runs only: did the frozen N2 CLIP decision fix it? Encoded 1/0 in run order, empty for other runs |
 | `ffhq_category` | From B2 |
+| `e0_rank_order` (D.1, required) | Run indices sorted by ascending ρ_signed (ties by run index), comma-separated, e.g. `2,0,3,1` |
+| `orbit_best_member` (D.1, required) | One character per run in run order: the best orbit member's 3-bit index `0`–`7` for ORBIT runs (`7` = 111 = global), `.` for other runs |
+| `dec_clip_face`, `dec_2f` (D.1, preferred) | Stored GT-free decisions per run in run order, `1` = choose 111, `0` = keep 000: the frozen N2 CLIP face decision, and N1d's `single_300\|J1\|global2` decision from stored draw losses. `-` if not stored for that run |
+| `dec_s_all8` (D.1, preferred) | The R0-frozen E1 (S-based, all 8 members) chosen member per run, as `0`–`7` |
 
-`e0_rank_labels` lets the theory executor test assumptions S1/S2 without any per-run residual values.
+`e0_rank_labels` lets the theory executor test assumptions S1/S2 without any per-run residual values. `e0_rank_order` and the decision strings let it reproduce E0, E1 and E1_CLIP exactly for every K-subset.
 
-**Data-rule note.** The label strings are derived from GT per run, but contain no paths, metric values or images. The planner judges them compatible with the "no per-run GT records" rule. **If Cheng vetoes**, commit only the count columns, and put `run_labels`, `e0_rank_labels` and `clip_fix_ok` in the A7 planner ZIP.
+**Data-rule note.** The label strings are derived from GT per run, but contain no paths, metric values or images. **Cheng approved committing them on 2026-10-26.** The decision strings are GT-free.
 
 **Checks.**
 - The row sums reproduce the K3 totals: 2,040 / 85 / 324 / 791.
