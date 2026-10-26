@@ -247,3 +247,43 @@ generation; new XP candidate outcome labels are not evaluated, committed,
 or reported. Timing from a contaminated GPU must be marked unsuitable
 for publication and rerun later. The 400 GPU-hour cap and original
 reconstruction run embargo remain unchanged.
+
+## XP-T FAST/FFHQ measured PASS and ImageNet timing pilot (2026-10-26)
+
+PAC completed the bounded FAST FFHQ batch-1 timing pilot under commit
+`3e202508dbe2b9dc16ac4ef2f2bd38ee3a1e29a3`:
+9/9 successful independent roots, first three sorted B22 image IDs,
+`XP_T_FAST_FFHQ_BATCH1_PASS`, median native sample wall
+**3.3207844938 s**, median CUDA-event sample **3.3207717285 s**,
+whole allocation **61.34695235 s = 0.01704082010 GPU-h**, GPU 0,
+**CLEAN** (no foreign PIDs detected at 8 sample points). Receipt SHA-256
+`378366c0958238ca832ae29b5f66a8e5d406dcaae8cec401be2dfb9bc17aba4a`
+at `outputs/pr_diffusion/track_r/xp_t_fast_20261026T205902Z/XP_T_FAST_COMPLETE.json`.
+The sampled GPU-memory peak, 1,603 MiB, is an observation only; it is
+not a verified allocation upper bound and **must not** be used by itself
+to choose W*. Nine-root calibration is approximately 30 s of sampling
+plus model initialization; compare published throughput with individual
+CUDA-event sample timings, not end-to-end amortized time.
+
+**Next task:** CPU-only preparation of all 100 common ImageNet signed
+measurements, then a FAST-DIPS batch-1 ImageNet pilot (first three
+images, 3 independent XP seeds each). This is one of XP-T's required
+dataset-family calibrations. It is not historical ImageNet outcome
+generation. The preprocessing is the official pinned FAST-DIPS data.py
+`ToTensor -> Resize(256) -> CenterCrop(256)`. CPU records new
+`y=A(x)+0.05*n`, each with seed
+`SHA256('XPMEAS|imagenet|<basename>')[:8]` unsigned mod (2^{63}),
+signed-y SHA and physical RMS check. The manifest sent to the GPU has
+only y paths/SHAs, seed, uid, run number, and ImageNet model SHA,
+**no GT path**. A separate GT-only offline record is never used by
+generation. Source files are exactly the 100 selected by XP-0 from
+the 1000-image official archive, not a claim to reproduce the paper's
+exact original selected 100. FAST sampling parameters are the already
+frozen R0.5 native pixel settings and the pinned ImageNet checkpoint.
+
+The XP-T pilot retains per-run CUDA and wall times, 80%-VRAM admission
+and foreign-PID telemetry. No new ImageNet success labels or K-curves
+are scored. Do not merge with a new planner revision without reviewing
+changes; planner head remained
+`92e4c4d05356fa5bda27273776a2eeaa039c29b4`
+at the time of this preparation.

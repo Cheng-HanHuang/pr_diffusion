@@ -58,6 +58,9 @@ def summarize(root,head,roots_path,roots_sha,device,timings,cards,secs):
     from scripts.track_r.xp_fast_gpu import validate_complete,root_folder,frozen_roots
     doc=json.loads(roots_path.read_text())
     tasks=frozen_roots(doc,head)
+    dataset=doc.get("dataset")
+    if dataset not in ("ffhq","imagenet"):
+        raise RuntimeError("STOP_XPT_DATASET")
     chunk=root/"gpu"
     m=json.loads((chunk/"R0_5_CHUNK_META.json").read_text())
     complete=json.loads((chunk/"R0_5_CHUNK_COMPLETE.json").read_text())
@@ -71,7 +74,7 @@ def summarize(root,head,roots_path,roots_sha,device,timings,cards,secs):
     root_rows=[]
     for task in tasks:
         native=validate_complete(root_folder(chunk,task),task,head,roots_sha)
-        if native.get("method")!="UNMODIFIED_NATIVE_FAST_T150_ADMM2_S5" or native.get("dataset")!="ffhq":
+        if native.get("method")!="UNMODIFIED_NATIVE_FAST_T150_ADMM2_S5" or native.get("dataset")!=dataset:
             raise RuntimeError("STOP_XPT_NATIVE_CONFIG")
         root_rows.append({"uid":task["uid"],"image_id":task["image_id"],
                           "run_index":task["rep"],"seed":task["seed"],
@@ -83,10 +86,10 @@ def summarize(root,head,roots_path,roots_sha,device,timings,cards,secs):
     samples=[g for snap in cards for g in snap if g.index==device]
     peak_used=max((s.used_mib for s in samples),default=None)
     outcome={
-        "status":"XP_T_FAST_FFHQ_BATCH1_PASS",
-        "stage":"XP-T","head":head,"dataset":"ffhq","family":"FAST",
+        "status":"XP_T_FAST_"+dataset.upper()+"_BATCH1_PASS",
+        "stage":"XP-T","head":head,"dataset":dataset,"family":"FAST",
         "gpu_index":device,"n_images":3,"runs_per_image":3,"new_roots":9,
-        "batch_size":1,"model":"ffhq256ddpm","oversample":2.0,
+        "batch_size":1,"model":("imagenet256ddpm" if dataset=="imagenet" else "ffhq256ddpm"),"oversample":2.0,
         "sampling_cuda_event_s_median":float(sorted(r["sampling_cuda_event_s"] for r in root_rows)[4]),
         "sampling_wall_s_median":float(sorted(r["sampling_wall_s"] for r in root_rows)[4]),
         "sampling_wall_s_mean":sum(r["sampling_wall_s"] for r in root_rows)/9,
@@ -163,11 +166,15 @@ def main(a):
     env.update(CUDA_VISIBLE_DEVICES=str(gpu),PYTHONPATH=str(WT),
                PYTHONDONTWRITEBYTECODE="1",PYTHONNOUSERSITE="1",
                TMPDIR=str(CACHE/"tmp"),XDG_CACHE_HOME=str(CACHE))
+    tasks_data=json.loads(roots.read_text())
+    dataset=tasks_data.get("dataset")
+    if dataset not in ("ffhq","imagenet"):
+        raise RuntimeError("STOP_XPT_DATASET")
     cmd=[str(FAST),str(WT/"scripts/track_r/xp_fast_gpu.py"),
          "--expected-head",head,"--roots",str(roots),
          "--roots-sha",prep["manifest_sha256"],
          "--out",str(root/"gpu"),"--start","0","--count","9",
-         "--physical-gpu",str(gpu),"--dataset","ffhq",
+         "--physical-gpu",str(gpu),"--dataset",dataset,
          "--oversample","2.0"]
     preflight=subprocess.run(cmd+["--preflight-only"],env=env,cwd=str(WT),
                             capture_output=True,text=True,timeout=600)
@@ -237,7 +244,7 @@ def main(a):
                  sampling_wall_s_median=done["sampling_wall_s_median"],
                  peak_used_mib=done["peak_used_mib_sampled"])
     update_json(status,state)
-    print("XP_T_FAST_FFHQ_BATCH1_PASS roots=9 gpu="+str(gpu)+
+    print("XP_T_FAST_"+dataset.upper()+"_BATCH1_PASS roots=9 gpu="+str(gpu)+
           " median_s="+format(done["sampling_wall_s_median"],".3f")+
           " wall_s="+format(wall,".3f")+
           " timing="+timing["timing_class"])

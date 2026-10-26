@@ -20,7 +20,7 @@ def main():
         if d.is_dir() and (d.name.startswith("xp_0_") or d.name.startswith("xp_t_")
                           or d.name.startswith("xp_controller_") or d.name.startswith("xp_fast_replay_")
                           or d.name.startswith("r0n2_"))),
-        key=lambda d:d.name,reverse=True)[:8]
+        key=lambda d:d.name,reverse=True)[:64]
     seen_inventory=False
     seen_a8=False
     seen_import=False
