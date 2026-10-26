@@ -2,7 +2,7 @@
 
 > **Amendment A1 (planner, 2026-10-26, before any XP data or handoff delivery).**
 > 1. **XP-E is cancelled.** Cheng reports (2026-10-26 02:56) that DAPS's `test-ffhq` set is **not** disjoint from the locked B24 holdout: there is one shared FFHQ id. The overlapping id is withheld, so excluding it would require membership information that agents must not hold.
->    - **Replacement:** **XP-E′** (Tier C, conditional). The published DAPS-1K command runs on the 180 R0 ids, n = 4, **only if** the R0-N.2 A4.4 record shows that the historical FFHQ DAPS configuration differs from DAPS-1K.
+>    - **Replacement:** **XP-E′** (Tier C, conditional). The published DAPS phase-retrieval configuration runs on the 180 R0 ids, n = 4, **only if** the R0-N.2 A4.4 record shows that the historical FFHQ DAPS configuration differs from it. Amendment A2 corrects that configuration to DAPS-4K.
 >    - The FFHQ bridge to published settings is otherwise already covered by S5 (FAST, published command), XP-H (DPS, published config) and XP-F8.
 > 2. **New data rule (§1, §7).** Track R never loads any bundled FFHQ set of DAPS, FAST-DIPS or PC-DAPS: `test-ffhq`, `demo-ffhq`, or any DAPS FFHQ archive. This applies to smoke tests, timing and debugging as well. FFHQ inputs come **only** from the R0 manifests of the 180 ids.
 > 3. **New XP-G2** (Tier C), the 512-canvas control: oversample 4.0, i.e. pad 128 per side, so the 256² support is exactly half the canvas per axis.
@@ -12,7 +12,18 @@
 >    - a "mixed-twin" anatomy of INCONSISTENT failures (Fienup & Wackerman 1986).
 > 5. Nothing else changes. Tiers A and B are unchanged.
 
-**Status:** FROZEN v1.1 with amendment A1 (planner, 2026-10-26).
+> **Amendment A2 (planner, 2026-10-26 11:30, before any XP data).** The DAPS configuration for XP-D2 and XP-E′ is corrected.
+> - **The problem.** The DAPS paper's phase-retrieval results (Table 1) use **DAPS-4K**. Sec. 4.1 of arXiv 2407.01521v3, verified by the planner: "we use DAPS-1K for all linear tasks and DAPS-4K for all nonlinear tasks", and "DAPS-4K uses 10 NFE and 400 steps", with 100 Langevin steps per denoising iteration. The repository's `commands/pixel_*.sh` run a "DAPS-1K" setting (200 annealing × 5 ODE steps), so they do **not** reproduce the published numbers.
+> - **The fix.** XP-D2 and XP-E′ use DAPS-4K at `e7a77d0`:
+>   - `+sampler=edm_daps` with `sampler.annealing_scheduler_config.num_steps=400` and `sampler.diffusion_scheduler_config.num_steps=10`;
+>   - `+task=phase_retrieval` with `task_group=pixel` (100 Langevin steps, lr 5e-5, τ = 0.01, lr_min_ratio 0.01);
+>   - our frozen y and seeds, through the in-repository wrapper.
+>
+>   Record the resolved configuration. **The published reference values** are pixel DAPS on FFHQ, 30.63 ± 3.13 dB / SSIM 0.851 / LPIPS 0.139, and on ImageNet, 25.78 ± 6.92 / 0.743 / 0.254 (Table 1; best of 4; the code takes per-metric best over runs).
+> - **XP-E′ condition** now reads: run only if the historical FFHQ DAPS configuration (A4.4) differs from DAPS-4K.
+> - **Cost.** DAPS-4K is about 4× DAPS-1K. XP-T measures it. If XP-D2's projection exceeds 80 GPU-h, apply the existing drop rule: reduce to 25 images by SHA-256(`XPD|<basename>`).
+
+**Status:** FROZEN v1.1 with amendments A1 and A2 (planner, 2026-10-26).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
@@ -37,7 +48,7 @@
 | 2 | FAST FFHQ: n = 16 (A), then **n = 64** (B). FAST ImageNet: n = 16 (A, was 8), then n = 64 (C) |
 | 3 | SITCOM FFHQ K-scaling on **all 180 ids** (was 60), n = 16 (B), then n = 32 (C) |
 | 4 | **New:** DAPS FFHQ K-scaling to n = 8 on all 180 ids (B) |
-| 5 | DAPS ImageNet on **all 100 images** (was 25), using the **published DAPS-1K phase-retrieval command** (B) |
+| 5 | DAPS ImageNet on **all 100 images** (was 25), using the **published phase-retrieval configuration**: DAPS-4K, per amendment A2 (B) |
 | 6 | **New (C):** XP-G noise robustness (FAST, σ ∈ {0.02, 0.10}); XP-H DPS backbone; XP-I PC-DAPS on the same 180 ids |
 | 7 | **Two-stage prediction freeze:** v1 for FFHQ (by Oct 31), v2 for ImageNet FAST (after its runs 0–3). Plus an **embargo** on K > 4 outcomes until each freeze (§5) |
 | 8 | **Replay and exchangeability gates** before adding runs to historical families (§4) |
@@ -60,7 +71,7 @@
 | FAST-DIPS | R0.5 frozen settings (T = 150, K = 2, S = 5, ρ = 200, ε = 0.05), `FAST_DIPS_A15` @ `a9758b38`, env `fast_dips_a15_blackwell`. These equal the repository's published phase-retrieval command for both FFHQ and ImageNet (`configs_fast_dips_cli.txt`). ImageNet uses the `imagenet256ddpm` preset. **XP-G keeps every setting**, including ε (a fixed constraint tolerance in the code, not a noise parameter) |
 | SITCOM | FFHQ: the B22 native settings (`configs/b22/b22_2_overnight.json`, `sitcom` block). ImageNet: SITCOM's own ImageNet phase-retrieval settings if its code or paper defines them; otherwise the FFHQ settings with the ImageNet model. Record which |
 | DAPS, FFHQ | The historical configuration of the B22/DEV80 DAPS runs (confirm against the R0-N.2 A4.4 record) |
-| DAPS, ImageNet and XP-E′ | The published DAPS-1K command at `e7a77d0` (`commands/pixel_imagenet.sh` / `pixel_ffhq.sh`): annealing 200 × diffusion 5 steps; pixel task group with 100 Langevin steps, lr 5e-5, τ = 0.01, lr_min_ratio 0.01. Our frozen y and per-(image, run) seeds are fed in through the in-repository wrapper. Record any deviation |
+| DAPS, ImageNet and XP-E′ | **DAPS-4K, the configuration of the DAPS paper's phase-retrieval results** (amendment A2), at `e7a77d0`: annealing 400 steps × diffusion 10 ODE steps; pixel task group with 100 Langevin steps, lr 5e-5, τ = 0.01, lr_min_ratio 0.01. Our frozen y and per-(image, run) seeds are fed in through the in-repository wrapper. Record the resolved configuration and any deviation. (The repository's `commands/pixel_*.sh` use 200 × 5 and are **not** the published PR configuration) |
 | DPS (XP-H) | The official DPS repository (`DPS2022/diffusion-posterior-sampling`) at a commit pinned in XP-0, using its phase-retrieval config (record the guidance scale) with `ffhq_10m.pt`. Our y is fed in. If the code is absent, **Cheng** clones it into a new external path |
 | PC-DAPS (XP-I) | PC-DAPS @ `59b2f046` with its own FFHQ phase-retrieval command (4 particles). Our y is fed in. Save every particle, plus the method's own returned estimate. If the code is absent, **Cheng** clones it |
 | Seeds | **Continue each family's historical rule** for new run indices. Document the rule, and show that no new seed equals an existing one for the same (family, image). For families or datasets with no history (all ImageNet, XP-G, XP-G2, XP-H, XP-I, XP-E′): the first 8 bytes of SHA-256(`XP\|<family>\|<dataset>\|<uid>\|<r>`) mod 2³¹, where XP-G uses dataset `ffhq_s<σ>` |
@@ -93,7 +104,7 @@ GPU-hour figures are planner estimates from historical timings (FAST 3.3 s/run w
 |---|---|---|---|
 | **XP-A64** | FAST on FFHQ, run indices 16–63 (n = 64) | 8,640 | ≈ 8 |
 | **XP-B16** | SITCOM on FFHQ, **all 180 ids**: B22 runs 4–15 and DEV80 runs 4–15 (n = 16) | 2,160 | ≈ 29–53 |
-| **XP-D2** | DAPS on ImageNet, n = 4 on all 100 (published DAPS-1K command) | 400 | ≈ 17–37 |
+| **XP-D2** | DAPS on ImageNet, n = 4 on all 100, with **DAPS-4K** (the published PR configuration; A2) | 400 | ≈ 35–80 |
 | **XP-D3** | SITCOM on ImageNet, n = 4 on all 100 | 400 | ≈ 11–28 |
 | **XP-F8** | DAPS on FFHQ, all 180 ids: B22 runs 2–7 and DEV80 runs 4–7 (n = 8) | 920 | ≈ 40–50 |
 
@@ -107,10 +118,10 @@ GPU-hour figures are planner estimates from historical timings (FAST 3.3 s/run w
 | **XP-G** | FAST on FFHQ, σ ∈ {0.02, 0.10}, n = 8 per σ on all 180 ids | 2,880 | ≈ 3 |
 | **XP-D4** | FAST on ImageNet, run indices 16–63 (n = 64) | 4,800 | ≈ 9–17 |
 | **XP-G2** | 512-canvas control (§1) on all 180 ids: FAST n = 8 and SITCOM n = 4 | 2,160 | ≈ 11–20 |
-| **XP-E′** | **Conditional:** the published DAPS-1K command, n = 4 on all 180 ids. Runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-1K | 720 | ≈ 10–20 |
+| **XP-E′** | **Conditional:** DAPS-4K (the published PR configuration), n = 4 on all 180 ids. Runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-4K | 720 | ≈ 20–40 |
 | ~~XP-E~~ | **Cancelled (A1).** DAPS `test-ffhq` overlaps the locked holdout | — | — |
 
-**Scoring** (CLIP, 2-forward, S_mid, LPIPS) adds about 5–15 GPU-h in total. Estimated grand total: ≈ 220–390 GPU-h.
+**Scoring** (CLIP, 2-forward, S_mid, LPIPS) adds about 5–15 GPU-h in total. Estimated grand total: ≈ 250–450 GPU-h. The upper end exceeds the cap, so the drop order (§3.5) will bind if the XP-T projections land high.
 
 ## 3. Queue rules
 
@@ -173,7 +184,7 @@ The K-scaling estimators pool new runs with historical runs, so the two must be 
 - failure anatomy per dataset and family, and the post-selection decomposition (generation failure vs selection miss vs uncorrected orientation) as a function of K;
 - orientation-test accuracy per domain (XP-C on GT; on reconstructions: fix rate and harm rate);
 - the inflation decomposition per metric: per-metric oracle vs single-pick vs E1_CLIP vs mean-of-K vs first run;
-- XP-D2: the published DAPS protocol (per-metric oracle over 4 runs) next to GT-free E1_CLIP and first run;
+- XP-D2: the published DAPS protocol (DAPS-4K; per-metric oracle over 4 runs) next to GT-free E1_CLIP and first run, with the published Table 1 values (25.78 ± 6.92 dB / 0.743 / 0.254) as the external reference;
 - XP-I: PC-DAPS vs DAPS + E1_CLIP at matched NFE on the same ids;
 - XP-G: anatomy and E1_CLIP vs O_orbit at σ ∈ {0.02, 0.05, 0.10}.
 - XP-G2: anatomy at the 384 vs 512 canvas, with the CONSISTENT share per family as the primary descriptive quantity.

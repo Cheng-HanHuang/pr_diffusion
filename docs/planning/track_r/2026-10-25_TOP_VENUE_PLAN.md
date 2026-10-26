@@ -12,7 +12,7 @@
 >
 > **XP v1.1 in one line.**
 > - **Tier A, by Nov 2:** FAST FFHQ n = 16; XP-C; the XP-C2 equivariance defect; FAST ImageNet n = 16.
-> - **Tier B, by Nov 6:** FAST FFHQ n = 64; SITCOM FFHQ n = 16 on all 180 ids; DAPS ImageNet n = 4 on all 100 (the published DAPS-1K command); SITCOM ImageNet n = 4; DAPS FFHQ n = 8.
+> - **Tier B, by Nov 6:** FAST FFHQ n = 64; SITCOM FFHQ n = 16 on all 180 ids; DAPS ImageNet n = 4 on all 100 (the published PR configuration, DAPS-4K, per amendment A2); SITCOM ImageNet n = 4; DAPS FFHQ n = 8.
 > - **Tier C, by Nov 20, for the supplement:** SITCOM n = 32; DPS; PC-DAPS on the same ids; noise robustness; FAST ImageNet n = 64. XP-E was later cancelled; see the second update below.
 >
 > **Theory v1.1, from the full reads** (`2026-10-26_THEORY_LIT_DIGEST.md`):
@@ -37,7 +37,7 @@
 > - Received and read in full: Stroebl et al.; Dandapanthula & Boffi; TDS.
 >
 > **Second update, 2026-10-26 (03:00).**
-> - **XP-E is cancelled.** Cheng's audit found that DAPS `test-ffhq` shares one id with the locked holdout. A new hard rule bans loading any bundled FFHQ set (prereg amendment A1). The FFHQ bridge to published settings remains through S5 (FAST), XP-H (DPS) and the conditional XP-E′ (DAPS-1K on our 180 ids).
+> - **XP-E is cancelled.** Cheng's audit found that DAPS `test-ffhq` shares one id with the locked holdout. A new hard rule bans loading any bundled FFHQ set (prereg amendment A1). The FFHQ bridge to published settings remains through S5 (FAST), XP-H (DPS) and the conditional XP-E′ (the published DAPS-4K configuration on our 180 ids; amendment A2).
 > - **TGD is now read in full** (digest §4). Facts for the novelty map:
 >   - its App. F.4 remark on DAPS's per-metric oracle is verbatim and verified;
 >   - residual-selected DAPS best-of-4 reaches **31.40 ± 2.38 dB at about 17 s/img on FFHQ PR**, beating A-TGD (its Table 4);
@@ -60,7 +60,7 @@
 > |---|---|---|
 > | GT best-of-k misleads | PC-DAPS (qualitative); TGD F.4 (per-metric oracle remark) | The measured decomposition across 4–6 solvers × 2 datasets × 3 metrics |
 > | Residual-selected best-of-K | TGD (DAPS; matched wall-clock); CDI multi-start practice | G-blindness theory (Cor. 1, 1′); orientation step; K to 64 with frozen predictions |
-> | 8-fold orbit | DAPS App. I.2 (to verify); classical trivial associates | Prop. 1 and Cor. 4/4(b) (equivariance mechanism, measured defect) |
+> | 8-fold orbit | DAPS App. F.2 / Fig. 13 (verified: "eight images … exactly the same measurement"; Fig. 18: more 180° rotations on ImageNet); classical trivial associates; Fienup & Wackerman's equal-probability twins | Prop. 1 and Cor. 4/4(b) (equivariance mechanism, measured defect) |
 > | Imperfect-verifier model | Stroebl et al. | Orbit classes, exact estimators, out-of-sample test, monotone gap |
 
 **Trigger.** Cheng (2026-10-25 23:17) asked to:

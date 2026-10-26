@@ -1,7 +1,9 @@
-# Track R · XP executor handoff: evaluation-only extensions (GPU), revision B.1
+# Track R · XP executor handoff: evaluation-only extensions (GPU), revision B.2
 
 **From:** planner (Claude), 2026-10-26.
-- Revision B.1 follows prereg **amendment A1**:
+- **Revision B.2 (11:30) follows prereg amendment A2.** XP-D2 (DAPS on ImageNet) and XP-E′ use **DAPS-4K** (400 annealing × 10 ODE steps), the configuration of the DAPS paper's phase-retrieval results. They do **not** use the repository's `commands/pixel_*.sh` (200 × 5).
+- **Standing rule:** before launching each tier, re-merge `origin/claude/prdiff-track-r-planner-20261021` and check `XP_PREREG_v1_1.md` for new amendments. Report the planner commit you ran against.
+- Revision B.1 followed prereg **amendment A1**:
   - XP-E is cancelled;
   - a bundled-FFHQ data ban;
   - new Tier C items XP-G2 (512 canvas) and the conditional XP-E′;
@@ -63,7 +65,7 @@
 6. **Tier B queue.**
    - Replay gates for SITCOM and DAPS first (prereg §4);
    - then XP-A64, XP-B16, XP-D2, XP-D3 and XP-F8, in the prereg §3 priority, work-conserving.
-7. **Tier C queue:** XP-B32 (no new code, so it can start first), then XP-I, XP-H, XP-G2, XP-G and XP-D4. XP-E′ runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-1K. XP-E is cancelled.
+7. **Tier C queue:** XP-B32 (no new code, so it can start first), then XP-I, XP-H, XP-G2, XP-G and XP-D4. XP-E′ runs only if A4.4 shows that the historical FFHQ DAPS configuration differs from DAPS-4K, the published PR configuration (amendment A2). XP-E is cancelled.
 8. **Analysis (CPU).** Prereg §6, respecting the §5 embargo and freeze checks. The exploratory analyses (GT-free reliability diagnostics; mixed-twin anatomy) come last and are optional.
 
 ## 3. Controller (recommended design)

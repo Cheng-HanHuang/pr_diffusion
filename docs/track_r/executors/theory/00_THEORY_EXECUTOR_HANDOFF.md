@@ -66,7 +66,7 @@
 
 | # | Task | Due |
 |---|---|---|
-| 1 | Read the digest and the program. Then, as available to you:<br>• Chen et al. 2021 §2.1 (pass@k)<br>• Burns & Fridovich-Keil (arXiv 2605.30330)<br>• Biroli et al. 2024 (*Nat. Commun.*)<br>• PC-DAPS (arXiv 2610.31592) §3–4<br>• Hoogeboom et al. 2022 (equivariant diffusion)<br>• Barnett, Epstein, Greengard, Magland 2020 (arXiv 1808.10747)<br>• DAPS (arXiv 2407.01521) App. I.2, to verify the "eight images" claim<br>The PDFs of Stroebl, Dandapanthula & Boffi, TDS and TGD may not be available to you; the digest is enough | Oct 27 |
+| 1 | Read the digest and the program. Then, as available to you:<br>• Chen et al. 2021 §2.1 (pass@k)<br>• Burns & Fridovich-Keil (arXiv 2605.30330)<br>• Biroli et al. 2024 (*Nat. Commun.*)<br>• PC-DAPS (arXiv 2610.31592) §3–4<br>• Hoogeboom et al. 2022 (equivariant diffusion)<br>• Barnett, Epstein, Greengard, Magland 2020 (arXiv 1808.10747)<br>• DAPS (arXiv 2407.01521) App. F.2 / Fig. 13 (v1): the "eight images" claim, now verified by the planner (digest §5)<br>The PDFs of Stroebl, Dandapanthula & Boffi, TDS and TGD may not be available to you; the digest is enough | Oct 27 |
 | 2 | TH1.1: lemma (with the identifiability caveat), Proposition 1, Corollaries 1, 1′, 2–5 and **4(b)**, written and proved. Check Corollary 4's conditions family by family | Oct 29 |
 | 3 | TH1.2: closed forms; the Stroebl correspondence; ceilings; the **monotone-gap theorem**; the bottleneck shift; relaxations; the population model | Oct 30 |
 | 4 | **TH1.5 v1:** fit on K ≤ 4 only (A8 strings; P4 at K ≤ 4 if A8 is late). **Commit `docs/track_r/theory/TH1_PREDICTIONS_v1.json` and tell the planner** (via Cheng) with the commit SHA | **Oct 31 (hard)** |

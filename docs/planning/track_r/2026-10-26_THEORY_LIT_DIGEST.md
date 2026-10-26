@@ -143,18 +143,28 @@ Labels: **[V]** = verified by the planner; **[R]** = from the research report on
   - the local inverse is Lipschitz iff the magnitude torus meets the support subspace transversally; otherwise it is at best Hölder of order α < 1, "often α ≤ 1/2";
   - images convolved with inversion-symmetric kernels inherit non-transversality.
   - **Use:** a deterministic explanation of why consistent-but-wrong images exist at distance ~ε^α. It is an explanation, not a rate; their hypotheses do not match our canvas exactly.
-- **Twin stagnation [R].** Fienup & Wackerman 1986 (*JOSA A* 3:1897) and Guizar-Sicairos & Fienup 2012 (*JOSA A* 29:2367): iterative algorithms stagnate in simultaneous-twin states. This is the source of XP's exploratory mixed-twin anatomy.
+- **Twin stagnation.** Fienup & Wackerman 1986 (*JOSA A* 3:1897; verified, see below) and Guizar-Sicairos & Fienup 2012 (*JOSA A* 29:2367; [R]): iterative algorithms stagnate in simultaneous-twin states. This is the source of XP's exploratory mixed-twin anatomy.
 - **Exact 1-D decoys [R].** In 1-D, the non-trivial ambiguities are exactly the zero-flips of the z-transform, up to 2^{N−1} signals with identical magnitudes (Beinert & Plonka 2015; Edidin 2019). These give **exact (δ = 0) measurement-identical decoys** for TH2 (P-b).
 - **Ready-made toys:**
   - TGD's 2-D |x| toy [V; App. F.1]: a 5-component GMM prior, τ = 0.005, y = |x₀| + ε with noise 0.01, exact posterior samples via separability;
   - Dandapanthula & Boffi's symmetric GMM [V];
   - Burns & Fridovich-Keil's finite-sample (empirical) prior as an exact-posterior oracle [R].
-- **Equivariance propagation [R; quote to verify].** Hoogeboom et al. 2022 (EDM, arXiv 2203.17003): "if the transition distributions p(z_{t−1} | z_t) are equivariant and p(z_T) is invariant, then every marginal distribution p(z_t) is invariant". Also Xu et al. 2022 (GeoDiff) and Köhler et al. 2020.
-- **Precedents for E0 in coherent diffraction imaging [R]. Must cite:**
-  - GHIO (Chen, Miao, Wang, Lee 2007, *PRB* 76:064113): from 16 random starts, select the image with the smallest Fourier error as the template;
-  - Raines et al. (ankylography): 50 random starts, best by minimum R_Ewald;
-  - Chapman et al. 2006 (*JOSA A* 23:1179): averaging > 300 trials, and the PRTF.
-- **DAPS App. I.2 / Fig. 18 [R; verify in the DAPS PDF]:** "eight images … with exactly the same measurement". If confirmed, DAPS already observed the 8-fold orbit. Our contribution is then the formal proposition and its corollaries, not the observation.
+- **Equivariance propagation:** see the EDM entry below. It is verified, and the lemma is attributed to GeoDiff.
+- **Precedents for E0 in coherent diffraction imaging. Must cite:**
+  - GHIO (Chen, Miao, Wang, Lee 2007, *PRB* 76:064113; the reference is verified, the rule [R]): from 16 random starts, select the image with the smallest Fourier error as the template;
+  - Raines et al. (ankylography; [R]): 50 random starts, best by minimum R_Ewald;
+  - Chapman et al. 2006 (*JOSA A* 23:1179; [V]): averaging > 300 trials, and the PRTF.
+- **DAPS [V, planner, 2026-10-26 11:30; arXiv v1 HTML].** App. F.2, "More Discussion on Phase Retrieval": "There are multiple disjoint modes with exactly the same measurement for phase retrieval." "We show in Fig. 13 eight images with disparate perceptual features but with exactly the same measurement in phase retrieval." App. F.4, Fig. 18 caption: "The success rate of ImageNet is less than FFHQ and contains more samples with 180 degree rotation." (The research report cited these as App. I.2 / Fig. 18, a later version's numbering.)
+  - **So DAPS already observed both the 8-fold orbit and the higher ImageNet rotation rate.** Our contribution is the formal proposition, its corollaries and the measurements, not the observation.
+  - **DAPS evaluation [V].** Sec. 4.1: "reporting the best result out of four independent samples" (no criterion stated); DAPS-4K for nonlinear tasks. The code at `e7a77d0` reports the per-metric best over runs (`eval.py` lines 66–84: max for PSNR/SSIM, min for LPIPS, chosen independently). FAST-DIPS at `a9758b38` does the same (`misc.py` lines 665–668).
+- **Fienup & Wackerman 1986 [V; author's PDF].** "there is an equal probability that it will reconstruct either of these two objects" (the object and its twin), and "This mode of stagnation often occurs if the support of the object is centrosymmetric." This is the classical, iterative-algorithm counterpart of Cor. 4: a symmetric algorithm picks each twin with equal probability. Cite it.
+- **Chapman et al. 2006 [V; arXiv physics/0509066, Sec. 5A].**
+  - "All 2D and 3D images displayed in this paper are averages of more than 300 independent phase retrieval trials." Each trial's global phase is aligned first.
+  - 2-D solutions from random starts "may differ by a phase vortex"; the authors sorted them into classes and kept the most frequent class (60%).
+  - The PRTF is the modulus of the Fourier transform of the averaged image over √(measured intensity), averaged over shells.
+- **EDM [V; Sec. 2.2].** Hoogeboom et al. attribute the lemma to **Xu et al. 2022 (GeoDiff)**: "if x∼p(x) is invariant to a group and the transition probabilities of a Markov chain y∼p(y|x) are equivariant, then the marginal distribution of y at any time step is invariant to group transformations as well." Cite GeoDiff for the lemma and EDM for the diffusion application. The research report's wording was a paraphrase.
+- **Barnett et al. [partly V; ar5iv §1.1].** Hayes's condition is verified: the support lies in a rectangle with sides at most half of J's, and the solution set "is finite, and generically consists of trivial associates of a single point". So is the count "2(2N)^d trivial associates". The transversality/Hölder theorems remain [R].
+- **GHIO [V for the reference only].** Chen, Miao, Wang, Lee, *Phys. Rev. B* 76, 064113 (2007). The selection rule (the smallest-error run as template) remains [R].
 - **An over-claim to avoid.** The report calls the large-K orbit share of residual selection "assumption-free". It is not. Residual G-blindness (Cor. 1) is assumption-free. The ceiling also needs the GOOD and ORBIT outputs to have the same within-mode residual law (S2 restricted to {GOOD, ORBIT}), which holds exactly only for equivariant samplers (D12).
 - **Lines to use only as contrast [R]:**
   - random-sensing theory: PhaseLift, Wirtinger flow, landscape results, minimax rates;
