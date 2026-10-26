@@ -1,0 +1,33 @@
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Diffusion priors for phase retrieval.}
+DPS~\cite{chung2023dps} guides a pretrained diffusion model with the gradient of the measurement likelihood at the denoised estimate.
+DAPS~\cite{zhang2025daps} decouples consecutive steps by re-noising a measurement-corrected clean estimate.
+DiffFPR~\cite{li2024difffpr} targets oversampled Fourier phase retrieval directly.
+SITCOM~\cite{alkhouri2025sitcom} enforces measurement consistency through an optimization over the network input.
+FAST-DIPS~\cite{kim2026fastdips} uses analytic steps with a hard measurement constraint.
+For phase retrieval, DPS, DAPS, SITCOM and FAST-DIPS report a best-of-four protocol\claim{C-P1}\TODO{check DiffFPR's protocol}.
+PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by interacting particles pruned by prior consistency, which reduces orientation failures, especially on FFHQ.
+TGD~\cite{makris2026tgd} runs particles through tempered posteriors; for phase retrieval its accelerated variant keeps the lowest-residual of four partial DAPS trajectories~\cite[Tab.~2]{makris2026tgd}.
+Asymptotically exact samplers exist under idealized assumptions~\cite{wu2023tds,makris2026tgd}, and the failure modes of approximate posterior samplers have been analyzed in exactly solvable settings~\cite{burns2026whenwhy,dandapanthula2026tilting}.
+
+\paragraph{Evaluation practice.}
+The ground-truth best-of-four protocol originates in DPS~\cite{chung2023dps}; DAPS adopts it ``due to the inherent instability of phase retrieval''~\cite[Sec.~4.1]{zhang2025daps}.
+In the DAPS and FAST-DIPS reference code, the best run is chosen separately for each metric~\cite{zhang2025daps,kim2026fastdips}\claim{C-P1}.
+Makris~\etal\cite[App.~F.4]{makris2026tgd} point out that this oracle is unavailable at test time and select by measurement error instead; they find that residual-selected best-of-four DAPS is a strong baseline at matched compute~\cite[Tab.~4]{makris2026tgd}.
+Kocabas~\etal\cite{kocabas2026pcdaps} show that the ground-truth oracle hides orientation failures.
+We quantify each layer of the protocol across solvers, datasets and metrics, explain the residual's blindness to orientation, and predict how the layers scale with the number of runs.
+
+\paragraph{Classical phase retrieval.}
+In two or more dimensions, generic images are determined by their Fourier magnitudes up to translation and conjugate inversion~\cite{bruck1979ambiguity,hayes1982reconstruction}, provided the support occupies at most half the grid in each dimension~\cite{barnett2020geometry}; the standard diffusion benchmark canvas does not satisfy this condition (\cref{sec:setup}).
+Iterative algorithms are equally likely to reconstruct an object or its twin, and stagnate in mixtures of both when the support is centrosymmetric~\cite{fienup1986stagnation}.
+Coherent diffraction imaging has long run many random starts and kept or combined them according to their Fourier-space error~\cite{chen2007ghio}\TODO{verify the GHIO selection rule in the paper}; it also averages aligned runs, with the phase retrieval transfer function measuring their reproducibility~\cite{chapman2006highres}.
+Our measurement-based selector is of this kind; what is new is its analysis under a learned prior.
+
+\paragraph{Best-of-\texorpdfstring{$n$}{n} and verifiers.}
+Unbiased estimators of best-of-$k$ success from $n$ samples are standard in code generation~\cite{chen2021codex}.
+Stroebl~\etal\cite{stroebl2026limits} show that a verifier with false positives caps the accuracy of resampling, with heterogeneous task difficulty making the cap bite early.
+Dandapanthula and Boffi~\cite{dandapanthula2026tilting} prove that finite-particle guidance cannot choose between modes that the reward gradient does not distinguish, whereas best-of-$n$ with a mode-resolving reward can.
+In our setting the measurement residual is exactly such a non-resolving reward for the orbit.
+The invariance of marginals under equivariant Markov kernels is used in equivariant generative modeling~\cite{xu2022geodiff,hoogeboom2022edm}; we apply it to an inverse problem whose forward operator is symmetric.

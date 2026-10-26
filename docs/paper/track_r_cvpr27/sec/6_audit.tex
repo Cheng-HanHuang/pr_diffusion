@@ -1,0 +1,58 @@
+\section{Audit}
+\label{sec:audit}
+
+\paragraph{What is reported.}
+\Cref{tab:protocols} lists how phase-retrieval results are selected in recent work.
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Method & Runs & Selected by & Per metric \\
+\midrule
+DPS~\cite{chung2023dps} & 4 & n/s & n/s \\
+DAPS~\cite{zhang2025daps} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
+SITCOM~\cite{alkhouri2025sitcom} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
+FAST-DIPS~\cite{kim2026fastdips} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
+PC-DAPS~\cite{kocabas2026pcdaps} & 4 particles & GT for baselines & n/s \\
+TGD~\cite{makris2026tgd} & 4 & residual & no \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Selection protocols for phase retrieval.} n/s: not stated in the paper. $^\dagger$: what the reference code does\claim{C-P1}.}
+\label{tab:protocols}
+\end{table}
+
+\paragraph{How much of the reported quality is available at test time.}
+\Cref{tab:ffhq} decomposes the FFHQ results at the largest $K$ we had before the extensions.
+Residual selection followed by an orientation test recovers $93$--$97\%$ of the gain from the first run to the orbit oracle, and stays within two images of the orbit oracle in $\goodrate$\claim{C-A3}.
+Because $\Oraw$ cannot correct orientation, $\Eone$ exceeds it wherever the oracle's own pick is rotated.
+\pending{Per-metric inflation (PSNR, SSIM, LPIPS) and the mean-of-$K$ column: R0-N.2 A4.3/A7.}
+
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Solver & $K$ & First & $\Eone$ & $\Oraw$ & $\Oorb$ & Rec. \\
+\midrule
+DAPS (cohort A) & 2 & 27.23 & 30.07 & 29.42 & 30.14 & 97.4\% \\
+DAPS (cohort B) & 4 & 23.29 & 28.82 & 28.83 & 29.03 & 96.4\% \\
+SITCOM (A) & 4 & 22.97 & 26.64 & 26.66 & 26.87 & 94.3\% \\
+SITCOM (B) & 4 & 19.59 & 24.70 & 24.12 & 25.06 & 93.4\% \\
+FAST-DIPS (A+B) & 4 & 23.81 & 28.99 & 29.00 & 29.18 & 96.3\% \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{FFHQ, mean PSNR (dB).} ``Rec.''\ is $(\Eone-\text{first})/(\Oorb-\text{first})$. Here $\Eone$ uses the solver-prior orientation test; \pending{replace by the CLIP test (R0-N.2 A4.3) and add $\goodrate$, SSIM, LPIPS, mean-of-$K$ and the per-metric oracle}\claim{C-A3}.}
+\label{tab:ffhq}
+\end{table}
+
+\paragraph{What remains.}
+At the largest $K$, $114$ image--solver pairs have a failed residual pick; the orientation test fixes $15$, and of the remaining $99$, $93$ are \emph{generation failures} (no run reaches any orbit member), $5$ are selection misses, and $1$ is an uncorrected orientation\claim{C-A4}\pending{recount for the final solver set}.
+The type of failure depends strongly on the solver: $57\%$ of SITCOM's failed runs fit the measurement within the noise level (\cons), whereas DAPS and FAST-DIPS failures mostly do not\claim{C-A5}.
+This is consistent with SITCOM's inner step, which enforces measurement consistency by optimizing the network input \pending{the TH2 toy study tests this mechanism}.
+
+\paragraph{ImageNet.}
+\pending{XP-D1--D3: anatomy, the published DAPS protocol (DAPS-4K, per-metric oracle) next to first run and $\Eone$, and orientation tests with generic prompts. Reference: the published DAPS value is $25.78\pm6.92$\,dB~\cite{zhang2025daps}.}
+
+\paragraph{Compute and controls.}
+\pending{Compute frontier from XP-T timings. Supplement: noise level $\sigma\in\{0.02,0.10\}$, the $512$ canvas, DPS, and PC-DAPS on the same images.}

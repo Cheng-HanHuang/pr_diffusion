@@ -1,0 +1,51 @@
+% CVPR 2027 submission draft (Track R). Built on the official CVPR author kit
+% (github.com/cvpr-org/author-kit @ 2917585, the CVPR 2026 kit). Replace cvpr.sty
+% if a CVPR 2027 kit is released before Nov 16.
+%
+% DRAFT CONVENTIONS (see README.md):
+%   \pending{...}  marks text that waits for data or proofs; must be empty at submission.
+%   \claim{Cxx}    tags a sentence with its CLAIMS_LEDGER.md id (invisible in final mode).
+%   Double-blind: never write "our SITCOM", repository URLs, PAC paths, or author names.
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE
+\usepackage[review]{cvpr}      % REVIEW version
+% \usepackage{cvpr}            % CAMERA-READY version
+
+\input{preamble}
+
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+
+%%%%%%%%% PAPER ID
+\def\paperID{*****}
+\def\confName{CVPR}
+\def\confYear{2027}
+
+%%%%%%%%% TITLE (working; candidates in README.md)
+\title{Orientation-Blind Guidance and Ground-Truth-Free Selection\\in Diffusion Phase Retrieval}
+
+\author{Anonymous CVPR submission}
+
+\begin{document}
+\maketitle
+\input{fig/teaser}
+\input{sec/0_abstract}
+\input{sec/1_intro}
+\input{sec/2_related}
+\input{sec/3_setup}
+\input{sec/4_symmetry}
+\input{sec/5_selection}
+\input{sec/6_audit}
+\input{sec/7_discussion}
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% Supplementary material is a separate PDF (due Nov 23). Outline: sec/X_suppl.tex
+% \input{sec/X_suppl}
+
+\end{document}

@@ -1,0 +1,11 @@
+\begin{abstract}
+Diffusion-prior solvers for Fourier phase retrieval are usually evaluated by running each method several times and reporting, for every metric separately, the run closest to the ground truth.
+We ask what this protocol measures and what is achievable without the ground truth.
+First, the standard oversampled Fourier operator has an exact eight-element symmetry group (per-channel $180^\circ$ rotations).
+We prove that every selector and every particle weight computed from the measurements is blind to it, and that the orientation a guided diffusion sampler picks is determined solely by the denoiser's lack of equivariance, which we bound in total variation and measure.
+Second, we cast best-of-$K$ selection as resampling with an imperfect verifier, derive closed-form $K$-curves, exact estimators and a gap to the oracle that never shrinks with $K$, and test predictions frozen before the data up to $K{=}64$.
+Third, we audit three published solvers on FFHQ and ImageNet and show that measurement-based selection fails in exactly three ways: orientation errors, which a cheap prior or semantic test removes; runs that fit the data but show another image, whose rate depends on the solver; and runs that never approach the image.
+On FFHQ, selecting by measurement residual and then applying a generic orientation test recovers $93$--$97\%$ \pending{E1\_CLIP value from R0-N.2} of the gain of a ground-truth oracle that may also correct orientation, and most remaining failures are runs that never come close to the image.
+\pending{ImageNet and $K$-scaling results (XP).}
+We end with reporting recommendations.
+\end{abstract}

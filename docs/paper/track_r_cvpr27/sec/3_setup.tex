@@ -1,0 +1,55 @@
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Operator.}
+An RGB image $x\in[-1,1]^{3\times256\times256}$ is mapped to $z=(x+1)/2$ and each channel is zero-padded to a $384\times384$ canvas by an operator $P$.
+The measurement is
+\begin{equation}
+y=\cA(\xs)+\sigma n,\qquad \cA(x)=\bigl|\cF\,P\,z\bigr|,\qquad n\sim\mathcal N(0,I),
+\label{eq:operator}
+\end{equation}
+with $\cF$ the centered, orthonormal 2-D DFT applied per channel and $\sigma=0.05$.
+This is the operator of DPS and DAPS~\cite{chung2023dps,zhang2025daps} (``oversampling 2.0'') and of the solvers we audit\claim{C-S1}.
+We keep $y$ signed (no clipping) and write $m=3\cdot384^2$ and $\rho(x)=\|\cA(x)-y\|_2/\sqrt m$ for the residual of a reconstruction.
+With the orthonormal DFT, the noise energy $m\sigma^2$ is small compared with the image energy but exceeds the signal at most high frequencies, so measurement consistency constrains coarse structure much more than fine detail\claim{C-S2}.
+
+\paragraph{The orbit.}
+For $s\in\{0,1\}^3$ let $R_s$ rotate color channel $c$ by $180^\circ$ inside the $256\times256$ frame whenever $s_c=1$, and let $\cG=\{R_s\}$, a group of eight pixel permutations.
+\begin{lemma}[exact symmetry]
+\label{lem:orbit}
+$\cA(R_s x)=\cA(x)$ for all $x$ and all $s$.
+\end{lemma}
+On the even canvas, a $180^\circ$ rotation of the centered frame is index negation followed by a one-pixel cyclic shift; both leave DFT magnitudes unchanged (proof in the supplement)\claim{C-T1}.
+Zhang~\etal\cite[App.~F]{zhang2025daps} display eight images with identical measurements, which are exactly these.
+The global sign flip $z\mapsto -z$ is a further exact symmetry, but it leaves the image domain and receives no prior mass.
+
+\paragraph{Identifiability.}
+Classical uniqueness up to trivial ambiguities~\cite{hayes1982reconstruction} requires the support to occupy at most half the grid per dimension~\cite{barnett2020geometry}; here it occupies $256/384=2/3$, so the autocorrelation wraps around.
+We therefore \emph{assume} that $\xs$ is determined by $\cA(\xs)$ up to $\cG$ and to images that fit the data within the noise, and we test the effect of the canvas with a $512\times512$ control in which the classical condition holds (\cref{sec:audit})\claim{C-S3}.
+
+\paragraph{Run labels.}
+Each run of a solver returns one image $\hat x$.
+With PSNR computed on 8-bit RGB against $\xs$ (SSIM and LPIPS~\cite{zhang2018lpips} are reported alongside) and a threshold $\theta$ ($25$\,dB on FFHQ, $20$\,dB on ImageNet), a run is
+\good if $\mathrm{PSNR}(\hat x)\ge\theta$;
+\orbit if not, but $\max_s\mathrm{PSNR}(R_s\hat x)\ge\theta$ (\emph{global} if the best member is $R_{111}$, \emph{partial} otherwise);
+\cons if it is neither but $\rho(\hat x)\le\tau$; and \incons otherwise.
+The threshold $\tau$ is the $95$th percentile of $\rho$ over \good runs of the same solver and image cohort, fixed before any analysis reported here\claim{C-S4}.
+
+\paragraph{Selection policies.}
+Given $K$ runs of one image we compare:
+the \emph{first run};
+\emph{mean-of-$K$} (average metric over runs);
+$\Eo=\argmin_k\rho(\hat x_k)$;
+$\Eone$, which applies an orientation test to the $\Eo$ pick and returns either it or its rotation $R_{111}$;
+the ground-truth oracle $\Oraw=\argmax_k\mathrm{PSNR}(\hat x_k)$;
+the orbit oracle $\Oorb$, which also maximizes over the eight members;
+the \emph{single-pick oracle}, which reports all metrics of the $\Oraw$ run;
+and the \emph{per-metric oracle}, which takes the best PSNR, best SSIM and best LPIPS independently, as in the reference code of DAPS and FAST-DIPS\claim{C-P1}.
+Only the first run, mean-of-$K$, $\Eo$ and $\Eone$ are available at test time.
+
+\paragraph{Data and solvers.}
+FFHQ~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts of $100$ and $80$ \pending{describe provenance and training-set membership (R0-N.2 B2)}, with the $256\times256$ denoiser used by DPS~\cite{chung2023dps}.
+ImageNet~\cite{deng2009imagenet}: the $100$-image test set used by DAPS, FAST-DIPS and PC-DAPS~\cite{zhang2025daps,kim2026fastdips,kocabas2026pcdaps}, with the unconditional denoiser of~\cite{dhariwal2021diffusion} and measurements drawn once per image.
+Solvers: DAPS~\cite{zhang2025daps} (DAPS-4K, the configuration of its phase-retrieval results), SITCOM~\cite{alkhouri2025sitcom} and FAST-DIPS~\cite{kim2026fastdips} with their published phase-retrieval settings \pending{FFHQ DAPS configuration from R0-N.2 A4.4}; DPS~\cite{chung2023dps}, PC-DAPS~\cite{kocabas2026pcdaps} and DiffFPR~\cite{li2024difffpr} in the supplement \pending{if run}.
+Each run uses an independent seed and the same $y$.
+All timings are measured on one GPU model \pending{XP-T}.
