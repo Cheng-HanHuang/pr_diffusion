@@ -1,0 +1,18 @@
+{
+  "A8_csv_sha256": "197d0c8ea2aa47fa17dd379d518f647d7a47d89b3c614449fb106959b7bb45a6",
+  "B2_csv_sha256": "cec48fc01d99eebcb8983f84efd99400fdac8d8cb76aa98a8cbb928086a278da",
+  "categories_sha256": "1be5c2d1a78196d45a9600558c04b46dffefa217b7c664d5be38ed28a4d9a0ee",
+  "head": "5bdf037102087ad30619522948b886a3901b614c",
+  "label_totals": {
+    "GOOD": 2040,
+    "NONORBIT_CONSISTENT": 324,
+    "NONORBIT_INCONSISTENT": 791,
+    "ORBIT_ERROR": 85
+  },
+  "n_candidates": 3240,
+  "n_rows": 760,
+  "source_n2_sha256": "fbf9083071f03cf873402e77a6b8d69829aab30675bf9f2b0d3a0b21b56188a8",
+  "source_r07_sha256": "0c01c80acf54c48771904725bdcf0a7c5f0b966ac168b074c5cb8a5690c6ad59",
+  "status": "R0N2_B2_A8_CPU_PASS",
+  "training_checkpoint_membership": "UNKNOWN"
+}
