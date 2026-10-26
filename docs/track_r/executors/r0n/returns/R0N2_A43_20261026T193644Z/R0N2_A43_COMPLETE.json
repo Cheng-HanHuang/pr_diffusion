@@ -1,0 +1,13 @@
+{
+  "anatomy_sha256": "1d6829fc41b230a6fc98d58b36fb92da78b8747d92e23c1296bf389990b5d5a4",
+  "cpu_only": true,
+  "head": "e6b22799950f7ccba7e8b07a4aa20d082fb3984b",
+  "ladder_sha256": "2797220bb489bba620392435480996b663901373081331937907b138e96d0115",
+  "n2_sha256": "fbf9083071f03cf873402e77a6b8d69829aab30675bf9f2b0d3a0b21b56188a8",
+  "n_candidates": 3240,
+  "n_ladder_rows": 224,
+  "n_strata": 14,
+  "no_new_inference": true,
+  "r07_sha256": "0c01c80acf54c48771904725bdcf0a7c5f0b966ac168b074c5cb8a5690c6ad59",
+  "status": "R0N2_A43_CPU_PASS"
+}
