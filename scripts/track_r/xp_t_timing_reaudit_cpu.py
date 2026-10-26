@@ -56,13 +56,14 @@ def main(a):
             raise RuntimeError("STOP_TIMING_ORIGINAL_HEAD "+dataset)
         events=[json.loads(line) for line in safe(ep).read_text().splitlines() if line.strip()]
         result=audit_timing_events(events,state,comp)
-        result.update(
-            "source_run",name,
-            "source_head",source_head,
-            "source_complete_sha256",sha(cp),
-            "source_status_sha256",sha(sp),
-            "source_events_sha256",sha(ep),
-            "candidate_reconstruction_outputs_modified",False)
+        result.update({
+            "source_run":name,
+            "source_head":source_head,
+            "source_complete_sha256":sha(cp),
+            "source_status_sha256":sha(sp),
+            "source_events_sha256":sha(ep),
+            "candidate_reconstruction_outputs_modified":False,
+        })
         audits.append(result)
         print("XP_T_TIMING_REAUDIT",dataset,result["qualified_timing_class"],
               "active_pid_samples",result["n_active_worker_visible"],
