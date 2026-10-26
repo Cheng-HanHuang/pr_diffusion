@@ -18,7 +18,7 @@ def main():
     # Only named status JSONs. Never walk experimental data trees.
     directories=sorted((d for d in root.iterdir()
         if d.is_dir() and (d.name.startswith("xp_0_") or d.name.startswith("xp_t_")
-                          or d.name.startswith("xp_controller_") or d.name.startswith("xp_fast_replay_")
+                          or d.name.startswith("xp_controller_") or d.name.startswith("xp_sitcom_replay_") or d.name.startswith("xp_fast_replay_")
                           or d.name.startswith("r0n2_"))),
         key=lambda d:d.name,reverse=True)[:64]
     seen_inventory=False
@@ -83,6 +83,17 @@ def main():
             elif not seen_fast_replay and (d/"XP_FAST_REPLAY_PREP_RECEIPT.json").is_file():
                 lines.append("FAST-REPLAY PREPARED (launch/worker pending)")
                 seen_fast_replay=True
+        elif d.name.startswith("xp_sitcom_replay_"):
+            receipt=d/"XP_SITCOM_REPLAY_PREP.json"
+            status=d/"XP_SITCOM_REPLAY_STATUS.json"
+            if status.is_file():
+                v=read(status)
+                lines.append("SITCOM-REPLAY "+v.get("state","UNKNOWN")+
+                    " gpu="+str(v.get("gpu")))
+            elif receipt.is_file():
+                v=read(receipt)
+                lines.append("SITCOM-REPLAY "+v.get("status","UNKNOWN")+
+                    " n="+str(v.get("n_roots")))
         elif d.name.startswith("xp_controller_"):
             fp=d/"XP_CONTROLLER_STATUS.json"
             if fp.is_file():
