@@ -1,0 +1,152 @@
+% Track R TH1.1 supplement fragment; 2026-10-26.
+% Not standalone: include in TH1_NOTE.tex after its theorem environments and macros.
+% Proven abstract results; the native-solver applicability has extra assumptions.
+% Primary source lineage: Hayes 1982; DAPS (CVPR 2025) App. F.2;
+% GeoDiff/Xu et al. 2022; Hoogeboom et al. 2022;
+% TDS (NeurIPS 2023), TGD (Makris et al. 2026).
+% This file introduces NO claim of novelty for finite-group Bayes
+% factorization or propagation of equivariant Markov kernels.
+
+\section{Exact quotient structure of the Fourier observation}
+\label{app:exact-quotient}
+
+\paragraph{Measurement operator and group.}
+For each channel let \(z=(x+1)/2\) on a \(256^2\) support and
+\(f=Pz\) on the central \(384^2\) canvas, with support indices
+\(\{64,\ldots,319\}^2\).
+Let \(R_c\) rotate the original channel by \(180^\circ\) and
+let \(G=\langle R_1,R_2,R_3\rangle\cong(\mathbb Z/2\mathbb Z)^3\).
+No assertion is made that \(G\) exhausts all measurement ambiguities.
+
+\begin{lemma}[Exact Fourier orbit invariance]
+\label{lem:th1-orbit}
+For every image \(x\) and every \(g\in G\),
+\(\mathcal A(gx)=\mathcal A(x)\).
+\end{lemma}
+\begin{proof}
+For one channel and all canvas indices \(j,k\in\mathbb Z_{384}\),
+central padding commutes with channel reversal in the form
+\[
+ (P R_c z)[j,k]=f[383-j,383-k]=f[-j-1,-k-1].
+\]
+Indeed, on the support rectangle this is precisely
+\(z[255-(j-64),255-(k-64)]\), and both sides vanish off that rectangle.
+Writing the two-dimensional DFT as
+\(\widehat f(\omega_1,\omega_2)=
+\sum_{j,k}f[j,k]e^{-2\pi i(j\omega_1+k\omega_2)/384}\),
+the substitution \(j'=-j-1,\ k'=-k-1\) gives
+\[
+ \widehat{P R_c z}(\omega)
+ =e^{2\pi i(\omega_1+\omega_2)/384}
+   \widehat f(-\omega).
+\]
+Since \(f\) is real, \(\widehat f(-\omega)=\overline{\widehat f(\omega)}\).
+Thus its absolute value is unchanged pointwise. FFT shifts and
+orthonormal normalization preserve this conclusion. The operation is
+independent on the three channels, establishing the result.
+\end{proof}
+
+\begin{proposition}[Posterior orbit ratios]
+\label{prop:th1-prior-ratio}
+Suppose \(p(x\mid y)=Z_y^{-1}\ell(y,\mathcal A(x))\pi(x)\),
+\(Z_y\in(0,\infty)\), where \(\pi\) is a density relative to a
+\(G\)-invariant reference measure. Then
+\[
+ p(gx\mid y)\pi(x)=p(x\mid y)\pi(gx).
+\]
+Where both density ratios are defined and positive this is
+\(p(gx\mid y)/p(x\mid y)=\pi(gx)/\pi(x)\).
+For each measurable set \(S\),
+\[
+ P(gS\mid y)=Z_y^{-1}
+ \int_S\ell(y,\mathcal A(u))\pi(gu)\,du.
+\]
+\end{proposition}
+\begin{proof}
+Use Lemma~\ref{lem:th1-orbit} in the Bayes density, first by
+cross-multiplication and then by the change of variables \(v=gu\).
+The map \(g\) is a coordinate permutation and thus has absolute
+Jacobian determinant one. The region formula retains the normalizer.
+\end{proof}
+
+\begin{proposition}[No orientation information conditional on an orbit]
+\label{prop:th1-conditional-information}
+Let \(X\sim\pi\) be arbitrary, let \(O=G X\) be its unordered orbit,
+and suppose \(Y\mid X\sim L(\,\cdot\mid\mathcal A(X))\).
+Then \(Y\perp X\mid O\). For any measurable orientation label
+\(J=J(X)\), in particular one constructed from a measurable orbit
+section on the set of free orbits, one has
+\[
+ I(J;Y\mid O)=0,\qquad P(J=j\mid Y,O)=P(J=j\mid O).
+\]
+Consequently, under 0--1 orientation loss, observing \(Y\)
+in addition to \(O\) does not improve the conditional Bayes accuracy
+\(\max_j P(J=j\mid O)\).
+\end{proposition}
+\begin{proof}
+Because \(\mathcal A\circ g=\mathcal A\), it factors measurably
+through the finite-group orbit map: \(\mathcal A(X)=a(O)\).
+For any measurable \(B\) in observation space,
+\[
+ P(Y\in B\mid X,O)=L(B\mid a(O))=P(Y\in B\mid O).
+\]
+This is conditional independence. Apply the data processing property
+of conditional independence to \(J=J(X)\); the Bayes accuracy
+statement follows from maximizing the conditional class posterior.
+\end{proof}
+
+\paragraph{Selection blindness and SMC qualification.}
+For any score \(T(x;y)=\varphi(\mathcal A(x),y)\),
+\(T(gx;y)=T(x;y)\). Thus a score-only selection rule
+with a fixed orbit-invariant tie rule has the same selected
+index after independent group transformations of the candidates.
+Likewise, a likelihood-only particle potential \(F(\ell(y,\mathcal
+A(x)))\) and residual pruning index are invariant.
+This does \emph{not} imply invariance of a complete TDS importance
+weight, which also includes proposal and reverse-model transition
+densities. TGD incremental likelihood potentials and accelerated
+likelihood pruning instantiate the narrower statement.
+
+\begin{proposition}[Equivariant transitions preserve invariant laws]
+\label{prop:th1-equivariant-chain}
+Let \(G\) act orthogonally on a measurable state space and let
+\(P_T=g_\#P_T\) for all \(g\in G\). Suppose the transition kernels
+satisfy \(K_i(gx,gB)=K_i(x,B)\) for every \(i,g,x,B\).
+Then \(P_i=g_\#P_i\) for all \(i\), especially the output \(P_0\).
+If a target orbit has eight distinct members and a neighborhood
+\(B_e\) has eight pairwise-disjoint translates \(gB_e\), then
+\[
+ P_0(X\in gB_e\mid X\in\cup_{h\in G}hB_e)=1/8
+\]
+whenever the conditioning event has positive probability.
+\end{proposition}
+\begin{proof}
+Induct backwards in time:
+\[
+ P_{i-1}(gB)=\int K_i(x,gB)P_i(dx)
+ =\int K_i(g^{-1}x,B)P_i(dx)
+ =P_{i-1}(B).
+\]
+All translates of \(B_e\) have equal probability, and the
+disjoint union has eight times the probability of any one.
+\end{proof}
+
+\paragraph{Native-solver scope.}
+Gaussian re-noising is equivariant under coordinate permutations.
+Measurement likelihood gradients are equivariant where defined.
+Deterministic projections, optimizer steps, initializations, and tie
+breaks must also be equivariant to invoke the proposition.
+In DAPS, every Langevin microstep must be treated as a separate
+stochastic transition; in SITCOM, the optimizer state and every inner
+iterate must transform equivariantly; in FAST-DIPS, JVP/VJP,
+finite-difference probes and line-search choices must preserve
+the action. Learned denoisers are a possible, but not the only
+logically possible, source of implementation non-equivariance.
+
+\paragraph{Identifiability.}
+The support width \(256\) exceeds half the \(384\) Fourier canvas,
+so Hayes-type generic support-based uniqueness cannot be invoked.
+All orbit conclusions are conditional on the orbit under discussion
+and do not imply that it is the entire preimage of \(\mathcal A(x)\).
+Classical trivial-associate theory and DAPS's eight-image display
+are acknowledged as precedents.
