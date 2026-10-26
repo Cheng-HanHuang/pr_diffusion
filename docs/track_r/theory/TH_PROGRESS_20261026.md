@@ -32,3 +32,16 @@ None of these code observations demonstrates a broken experiment or justifies mo
 - **Nov 13:** TH2 go/no-go focused on a solver-faithful mechanism, not on claiming that classic zero-flip or sample-vs-MAP is novel.
 
 No new solver/method was proposed. No file outside the theory-owned directories was changed. `PREDICTIONS_REGISTRY.md` remains planner-owned and untouched.
+
+
+## Additional same-day independent math pass (2026-10-26, evening EDT)
+
+**Repo check:** On the authorized \`codex/prdiff-track-r-r0n-20261023\` branch, the repository directory \`docs/track_r/executors/r0n/returns/\` currently lists \`R0N_20261024T061111Z\` and \`R0N_N2_RECOVERY_20261024T073405Z\` but no \`R0N2_<stamp>\` directory containing the authorized A8 per-image counts. No XP-return directory was opened. Repeat this *directory/filename-only* check on the next user-requested theory turn; do not continuously run unrequested background monitoring.
+
+**New primary predecessor:** Yano--Ishibashi--Oyamada, arXiv:2610.19362, 2026-10-14, already formalizes best-of-N tail competition and inverted-U behavior, so this general phenomenon is **NOT a Track R novelty claim**. Gao et al. ICML 2023 is an earlier best-of-N overoptimization precedent. Specific Track R adaptation is described in [TH1_SELECTION_TAILS_20261026.md](TH1_SELECTION_TAILS_20261026.md).
+
+**PROVED mathematical additions:** (1) exact five-class residual-minimum race integral without S1/S2; (2) a rare consistent-wrong extreme-tail example with \`E0(K)=0.995^K-0.295^K\`, despite >98% pairwise GOOD/CONSISTENT ranking; (3) the standard lower-tail extreme-value label mixture limit; (4) a finite-K TV-coupling bound on departure from the S1--S2 formula; and (5) an explicit counterexample showing the oracle-minus-selector gap can decrease without S2 even though the registered S1--S2 theorem guarantees monotonicity.
+
+**CPU checks:** [check_th1_score_tails.py](../../../scripts/track_r/theory/check_th1_score_tails.py) uses only synthetic distributions, seeded Monte Carlo, order-statistic quadrature and TV-distance comparisons. Passed the corresponding local numerical checks. These results are *stress tests and interpretation*, not a second post-hoc model fitted on XP outcomes.
+
+**No revision of primary freeze:** The 31 October v1 forecast stays based solely on authorized K<=4 counts and the predeclared Dirichlet/S1--S3 abstraction. The tail stress test is a pre-freeze *qualitative risk note*. Its tiny extremes are not claimed to exist in the observed PR cohort. If post-freeze curves disagree, evaluate whether candidate class frequencies, class-conditional lower score tails, independence or orientation repair assumptions explain the miss.
