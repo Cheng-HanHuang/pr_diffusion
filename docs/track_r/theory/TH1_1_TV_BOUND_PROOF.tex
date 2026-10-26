@@ -1,0 +1,163 @@
+% Track R TH1.1 supplement fragment; 2026-10-26.
+% Theorem 2 is a theorem of Gaussian-transition Markov chains. It is
+% not automatically a theorem for every native diffusion-solver codepath.
+
+\section{Total-variation cost of symmetry breaking}
+\label{app:tv-defect}
+
+\begin{theorem}[Gaussian-chain equivariance-defect bound]
+\label{thm:th1-tv-proof}
+Let \(G\) be a finite orthogonal group, fix \(g\in G\), and suppose
+\(X_T\sim\mu_T\) where \(g_\#\mu_T=\mu_T\). For \(i=T,\ldots,1\) assume
+\[
+ X_{i-1}\mid X_i=x\ \sim\
+ N(m_i(x),s_i^2 I_d),\qquad
+ s_i>0,
+\]
+where \(s_i\) does not depend on the current state. Set
+\(\Delta_i^g(x)=m_i(x)-g m_i(g^{-1}x)\).
+Assume the sum of expected squared standardized defects below is
+finite. If \(L\) is the law of \(X_0\), then
+\[
+ \operatorname{TV}(L,g_\#L)
+ \le \left[
+ \sum_{i=1}^{T}\frac{
+ \mathbb E\|\Delta_i^g(X_i)\|_2^2}{4s_i^2}
+ \right]^{1/2}.
+\]
+In particular, for any measurable \(B\),
+\[
+ |L(B)-L(g^{-1}B)|
+ \le \left[
+ \sum_{i=1}^{T}\frac{
+ \mathbb E\|\Delta_i^g(X_i)\|_2^2}{4s_i^2}
+ \right]^{1/2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let \(P\) denote the joint path law of
+\((X_T,X_{T-1},\ldots,X_0)\), and let \(Q=g_\#P\),
+where the action rotates every path coordinate. Since the initial
+distribution is invariant, \(P\) and \(Q\) start from the same law.
+Orthogonality of \(g\) implies that the conjugate transition law under
+\(Q\) is
+\[
+ Q_i(\,\cdot\mid x)=N(g m_i(g^{-1}x),s_i^2 I_d).
+\]
+The chain rule for relative entropy gives
+\[
+ D_{\mathrm{KL}}(P\|Q)
+ = \sum_{i=1}^{T}\mathbb E_P\left[
+ D_{\mathrm{KL}}\left(
+ N(m_i(X_i),s_i^2 I_d)\|
+ N(gm_i(g^{-1}X_i),s_i^2 I_d)
+ \right)\right].
+\]
+For Gaussians with common covariance \(s_i^2 I_d\), the conditional
+KL divergence is
+\(\|\Delta_i^g(X_i)\|^2/(2s_i^2)\). Consequently
+\[
+ D_{\mathrm{KL}}(P\|Q)
+ =\sum_i\frac{\mathbb E_P\|\Delta_i^g(X_i)\|^2}{2s_i^2}.
+\]
+Projection onto the final state is measurable, and its output laws
+are \(L\) and \(g_\#L\). Data processing for total variation followed
+by Pinsker's inequality (with
+\(\mathrm{TV}(P,Q)=\sup_B|P(B)-Q(B)|\)) implies
+\[
+ \mathrm{TV}(L,g_\#L)
+ \le\mathrm{TV}(P,Q)
+ \le\sqrt{\tfrac12D_{\mathrm{KL}}(P\|Q)},
+\]
+which gives the constant \(1/4\) in the asserted square root.
+The event statement is the definition of total variation.
+\end{proof}
+
+\begin{corollary}[Observable lower bound on transition defects]
+\label{cor:th1-necessary-defect}
+Under the hypotheses above, if a measurable \(B\) has
+\(\eta=|L(B)-L(g^{-1}B)|\), then necessarily
+\[
+ \sum_i \mathbb E\|\Delta_i^g(X_i)\|^2/s_i^2
+ \ge 4\eta^2.
+\]
+\end{corollary}
+\begin{proof}
+Square the TV inequality and multiply by four.
+\end{proof}
+
+\paragraph{Important interpretation limit.}
+The corollary lower-bounds the sum of standardized
+\emph{transition-mean equivariance defects}; it does not, without
+a solver-specific stability bound, directly lower-bound the
+denoiser's relative equivariance defect measured on noised clean
+images. For a differentiable denoiser inside a gradient-through-network
+update, the relevant mean defect can also involve its Jacobian.
+Therefore a denoiser-only profile on noised images is a descriptive
+empirical proxy and must not be substituted into the theorem's
+trajectory expectation without a justified coupling or distribution
+shift estimate.
+
+\begin{remark}[State-independent compatible covariance]
+\label{rem:th1-covariance}
+The result extends to transitions with positive-definite
+state-independent covariance \(\Sigma_i\), provided
+\(g\Sigma_i g^\top=\Sigma_i\). The corresponding bound is
+\[
+ \mathrm{TV}(L,g_\#L)
+ \le\frac12\left[
+ \sum_i\mathbb E\,
+ (\Delta_i^g(X_i))^\top\Sigma_i^{-1}\Delta_i^g(X_i)
+ \right]^{1/2}.
+\]
+If covariance depends on state or fails to commute with \(g\),
+its KL terms cannot generally be discarded.
+\end{remark}
+
+\paragraph{Deterministic microsteps and terminal readout.}
+The Gaussian-chain theorem can accommodate a fully deterministic
+inner map \(H_i(X_i)\) inside a mean \(m_i\) that is followed by a
+nondegenerate Gaussian innovation, provided the resulting conditional
+law is exactly the specified Gaussian shift. A stochastic Langevin
+inner loop requires representing each Gaussian update separately;
+additional optimizer state may require an augmented Markov state.
+In the latter case, a deterministic \emph{equivariant} terminal
+readout may be applied after the last stochastic state without
+increasing TV. An arbitrary deterministic non-equivariant terminal
+map cannot be handled this way.
+
+\paragraph{Counterexample to an unrestricted deterministic readout.}
+Let \(g(x_1,x_2)=(x_2,x_1)\), let
+\(Z\sim N(0,I_2)\), and consider the chain whose only noise step has
+equivariant mean \(m\equiv0\). Its defect sum is zero. Now apply the
+non-equivariant deterministic final map
+\(H(z)=(\max(z_1,z_2),\min(z_1,z_2))\).
+The resulting output lies strictly in the half-plane
+\(x_1>x_2\) almost surely; its \(g\)-pushforward lies in
+\(x_1<x_2\). Their TV distance is one despite the zero defect
+of the earlier Gaussian step. This demonstrates why a final
+non-equivariant denoiser or choice among inner minimizers cannot
+silently be omitted from the hypotheses.
+
+\paragraph{Family-specific interpretation (conditional).}
+For DAPS, include every noisy Langevin microstep and re-noising
+operation in the path; the exact-inner-sampling proposition in
+DAPS does not show the implemented chain is posterior-exact.
+For SITCOM, the inner optimization map and its state need
+equivariant initialization and update/tie rules, especially because
+the denoiser may be differentiated.
+For FAST-DIPS, the projection, JVP/VJP or finite-difference
+probe, step-size selection, and backtracking must preserve the
+action; its pre-existing local-Gaussian KL analysis has a
+\emph{different} reference pair and does not imply this
+orientation-TV theorem. These checks are structural conditional
+statements, not claims that the native code was fully audited.
+
+\paragraph{Primary methodological predecessors.}
+Pinsker's inequality; the KL chain rule for Markov path measures;
+the equal-covariance Gaussian KL identity; and equivariant-kernel
+propagation (GeoDiff, Xu et al., 2022; Hoogeboom et al., 2022)
+are standard. The application being tested here is an explicit
+per-channel Fourier-symmetry mismatch along a conditional inverse
+sampler. No new general information inequality is claimed.
