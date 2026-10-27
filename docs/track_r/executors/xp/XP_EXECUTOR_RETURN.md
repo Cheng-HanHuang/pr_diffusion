@@ -837,3 +837,72 @@ implementation must import from the pristine sparse checkout only,
 strictly verify model weight loading (the upstream UNet loader has
 a catch-and-continue fallback), and continue to use the same signed
 y and per-worker W=1 timing semantics as the prior FAST/SITCOM pilots.
+
+## DAPS-4K pristine-source isolation: PAC PASS; 18-root native W=1 timing runner authored
+
+On PAC the native sparse checkout succeeded after the B20/B21 sampler
+drift was isolated. **98 XP regression tests passed**. The receipt
+`XP_T_DAPS4K_PRISTINE_NATIVE_PASS` attests that pristine pinned upstream
+`e7a77d094167084faed19b599b96673b7bb11447` was materialized
+as `/egr/research-pac/huang248/external/DAPS_XP_NATIVE_4K`,
+with no bundled data and no modification to the historical experimental
+checkout. Source proof SHA256:
+`f36a348c26e8dd76a5d72dc84ebe4e100b62d705a821c164e06c28a489433b23`.
+The separate CPU frozen shared-y calibration preparation passed at
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_daps4k_20261027T011832Z`,
+with 18 roots (FFHQ 9, ImageNet 9) and task-manifest SHA256
+`1f71f0bff208e1823ceb68fbe58a805c6b28241fe04da577efb35bdf65ed30c0`.
+**GPU work has not been done at the time of this update.**
+
+A new `xp_t_daps4k_worker_gpu.py` and
+`xp_t_daps4k_supervisor.py` implement the next guarded calibration
+against **only the pristine source checkout**. Each independently
+seeded root runs its own DAPS Python environment, batch size 1,
+a strict checkpoint-load verification, frozen signed Fourier
+measurements (no regenerated observations), and the published
+DAPS-4K phase-retrieval hyperparameters:
+
+- 400 EDM annealing transitions, sigma_max=100,
+  sigma_min=0.1, poly-7; 10 EDM diffusion/Euler ODE steps
+  per annealing transition, sigma_min=0.01;
+- 100 Langevin MCMC steps per annealing transition,
+  learning rate 5e-5, tau 0.01, lr_min_ratio 0.01,
+  gaussian prior solver;
+- phase-retrieval Fourier operator oversample 2.0,
+  measurement sigma 0.05, image size 256,
+  model DDPM as in canonical FFHQ/ImageNet architecture YAMLs.
+  These are **not** upstream's shorter DAPS-1K commands.
+
+The solver/model/checkpoint itself remains unedited. The model
+loader's catch-and-random-initialize behavior is explicitly guarded:
+every root must show exactly one successful strict
+`UNetModel.load_state_dict` call (>=100 checkpoint tensors,
+zero missing/unexpected keys) **before sampling**. The native sampler
+uses `get_start(1,model)`, so there is no GT-derived shape placeholder.
+Every candidate records synchronized process wall, CUDA-event sampling
+time, separate model-loading wall, strict model-load proof, physical
+GPU, frozen measurement/model hashes, tensor/PNG reconstruction
+hashes, and a GT-free/no-scoring receipt.
+
+The four-GPU supervisor uses **one native worker per physical GPU
+(W=1)**, a clean-GPU admission check and hard 80% VRAM requirement,
+and a conservative **6 GPU-hour total budget ceiling**.
+It initially launches just one FFHQ and one ImageNet candidate,
+verifies both exact root receipts/strict model loads, and projects
+9 per dataset × 1.75 times observed native sampling duration.
+Only if this smoke projection fits the ceiling does it admit the
+remaining 16 roots across available devices. On failure it stops new
+admissions and preserves all completed outputs; it never kills active
+workers or interferes with other experiments. Timing contamination is
+classified independently per GPU, so a successful root with uncertain
+telemetry is not misrepresented as CLEAN.
+
+The future completion receipt `XP_T_DAPS4K_COMPLETE.json` will contain
+separate FFHQ and ImageNet W=1 medians and provenance, plus
+`XP_T_DAPS4K_SMOKE_GATE.json` and the exact telemetry classification.
+**Do not report XP-T DAPS-4K calibration as complete until PAC returns
+these receipts and all 18 source-pinned roots verify successfully.**
+No GT evaluation, protected holdout or historical candidate data may
+enter these workers. The pre-registered W={1,2,4} same-device
+throughput study remains distinct from this four-physical-GPU
+independent-task parallelism.

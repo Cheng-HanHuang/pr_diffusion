@@ -86,10 +86,25 @@ def main():
         elif d.name.startswith("xp_t_daps4k_"):
             receipt=d/"XP_T_DAPS4K_PREP.json"
             status=d/"XP_T_DAPS4K_STATUS.json"
-            if status.is_file():
+            done=d/"XP_T_DAPS4K_COMPLETE.json"
+            if done.is_file():
+                v=read(done)
+                ff=v.get("per_dataset",{}).get("ffhq",{})
+                im=v.get("per_dataset",{}).get("imagenet",{})
+                lines.append("XP-T DAPS4K "+v.get("status","UNKNOWN")+
+                    " roots="+str(v.get("n_roots"))+
+                    " ffhq_s="+str(round(float(ff.get("sampling_wall_s_median",0)),3))+
+                    " image_s="+str(round(float(im.get("sampling_wall_s_median",0)),3))+
+                    " timing_clean="+str(v.get("clean_timing_eligible")))
+            elif status.is_file():
                 v=read(status)
                 lines.append("XP-T DAPS4K "+v.get("state","UNKNOWN")+
-                    " completed="+str(v.get("completed_roots",0)))
+                    " completed="+str(v.get("completed_roots",0))+"/18"+
+                    " running="+str(v.get("running_roots",0))+
+                    " gpu_h="+str(round(float(v.get("gpu_hours",0)),4))+
+                    " phase="+str(v.get("phase","UNKNOWN")))
+                if v.get("state") in ("FAILED","WAIT_GPU_TIMEOUT"):
+                    action.append("DAPS4K "+str(v.get("reason","UNKNOWN")))
             elif receipt.is_file():
                 v=read(receipt)
                 lines.append("XP-T DAPS4K "+v.get("status","UNKNOWN")+
