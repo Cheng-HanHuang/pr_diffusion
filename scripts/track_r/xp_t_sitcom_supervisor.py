@@ -21,7 +21,7 @@ BAD=("confirmation","confirm305","test-ffhq","demo-ffhq")
 
 def dump_x(path,obj):
     with Path(path).open("x",encoding="utf-8") as f:
-        json.dump(obj,indent=2,sort_keys=True,allow_nan=False)
+        json.dump(obj,f,indent=2,sort_keys=True,allow_nan=False)
         f.write("\n")
 
 def update(path,data):
@@ -162,10 +162,18 @@ def main(a):
         raise RuntimeError("STOP_XPT_SITCOM_SUPERVISOR_HEAD")
     if RUN.is_symlink() or not RUN.is_dir():
         raise RuntimeError("STOP_XPT_SITCOM_RUN")
+    from scripts.track_r.xp_t_sitcom_recovery_cpu import audit_aborted_first_launch
     for name in ("XP_T_SITCOM_STATUS.json","GPU_EVENTS.jsonl",
-                 "XP_T_SITCOM_COMPLETE.json","XP_T_SITCOM_SUPERVISOR_PID.json"):
+                 "XP_T_SITCOM_COMPLETE.json",
+                 "XP_T_SITCOM_RECOVERY_SUPERVISOR_PID.json"):
         if (RUN/name).exists():
             raise RuntimeError("STOP_XPT_SITCOM_ALREADY_STARTED")
+    if a.recover:
+        evidence=audit_aborted_first_launch(RUN,require_recovery_receipt=True)
+    elif (RUN/"XP_T_SITCOM_SUPERVISOR_PID.json").exists():
+        raise RuntimeError("STOP_XPT_SITCOM_PRIOR_LAUNCH")
+    else:
+        evidence=None
     if sha(RUN/"XP_T_SITCOM_TASKS.json")!=MANIFEST_SHA:
         raise RuntimeError("STOP_XPT_SITCOM_MANIFEST_SHA")
     mf=json.loads(safe(RUN/"XP_T_SITCOM_TASKS.json").read_text())
@@ -174,14 +182,24 @@ def main(a):
     rows=mf["rows"]
     # Do not create any GPU worker directory unless all exact source
     # files are frozen and complete and no live run already exists.
-    if (RUN/"gpu").exists() or (RUN/"pycache").exists():
-        raise RuntimeError("STOP_XPT_SITCOM_EXISTING_GPU_OUTPUT")
-    (RUN/"gpu").mkdir(exist_ok=False)
-    (RUN/"pycache").mkdir(exist_ok=False)
+    if a.recover:
+        # The first crash was *before* any worker spawned. Do not remove,
+        # truncate, overwrite or rename any historical failed-launch artifact.
+        if evidence is None:
+            raise RuntimeError("STOP_XPT_SITCOM_RECOVERY_NOT_AUDITED")
+        pid_path=RUN/"XP_T_SITCOM_RECOVERY_SUPERVISOR_PID.json"
+    else:
+        if (RUN/"gpu").exists() or (RUN/"pycache").exists():
+            raise RuntimeError("STOP_XPT_SITCOM_EXISTING_GPU_OUTPUT")
+        (RUN/"gpu").mkdir(exist_ok=False)
+        (RUN/"pycache").mkdir(exist_ok=False)
+        pid_path=RUN/"XP_T_SITCOM_SUPERVISOR_PID.json"
     (CACHE/"tmp").mkdir(parents=True,exist_ok=True)
-    dump_x(RUN/"XP_T_SITCOM_SUPERVISOR_PID.json",{
+    dump_x(pid_path,{
        "status":"STARTED","pid":os.getpid(),"head":a.expected_head,
-       "manifest_sha256":MANIFEST_SHA})
+       "manifest_sha256":MANIFEST_SHA,
+       "recovery":bool(a.recover),
+       "original_aborted_supervisor_pid":3893497 if a.recover else None})
     state={"state":"WAIT_VRAM","head":a.expected_head,
            "manifest_sha256":MANIFEST_SHA,"total_roots":18,
            "completed_roots":0,"running_roots":0,
@@ -334,6 +352,7 @@ if __name__=="__main__":
     p.add_argument("--poll-seconds",type=int,default=10)
     p.add_argument("--required-vram-mib",type=int,default=24000)
     p.add_argument("--gpu-hour-cap",type=float,default=2.0)
+    p.add_argument("--recover",action="store_true")
     try:sys.exit(main(p.parse_args()))
     except Exception as exc:
         traceback.print_exc()

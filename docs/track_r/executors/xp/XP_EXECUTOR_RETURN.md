@@ -630,3 +630,48 @@ claim `XP_T_SITCOM_BATCH1_PASS` until PAC reports the exact native
 18-root completion receipt. Preserve all existing B22, DEV80,
 FAST and SITCOM replay outputs. Do not inspect held-out cohorts,
 and do not release embargoed K>=4 outcome data.
+
+## XP-T SITCOM initial four-GPU supervisor pre-GPU failure and exact recovery
+
+The first XP-T SITCOM W1/4-physical-GPU launch under
+`709cc92fc757283f0205e585939704afd4197746` passed
+82 XP CPU tests and three manifest-only native preflights (indices 0,9,17).
+The parent launcher returned `XPT_SITCOM_SUBMITTED` and supervisor
+PID `3893497`. The supervisor immediately raised
+`TypeError: dump() missing 1 required positional argument: 'fp'`
+in `dump_x`, at the first PID JSON serialization, before any worker
+start. PAC reported zero GPU memory/utilization on all four GPUs,
+and both `XP_T_SITCOM_STATUS.json` and
+`XP_T_SITCOM_COMPLETE.json` were absent.
+
+The failure is exclusively implementation, not a native-SITCOM
+scientific failure. The failed supervisor did create `gpu/` and
+`pycache/` and a zero-byte `XP_T_SITCOM_SUPERVISOR_PID.json`
+before crashing; these **must never be deleted, truncated or
+rewritten** to permit a normal launch. The new repair fixes the
+missing file handle, adds a regression test verifying exclusive
+JSON writing and atomic status updates, and supplies a separate,
+single-use CPU recovery audit:
+
+- Verify the immutable 18-root manifest SHA256
+  `995915c3b7b7a00b1d4d678a4a013c8cc9c2445a513704a92e513d93d6d97131`
+  and complete CPU preparation receipt; require exact old error in the
+  preserved supervisor log and zero-byte original PID receipt.
+- Require original supervisor PID `3893497` no longer running; zero
+  candidate content in `gpu/`, empty `pycache/`, and **no** root
+  receipts, GPU telemetry, or status receipts.
+- If any unexpected artifact exists, STOP with no modification;
+  do not reset external Git source or any run.
+- On exact clean recovery audit, create a unique
+  `XP_T_SITCOM_PRE_GPU_RECOVERY.json` one-time authorization
+  recording the original log/PID hashes. The supervisor launched with
+  `--recover` rechecks the same evidence and uses a NEW
+  `XP_T_SITCOM_RECOVERY_SUPERVISOR.log` and
+  `XP_T_SITCOM_RECOVERY_SUPERVISOR_PID.json` rather than overwriting
+  the failed launch. The frozen 18 roots and GT-free common-y SHA
+  are unchanged.
+- Four-GPU W1 native sampling and CPU-only quality embargo remain
+  subject to every earlier memory/timing/model-load/provenance gate.
+
+This recovery has NOT been executed yet. A CPU audit failure must be
+reported without attempting manual removal of the original artifacts.
