@@ -675,3 +675,59 @@ single-use CPU recovery audit:
 
 This recovery has NOT been executed yet. A CPU audit failure must be
 reported without attempting manual removal of the original artifacts.
+
+## XP-T SITCOM FFHQ+ImageNet native batch-1: completed 4-GPU calibration (2026-10-26 PAC)
+
+The exact fail-closed pre-GPU recovery was executed after the original
+supervisor JSON-handle bug. Under committed recovery code
+`dacd57d0739ee218490befde50b2bed5991bb80b`,
+PAC returned 86 passing CPU tests,
+`XP_T_SITCOM_PRE_GPU_RECOVERY_AUTHORIZED`, and supervisor PID 3899197.
+Original failed supervisor log SHA
+`daf0a649bec6ce971702890663b28c61d7b55003bf735a7a0d8eb1c2a1a56208`
+and zero-byte original PID SHA
+`e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`
+remain preserved.
+
+**Scientific/GPU completion:** 18/18 GT-free native SITCOM sampling roots
+completed on four RTX PRO 6000 Blackwell physical GPUs (one native
+worker per GPU, W=1). The final PAC supervisor explicitly reports
+`XP_T_SITCOM_BATCH1_PASS`, `timing_clean=True`,
+aggregate **0.36916 GPU-hours**, and median native W=1 sampling times
+**32.104 s (FFHQ)** and **58.343 s (ImageNet)**.
+All 18 strict ImageNet/FFHQ checkpoint-load and per-root SHA gates
+passed the supervisor. Full final completion receipt SHA-256:
+`bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e`.
+Frozen timing manifest SHA-256:
+`995915c3b7b7a00b1d4d678a4a013c8cc9c2445a513704a92e513d93d6d97131`.
+PAC supervisor log contains all indices 0–17
+`XP_T_SITCOM_WORKER_PASS` and the complete W=1 summary.
+No GT was loaded for generation or scored here. The exact 8/8
+historical SITCOM replay remains a *separate* earlier success.
+
+**Timing interpretation:** the prior XP-T FAST pilots report 3.321 s
+FFHQ (original CLEAN) and 7.191 s ImageNet (original UNVERIFIED,
+qualified separately CLEAN_POSTHOC). These are small matched-y pilots
+and should be reported as runtime observations, not claims of
+distribution-level speed dominance. They do not replace the
+preregistered W={1,2,4} simultaneous-worker throughput study on one
+GPU, which remains pending. Both SITCOM datasets use the same
+phase-retrieval hyperparameters; ImageNet loads the distinct pinned
+256-channel/two-residual-block network, with strict checkpoint-load
+evidence.
+
+**Publication action:** CPU-only `xp_t_sitcom_publish_cpu.py`
+independently verifies the frozen manifest and completion exact SHA,
+all four GPU timing classifications, all 18 native receipt hashes and
+strict model-load proofs, zero GT scoring, and consistent budget and
+dataset medians before copying only the final receipts into GitHub.
+It must be run on PAC at a clean checkout before publication.
+Do not claim publication occurred until PAC prints a pushed commit.
+
+Next highest-priority calibration is the **published DAPS-4K**
+configuration (nonlinear PR: 400 annealing, 10 diffusion ODE,
+100 Langevin steps per denoising iteration), on exactly the same
+frozen signed-y inputs, with no independently regenerated y and
+no GT during generation. Follow the frozen XP prereg and critical
+Nov 2/Nov 6 data cuts. The four physical GPUs may parallelize
+independent sampling tasks; W=1 is the timing baseline.
