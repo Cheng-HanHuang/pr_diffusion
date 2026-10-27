@@ -51,3 +51,18 @@ Let `G` be the per-channel 180-degree pixel-rotation group, acting as a permutat
 5. **Action for Cheng/planner, not the theory executor:** confirm that FAST-DIPS's pinned pixel run truly returns the post-denoiser `x0hat` on its last step, and check whether wrappers alter that behavior. Treat as a reproducibility/interpretation clarification, not an experiment request or an unsolicited new method.
 
 **Sources:** Pinned native code above; published solver papers DAPS CVPR 2025, SITCOM ICML 2025, FAST-DIPS ICLR 2026. The auxiliary lightweight local SITCOM implementation was inspected on `theory/prdiff-track-r-th-20261026` at `prdiffusion/algorithms/sitcom.py`; its model is not silently substituted for the native SITCOM_ODE benchmark.
+
+
+## E. Planner-confirmed native return semantics and limits (2026-10-27 guidance)
+
+**Updated using the executor's pinned native-code and exact-replay confirmation in 01_PLANNER_GUIDANCE_20261027.md @ ac92b73. This supersedes the earlier open question about terminal re-noising.**
+
+- **DAPS e7a77d0:** the final scheduled sigma is exactly zero. Although the final-branch comparison in the source is always true, the terminal random-noise-times-next-sigma increment is ZERO; the output is the last Langevin iterate x0y, not a nonzero-noise-disturbed final image.
+- **SITCOM-ODE 275ab67:** both schedules use sigma_final = 0. The terminal re-noise also adds zero; the returned state is the last inner Langevin iterate. SGD has independent additive state-independent Gaussian noise of scale sqrt(2lr) on ordinary iterations. The NaN-return-zeros exceptional event still requires separate treatment or conditioning.
+- **FAST-DIPS a9758b38:** the returned pixel reconstruction is clamp(x0hat), bypassing the last computed x0y. Source observation confirmed by planner and executor.
+- The FAST and SITCOM benchmark candidate batches reproduce the pinned native repositories (8/8 exact replays each, per planner guidance), not the simplified local sitcom.py. DAPS has a separate replay gate.
+- **Pathwise theorem scope:** DAPS and SITCOM return a final stochastic Langevin iterate and can be modeled as a composed chain with positive state-independent Gaussian microsteps, under correct accounting of every deterministic interleaved map, auxiliary optimizer state, and exceptional NaN branch. Merely noticing a Gaussian substep is NOT enough to certify all native path factors; the proof remains explicitly conditional. FAST's final denoiser/clamp is a deterministic terminal readout and cannot be included in the old Gaussian TV inequality without separate equivariance/control; a preterminal Gaussian state is covered when hypotheses hold.
+- The path KL/Pinsker bound measures the effective mean-map equivariance defect under **on-trajectory** states. XP-C2's denoiser defects on noised clean images are proxies, not the theorem's literal expected integrand. Differentiation through a denoiser introduces Jacobian defect considerations.
+- **Likelihood precision and noise-floor motivation:** DAPS's gradient coefficient corresponds to 50 times the correct Gaussian precision; SITCOM's inner Langevin loss is weighted 25 times, plus a separate unit-SSE Euler correction. FAST's absolute ADMM tolerance epsilon=0.05 is far smaller than the expected physical noise norm sigma*sqrt(m)≈33.255 at m=3*384^2, but FAST ultimately returns the denoiser state rather than its inner projection.
+
+These are verified/confirmed SOURCE FACTS, not a proof that a finite-step native solver exactly samples a Gaussian posterior with temperature parameter kappa. See TH2_OVERWEIGHTED_SAMPLER_NOISE_FLOOR_20261027.md for the separate exact local-linear sampling derivation.
