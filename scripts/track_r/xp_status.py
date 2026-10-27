@@ -83,6 +83,18 @@ def main():
             elif not seen_fast_replay and (d/"XP_FAST_REPLAY_PREP_RECEIPT.json").is_file():
                 lines.append("FAST-REPLAY PREPARED (launch/worker pending)")
                 seen_fast_replay=True
+        elif d.name.startswith("xp_t_daps4k_"):
+            receipt=d/"XP_T_DAPS4K_PREP.json"
+            status=d/"XP_T_DAPS4K_STATUS.json"
+            if status.is_file():
+                v=read(status)
+                lines.append("XP-T DAPS4K "+v.get("state","UNKNOWN")+
+                    " completed="+str(v.get("completed_roots",0)))
+            elif receipt.is_file():
+                v=read(receipt)
+                lines.append("XP-T DAPS4K "+v.get("status","UNKNOWN")+
+                    " roots="+str(v.get("n_roots",0))+
+                    " gpu_performed="+str(v.get("gpu_work_performed")))
         elif d.name.startswith("xp_t_sitcom_"):
             prep=d/"XP_T_SITCOM_PREP.json"
             live=d/"XP_T_SITCOM_STATUS.json"

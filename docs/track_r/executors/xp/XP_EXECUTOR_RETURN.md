@@ -731,3 +731,58 @@ frozen signed-y inputs, with no independently regenerated y and
 no GT during generation. Follow the frozen XP prereg and critical
 Nov 2/Nov 6 data cuts. The four physical GPUs may parallelize
 independent sampling tasks; W=1 is the timing baseline.
+
+## Published SITCOM calibration and DAPS-4K follow-on input gate
+
+PAC successfully published the complete SITCOM FFHQ+ImageNet XP-T W=1
+timing calibration at executor commit
+`142eeac9d5c73bdc13aedbcc9af21756a94dca05`.
+The CPU evidence gate passed 90 regression tests and validated
+all 18 native roots on the four physical GPUs, with final original PAC
+receipt SHA256
+`bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e`.
+The precise FFHQ sampling median is
+**32.104482267051935 s**, ImageNet **58.342772816773504 s**;
+total 0.36916114673742817 GPU-h; timing CLEAN on all four GPUs.
+All evidence files are committed to
+`docs/track_r/executors/xp/returns/XP_T_SITCOM_BATCH1_20261026T233451Z/`.
+Historical SITCOM reproduction (8/8 exact) remains separately published.
+
+**New CPU preparation, not yet executed:** the
+`xp_t_daps4k_prepare_cpu.py` stage freezes a separate matched-y
+18-root timing pilot for the published DAPS-4K nonlinear PR solver,
+three independent new seeds each on the original first three sorted
+FFHQ B22 images and the first three ImageNet images. DAPS remains
+pinned to the historical B24 checkout
+`/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps`
+HEAD `e7a77d094167084faed19b599b96673b7bb11447`.
+The CPU preflight verifies exact tracked Git blobs for the sampler,
+MCMC, scheduler, Fourier operator, DDPM model, two architecture YAMLs,
+and phase-retrieval sampler/task YAMLs; disallows any drift from pinned
+HEAD in those files, without resetting modified Python cache binaries.
+No bundled FFHQ data or historical candidate file may be read.
+
+**Published nonlinear PR DAPS-4K, not repository 1K commands:**
+annealing 400 with sigma 100 to 0.1, poly-7;
+diffusion ODE 10 with sigma_min 0.01, poly-7;
+pixel Langevin 100 steps, lr 5e-5, tau 0.01,
+lr_min_ratio 0.01, gaussian prior;
+phase-retrieval oversample 2.0, measurement sigma 0.05;
+batch size one, no trajectory. FFHQ uses canonical
+`ffhq_10m.pt` SHA256 `81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa`;
+ImageNet uses the canonical `imagenet256.pt` SHA256
+`a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1`.
+The CPU manifest references only GT-free, SHA-locked signed y files from
+FAST/SITCOM XP-T; it never regenerates y. DAPS runs are new
+calibration seeds and never merged with historical K populations.
+The next GPU implementation must verify native strict weight loading,
+a native W=1 baseline on each physical GPU, clean telemetry, and
+per-(dataset,root) file hashes. It must first pass the CPU manifest
+check and native-source environment audit.
+
+**Outstanding scientific priorities:** finish XP-T DAPS-4K timing,
+one-GPU W={1,2,4} throughput experiments for FAST/SITCOM,
+then Tier A critical XP-A16, XP-C, XP-C2, XP-D1 before Nov 2 and
+Tier B DAPS/SITCOM/FAST extensions before Nov 6. Do not expose
+embargoed K>=4 outcome metrics until frozen theory predictions are
+registered; historical holdout remains excluded.
