@@ -906,3 +906,77 @@ No GT evaluation, protected holdout or historical candidate data may
 enter these workers. The pre-registered W={1,2,4} same-device
 throughput study remains distinct from this four-physical-GPU
 independent-task parallelism.
+
+## XP-T DAPS-4K FFHQ + ImageNet calibration: native 18/18 PASS (PAC)
+
+The four-GPU native DAPS-4K run has finished successfully on PAC.
+The frozen calibration directory is
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_daps4k_20261027T011832Z`;
+native source SHA
+`f36a348c26e8dd76a5d72dc84ebe4e100b62d705a821c164e06c28a489433b23`;
+frozen manifest SHA
+`1f71f0bff208e1823ceb68fbe58a805c6b28241fe04da577efb35bdf65ed30c0`;
+native runner Git commit
+`e3a7f80e713939230fcacf830e0c11a68df0aa28`.
+The supervisor reports:
+
+- **`XP_T_DAPS4K_BATCH1_PASS`** with `18/18` roots:
+  FFHQ 3 images × 3 independent seeds, ImageNet 3 × 3.
+  The first FFHQ and ImageNet roots passed strict native-model-load and
+  reconstruction checks in `XP_T_DAPS4K_SMOKE_GATE.json`;
+  smoke projected **1.0127296631314675 GPU-hours**.
+- The final aggregate was **0.9600079935751596 GPU-hours**,
+  substantially below the 6 GPU-hour cap. Every worker completed;
+  final `state=PASS`, `phase=COMPLETE`, `reason=null`,
+  0 running or active roots; `clean_timing_eligible=true` across all
+  four physical GPUs with W=1 worker per GPU.
+- **FFHQ median native sampling wall 66.01368511701003 s**;
+  CUDA-event median 66.0135234375 s;
+  model-loading median 0.4937783391214907 s.
+  **ImageNet median native sampling wall 166.23148921877146 s**;
+  CUDA-event median 166.2304375 s;
+  model-loading median 2.155493638012558 s.
+  These *exclude* model loading and are the first 3-image, 3-seed
+  source-matched measurement calibration, not an image-population
+  quality result or a W={1,2,4} same-device throughput study.
+- Native 400-annealing, 10 diffusion and 100 Langevin steps per
+  annealing transition were enforced; no DAPS-1K substitution.
+  GT and historical candidate images were never loaded or scored.
+  The original experimental B20/B21 tree was preserved; the native
+  code ran from an isolated pristine pinned sparse checkout.
+- **Exact PAC completion receipt SHA256:**
+  `6f07bc2672c3d643996c3f5653b1e7eea63a676b3050a10766ae883e06fc2c41`.
+
+**All three generation-family XP-T native timing calibrations are now
+complete**, with the following approximate median *sampling wall* times
+on the small matched-y pilot:
+
+| Native method (published settings) | FFHQ (s) | ImageNet (s) |
+| --- | ---: | ---: |
+| FAST-DIPS | 3.321 (original CLEAN) | 7.191 (original UNVERIFIED; separate CLEAN_POSTHOC) |
+| SITCOM | 32.104482267051935 (CLEAN) | 58.342772816773504 (CLEAN) |
+| DAPS-4K | 66.01368511701003 (CLEAN) | 166.23148921877146 (CLEAN) |
+
+DAPS/SITCOM sampling wall ratio is 2.06× on FFHQ and 2.85× on
+ImageNet. These are budget planning/calibration measurements only,
+not outcome-aware or population-level speed-quality conclusions.
+W=1 independent physical GPU parallelism does not substitute for
+the pre-registered FAST/SITCOM simultaneous W={1,2,4} one-GPU
+throughput experiment.
+
+**Publication is pending:** `xp_t_daps4k_publish_cpu.py` validates
+this exact completion SHA, all 18 checkpoint and reconstructed-file
+SHA proofs, 2-root smoke qualification, frozen measurement and source
+provenance, GPU safety budget, and all four CLEAN device classifications
+before copying only non-GT summary/metadata receipts to the
+GitHub XP executor return tree. The publication is not complete
+until PAC prints the successful pushed commit.
+
+**Research prioritization:** XP-T's native baseline cost uncertainty is
+now substantially reduced. Proceed to Tier A, data cut **Nov 2**:
+FAST-FFHQ XP-A16, XP-C and XP-C2, FAST-ImageNet XP-D1
+(frozen theory predictions and K>4 embargo remain enforced).
+Tier B, Nov 6, includes SITCOM FFHQ XP-B16, SITCOM ImageNet XP-D2,
+DAPS-4K ImageNet XP-D3 and FFHQ XP-E′ among other preregistered arms.
+The exact planner's locked `XP_PREREG_v1_1.md` remains authoritative
+for population IDs, run index semantics, seeds, and scoring rules.
