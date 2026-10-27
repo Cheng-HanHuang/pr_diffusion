@@ -1,6 +1,32 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-27)
 
-> **Third update, 2026-10-27, 00:00 ET** (the newest; read it first).
+> **Fourth update, 2026-10-27, 12:30 ET** (the newest; read it first).
+> - **Overnight GPU (executor, issue #42):**
+>   - generated and certified: XP-A16 (2,160 runs), XP-A64 (8,640), XP-D1 phase 1 (400) and XP-D2 (400);
+>   - about 39 GPU-h used of 400;
+>   - all FFHQ K > 4 outcomes stay sealed.
+> - **Theory:**
+>   - the S2 rejection is independently verified;
+>   - the race model has a weighted ceiling and **no monotone gap** (counterexample checked);
+>   - the conditional-prefix estimand is adopted;
+>   - the sampled noise-floor law is Eρ²/σ² = 1 − (r/m)(1 − 1/κ);
+>   - TH2 mechanism forecasts v1 are **registered**.
+> - **Planner check of the theory code:** the planner ran the theory scripts on the real A8 file. The audit passes, and the forecaster runs end to end in 95 s; its non-convergence flags are BFGS precision artifacts.
+> - **Prereg A6:**
+>   - A4.4 ruled from documents (400 × 5), with the replay to confirm;
+>   - XP-E′ eligible and CRITICAL-if-ready;
+>   - D1 phase 2 generated now;
+>   - evaluation panels fixed (FAST n = 64 and 16; SITCOM 16 and 32; DAPS 8; ImageNet 16);
+>   - predictive-interval agreement rule;
+>   - a `theory_inputs/` directory;
+>   - XP-D2 and D1 phase 1 scored now.
+> - **Next 48 h:**
+>   - B16, D3, D1-P2, replay, F8 and E′ (about 55 GPU-h);
+>   - v1 freeze, target Oct 28, 18:00 ET;
+>   - v2 within 48 h of the D1-P1 strings;
+>   - the FFHQ K-scaling analysis starts as soon as v1 is registered.
+>
+> **Third update, 2026-10-27, 00:00 ET.**
 >
 > **Decision recorded:** NP is dropped (Cheng, 2026-10-26 23:01). Every paper count is now on DAPS, SITCOM and FAST-DIPS: 1,960 runs, 540 image–solver pairs.
 >

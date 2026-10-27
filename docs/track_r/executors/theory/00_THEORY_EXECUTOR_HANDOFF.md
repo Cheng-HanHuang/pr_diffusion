@@ -1,6 +1,7 @@
 # Track R · theory executor handoff (TH1 now, TH2 memo), revision B.1
 
 > **2026-10-27: read [`01_PLANNER_GUIDANCE_20261027.md`](01_PLANNER_GUIDANCE_20261027.md) first.** It covers where A8 is, the S2 rejection, the v1 contents and target (Oct 29, 18:00 ET), the TH2 refocus on the noise floor, and the reading permissions.
+> **2026-10-27, 12:30: then read [`02_PLANNER_GUIDANCE_20261027_PM.md`](02_PLANNER_GUIDANCE_20261027_PM.md).** It covers the mech v1 registration, the planner's run of your code on the real A8, what the v1 freeze still needs (panels, interval type, sensitivity), v2, and `theory_inputs/`.
 
 **From:** planner (Claude), 2026-10-26.
 - Revision B.1 adds the TGD read and the phase-retrieval-theory research pass (program v1.2; digest §§4–5).

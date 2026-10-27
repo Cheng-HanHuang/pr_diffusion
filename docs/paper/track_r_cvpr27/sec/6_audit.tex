@@ -61,7 +61,8 @@ Every \good run of DAPS and SITCOM has a smaller residual: their medians are $0.
 The order follows the data terms (\cref{sec:setup}).
 DAPS and SITCOM-ODE return a Langevin iterate whose data term is $50$ and $25$ times stronger than the likelihood at $\sigma=0.05$, and SITCOM-ODE adds a gradient step on the residual after every ODE step.
 FAST-DIPS returns a denoised estimate.
-In a local linear model, a solution that has fitted $r$ directions of the noise has expected squared residual $\sigma^2(m-r)$~\cite{stein1981sure}; the medians correspond to roughly $10\%$ of the $m$ measurement directions for DAPS and $22\%$ for SITCOM \pending{A5.5: exact $\rho(\xs)$ per image and the decomposition into fit error and absorbed noise}.
+In a linear model whose data term is weighted $\kappa$ times the likelihood, a posterior sample that is determined by the data in $r$ directions has $\E\rho^2/\sigma^2=1-(r/m)(1-1/\kappa)$ (supplement; for $\kappa\to\infty$ this is the classical $\sigma^2(m-r)$ of a fitted solution~\cite{stein1981sure})\claim{C-T9}.
+The medians correspond to $r/m\approx0.11$ for DAPS ($\kappa=50$) and $0.23$ for SITCOM ($\kappa=25$); these are illustrations, not measured ranks \pending{A5.5: exact $\rho(\xs)$ per image and the decomposition into fit error and absorbed noise}.
 Two consequences follow.
 A residual threshold is a property of the solver: for DAPS and SITCOM the $\tau$ of \cref{sec:setup} lies below $\sigma$ and would reject the ground truth.
 And measurement consistency cannot certify a reconstruction in absolute terms; it is informative as a paired comparison between runs scored against the same noise, which is how selection uses it.

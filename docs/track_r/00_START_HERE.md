@@ -14,6 +14,16 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-27, 12:30 (planner):**
+  - **Overnight generation certified:** XP-A16, XP-A64, XP-D1 phase 1, XP-D2 (about 39 GPU-h in total).
+  - **TH2 mechanism forecasts v1 registered.**
+  - **Prereg A6:**
+    - A4.4 = 400 × 5, to be confirmed by replay;
+    - XP-E′ eligible;
+    - evaluation panels;
+    - predictive-interval rule;
+    - the `docs/track_r/executors/xp/theory_inputs/` directory.
+  - **Notes, round 2:** [`executors/theory/02_PLANNER_GUIDANCE_20261027_PM.md`](executors/theory/02_PLANNER_GUIDANCE_20261027_PM.md) and [`executors/xp/02_PLANNER_NOTES_20261027_PM.md`](executors/xp/02_PLANNER_NOTES_20261027_PM.md).
 - **2026-10-27, 00:00 (planner):**
   - **NP dropped** from the paper (Cheng, 2026-10-26 23:01). Paper counts are now on DAPS, SITCOM and FAST-DIPS only (1,960 runs; 540 image–solver pairs).
   - **Prereg amendment A5:**
@@ -52,7 +62,7 @@
 | Stage | What | Status |
 |---|---|---|
 | **R0-N.2** | Amendment 2 **revision D.1**, CPU: N1h → **A8 per-image strings (by Oct 28)** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
-| **XP** | `XP_PREREG_v1_1.md` (+ amendments A1–A5; A2 = DAPS-4K for the published-protocol replication; A5 = XP-I promoted, XP-K, A5.5, A8b, F8 gate):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1–A5; two lanes (CRITICAL / BACKGROUND); cap 400 GPU-h.** Planner notes 2026-10-27 |
+| **XP** | `XP_PREREG_v1_1.md` (+ amendments A1–A6; A2 = DAPS-4K for the published-protocol replication; A5 = XP-I promoted, XP-K, A5.5, A8b, F8 gate; A6 = A4.4 ruling, XP-E′, panels, interval rule, theory inputs):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1–A6; two lanes (CRITICAL / BACKGROUND); cap 400 GPU-h.** A16, A64, D1-P1, D2 generated (about 39 GPU-h). Planner notes 2026-10-27 (two rounds) |
 | **TH1** | Selection theory for the paper; predictions v1 (S2 reference + rank-calibrated race) — target **Oct 29 18:00 ET**, hard **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **IN PROGRESS** (interim `12e0ff3` accepted; guidance 2026-10-27) |
 | **TH2** | Noise-floor theory (over-weighted data terms; within-image residual races; orientation leak); optional mechanism forecasts for XP-K/XP-G by Oct 31 | AUTHORIZED, refocused 2026-10-27 |
 

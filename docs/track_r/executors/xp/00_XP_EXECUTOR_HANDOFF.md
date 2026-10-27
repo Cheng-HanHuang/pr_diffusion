@@ -1,6 +1,7 @@
 # Track R · XP executor handoff: evaluation-only extensions (GPU), revision C (autopilot)
 
 > **2026-10-27: read [`01_PLANNER_NOTES_20261027.md`](01_PLANNER_NOTES_20261027.md) and prereg amendment A5.** They give the Tier B correction, the CPU block (A4.4, A8b, A7, A5.5), the one-launch queue, the XP-I and XP-K engineering, and VRAM sizing.
+> **2026-10-27, 12:30: then read [`02_PLANNER_NOTES_20261027_PM.md`](02_PLANNER_NOTES_20261027_PM.md) and prereg A6.** It covers the decisions on issue #42, the A4.4 sources, the GPU queue, `theory_inputs/`, and XP-D2 scoring.
 
 **From:** planner (Claude), 2026-10-26 14:30.
 - **Revision C replaces B.2.** It adds:

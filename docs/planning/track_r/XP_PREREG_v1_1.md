@@ -105,7 +105,38 @@
 >    - **Drop order:** XP-E′ → XP-J → XP-D4 → XP-G2 → XP-H → XP-I2 → XP-G → XP-K → XP-B32 → XP-I → XP-F8 → XP-D3 → XP-B16 (60 ids) → XP-D2 (25 images) → XP-A64. Tier A is never dropped.
 > 9. **Theory freeze contents** (§5.1 amended). The S1–S3 curves stay in v1 as the **exchangeable-ranks reference** (Stroebl-type ceiling). The A8 rank strings reject S2 at K ≤ 4: GOOD beats CONSISTENT in 200/205 within-image pairs, and E0 picks GOOD in 92 of 100 images with a mixed passing set, against 51.9 expected under S2. So v1 should also freeze a **rank-calibrated forecast**: class-dependent residual races fitted to the K ≤ 4 ranks (and to A8b if available), with the tail assumption stated. The monotone-gap shape prediction applies to the S2 reference only. The agreement criterion (§5.6) is unchanged.
 
-**Status:** FROZEN v1.1 with amendments A1–A5 (planner, 2026-10-26).
+> **Amendment A6 (planner, 2026-10-27 12:30 ET).** Written before any outcome of XP-A16, XP-A64, XP-D1 phase 2, XP-B16, XP-F8, XP-K or XP-G had been scored or seen. XP-D1 phase 1 and XP-D2 are generated but not yet scored. TH2 mechanism forecasts v1 are registered (registry, 2026-10-27).
+> 1. **A4.4 ruling, pending replay.** The repository records the historical FFHQ DAPS configuration as `edm_daps` at `e7a77d0` (with default-off local edits), 400 annealing steps × 5 ODE steps (2,000 denoiser evaluations), and the pixel task group (100 Langevin steps, lr 5e-5, τ 0.01, lr_min_ratio 0.01). Sources:
+>    - `configs/b23/fresh1_frozen.yaml`: the DAPS parent; historical reference `B21_11_fresh2_final_val100_meas5401`; seed rule `seed1 = 22000 + frozen panel row_id`;
+>    - `docs/b24/B24_3_ZERO_GPU_CLOSEOUT_AUTHORIZATION.md` l. 51: DEV80 DAPS uses `annealing num_steps=400`, `diffusion num_steps=5`;
+>    - `configs/b24/b24_3_dev80_overnight.json`: DAPS4 with "frozen DAPS-1 semantics" and seed domain `B24_DEV80_DAPS_SOLVER_V1`.
+>
+>    The A5.2 8-root replay **under this configuration** is the confirmation. If it reproduces the historical candidates exactly, this configuration is the A4.4 record and the XP-F8 configuration. If it does not, stop and report.
+> 2. **XP-E′ is now eligible and is promoted to CRITICAL-if-ready** (data cut Nov 6). The historical configuration (400 × 5) differs from DAPS-4K (400 × 10). XP-E′ is a separate population with new seeds, so it needs no replay gate. It reuses the replay-verified pristine DAPS-4K worker with the frozen FFHQ y. 720 runs, about 13 GPU-h.
+> 3. **Generation is never embargoed.** XP-D1 phase 2 is generated now and stays sealed until v2 is registered, or 48 h after the phase-1 strings are committed.
+> 4. **Evaluation panels.** Each K-curve is the exact all-subset U-statistic on a stated panel, ties by lowest run index. Forecasts and observations use the same panel:
+>
+>    | Family | Primary panel | Secondary panel |
+>    |---|---|---|
+>    | FAST FFHQ | runs 0–63 (n = 64) | runs 0–15 (n = 16) |
+>    | SITCOM FFHQ | runs 0–15 (n = 16) | runs 0–31 (n = 32), if XP-B32 completes before the analysis cut |
+>    | DAPS FFHQ | runs 0–7 (n = 8) | — |
+>    | FAST ImageNet (v2) | runs 0–15 (n = 16) | runs 0–63, if XP-D4 runs |
+>
+>    The observed historical runs of each image are part of its panel, so the forecast target is conditional on them (theory note `TH1_CONDITIONAL_PREFIX_TARGET_20261027.md`).
+> 5. **Agreement criterion (§5.6), refined.**
+>    - If a frozen interval is a predictive interval for the realized panel statistic on these images (it includes the finite-panel U-statistic noise), the forecast is "consistent" iff the observation lies in [lo95, hi95].
+>    - SE_comb applies only to intervals that exclude that noise. Each forecast file states which kind it holds.
+>    - Also report, per family, policy and forecast variant (S2 reference, race, tail), the number of grid points inside the interval and the mean standardized residual (obs − point)/((hi95 − lo95)/3.92).
+>    - The shape test applies to the S2 reference only.
+> 6. **Theory inputs directory.** The theory executor may read `docs/track_r/executors/xp/theory_inputs/` on the XP branch, in addition to the r0n return tree. The executor puts there only files cleared for it:
+>    - the XP-D1 phase-1 per-image strings (runs 0–3, A8 schema, Good20, with E1_CLIP G1 decisions when available);
+>    - after each freeze, nothing beyond what that freeze covers.
+>
+>    `docs/track_r/executors/xp/returns/` stays forbidden to the theory executor.
+> 7. **XP-D2 and XP-D1 phase 1 are scored now** (CPU; both allowed before any freeze). XP-D2 reports the published protocol (DAPS-4K; per-metric oracle over 4 runs) next to the first run, E0, E1_CLIP (G1) and O_orbit.
+
+**Status:** FROZEN v1.1 with amendments A1–A6 (planner, 2026-10-27).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
