@@ -1,0 +1,18 @@
+{
+  "audit": {
+    "all_original_native_receipts_verified": true,
+    "all_reconstruction_file_hashes_verified": true,
+    "chunk_count": 38,
+    "new_candidate_count": 2160
+  },
+  "frozen_manifest_sha256": "796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432",
+  "generation_complete_sha256": "68cdb23bb6c8092a82464e032f3c7e448d9c2be579a4357ba4597ec6efd8e544",
+  "generation_head": "56c84c457d21b04fdb26e6b866a4071c09c655b7",
+  "gt_accessed": false,
+  "per_image_outcomes_inspected": false,
+  "publication_source_head": "ed6a8c259edb29c344edd38039ecc44e7a3575ca",
+  "quality_scoring_performed": false,
+  "reconstruction_files_copied_to_git": false,
+  "status": "XP_A16_EMBARGO_SAFE_EVIDENCE_PASS",
+  "theory_outcome_embargo_active": true
+}

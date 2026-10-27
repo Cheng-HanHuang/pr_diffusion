@@ -1,0 +1,438 @@
+{
+  "chunks": [
+    {
+      "chunk_metadata_sha256": "18d94d7a28f2a371c4633c3c98549d1fb1a5145e3a9df6189ccfb3c67cc2ad04",
+      "count": 12,
+      "gpu": 0,
+      "native_chunk_sha256": "a20a9266c9e2beb5d09146964ddab333b211c7ed5326d3a0c541f1e024862543",
+      "start": 0,
+      "worker_allocation_seconds": 42.2598896981217,
+      "worker_process_seconds": 146.19353233790025
+    },
+    {
+      "chunk_metadata_sha256": "4a72d44ea07224ec3fd96a1083bfb414c6efa8aecac0ac86ba18eb605fc46bab",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "d8cbc9e78ecea373239aabc2771c872089bb7408c313ec7cb282b29363b1b160",
+      "start": 12,
+      "worker_allocation_seconds": 212.00733069889247,
+      "worker_process_seconds": 250.8421236309223
+    },
+    {
+      "chunk_metadata_sha256": "6d360cd09ae36da5e15e09a41b8f57c98410fed84165693b5c6df7de46ddf5c0",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "e3895fb824652f7e90d20b2f4084d9d86312642518914050f9b56ec67639344b",
+      "start": 72,
+      "worker_allocation_seconds": 208.8315203380771,
+      "worker_process_seconds": 249.73181817587465
+    },
+    {
+      "chunk_metadata_sha256": "b53524c90d7bdfb7230b2cc6dfb3677e6a3f56356b6a97364f848d8144080a9d",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "de3b38ce9fe68de797f39e406d4d2305bab5826d2318d43e949b0cbd1fbe69ee",
+      "start": 132,
+      "worker_allocation_seconds": 211.96087515866384,
+      "worker_process_seconds": 266.38622484821826
+    },
+    {
+      "chunk_metadata_sha256": "e5d1dc14d2a135793e0948090029bf76f01a18926ff0127c0a8ae96142ae62cf",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "4cc8afa259a34bfc0cd3eef2ed0fafe7f8931190e0d33d81023f64c76031bc84",
+      "start": 192,
+      "worker_allocation_seconds": 206.2957989508286,
+      "worker_process_seconds": 246.68377698771656
+    },
+    {
+      "chunk_metadata_sha256": "4d93154d8549e21031f2a71b5bddda2f9b46d6dfc015b6f467f610073c556304",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "c0e515c72d95a142de2feaa90f058a2aca569838ce6773bbca7dccbee9d6b9ae",
+      "start": 252,
+      "worker_allocation_seconds": 211.39091298216954,
+      "worker_process_seconds": 272.1818936802447
+    },
+    {
+      "chunk_metadata_sha256": "7a88c6b2057665d21dc7c4d595460d3d5ad1eacc4d063ce168772d9b2ca4c7f8",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "52ca1c224f1203cb2149c7fa7ffbb9a298f55c3954f0e2fbd263b773afa5ac4f",
+      "start": 312,
+      "worker_allocation_seconds": 213.2578652240336,
+      "worker_process_seconds": 271.734512261115
+    },
+    {
+      "chunk_metadata_sha256": "0934e3be323afb0bba21a1eba821319e27a2558eb0ef3c48aa453c7c00ba498a",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "2fea88a97b1e6aed5988eefc1f6fa5eb1882e23b1308079ee926b7c1e5afdc22",
+      "start": 372,
+      "worker_allocation_seconds": 212.04392443504184,
+      "worker_process_seconds": 271.49461022997275
+    },
+    {
+      "chunk_metadata_sha256": "edd11506d1c075c4e59549bbcb14d4a920f88b10257b3e08d218a228731d9418",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "f1fac03b1dd6cf98ed678d4e2f4f9afe2a9ae61fafa0bfdcb4981ab2616af129",
+      "start": 432,
+      "worker_allocation_seconds": 206.82590960897505,
+      "worker_process_seconds": 259.0942538450472
+    },
+    {
+      "chunk_metadata_sha256": "56a967a627c9f91e9662a86e414d032a141eac6e66470fe305f5161abed19863",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "6691125614d428aec76e74499a0415aaae12c9530cb17df311a384baae3b18bc",
+      "start": 492,
+      "worker_allocation_seconds": 204.81538801034912,
+      "worker_process_seconds": 250.17456631502137
+    },
+    {
+      "chunk_metadata_sha256": "4f6d3f02c83c8761aa2db0b9684d00031e782b9f1752d75ed85dc613bfd020e3",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "638cfcba99a3b1b385a43c024c31f0dd43b208630a6f5ab59e9b5bcecc844d8e",
+      "start": 552,
+      "worker_allocation_seconds": 213.48180477973074,
+      "worker_process_seconds": 250.25868064910173
+    },
+    {
+      "chunk_metadata_sha256": "79d9bccad2e4c9d94837f5dd6170c4487d640d3ba557ed790f66790460cb92ba",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "b9f3291f7050daf11934bfe691d55acf1a39264b993da30c5b430a2bd05e9904",
+      "start": 612,
+      "worker_allocation_seconds": 208.55671947728842,
+      "worker_process_seconds": 250.7693151892163
+    },
+    {
+      "chunk_metadata_sha256": "8a56292f0caa8e9dad405a158f69be1779611ec3ef457eab94e3b5a8d25d59fe",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "8cd7c6f134ad01729573e3950ce1a22e718e81486faba86b9e831481cf8d310f",
+      "start": 672,
+      "worker_allocation_seconds": 223.15858443127945,
+      "worker_process_seconds": 268.45520674902946
+    },
+    {
+      "chunk_metadata_sha256": "403202960f62194e212350bf92b0b6cc936b05cb45292ea94bcd422919fe0f3d",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "7e69ed8e832ca84fb4bfd6d0929f802895b54ff0c51bf862c89250f18367a4c0",
+      "start": 732,
+      "worker_allocation_seconds": 214.3611973039806,
+      "worker_process_seconds": 252.54840804077685
+    },
+    {
+      "chunk_metadata_sha256": "8501bd8a65a04bdcf3a29883d9cb431104ec1f6403525485e5431eff525335ef",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "c0ee20f07c6d1260406dde8eec886fe33a9b63e44ab66299f62cbbb6792ec35f",
+      "start": 792,
+      "worker_allocation_seconds": 216.6477923556231,
+      "worker_process_seconds": 270.0478005730547
+    },
+    {
+      "chunk_metadata_sha256": "f4869cf23f1e878089a30490575892647cf856b0f8656aaf605ab57910b59cc6",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "69addfe0bd18ed3ad3fb09d7e2f529b3ba5627c154c3b0241ab9570a6df34b4e",
+      "start": 852,
+      "worker_allocation_seconds": 206.66097800480202,
+      "worker_process_seconds": 249.34687156695873
+    },
+    {
+      "chunk_metadata_sha256": "03e364a4f2c41140f698c16ae9bb0e2a1f44aac818032c6e8bb09fefde85d70d",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "60dd589f0dc194c826e44c398ef041ab7f46edd640e1c02d9f29a4990977f15b",
+      "start": 912,
+      "worker_allocation_seconds": 204.22268072981387,
+      "worker_process_seconds": 235.96281337970868
+    },
+    {
+      "chunk_metadata_sha256": "08ca5a0586ba46a23240969c6eee2de10caefaddea7e3c8586a6c92bf22a07c8",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "e127df09c3786dadb8d3e88735c571fb400ce927bef4d60d2daef9b0c7f6cc7a",
+      "start": 972,
+      "worker_allocation_seconds": 215.64152495982125,
+      "worker_process_seconds": 260.27910818718374
+    },
+    {
+      "chunk_metadata_sha256": "790d805455ad921dff8d73c0ef46bc77c8e69c9bed72ca894f1925ba3737a6a0",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "f9b9c0f51908405cf6ac1f90749e142b6c8fc57f523e3d32473bcf8b685bdb12",
+      "start": 1032,
+      "worker_allocation_seconds": 208.60550232604146,
+      "worker_process_seconds": 241.7138499082066
+    },
+    {
+      "chunk_metadata_sha256": "46109e745b351b634d74154adad9a0d9966bf99a2666930ae51c251730b253a9",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "4f5fb461d769a70224e7d2937e485a9b127be5adb03bee555b1ff8113747d445",
+      "start": 1092,
+      "worker_allocation_seconds": 205.8171373293735,
+      "worker_process_seconds": 240.96261919895187
+    },
+    {
+      "chunk_metadata_sha256": "d6a9022b46e9ce74530ef195fb1c20b7a0213e85a3bd630681a506c5ce618a85",
+      "count": 48,
+      "gpu": 1,
+      "native_chunk_sha256": "7506ca4bac646cbe0965484bca39bde205dd40b29e86ed6b66516dfd5fa0e04f",
+      "start": 1152,
+      "worker_allocation_seconds": 169.23441614909098,
+      "worker_process_seconds": 203.18648681417108
+    },
+    {
+      "chunk_metadata_sha256": "e1075232f7cfd62a9c72525cefd3ff0b7e3d1101161c30c3b2eb9cca6c91abbf",
+      "count": 12,
+      "gpu": 1,
+      "native_chunk_sha256": "50b30f05fbb803d18c37796444085e87da03b887c2922a47c86ff9484a909a02",
+      "start": 1200,
+      "worker_allocation_seconds": 43.48966103699058,
+      "worker_process_seconds": 143.5364788188599
+    },
+    {
+      "chunk_metadata_sha256": "f97464008dc7a48b24b7264bc9d30d1ce9cb94bb01ef11bf93c84c5a4f8d2235",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "a412077f0518d202b65be6061191caf84fa0e9552dd269a659525960b1760d84",
+      "start": 1212,
+      "worker_allocation_seconds": 209.12155021028593,
+      "worker_process_seconds": 245.19656736310571
+    },
+    {
+      "chunk_metadata_sha256": "e0dcefa092cc82a0eedd5a0ecd1bcbb8fee97d569d3891b4e60c097caa2bdce6",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "c263097eb64f8511cb547b6a0d70585cb90221e31262171711ff37e9ad2a263a",
+      "start": 1272,
+      "worker_allocation_seconds": 210.52885549608618,
+      "worker_process_seconds": 253.22685946291313
+    },
+    {
+      "chunk_metadata_sha256": "fecd3bff23f43e333d9218d675694dba101354bdb0d96db10fa89ba591ab1cad",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "fa1823eb8860a7b4b401ddf9d49f78e7564b7c4689132112b2b80413e4c3bfc2",
+      "start": 1332,
+      "worker_allocation_seconds": 210.07155471481383,
+      "worker_process_seconds": 252.6919269389473
+    },
+    {
+      "chunk_metadata_sha256": "dbabd8a230a8ec5e9e3dede8c429d3007845dfbf7861b8df0b2caa77383ebb6c",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "aa30689da06d63eb15b66426c7cf4e455d5ef536bae94a650154740984dcba2e",
+      "start": 1392,
+      "worker_allocation_seconds": 206.44933945592493,
+      "worker_process_seconds": 252.6391547168605
+    },
+    {
+      "chunk_metadata_sha256": "ddc9bfffcf25cb5715395c2bc8eda747d1f4c62317a047e9738056d9f4fc3a53",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "9c215ef9efb616244db717342bf447d7356a739e19209cdbaefc5fc18b899510",
+      "start": 1452,
+      "worker_allocation_seconds": 209.95384891098365,
+      "worker_process_seconds": 242.9147558598779
+    },
+    {
+      "chunk_metadata_sha256": "b9b09ef485ad9f91e550b1566c8e99319ce4d4d35e2684fd3b7f0f537ae94182",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "779ccd5e27efec95f47ee1a12cc44c4a05e8f46149ddad5e546e25ddfee88644",
+      "start": 1512,
+      "worker_allocation_seconds": 205.39906793320552,
+      "worker_process_seconds": 241.7285236408934
+    },
+    {
+      "chunk_metadata_sha256": "74344b869fd5aeba78fee0f7c25f965bcefa74078d78047bdf661a4b26a9c56c",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "85e913596635733a738b71608077dada8b99631fcebaf92389179cd553fa60e4",
+      "start": 1572,
+      "worker_allocation_seconds": 211.8952605817467,
+      "worker_process_seconds": 253.46620599878952
+    },
+    {
+      "chunk_metadata_sha256": "e0d7ebc2bdd72032b9efaf647ff0f945f91eaa84c4afa445e8c9cb0603bc6864",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "6494005a68a4bdd7fedbd1b991f0c8af4be4fdbc320e876b63a55dafbbb8e36b",
+      "start": 1632,
+      "worker_allocation_seconds": 209.45625479193404,
+      "worker_process_seconds": 254.53401646390557
+    },
+    {
+      "chunk_metadata_sha256": "4a5e1976e75bca8b6ebd935d2c36395c54851ca8d16d2e3f0a9b05c6401cb847",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "db96fab092d714420a9b6dfa0bfee5c217a87e1b3fbf763c1efc135ae9b46025",
+      "start": 1692,
+      "worker_allocation_seconds": 207.31564099201933,
+      "worker_process_seconds": 246.00223116995767
+    },
+    {
+      "chunk_metadata_sha256": "cf8f764ae0655a41353685127aa751ceafaf1567d93ca5b375f49537f6d4c432",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "8358d52b87f4752db5d0b7f938ba67f235709f557f2fcd5165e1ccd49c5df129",
+      "start": 1752,
+      "worker_allocation_seconds": 216.69372021174058,
+      "worker_process_seconds": 266.4444513292983
+    },
+    {
+      "chunk_metadata_sha256": "e489a92eaed46443a548bd3cf38278bf2f9be836a6d4a628c76c9923aaf9991c",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "6a9cb96fb184ee19e81b30185e8e0c862fe87329dbd09f6a917231548d80f8fa",
+      "start": 1812,
+      "worker_allocation_seconds": 208.9131982368417,
+      "worker_process_seconds": 253.20352837722749
+    },
+    {
+      "chunk_metadata_sha256": "b16db12cb53578c314f6370a9eeaffe1d19019c2355291a0094b78f995270604",
+      "count": 60,
+      "gpu": 0,
+      "native_chunk_sha256": "5c3ce1e28755800f2e213dba584fa86c250e2454f2ab711da226f441cff20f9a",
+      "start": 1872,
+      "worker_allocation_seconds": 205.25185060687363,
+      "worker_process_seconds": 253.31266986811534
+    },
+    {
+      "chunk_metadata_sha256": "63a4d124cbee6101c8378a9cfb53c227319cde56f42febefee9fb10da69a65ed",
+      "count": 60,
+      "gpu": 1,
+      "native_chunk_sha256": "d2429d031af9545dcf5249a338481515d1298359c8759f57cd89e7ecb4ebac3a",
+      "start": 1932,
+      "worker_allocation_seconds": 209.27613097941503,
+      "worker_process_seconds": 252.13693688157946
+    },
+    {
+      "chunk_metadata_sha256": "3faf445a729939e0138fd4ce394ca15055e04e0e2ec3d9870b580340d973c6b1",
+      "count": 60,
+      "gpu": 2,
+      "native_chunk_sha256": "95bda77bfd9a1e114765b63fdb0fc70355cfced9b5b8fb776a583da908041951",
+      "start": 1992,
+      "worker_allocation_seconds": 214.68477059993893,
+      "worker_process_seconds": 241.91839572181925
+    },
+    {
+      "chunk_metadata_sha256": "bd425ed4912e56f8a413469b079f6a4cbd9b51dc45a974147660305152440918",
+      "count": 60,
+      "gpu": 3,
+      "native_chunk_sha256": "764099da2f26ce1652d6a1aa6f7b4cf7e45dc111d708271b332afc8cdfb3414d",
+      "start": 2052,
+      "worker_allocation_seconds": 217.70452366303653,
+      "worker_process_seconds": 254.60555831668898
+    },
+    {
+      "chunk_metadata_sha256": "2ed0f78a24d02936a79f43dbd693ef1d077728c1e09191639f94d7077a8ab28d",
+      "count": 48,
+      "gpu": 0,
+      "native_chunk_sha256": "3a8a8ba8968f3974fd38934569d48ff76446917f937d066656917041ed8bbf76",
+      "start": 2112,
+      "worker_allocation_seconds": 164.4450316396542,
+      "worker_process_seconds": 194.5625122296624
+    }
+  ],
+  "clean_timing_eligible": true,
+  "gpu_hour_cap": 12.0,
+  "head": "56c84c457d21b04fdb26e6b866a4071c09c655b7",
+  "historical_output_paths_not_supplied": true,
+  "historical_roots_reused_without_regeneration": 720,
+  "manifest_sha256": "796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432",
+  "n_chunks": 38,
+  "n_images": 180,
+  "n_smoke_roots": 24,
+  "new_roots": 2160,
+  "outcomes_embargoed": true,
+  "per_cohort_new_roots": {
+    "S1_b22": 1200,
+    "S2_b24_dev80": 960
+  },
+  "per_device_timing": {
+    "0": {
+      "foreign_pids": [],
+      "n_samples": 247,
+      "reasons": [],
+      "timing_class": "CLEAN",
+      "timing_valid": true
+    },
+    "1": {
+      "foreign_pids": [],
+      "n_samples": 246,
+      "reasons": [],
+      "timing_class": "CLEAN",
+      "timing_valid": true
+    },
+    "2": {
+      "foreign_pids": [],
+      "n_samples": 234,
+      "reasons": [],
+      "timing_class": "CLEAN",
+      "timing_valid": true
+    },
+    "3": {
+      "foreign_pids": [],
+      "n_samples": 235,
+      "reasons": [],
+      "timing_class": "CLEAN",
+      "timing_valid": true
+    }
+  },
+  "physical_gpu_used": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "prep_head": "f67bd915dab3ce39be96264ca6a1ec002ad623ff",
+  "quality_metrics_generated": false,
+  "quality_scoring_authorized": false,
+  "run_indices": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "smoke_gate": {
+    "conservative_projected_gpu_hours": 3.751542844661162,
+    "gpu_hour_cap": 12.0,
+    "gt_read": false,
+    "image_aligned_chosen_starts": [
+      0,
+      1200
+    ],
+    "native_fast_replay_preserved": true,
+    "new_image_counts": {
+      "S1_b22": 1,
+      "S2_b24_dev80": 1
+    },
+    "new_roots": 24,
+    "outcomes_embargoed": true,
+    "status": "XP_A16_SMOKE_PASS"
+  },
+  "stage": "XP-A16",
+  "status": "XP_A16_GENERATION_PASS",
+  "strict_gt_free_generation": true,
+  "theory_freeze_required_for_scoring": "TH1_PREDICTIONS_v1.json",
+  "total_gpu_hours": 2.5861581238130262,
+  "total_gpu_seconds": 9310.169245726895,
+  "workers_per_physical_gpu": 1
+}

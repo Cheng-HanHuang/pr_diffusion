@@ -1,0 +1,22 @@
+{
+  "active_pids": [],
+  "clean_timing_eligible": true,
+  "completed_chunks": 38,
+  "completed_roots": 2160,
+  "gpu_hours": 2.5861581238130262,
+  "gt_free_generation": true,
+  "head": "56c84c457d21b04fdb26e6b866a4071c09c655b7",
+  "manifest_sha256": "796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432",
+  "outcomes_embargoed": true,
+  "phase": "COMPLETE",
+  "physical_gpus_used": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "projected_gpu_hours": 3.751542844661162,
+  "reason": null,
+  "running_chunks": 0,
+  "state": "PASS"
+}

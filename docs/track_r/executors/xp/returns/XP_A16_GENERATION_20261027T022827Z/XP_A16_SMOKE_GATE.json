@@ -1,0 +1,17 @@
+{
+  "conservative_projected_gpu_hours": 3.751542844661162,
+  "gpu_hour_cap": 12.0,
+  "gt_read": false,
+  "image_aligned_chosen_starts": [
+    0,
+    1200
+  ],
+  "native_fast_replay_preserved": true,
+  "new_image_counts": {
+    "S1_b22": 1,
+    "S2_b24_dev80": 1
+  },
+  "new_roots": 24,
+  "outcomes_embargoed": true,
+  "status": "XP_A16_SMOKE_PASS"
+}

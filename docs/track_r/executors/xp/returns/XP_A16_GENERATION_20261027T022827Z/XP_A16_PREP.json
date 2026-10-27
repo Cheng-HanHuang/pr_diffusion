@@ -1,0 +1,13 @@
+{
+  "gpu_work_performed": false,
+  "gt_access": false,
+  "head": "f67bd915dab3ce39be96264ca6a1ec002ad623ff",
+  "historical_roots": 720,
+  "manifest_sha256": "796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432",
+  "measurement_hashes_verified": 180,
+  "n_images": 180,
+  "n_roots": 2160,
+  "outcomes_embargoed": true,
+  "seed_collisions": 0,
+  "status": "XP_A16_PREP_PASS"
+}
