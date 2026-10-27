@@ -68,16 +68,11 @@ def conditional_old_scores(ranked,variant,fit,rng):
         choices=[i for i,c in enumerate(classes) if c==3]
         probs=[];types=[]
         for status in itertools.product([False,True],repeat=len(choices)):
-            cl=classes.copy()
-            for ix,extreme in zip(choices,status):
-                cl[ix]=4 if extreme else 3
-            # Original I class is moved to expanded label index 5.
-            cl=[5 if k==4 and j not in choices else k
-                for j,k in enumerate(cl)]
-            # Previous line is unsafe when ordinary C index==4 by expansion;
-            # remap from ORIGINAL label strings explicitly instead.
+            # Expanded classes: G=0, O=1, P=2, C_base=3,
+            # C_extreme=4, I=5. Map directly from observed labels.
+            status_by_index=dict(zip(choices,status))
             cl=[(5 if c=="I" else
-                 (4 if (j in choices and status[choices.index(j)]) else 3)
+                 (4 if status_by_index[j] else 3)
                  if c=="C" else LABELS.index(c))
                 for j,c in enumerate(ranked)]
             rr=[float(weights[k]) for k in cl]
