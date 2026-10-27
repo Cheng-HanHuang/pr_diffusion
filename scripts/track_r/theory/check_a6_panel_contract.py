@@ -38,6 +38,14 @@ def run(path):
         assert 0<=x["lo95"]<=x["point"]<=x["hi95"]<=1
         d[(f,panel,co,v,k)][policy]=x["point"]
     assert len(allkeys)==len(preds)
+    # The fixed-prefix oracle means have a closed-form
+    # beta-hypergeometric expectation, shared EXACTLY by all variants.
+    for (f,pn,co,v,k),values in d.items():
+        if not set(POLICIES)<=set(values):
+            continue
+        canonical=d[(f,pn,co,"race",k)]
+        assert abs(values["O_raw"]-canonical["O_raw"])<2e-12
+        assert abs(values["O_orbit"]-canonical["O_orbit"])<2e-12
     anatomy=obj["anatomy_curves"];cross=obj["crossover_K"]
     assert len(anatomy)==252,len(anatomy)
     assert len(cross)==60,len(cross)
