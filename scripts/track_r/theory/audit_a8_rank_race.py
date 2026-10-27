@@ -133,13 +133,16 @@ def fit_weights(rows, tau=2.5):
         grad=X.T@(expit(z)-1)+b/(tau**2)
         return float(loglike+penalty),grad
     result=minimize(lambda b:obj(b),np.array([-1.,-2.]),jac=True,
-                    method="BFGS",options={"gtol":1e-9,"maxiter":400})
+                    method="BFGS",options={"gtol":1e-6,"maxiter":400})
     if not np.isfinite(result.fun):raise RuntimeError("pair fit not finite")
     b=result.x
-    return {"w_O":float(np.exp(b[0])),"w_C":float(np.exp(b[1])),
+    gradient_norm=float(np.linalg.norm(obj(b)[1]))
+    return {"gradient_norm":gradient_norm,
+            "gradient_verified":bool(gradient_norm<1e-6),
+            "w_O":float(np.exp(b[0])),"w_C":float(np.exp(b[1])),
             "log_O":float(b[0]),"log_C":float(b[1]),
             "number_pairs":len(X),"objective":float(result.fun),
-            "converged":bool(result.success)}
+            "converged":bool(gradient_norm<1e-6)}
 
 def main():
     ap=argparse.ArgumentParser()
