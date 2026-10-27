@@ -254,7 +254,9 @@ def main(a):
            timing_by_job={},smoke_pass=False,outcomes_scored=False,
            K_gt4_results_sealed=True)
         (run/"gpu").mkdir(exist_ok=False)
-        (run/"pycache").mkdir(exist_ok=False)
+        # CPU-only stage preflights may have populated this isolated
+        # bytecode directory, but no GPU root must preexist.
+        (run/"pycache").mkdir(exist_ok=True)
         (CACHE/"tmp").mkdir(parents=True,exist_ok=True)
     if a.mode=="smoke" and (run/"XP_A6_SMOKE_COMPLETE.json").exists():
         raise RuntimeError("STOP_A6_SMOKE_ALREADY_DONE")

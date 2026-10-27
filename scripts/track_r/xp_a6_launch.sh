@@ -31,6 +31,42 @@ test -f "$RUN/XP_A6_PREP.json"
 test ! -e "$RUN/gpu"
 test ! -e "$RUN/XP_A6_CONTROLLER_STATE.json"
 test ! -e "$RUN/XP_A6_AUTOPILOT.log"
+
+# CPU-only native-input/source/solver preflights. Use the exact frozen
+# manifests and model files, without constructing a CUDA sampler or writing
+# any reconstruction. All three must PASS before detaching the supervisor.
+# Isolated pycache is permitted; the GPU output tree must remain absent.
+echo "=== FULL NATIVE PREFLIGHT: FAST D1P2 (source-pinned) ==="
+CUDA_VISIBLE_DEVICES=0 \
+PYTHONPYCACHEPREFIX="$RUN/pycache/preflight_d1p2" \
+"$ROOT/conda-envs/fast_dips_a15_blackwell/bin/python" \
+  "$WT/scripts/track_r/xp_fast_gpu.py" \
+  --expected-head "$HEAD" \
+  --roots "$BASE/xp_overnight_20261027T045215Z/D1_P2.json" \
+  --roots-sha 3107d40c495886c52ea2a407f4d8f74079278fffffaa93f4f55eff1edb5272f7 \
+  --roots-source-head 8d9bfed0fa62735791987a24791cfb97123540d8 \
+  --out "$RUN/gpu/D1_P2/chunk_00000_024" \
+  --start 0 --count 24 --physical-gpu 0 \
+  --dataset imagenet --oversample 2.0 --preflight-only
+
+echo "=== FULL NATIVE PREFLIGHT: SITCOM D3 ==="
+CUDA_VISIBLE_DEVICES=0 \
+PYTHONPYCACHEPREFIX="$RUN/pycache/preflight_d3" \
+"$ROOT/conda-envs/sitcom_ode_bw/bin/python" \
+  "$WT/scripts/track_r/xp_a6_native_worker.py" \
+  --run "$RUN" --expected-head "$HEAD" \
+  --stage D3 --index 0 --gpu 0 --preflight-only
+
+echo "=== FULL NATIVE PREFLIGHT: PRISTINE DAPS4K EPRIME ==="
+CUDA_VISIBLE_DEVICES=0 \
+PYTHONPYCACHEPREFIX="$RUN/pycache/preflight_eprime" \
+"$ROOT/conda-envs/daps/bin/python" \
+  "$WT/scripts/track_r/xp_a6_native_worker.py" \
+  --run "$RUN" --expected-head "$HEAD" \
+  --stage EPRIME --index 0 --gpu 0 --preflight-only
+
+test ! -e "$RUN/gpu"
+echo "XP_A6_ALL_NATIVE_CPU_PREFLIGHTS_PASS"
 echo "=== AUTO SMOKE -> MAIN (11-HOUR WALL / 40 GPU-H BUDGET) ==="
 nohup bash -c '
   set -uo pipefail

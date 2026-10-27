@@ -36,8 +36,15 @@ class A6Tests(unittest.TestCase):
         self.assertEqual(sup.STAGES,("D1_P2","D3","EPRIME"))
     def test_source_unique_and_new_domain_seeds(self):
         common,a16=fixtures()
+        # Exercise seed/partition logic on synthetic aliases: check_file
+        # intentionally requires real PAC files during an actual freeze.
+        # Supply only a fake path verifier inside this single synthetic test.
+        def fake_sha(path):
+            text=str(path)
+            return "a"*64 if "/im_" in text else "b"*64
         with patch.object(prep,"frozen_roots",return_value=a16), \
-             patch.object(prep,"sha",return_value="a"*64):
+             patch.object(prep,"check_file",side_effect=Path), \
+             patch.object(prep,"sha",side_effect=fake_sha):
             d3,e=prep.build(common,a16)
         self.assertEqual(len(d3),400)
         self.assertEqual(len(e),720)
@@ -49,6 +56,10 @@ class A6Tests(unittest.TestCase):
             k=f"XP|DAPS|ffhq_daps4k|{r['image_id']}|{r['rep']}"
             self.assertEqual(r["seed"],
                int.from_bytes(hashlib.sha256(k.encode()).digest()[:8],"big")%(2**31))
+    def test_real_path_guard_still_rejects_synthetic_paths(self):
+        with self.assertRaisesRegex(RuntimeError,"MISSING_OR_PROTECTED_SOURCE"):
+            prep.check_file("/egr/research-pac/huang248/input/synthetic_missing_for_a6_test.pt")
+
     def test_d1p2_validation_requires_exact_pinned_digest(self):
         with self.assertRaisesRegex(RuntimeError,"PINNED_SOURCE"):
             d1.validate("not_the_source","bad",{},[],"bad",0,24)
