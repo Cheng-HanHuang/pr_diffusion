@@ -36,6 +36,15 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
   - **Embargo.** No FFHQ K > 4 (B22 DAPS: K > 2) or ImageNet-FAST K > 4 outcome is committed or reported before the matching theory freeze is listed in `docs/track_r/theory/PREDICTIONS_REGISTRY.md`. Only the planner edits that file.
   - **R0-N.2** follows amendment 2 revision D.1. The A8 label strings are approved for commit.
   - **The theory executor starts now**, per handoff revision B.1 (theory program v1.2).
+- **Update 2026-10-27 (planner):**
+  - **NP is dropped** from the paper (Cheng). Prereg **amendment A5** applies:
+    - XP-I becomes CRITICAL-if-ready, and XP-I2 is added;
+    - new XP-K: a parameter-only data-term calibration;
+    - analysis A5.5, A8b, and A7 now required;
+    - the XP-F8 replay gate;
+    - v1 freezes both the S2 reference and a rank-calibrated forecast.
+  - **Notes:** `docs/track_r/executors/xp/01_PLANNER_NOTES_20261027.md` and `docs/track_r/executors/theory/01_PLANNER_GUIDANCE_20261027.md`.
+  - **Theory-executor reads:** it may read `docs/track_r/executors/r0n/returns/` on the XP branch, plus N1c on the r0n branch. It may **not** read `docs/track_r/executors/xp/returns/`.
 
 ## B26 branch override
 

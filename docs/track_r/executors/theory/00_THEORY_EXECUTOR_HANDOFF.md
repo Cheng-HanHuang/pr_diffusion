@@ -1,5 +1,7 @@
 # Track R · theory executor handoff (TH1 now, TH2 memo), revision B.1
 
+> **2026-10-27: read [`01_PLANNER_GUIDANCE_20261027.md`](01_PLANNER_GUIDANCE_20261027.md) first.** It covers where A8 is, the S2 rejection, the v1 contents and target (Oct 29, 18:00 ET), the TH2 refocus on the noise floor, and the reading permissions.
+
 **From:** planner (Claude), 2026-10-26.
 - Revision B.1 adds the TGD read and the phase-retrieval-theory research pass (program v1.2; digest §§4–5).
 - Revision A (2026-10-25) was never started.

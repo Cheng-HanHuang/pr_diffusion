@@ -24,35 +24,54 @@ TGD~\cite{makris2026tgd} & 4 & residual & no \\
 
 \paragraph{How much of the reported quality is available at test time.}
 \Cref{tab:ffhq} decomposes the FFHQ results at the largest $K$ we had before the extensions.
-Residual selection followed by an orientation test recovers $93$--$97\%$ of the gain from the first run to the orbit oracle, and stays within two images of the orbit oracle in $\goodrate$\claim{C-A3}.
-Because $\Oraw$ cannot correct orientation, $\Eone$ exceeds it wherever the oracle's own pick is rotated.
-\pending{Per-metric inflation (PSNR, SSIM, LPIPS) and the mean-of-$K$ column: R0-N.2 A4.3/A7.}
+Residual selection followed by the CLIP orientation test recovers $92.6$--$97.5\%$ of the mean-PSNR gain from the first run to the orbit oracle, and stays within two images of the orbit oracle in $\goodrate$\claim{C-A3}.
+Because $\Oraw$ cannot correct orientation, $\Eone$ exceeds it in mean PSNR in four of the five strata.
+\pending{Per-metric inflation (PSNR, SSIM, LPIPS) and the mean-of-$K$ column: R0-N.2 A7.}
 
 \begin{table}[t]
 \centering\small
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{@{}llccccc@{}}
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lcccccccc@{}}
 \toprule
-Solver & $K$ & First & $\Eone$ & $\Oraw$ & $\Oorb$ & Rec. \\
+ & & \multicolumn{4}{c}{Mean PSNR (dB)} & & \multicolumn{2}{c}{\good} \\
+\cmidrule(lr){3-6}\cmidrule(l){8-9}
+Solver & $K$ & First & $\Eone$ & $\Oraw$ & $\Oorb$ & Rec. & $\Eone$ & $\Oorb$ \\
 \midrule
-DAPS (cohort A) & 2 & 27.23 & 30.07 & 29.42 & 30.14 & 97.4\% \\
-DAPS (cohort B) & 4 & 23.29 & 28.82 & 28.83 & 29.03 & 96.4\% \\
-SITCOM (A) & 4 & 22.97 & 26.64 & 26.66 & 26.87 & 94.3\% \\
-SITCOM (B) & 4 & 19.59 & 24.70 & 24.12 & 25.06 & 93.4\% \\
-FAST-DIPS (A+B) & 4 & 23.81 & 28.99 & 29.00 & 29.18 & 96.3\% \\
+DAPS (A) & 2 & 27.23 & 30.07 & 29.42 & 30.14 & 97.4\% & 95 & 95 \\
+DAPS (B) & 4 & 23.29 & 28.60 & 28.83 & 29.03 & 92.6\% & 68 & 69 \\
+SITCOM (A) & 4 & 22.97 & 26.77 & 26.66 & 26.87 & 97.5\% & 94 & 96 \\
+SITCOM (B) & 4 & 19.59 & 24.88 & 24.12 & 25.06 & 96.8\% & 58 & 58 \\
+FAST (A+B) & 4 & 23.81 & 29.01 & 29.00 & 29.18 & 96.8\% & 155 & 156 \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{FFHQ, mean PSNR (dB).} ``Rec.''\ is $(\Eone-\text{first})/(\Oorb-\text{first})$. Here $\Eone$ uses the solver-prior orientation test; \pending{replace by the CLIP test (R0-N.2 A4.3) and add $\goodrate$, SSIM, LPIPS, mean-of-$K$ and the per-metric oracle}\claim{C-A3}.}
+\caption{\textbf{FFHQ, cohorts A ($100$ images) and B ($80$).} $\Eone$ uses the CLIP orientation test. ``Rec.''\ is $(\Eone-\text{first})/(\Oorb-\text{first})$ in mean PSNR; the last two columns count images with a \good pick\claim{C-A3}. \pending{SSIM, LPIPS, mean-of-$K$ and the per-metric oracle (A7)}.}
 \label{tab:ffhq}
 \end{table}
 
 \paragraph{What remains.}
-At the largest $K$, $114$ image--solver pairs have a failed residual pick; the orientation test fixes $15$, and of the remaining $99$, $93$ are \emph{generation failures} (no run reaches any orbit member), $5$ are selection misses, and $1$ is an uncorrected orientation\claim{C-A4}\pending{recount for the final solver set}.
-The type of failure depends strongly on the solver: $57\%$ of SITCOM's failed runs fit the measurement within the noise level (\cons), whereas DAPS and FAST-DIPS failures mostly do not\claim{C-A5}.
-This is consistent with SITCOM's inner step, which enforces measurement consistency by optimizing the network input \pending{the TH2 toy study tests this mechanism}.
+At the largest $K$, the residual pick fails on $84$ of the $540$ image--solver pairs; the CLIP test fixes $14$ and breaks none.
+Of the remaining $70$, $66$ are generation failures, $3$ are selection misses, and $1$ is the only partial orbit error among the $1{,}960$ runs, which a global test cannot fix and the eight-member prior test does\claim{C-A4}.
+The type of failure depends strongly on the solver: $57\%$ of SITCOM's failed runs are \cons, against $10\%$ for DAPS and $8\%$ for FAST-DIPS\claim{C-A5}.
+They rarely cost a pick because \good runs of the same image fit better: $104$ of SITCOM's $174$ \cons runs share an image with a \good run, yet only two \cons runs are picked over one (\cref{sec:selection}).
+\pending{A7 contact sheets: are these runs other images or near misses?}
+
+\paragraph{The noise floor of the residual.}
+With signed measurements, the ground truth's residual is $\rho(\xs)=\sigma\|n\|/\sqrt m$, which equals $\sigma$ to within $0.3\%$ (three standard deviations).
+Every \good run of DAPS and SITCOM has a smaller residual: their medians are $0.946\sigma$ and $0.884\sigma$, while those of FAST-DIPS are $0.997\sigma$\claim{C-A6}.
+The order follows the data terms (\cref{sec:setup}).
+DAPS and SITCOM-ODE return a Langevin iterate whose data term is $50$ and $25$ times stronger than the likelihood at $\sigma=0.05$, and SITCOM-ODE adds a gradient step on the residual after every ODE step.
+FAST-DIPS returns a denoised estimate.
+In a local linear model, a solution that has fitted $r$ directions of the noise has expected squared residual $\sigma^2(m-r)$~\cite{stein1981sure}; the medians correspond to roughly $10\%$ of the $m$ measurement directions for DAPS and $22\%$ for SITCOM \pending{A5.5: exact $\rho(\xs)$ per image and the decomposition into fit error and absorbed noise}.
+Two consequences follow.
+A residual threshold is a property of the solver: for DAPS and SITCOM the $\tau$ of \cref{sec:setup} lies below $\sigma$ and would reject the ground truth.
+And measurement consistency cannot certify a reconstruction in absolute terms; it is informative as a paired comparison between runs scored against the same noise, which is how selection uses it.
+\pending{XP-K: the same images with each solver's data term calibrated to $\sigma$.}
 
 \paragraph{ImageNet.}
 \pending{XP-D1--D3: anatomy, the published DAPS protocol (DAPS-4K, per-metric oracle) next to first run and $\Eone$, and orientation tests with generic prompts. Reference: the published DAPS value is $25.78\pm6.92$\,dB~\cite{zhang2025daps}.}
 
+\paragraph{PC-DAPS on the same measurements.}
+\pending{XP-I: per-particle anatomy, PC-DAPS's own reporting (mean over its four particles), and $\Eo$/$\Eone$ over the particles, next to DAPS at $K{=}4$ on the same images.}
+
 \paragraph{Compute and controls.}
-\pending{Compute frontier from XP-T timings. Supplement: noise level $\sigma\in\{0.02,0.10\}$, the $512$ canvas, DPS, and PC-DAPS on the same images.}
+\pending{Compute frontier from XP-T timings. Supplement: noise level $\sigma\in\{0.02,0.10\}$, the $512$ canvas, DPS, DiffFPR.}

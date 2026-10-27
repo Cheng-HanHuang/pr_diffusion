@@ -32,8 +32,9 @@ Each run of a solver returns one image $\hat x$.
 With PSNR computed on 8-bit RGB against $\xs$ (SSIM and LPIPS~\cite{zhang2018lpips} are reported alongside) and a threshold $\theta$ ($25$\,dB on FFHQ, $20$\,dB on ImageNet), a run is
 \good if $\mathrm{PSNR}(\hat x)\ge\theta$;
 \orbit if not, but $\max_s\mathrm{PSNR}(R_s\hat x)\ge\theta$ (\emph{global} if the best member is $R_{111}$, \emph{partial} otherwise);
-\cons if it is neither but $\rho(\hat x)\le\tau$; and \incons otherwise.
+\cons if it is neither but $\rho(\hat x)\le\tau$, i.e.\ it fits the measurement as well as the solver's \good runs do; and \incons otherwise.
 The threshold $\tau$ is the $95$th percentile of $\rho$ over \good runs of the same solver and image cohort, fixed before any analysis reported here\claim{C-S4}.
+It is relative to the solver: for DAPS and SITCOM it lies below the noise level $\sigma$ (\cref{sec:audit}).
 
 \paragraph{Selection policies.}
 Given $K$ runs of one image we compare:
@@ -48,8 +49,17 @@ and the \emph{per-metric oracle}, which takes the best PSNR, best SSIM and best 
 Only the first run, mean-of-$K$, $\Eo$ and $\Eone$ are available at test time.
 
 \paragraph{Data and solvers.}
-FFHQ~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts of $100$ and $80$ \pending{describe provenance and training-set membership (R0-N.2 B2)}, with the $256\times256$ denoiser used by DPS~\cite{chung2023dps}.
-ImageNet~\cite{deng2009imagenet}: the $100$-image test set used by DAPS, FAST-DIPS and PC-DAPS~\cite{zhang2025daps,kim2026fastdips,kocabas2026pcdaps}, with the unconditional denoiser of~\cite{dhariwal2021diffusion} and measurements drawn once per image.
-Solvers: DAPS~\cite{zhang2025daps} (DAPS-4K, the configuration of its phase-retrieval results), SITCOM~\cite{alkhouri2025sitcom} and FAST-DIPS~\cite{kim2026fastdips} with their published phase-retrieval settings \pending{FFHQ DAPS configuration from R0-N.2 A4.4}; DPS~\cite{chung2023dps}, PC-DAPS~\cite{kocabas2026pcdaps} and DiffFPR~\cite{li2024difffpr} in the supplement \pending{if run}.
-Each run uses an independent seed and the same $y$.
+FFHQ~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts, with the $256\times256$ denoiser used by DPS~\cite{chung2023dps}.
+Cohort~A has $100$ images drawn at random from FFHQ's validation split; cohort~B has $80$ images from an earlier development screen enriched for hard cases, $71$ of them from FFHQ's training split\claim{C-S7}.
+Whether the denoiser was trained on these $71$ images is unknown, so we report the cohorts separately.
+ImageNet~\cite{deng2009imagenet}: the first $100$ images, in loader order, of the test archive distributed with DAPS, which is the default evaluation set of DAPS, FAST-DIPS and PC-DAPS~\cite{zhang2025daps,kim2026fastdips,kocabas2026pcdaps}, with the unconditional denoiser of~\cite{dhariwal2021diffusion} and measurements drawn once per image.
+Solvers: DAPS~\cite{zhang2025daps}, on ImageNet with DAPS-4K, the configuration of its published phase-retrieval results, and on FFHQ with the configuration of our earlier runs \pending{R0-N.2 A4.4: steps and NFE}; SITCOM~\cite{alkhouri2025sitcom}, through its authors' phase-retrieval code (SITCOM-ODE) with the published settings; and FAST-DIPS~\cite{kim2026fastdips} with its published phase-retrieval command.
+PC-DAPS~\cite{kocabas2026pcdaps}, DPS~\cite{chung2023dps} and DiffFPR~\cite{li2024difffpr} run on the same measurements \pending{if run}.
+Each run uses an independent seed and the same $y$, and returns one image: DAPS and SITCOM-ODE return their last Langevin iterate, FAST-DIPS the clamped denoised estimate of its last step\claim{C-S6}.
 All timings are measured on one GPU model \pending{XP-T}.
+
+\paragraph{How the solvers weight the data.}
+The Langevin steps of DAPS follow the score $-\nabla\|\cA(x)-y\|^2/\tau_y^2$ and those of SITCOM-ODE minimize $\|\cA(x)-y\|^2/(2\tau_y^2)$, both with $\tau_y=0.01$.
+The Gaussian likelihood at $\sigma=0.05$ has weight $1/(2\sigma^2)$, so these data terms are $50$ and $25$ times stronger.
+SITCOM-ODE also takes a unit gradient step on $\|\cA(x)-y\|^2$ after each ODE step.
+FAST-DIPS projects an auxiliary measurement-space variable onto the ball $\|v-y\|_2\le0.05$, whereas the noise has norm $\sigma\sqrt m\approx33$\claim{C-S5}.

@@ -12,32 +12,43 @@ Kocabas~\etal\cite{kocabas2026pcdaps} show that ground-truth best-of-$k$ masks f
 Measurement error is the natural ground-truth-free criterion, but it is not obviously adequate: phase retrieval is ill-posed, so a small residual does not certify a correct image.
 Solvers already add prior or network-consistency terms \emph{inside} the reconstruction for this reason~\cite{alkhouri2025sitcom}; whether the \emph{selection} among finished runs needs them too, and how much of the published quality is available without the ground truth, has not been measured.
 
-We find that measurement-based selection fails in exactly three ways, with different causes and remedies.
-(i)~It is provably blind to an exact eight-fold symmetry of the operator, so rotated runs pass; a cheap prior or semantic test fixes them and is the Bayes rule within the orbit (\cref{sec:symmetry}).
-(ii)~It cannot reject runs that fit the measurement within the noise but show a different image; how often these occur depends strongly on the solver, and their share of selection errors grows with the number of runs (\cref{sec:selection,sec:audit}).
-(iii)~It cannot help when no run is close to the image, which is the dominant failure at the run counts used in practice\claim{C-A4}.
-On FFHQ, residual selection followed by an orientation test recovers $93$--$97\%$ of the gain of an orientation-aware ground-truth oracle\claim{C-A3}; what remains is mostly~(iii).
+The noisy Fourier-magnitude problem combines an exact symmetry of the measurement, a learned prior that prefers some orientations, solvers that land in different kinds of wrong solutions, and an imperfect measurement-based verifier.
+Ground-truth best-of-$K$ reporting mixes these effects.
+We separate them on common measurements and images for three published solvers, measure which failures can be corrected without the ground truth, and test a calibrated model of best-of-$K$ selection against forecasts frozen before the additional runs were evaluated.
+
+We find three kinds of failure, with different causes and remedies.
+(i)~Selection is provably blind to an exact eight-fold symmetry of the operator, so rotated runs can be selected; a cheap prior or semantic test fixes every global rotation on FFHQ and is the Bayes rule within the orbit (\cref{sec:symmetry}).
+(ii)~Some runs fit the measurement as well as the solver's correct runs do, yet are wrong in every orientation. They make up $57\%$ of SITCOM's failed runs but under $10\%$ of those of DAPS and FAST-DIPS\claim{C-A5}. Within an image, however, the residual ranks a correct run ahead of such a run in $200$ of $205$ pairs\claim{C-A7}, so at the run counts used in practice they rarely cause a wrong pick (\cref{sec:selection,sec:audit}).
+(iii)~Selection cannot help when no run is close to the image; this accounts for $66$ of the $70$ failures that remain at $K\le4$\claim{C-A4}.
+On FFHQ, residual selection followed by an orientation test recovers $92.6$--$97.5\%$ of the gain of an orientation-aware ground-truth oracle\claim{C-A3}.
+
+\paragraph{What the residual can and cannot certify.}
+Residual levels are set by the solvers, not by the noise.
+DAPS and SITCOM weight the data term $50$ and $25$ times more than the likelihood of the benchmark's noise\claim{C-S5}, and every one of their correct runs has a residual below the noise level, which the ground truth's residual matches to within $0.3\%$\claim{C-A6}.
+For these solvers, a consistency threshold calibrated on their own correct runs would reject the ground truth.
+The residual is informative as a paired comparison between runs scored against the same measurement, which is how selection uses it.
 
 \paragraph{The symmetry behind (i).}
 The oversampled Fourier operator used by these solvers is exactly invariant under eight transformations of the image: independent $180^\circ$ rotations of each color channel (\cref{fig:teaser}a).
 This ambiguity is classical~\cite{hayes1982reconstruction,fienup1986stagnation} and was observed for diffusion solvers by Zhang~\etal\cite[App.~F]{zhang2025daps}.
 We turn it into precise statements.
-Any selection rule or particle weight computed from the measurements is blind to the orientation of a run (\cref{sec:symmetry}).
-And if the denoiser were equivariant to these rotations, every guided sampler we study would choose among the eight orientations uniformly at random; the strong preference for upright images that we observe must therefore come from the network alone.
-We bound this preference by the network's equivariance defect, which we measure for an FFHQ and an ImageNet denoiser.
+Any selection rule computed from the measurements alone, and any likelihood-only particle weight, is blind to the orientation of a run (\cref{sec:symmetry}).
+If every transition of a sampler were equivariant to these rotations, the sampler would return the eight orientations equally often; a preference for upright images must come from its non-equivariant components, chiefly the denoiser.
+For samplers with Gaussian transitions we bound this preference by the transitions' equivariance defect, and we measure a denoiser-level proxy of the defect for an FFHQ and an ImageNet model.
 
 \paragraph{A model of best-of-\texorpdfstring{$K$}{K}.}
-Selecting the run with the smallest measurement residual is resampling with an imperfect verifier~\cite{stroebl2026limits}: runs of type~(ii) are false positives, and rotated runs are false positives that no measurement-based verifier can reject.
-We derive closed-form curves for the success of ground-truth-free and ground-truth selection as a function of $K$, exact estimators of these curves from a finite set of runs, and the fact that the gap between them never shrinks with $K$ (\cref{sec:selection}).
-We fit the model on four runs per image and freeze its predictions before collecting up to $64$ runs per image.
+Selecting the run with the smallest residual is resampling with an imperfect verifier~\cite{stroebl2026limits}: rotated runs are false positives that no measurement-based verifier can reject, and measurement-consistent wrong runs are false positives that it may or may not reject.
+With exchangeable residual ranks among consistent runs, the model gives closed-form curves and an oracle gap that never shrinks with $K$ (\cref{sec:selection}).
+Our data reject exchangeability, so we also fit class-dependent residual races.
+Four runs per image identify only four moments of the per-image mixture, so forecasts beyond $K{=}4$ are conditional on the model; we froze them before evaluating up to $64$ runs per image.
 
 \paragraph{An audit.}
-We then decompose the reported quality of three published solvers (DAPS, SITCOM, FAST-DIPS; DPS, PC-DAPS and DiffFPR in the supplement \pending{if run}) on FFHQ and ImageNet into the solver itself, ground-truth-free selection, the ground-truth oracle, and the per-metric oracle (\cref{sec:audit}).
+We then decompose the reported quality of three published solvers (DAPS, SITCOM, FAST-DIPS; PC-DAPS, DPS and DiffFPR on the same measurements \pending{if run}) on FFHQ and ImageNet into the solver itself, ground-truth-free selection, the ground-truth oracle, and the per-metric oracle (\cref{sec:audit}).
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
-\item \textbf{Symmetry theory.} The orbit of the standard operator; the blindness of measurement-based selection and of likelihood-weighted particle methods to it; and a total-variation bound tying a sampler's orientation preference to the denoiser's equivariance defect, which we measure (\cref{sec:symmetry}).
-\item \textbf{A selection model} for best-of-$K$ in inverse problems, extending the imperfect-verifier model of~\cite{stroebl2026limits} with orbit classes; closed-form $K$-curves, exact estimators, and predictions frozen before the data and tested up to $K{=}64$ (\cref{sec:selection}).
-\item \textbf{An audit} of three published solvers on two datasets and three metrics that separates each layer of the protocol and the three failure types (\cref{sec:audit}).
+\item \textbf{Symmetry.} The orbit of the standard operator; the blindness of measurement-only selection and likelihood-only particle weights to it; and, for samplers with Gaussian transitions, a total-variation bound tying orientation preference to the equivariance defect (\cref{sec:symmetry}).
+\item \textbf{A selection model} for best-of-$K$ in inverse problems, extending the imperfect-verifier model of~\cite{stroebl2026limits} with orbit classes and class-dependent residual races; exact estimators; and forecasts frozen before the data and tested up to $K{=}64$ (\cref{sec:selection}).
+\item \textbf{An audit} of three published solvers on two datasets and three metrics that separates each layer of the protocol, the three failure types, and the solver-dependent noise floor of the residual (\cref{sec:audit}).
 \item \textbf{Reporting recommendations} (\cref{sec:discussion}).
 \end{itemize}
