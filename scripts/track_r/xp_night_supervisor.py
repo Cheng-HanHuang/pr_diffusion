@@ -339,7 +339,7 @@ def main(a):
                     active_jobs=[{"id":v["job"]["id"],"pid":v["proc"].pid}
                                  for v in active.values()])
                 atomic(state_path,state)
-        if state.get("status","") in ("STOP_INVALID_RECEIPT","STOP_WORKER_FAILURE"):
+        if str(state.get("status","")).startswith("STOP_"):
             due=True
         if not due:
             try:
@@ -422,7 +422,10 @@ def main(a):
                     j["id"] not in completed for j in allowed) else "PASS"
             atomic(state_path,state)
             break
-        state["status"]="DRAINING_ACTIVE" if due else "RUNNING"
+        # A STOP_* gate is sticky across worker-draining iterations.
+        # It must never be silently downgraded to a normal RUNNING state.
+        if not str(state.get("status","")).startswith("STOP_"):
+            state["status"]="DRAINING_ACTIVE" if due else "RUNNING"
         atomic(state_path,state)
         if not active and all(j["id"] in completed for j in allowed):
             if a.mode=="smoke":
