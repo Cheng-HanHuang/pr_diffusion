@@ -79,7 +79,8 @@ def conditional_old_scores(ranked,variant,fit,rng):
                  if c=="C" else LABELS.index(c))
                 for j,c in enumerate(ranked)]
             rr=[float(weights[k]) for k in cl]
-            if "I" in ranked[:max(0,ranked.rfind("G"))]:
+            if any(c=="I" and any(d!="I" for d in ranked[j+1:])
+                   for j,c in enumerate(ranked)):
                 rr=[.001 if c=="I" else rate
                     for c,rate in zip(ranked,rr)]
             prior=(eps**sum(status)) * ((1-eps)**(len(status)-sum(status)))
