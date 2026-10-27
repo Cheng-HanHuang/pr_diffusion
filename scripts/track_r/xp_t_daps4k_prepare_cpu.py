@@ -15,7 +15,9 @@ from scripts.track_r.xp_t_sitcom_prepare_cpu import (
     safe,sha,read,dump,head
 )
 
-DAPS=ROOT/"pr_diffusion_b19_solver/external/daps"
+from scripts.track_r.xp_t_daps4k_native_cpu import (
+    NATIVE as DAPS,RECEIPT_DIR,verify_clean_sparse)
+NATIVE_SOURCE_RECEIPT=RECEIPT_DIR/"XP_T_DAPS4K_NATIVE_SOURCE.json"
 DAPS_HEAD="e7a77d094167084faed19b599b96673b7bb11447"
 PY_DAPS=ROOT/"conda-envs/daps/bin/python"
 BAD=("confirmation","confirm305","test-ffhq","demo-ffhq")
@@ -62,6 +64,14 @@ def native_sources():
     actual=head(DAPS)
     if actual!=DAPS_HEAD:
         raise RuntimeError("STOP_XPT_DAPS_NATIVE_HEAD "+actual)
+    source_receipt=read(NATIVE_SOURCE_RECEIPT)
+    if (source_receipt.get("status")!="XP_T_DAPS4K_PRISTINE_NATIVE_PASS" or
+        source_receipt.get("pinned_upstream_head")!=DAPS_HEAD or
+        source_receipt.get("pristine_checkout")!=str(DAPS) or
+        source_receipt.get("data_directory_materialized") is not False or
+        source_receipt.get("old_checkout_mutated") is not False):
+        raise RuntimeError("STOP_XPT_DAPS_NATIVE_SOURCE_RECEIPT")
+    checked=verify_clean_sparse(DAPS)
     result={}
     for relative in TRACKED_SOURCE:
         path=DAPS/relative
@@ -76,8 +86,15 @@ def native_sources():
         if observed!=committed:
             raise RuntimeError("STOP_XPT_DAPS_TRACKED_SOURCE_DRIFT "+relative)
         result[relative]={"sha256":sha(path),"git_blob_sha":observed}
-    # Python caches in this checkout may be tracked and modified.
-    # Future native runs MUST isolate PYTHONPYCACHEPREFIX, not reset.
+        if (relative not in checked or result[relative]!={ 
+             "sha256":checked[relative]["sha256"],
+             "git_blob_sha":checked[relative]["blob_sha"]} or
+             result[relative]["git_blob_sha"]!=
+                 source_receipt["tracked_files_verified"][relative]["blob_sha"]):
+            raise RuntimeError("STOP_XPT_DAPS_NATIVE_SOURCE_RECEIPT_DRIFT "+relative)
+    # Provenance is anchored to a separate pristine sparse checkout; the
+    # historical B19/B20/B21 modified source is preserved unmodified.
+    # Future native runs MUST isolate PYTHONPYCACHEPREFIX.
     return result
 
 def new_seed(dataset,image,rep):
@@ -144,6 +161,9 @@ def main(a):
         "dataset_order":["ffhq","imagenet"],
         "head":a.expected_head,"source_head":DAPS_HEAD,
         "source_path":str(DAPS),"native_sources":tracked,
+        "native_source_receipt_sha256":sha(NATIVE_SOURCE_RECEIPT),
+        "native_source_receipt_path":str(NATIVE_SOURCE_RECEIPT),
+        "native_checkout_type":"pristine_sparse_pinned_native_upstream",
         "n_roots":18,"n_images":6,"runs_per_image":3,"batch_size":1,
         "gt_paths_supplied":False,"historical_paths_supplied":False,
         "historical_population_not_extended":True,

@@ -786,3 +786,54 @@ then Tier A critical XP-A16, XP-C, XP-C2, XP-D1 before Nov 2 and
 Tier B DAPS/SITCOM/FAST extensions before Nov 6. Do not expose
 embargoed K>=4 outcome metrics until frozen theory predictions are
 registered; historical holdout remains excluded.
+
+## DAPS-4K integrity gate: B20/B21 modified source; pristine sparse recovery
+
+PAC attempted the native DAPS-4K CPU preparation at
+`a83cdf7827c454405ddb9686240de70d4aa546b0`.
+All **95** XP CPU tests passed, but the preparation stopped before
+freezing a manifest with
+`STOP_XPT_DAPS_TRACKED_SOURCE_DRIFT sampler.py`.
+The historical DAPS source is at correct pinned Git HEAD
+`e7a77d094167084faed19b599b96673b7bb11447`, but the working
+`sampler.py` is modified: pinned Git blob
+`0e0d1bf9d7893278c8d5589583ba1d3f10bcd972`, local working
+blob `ae1fc6908bb1e7f0c0349d4f82cdf20364389db8`, with diff
+SHA256 `fdf6d4ae31267cd0833b42c97edfd5a778b6a2b2c0b6a3387d66139283d876a0`
+(314 added, 2 deleted lines). The changes contain B20.11
+environment-controlled low-frequency Fourier guidance and B21.3
+continuation/state-saving machinery. Both advertise default-off
+semantics, but leaving them in the 'published DAPS-4K' baseline
+would create unnecessary source-provenance ambiguity.
+
+**Resolution: preserve the modified historical DAPS checkout entirely.**
+Do not reset, stash, clean or amend the original experimental source.
+The new `xp_t_daps4k_native_cpu.py` performs a one-time local
+`git clone --local --no-hardlinks --no-checkout`, from the existing
+original Git object database into the **new** dedicated path
+`/egr/research-pac/huang248/external/DAPS_XP_NATIVE_4K`.
+It installs *non-cone sparse-checkout patterns before first checkout*
+and materializes only `sampler.py`, solver, Fourier operator, model,
+and selected configs. No bundled data or demo directory is checked
+out. The cloned checkout has the exact pinned HEAD with a clean
+status and all 10 needed native source blobs identical to their Git
+HEAD identities; the experimental original sampler's modified blob
+is verified unchanged both before and after the operation.
+
+After the pristine source receipt is written to
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_t_daps4k_native_source_20261026/XP_T_DAPS4K_NATIVE_SOURCE.json`,
+the updated `xp_t_daps4k_prepare_cpu.py` requires that receipt and
+rechecks the pristine sparse tree, all 10 source hashes, canonical
+FFHQ/ImageNet checkpoints and frozen common noisy measurements.
+Only then can it freeze the 18-root GT-free timing manifest.
+A disposable synthetic-Git regression suite tests that a modified
+original `sampler.py` is *not* copied, bundled dataset paths are
+not materialized, and repeat staging or source drift fail closed.
+No GPU work is authorized by either preparation script.
+
+This is a **scientific source-isolation repair**, not a relaxation of
+the native-source integrity gate. The next GPU native DAPS-4K
+implementation must import from the pristine sparse checkout only,
+strictly verify model weight loading (the upstream UNet loader has
+a catch-and-continue fallback), and continue to use the same signed
+y and per-worker W=1 timing semantics as the prior FAST/SITCOM pilots.

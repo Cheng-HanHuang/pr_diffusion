@@ -26,6 +26,15 @@ go() {
     echo "ACTION NEEDED: DAPS4K_TESTS"
     return 8
   fi
+  echo "=== MATERIALIZE PRISTINE SPARSE DAPS SOURCE (NO BUNDLED DATA) ==="
+  "$PY" "$WT/scripts/track_r/xp_t_daps4k_native_cpu.py" \
+    --expected-head "$EXPECTED"
+  RC=$?
+  echo "DAPS4K_PRISTINE_SOURCE_RC=$RC"
+  if [ "$RC" -ne 0 ]; then
+    echo "ACTION NEEDED: DAPS4K_PRISTINE_SOURCE_GATE"
+    return 8
+  fi
   local OUT="$BASE/xp_t_daps4k_$(date -u +%Y%m%dT%H%M%SZ)"
   echo "=== VERIFY PINNED DAPS-4K AND COMMON SIGNED MEASUREMENTS ==="
   "$PY" "$WT/scripts/track_r/xp_t_daps4k_prepare_cpu.py" \
@@ -37,6 +46,7 @@ go() {
     return 8
   fi
   echo "DAPS4K_RUN_ROOT=$OUT"
+  echo "DAPS4K_NATIVE_SOURCE=$ROOT/external/DAPS_XP_NATIVE_4K"
   echo "DAPS4K_GPU_LAUNCHED=false"
   return 0
 }
