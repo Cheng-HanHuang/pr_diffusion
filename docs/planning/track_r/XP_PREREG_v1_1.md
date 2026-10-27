@@ -136,7 +136,27 @@
 >    `docs/track_r/executors/xp/returns/` stays forbidden to the theory executor.
 > 7. **XP-D2 and XP-D1 phase 1 are scored now** (CPU; both allowed before any freeze). XP-D2 reports the published protocol (DAPS-4K; per-metric oracle over 4 runs) next to the first run, E0, E1_CLIP (G1) and O_orbit.
 
-**Status:** FROZEN v1.1 with amendments A1–A6 (planner, 2026-10-27).
+> **Amendment A7 (planner, 2026-10-27 17:15 ET).** Procedural only. Written before any outcome of XP-A16, XP-A64, XP-D1 phase 2, XP-E′, XP-B16 or XP-F8 had been scored, and before any A5.5 value existed. TH2 mechanism forecasts v1.1 are registered.
+> 1. **GPU co-tenancy for generation stages.**
+>    - **Default rule.** A generation-only stage (no timing claim) may be admitted on a GPU that is running other users' jobs, under four conditions:
+>      - free VRAM is at least the stage's request (about 1.5 × measured peak + 2 GiB);
+>      - device memory after admission stays at or below 80%;
+>      - at most one Track R worker runs per GPU;
+>      - while foreign jobs are present, Track R uses at most 2 GPUs.
+>    - Foreign processes are never touched. Co-tenancy is recorded per job.
+>    - XP-T timing, and any replay that must be bitwise, still require clean GPUs.
+>    - Instead of exiting after 30 min without a free slot, the controller waits and retries, with a hard wall-clock limit and a stop file.
+>    - **Opt-out.** Cheng may revoke co-tenancy at any time; the controller then reverts to clean-only admission.
+> 2. **XP-B16 lineage gate, by regeneration.** B22 SITCOM candidates came from one post-model RNG stream per image (seed 43 before model load; the post-model state restored per image; runs 0–3 sequential). So, for every B22 image, XP-B16:
+>    - regenerates runs 0–3 from that state;
+>    - checks them against the historical candidates: bitwise hash equality, or else the §4.1 tolerance of 0.1 dB raw PSNR with an identical label, scored offline;
+>    - continues the same stream through runs 4–15.
+>
+>    This replaces the 2-id replay with a full 100-image replay. DEV80 SITCOM uses independent native seeds with the no-collision check, as historically. Any B22 image whose runs 0–3 fail the check is excluded from the pooled K-curves and reported.
+> 3. **XP-F8 seeds.** XP-F8 continues the Fresh2 lineage for B22 runs 2–7 (rule audited from `B21_11_fresh2_final_val100_meas5401`) and the `B24_DEV80_DAPS_SOLVER_V1` domain for DEV80 runs 4–7, with the no-collision check. It follows the 8-root 400 × 5 replay (A6.1).
+> 4. **v2 clock.** It started at commit `41d4121` (2026-10-27 12:01:51 ET), so v2 is due by **2026-10-29 12:01 ET**. The CLIP G1 decisions for the D1 phase-1 runs are pending the XP-C worker. If they are not in `theory_inputs/` before the freeze, the v2 E1_CLIP forecast either abstains or states its φ_g and h assumption.
+
+**Status:** FROZEN v1.1 with amendments A1–A7 (planner, 2026-10-27).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

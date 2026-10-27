@@ -2,6 +2,7 @@
 
 > **2026-10-27: read [`01_PLANNER_NOTES_20261027.md`](01_PLANNER_NOTES_20261027.md) and prereg amendment A5.** They give the Tier B correction, the CPU block (A4.4, A8b, A7, A5.5), the one-launch queue, the XP-I and XP-K engineering, and VRAM sizing.
 > **2026-10-27, 12:30: then read [`02_PLANNER_NOTES_20261027_PM.md`](02_PLANNER_NOTES_20261027_PM.md) and prereg A6.** It covers the decisions on issue #42, the A4.4 sources, the GPU queue, `theory_inputs/`, and XP-D2 scoring.
+> **2026-10-27, 17:15: then read [`03_PLANNER_NOTES_20261027_EVE.md`](03_PLANNER_NOTES_20261027_EVE.md) and prereg A7.** It covers the audited E′ resume, the co-tenancy rule, the B16 lineage gate, the replay and F8, the XP-C CLIP decisions for D1-P1, D2 and D3 scoring, and A5.5.
 
 **From:** planner (Claude), 2026-10-26 14:30.
 - **Revision C replaces B.2.** It adds:
