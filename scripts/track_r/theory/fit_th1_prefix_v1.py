@@ -262,18 +262,18 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
                             "selection_lo95":float(np.clip(sllo[ai],0,1)),
                             "selection_hi95":float(np.clip(slhi[ai],0,1))})
                     for ki,K in enumerate(Kgrid):
-                            if family=="DAPS" and K==4 and cohort!="B22":
-                                continue
-                            for pi,policy in enumerate(POLICIES):
-                                val=float(point[ki,pi])
-                                output.append({"family":family,"dataset":"FFHQ",
-                                    "cohort":cohort,"model_variant":v,
-                                    "policy":policy,"metric":"good25",
-                                    "K":K,"n_images":size,
-                                    "panel":panel_name,"panel_n_max":nmax,
-                                    "point":val,
-                                    "lo95":float(np.clip(min(lo[ki,pi],val),0,1)),
-                                    "hi95":float(np.clip(max(hi[ki,pi],val),0,1))})
+                        if family=="DAPS" and K==4 and cohort!="B22":
+                            continue
+                        for pi,policy in enumerate(POLICIES):
+                            val=float(point[ki,pi])
+                            output.append({"family":family,"dataset":"FFHQ",
+                                "cohort":cohort,"model_variant":v,
+                                "policy":policy,"metric":"good25",
+                                "K":K,"n_images":size,
+                                "panel":panel_name,"panel_n_max":nmax,
+                                "point":val,
+                                "lo95":float(np.clip(min(lo[ki,pi],val),0,1)),
+                                "hi95":float(np.clip(max(hi[ki,pi],val),0,1))})
     return output,diagnostics,anatomy,crossovers
 
 def main():
