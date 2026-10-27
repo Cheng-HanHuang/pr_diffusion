@@ -1226,3 +1226,21 @@ jobs. Do not launch unspecified Tier A/B workers.
 images are indices 0–99 of the sorted `rglob(ext)`
 file order, matching DAPS's `test-imagenet.yaml`
 `start_id:0,end_id:100` on the 1,000-image archive.
+
+## Overnight 4-GPU pilot (2026-10-27): smoke first, then bounded autopilot
+
+**Executor digest (embargo-safe):**
+1. XP-A16 2160/2160 generated and the 38-chunk hash audit published at PAC commit `d73388d586f0ef599c1e04fc188e51a8df9338bc`.
+2. Planner A5 `ac92b73` merged and controls Tier B labels, replay gates and GPU admission.
+3. A8b historical rows 760, candidates 3240, 12 tau source-family groups: PAC `R0N2_A8B_PASS`, SHA256 `e099138f6abaf46b0826377be04be2b0a47de0e5c20fa0847bc62dfd074cd901`. Publication pending; original A8 unchanged.
+4. A4.4 first targeted historical metadata probe completed but **did not establish** the historical DAPS sampler config. F8/E′ remain blocked pending exact historical receipt audit and 8-root DAPS replay.
+5. New **CPU-only** `xp_night_prepare_cpu.py` makes separate native FAST and DAPS frozen GT-free tasks for D1-P1=400, D1-P2=1200, A64=8640, D2=400.
+6. The first **ready critical queue** is D1-P1, then A64, then D2; D1-P2 is **frozen but not automatically launched** until the phase-1 A8-style outcome handoff and v2 prediction registry are handled. C/C2 and F8 are absent from the GPU queue; no claim otherwise.
+7. The `xp_night_supervisor.py` has separate smoke and main modes; the launcher automatically chains them only when all 3 native stage smokes verify. Smoke checks D1-P1=8, A64=96, D2=8 roots, 2 whole images each, strict per-root native SHA provenance and native sampling median within ±50% of observed XP-T timing.
+8. Four GPUs max, one worker per physical device; **every** new GPU admission first samples NVIDIA process and VRAM telemetry, requires a clean slot, and caps memory per stage from **measured peaks** (~1.5× peak+2 GiB): D1 8192 MiB, A64 4608 MiB, D2 6656 MiB; hard 80% device VRAM.
+9. Main controller is bounded to **11 hours wall** and 46 aggregate GPU-hours, draining active workers at the deadline; a single `STOP_AFTER_ACTIVE` file stops further admissions and preserves active work. No foreign process is killed or evicted.
+10. Stop/restart uses a durable controller state ledger, exclusive PID owner, immutable output receipts, and a strict fail-stop whenever a prior worker has an incomplete or live orphan. Resume is allowed only after verifying all completed candidate receipts; no blind retries or output cleanup.
+11. Time-aware CRITICAL work is the only currently ready workload. BACKGROUND lane remains empty (unimplemented or unqualified jobs are not silently admitted). Dedicated 20-minute background chunks are still required before adding any Tier C jobs.
+12. No GT, scoring, best-of-K metrics, images or per-run outcome labels are read, printed or committed by these workers. All D1-P2/A64 output remains sealed pending the relevant theory registry.
+
+This is a **bounded, safe first overnight queue**, not a claim that the full A5 controller is complete. It uses the already-pinned native FAST/DDPM and pristine upstream DAPS-4K code, not the experimental B20/B21 modified sampler. Unlike the previous stage-by-stage human-assisted runs, the detached launcher can complete the entire validated smoke/main sequence without another human command if all independent preflights pass. PAC verification of the new launcher remains pending.
