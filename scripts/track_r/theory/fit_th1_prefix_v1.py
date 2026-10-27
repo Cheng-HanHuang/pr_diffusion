@@ -25,15 +25,18 @@ from fit_th1_dirichlet import fit as fit_alpha
 
 SEED=20261027
 N_BY_COHORT={"B22":100,"DEV80":80}
-GRID={"DAPS":(4,6,8),"SITCOM":(8,12,16,24,32),
-      "FAST":(8,12,16,24,32,48,64)}
-VARIANTS=("race","S2","tail")
+PANELS={"DAPS":{"primary":(8,(4,6,8))},
+        "SITCOM":{"primary":(16,(8,12,16)),
+                  "secondary":(32,(8,12,16,24,32))},
+        "FAST":{"primary":(64,(8,12,16,24,32,48,64)),
+                "secondary":(16,(8,12,16))}}
+VARIANTS=("race","S2","tail","race_tau1")
 POLICIES=("E0","E1_CLIP","O_raw","O_orbit")
 LABELS="GOPCI"
 
 def score_weights(fit,variant):
     if variant=="S2":return np.array([1.,1.,1.,1.,0.]),None
-    if variant=="race":
+    if variant in ("race","race_tau1"):
         return np.array([1.,fit["w_O"],fit["w_O"],fit["w_C"],0.]),None
     if variant=="tail":
         baseline,extreme=1e-6,1000.
@@ -159,8 +162,8 @@ def exact_subset_values(labels,scores,Kgrid,cache):
         ans[ki,3]=pass_at_k(n,orbit,k)
     return ans
 
-def simulate(rows,alpha,fit,variant,Kgrid,rng,repetitions):
-    nmax=max(Kgrid)
+def simulate(rows,alpha,fit,variant,Kgrid,nmax,rng,repetitions):
+    if nmax<max(Kgrid):raise ValueError("panel smaller than requested K")
     cache={(nmax,k):rank_weights(nmax,k) for k in Kgrid}
     panels=np.zeros((repetitions,len(Kgrid),4))
     for b in range(repetitions):
@@ -185,65 +188,71 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
             diagnostics.append({"family":family,"cohort":cohort,
                   "alpha":alpha.tolist(),"class_totals":C.sum(axis=0).tolist(),
                   "rank_weights":fitted})
-        sim={}
-        for cohort in ("B22","DEV80"):
-            c=cohort_data[cohort]
-            for v in VARIANTS:
-                sim[cohort,v]=simulate(c["rows"],c["alpha"],fitted,v,
-                              GRID[family],rng,point_reps)
-        # Intervals from each image's posterior, finite future-run panel,
-        # and bootstrap-refitted hyperparameters. Bootstrap parameters
-        # are fitted on resampled allowed image rows, but predictions
-        # are always evaluated on the ORIGINAL image IDs.
-        fitboot={}
-        for cohort in ("B22","DEV80"):
-            for v in VARIANTS:fitboot[cohort,v]=[]
-        for _ in range(bootstrap):
-            bdata={}
-            allboots=[]
-            for cohort in ("B22","DEV80"):
-                c=cohort_data[cohort]
-                ix=rng.integers(0,len(c["rows"]),len(c["rows"]))
-                sampled=[c["rows"][int(j)] for j in ix]
-                allboots.extend(sampled)
-                ab=fit_alpha(np.array([r["counts"] for r in sampled],float))
-                bdata[cohort]=ab
-            wb=fit_weights(allboots)
+        fitted_tau1=fit_weights(fr,tau=1.0)
+        for panel_name,(nmax,Kgrid) in PANELS[family].items():
+            sim={}
             for cohort in ("B22","DEV80"):
                 c=cohort_data[cohort]
                 for v in VARIANTS:
-                    preds=simulate(c["rows"],bdata[cohort],wb,v,
-                                   GRID[family],rng,boot_reps)
-                    fitboot[cohort,v].append(preds.mean(axis=0))
-        for cohort in ("B22","DEV80","POOLED"):
-            for v in VARIANTS:
-                if cohort=="POOLED":
-                    a=(100/180)*sim["B22",v]+(80/180)*sim["DEV80",v]
-                    bb=(100/180)*np.asarray(fitboot["B22",v])+(80/180)*np.asarray(fitboot["DEV80",v])
-                    size=180
-                else:
-                    a=sim[cohort,v]
-                    bb=np.asarray(fitboot[cohort,v])
-                    size=N_BY_COHORT[cohort]
-                point=a.mean(axis=0)
-                # Center the bootstrap to isolate its parameter
-                # fluctuations; panel draws already reflect the future
-                # finite-n U-statistic noise conditional on observed A8.
-                sel=rng.integers(0,len(bb),len(a))
-                draws=a+(bb[sel]-bb.mean(axis=0)[None,:,:])
-                lo,hi=np.quantile(draws,(.025,.975),axis=0)
-                for ki,K in enumerate(GRID[family]):
-                    if family=="DAPS" and K==4 and cohort!="B22":
-                        continue
-                    for pi,policy in enumerate(POLICIES):
-                        val=float(point[ki,pi])
-                        output.append({"family":family,"dataset":"FFHQ",
-                            "cohort":cohort,"model_variant":v,
-                            "policy":policy,"metric":"good25",
-                            "K":K,"n_images":size,
-                            "point":val,
-                            "lo95":float(np.clip(min(lo[ki,pi],val),0,1)),
-                            "hi95":float(np.clip(max(hi[ki,pi],val),0,1))})
+                    sim[cohort,v]=simulate(c["rows"],c["alpha"],
+                                  (fitted_tau1 if v=="race_tau1" else fitted),
+                                  v,Kgrid,nmax,rng,point_reps)
+            # Intervals from each image's posterior, finite future-run panel,
+            # and bootstrap-refitted hyperparameters. Bootstrap parameters
+            # are fitted on resampled allowed image rows, but predictions
+            # are always evaluated on the ORIGINAL image IDs.
+            fitboot={}
+            for cohort in ("B22","DEV80"):
+                for v in VARIANTS:fitboot[cohort,v]=[]
+            for _ in range(bootstrap):
+                bdata={}
+                allboots=[]
+                for cohort in ("B22","DEV80"):
+                    c=cohort_data[cohort]
+                    ix=rng.integers(0,len(c["rows"]),len(c["rows"]))
+                    sampled=[c["rows"][int(j)] for j in ix]
+                    allboots.extend(sampled)
+                    ab=fit_alpha(np.array([r["counts"] for r in sampled],float))
+                    bdata[cohort]=ab
+                wb=fit_weights(allboots)
+                wb_tau1=fit_weights(allboots,tau=1.0)
+                for cohort in ("B22","DEV80"):
+                    c=cohort_data[cohort]
+                    for v in VARIANTS:
+                        preds=simulate(c["rows"],bdata[cohort],
+                                       (wb_tau1 if v=="race_tau1" else wb),
+                                       v,Kgrid,nmax,rng,boot_reps)
+                        fitboot[cohort,v].append(preds.mean(axis=0))
+            for cohort in ("B22","DEV80","POOLED"):
+                for v in VARIANTS:
+                    if cohort=="POOLED":
+                        a=(100/180)*sim["B22",v]+(80/180)*sim["DEV80",v]
+                        bb=(100/180)*np.asarray(fitboot["B22",v])+(80/180)*np.asarray(fitboot["DEV80",v])
+                        size=180
+                    else:
+                        a=sim[cohort,v]
+                        bb=np.asarray(fitboot[cohort,v])
+                        size=N_BY_COHORT[cohort]
+                    point=a.mean(axis=0)
+                    # Center the bootstrap to isolate its parameter
+                    # fluctuations; panel draws already reflect the future
+                    # finite-n U-statistic noise conditional on observed A8.
+                    sel=rng.integers(0,len(bb),len(a))
+                    draws=a+(bb[sel]-bb.mean(axis=0)[None,:,:])
+                    lo,hi=np.quantile(draws,(.025,.975),axis=0)
+                    for ki,K in enumerate(Kgrid):
+                        if family=="DAPS" and K==4 and cohort!="B22":
+                            continue
+                        for pi,policy in enumerate(POLICIES):
+                            val=float(point[ki,pi])
+                            output.append({"family":family,"dataset":"FFHQ",
+                                "cohort":cohort,"model_variant":v,
+                                "policy":policy,"metric":"good25",
+                                "K":K,"n_images":size,
+                                "panel":panel_name,"panel_n_max":nmax,
+                                "point":val,
+                                "lo95":float(np.clip(min(lo[ki,pi],val),0,1)),
+                                "hi95":float(np.clip(max(hi[ki,pi],val),0,1))})
     return output,diagnostics
 
 def main():
@@ -256,8 +265,7 @@ def main():
     ap.add_argument("--freeze",action="store_true")
     args=ap.parse_args()
     if args.freeze:
-        raise RuntimeError("Not yet a registered freeze: wait for the A8b"
-          " gate, exact source-hash QA, and final crossover/decomposition.")
+        raise RuntimeError("Freeze still blocked: wait for A8b 2026-10-28 12 ET gate, full QA and registry handoff.")
     rows,sha=read_a8(args.a8)
     crosscheck(rows)
     rng=np.random.default_rng(SEED)
@@ -273,6 +281,18 @@ def main():
                     " model-conditional, not a partial identification interval",
       "predictions":predictions,"fit_diagnostics":fits}
     path=Path(args.output);path.parent.mkdir(parents=True,exist_ok=True)
+    out["interval_type"]="predictive_realized_panel"
+    out["variant_comparison_rule"]={
+       "primary":"For each family primary panel E0/E1_CLIP, count K grid points within [lo95,hi95]; tie-break by mean standardized residual",
+       "standardized_residual":"abs(observed-point)/max((hi95-lo95)/3.92,0.005)",
+       "secondary_panels":"Evaluate separately and do not pool with primary",
+       "sensitivity":"race_tau1 is sensitivity, not an alternative retrospective primary model",
+       "tail":"pooled 5/205 C-over-G all arise SITCOM; DAPS/FAST arms stress-only"}
+    out["panels"]=PANELS
+    out["prior_sensitivity"]={"race_logweight_tau":2.5,
+       "race_tau1_logweight_tau":1.0,
+       "tail_C_over_G_composite_fraction":5/205,
+       "tail_warning":"DAPS and FAST have zero C-over-G events in their A8 ranks"}
     path.write_text(json.dumps(out,indent=2,sort_keys=True)+"\n")
     print("TH1_CONDITIONAL_PREFIX_DRAFT_PASS",len(predictions),path)
 
