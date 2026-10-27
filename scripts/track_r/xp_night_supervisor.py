@@ -317,6 +317,13 @@ def main(a):
             if rc is not None:
                 cost+=time.monotonic()-task["start"]
                 del active[gpu]
+                # A successful reconstruction can have contaminated timing.
+                # Record timing validity independently; do not discard output.
+                timing=classify_timing(task.get("samples",[]),gpu)
+                state.setdefault("per_job_timing",{})[
+                    task["job"]["id"]]=timing
+                append(events,{"action":"POST_GPU_TIMING",
+                     "id":task["job"]["id"],"gpu":gpu,"timing":timing})
                 if rc!=0:
                     state.update(status="STOP_WORKER_FAILURE",
                         reason=task["job"]["id"]+"_rc"+str(rc))
@@ -348,6 +355,7 @@ def main(a):
                 for card in cards:
                     if card.index in active:
                         own=active[card.index]
+                        own.setdefault("samples",[]).append(cards)
                         append(events,event(cards,stage=own["job"]["stage"],
                            job_id=own["job"]["id"],action="HEARTBEAT",
                            selected_gpu=card.index,own_roots=pid_list))
@@ -389,7 +397,9 @@ def main(a):
                     with log.open("xb") as f:
                         proc=subprocess.Popen(call,env=environment,cwd=str(WT),
                            stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
-                    active[gpu]={"proc":proc,"job":job,"start":time.monotonic()}
+                    active[gpu]={"proc":proc,"job":job,
+                                  "start":time.monotonic(),
+                                  "samples":[snap]}
                     pending.pop(0)
                     append(events,{"action":"START","id":job["id"],
                         "physical_gpu":gpu,"pid":proc.pid,
@@ -408,6 +418,9 @@ def main(a):
             active_jobs=[{"id":v["job"]["id"],"pid":v["proc"].pid,
                           "gpu":gpu} for gpu,v in active.items()],
             completed_roots=sum(byid[j]["count"] for j in completed),
+            timing_unverified_jobs=sum(
+                not rec.get("timing_valid",False) for rec in
+                state.get("per_job_timing",{}).values()),
             mode=a.mode,head=a.expected_head,
             outcomes_scored=False,sealed_outcomes_not_inspected=True,
             critical_stages_completed=[
