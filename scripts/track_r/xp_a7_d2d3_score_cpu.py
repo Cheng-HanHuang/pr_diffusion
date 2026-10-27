@@ -126,6 +126,15 @@ def model_metric_setup():
     except ImportError as e:
         raise RuntimeError("STOP_A7_METRIC_DEPENDENCY_REQUIRES_RECORDED_SETUP: "+str(e))
     torch.set_num_threads(min(4,torch.get_num_threads()))
+    # PyTorch's AlexNet feature weights must already be cached.  LPIPS
+    # otherwise attempts a silent download (forbidden for this offline audit).
+    from torchvision.models import AlexNet_Weights
+    from urllib.parse import urlparse
+    cache_name=Path(urlparse(AlexNet_Weights.IMAGENET1K_V1.url).path).name
+    pretrained_cache=Path(torch.hub.get_dir())/"checkpoints"/cache_name
+    if not pretrained_cache.is_file():
+        raise RuntimeError(
+            "STOP_A7_LPIPS_ALEXNET_PRETRAINED_NOT_CACHED "+str(pretrained_cache))
     try:
         net=lpips.LPIPS(net="alex",verbose=False).eval().cpu()
     except Exception as e:
