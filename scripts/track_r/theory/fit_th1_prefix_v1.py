@@ -175,7 +175,7 @@ def simulate(rows,alpha,fit,variant,Kgrid,nmax,rng,repetitions):
     return panels
 
 def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
-    output=[];diagnostics=[]
+    output=[];diagnostics=[];anatomy=[];crossovers=[]
     for family in FAMILIES:
         fr=[x for x in rows if x["family"]==family]
         fitted=fit_weights(fr)
@@ -240,7 +240,28 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
                     sel=rng.integers(0,len(bb),len(a))
                     draws=a+(bb[sel]-bb.mean(axis=0)[None,:,:])
                     lo,hi=np.quantile(draws,(.025,.975),axis=0)
-                    for ki,K in enumerate(Kgrid):
+                    failure_draws=1-draws[:,:,3]
+                selection_draws=draws[:,:,3]-draws[:,:,1]
+                generation=1-point[:,3]
+                selection=point[:,3]-point[:,1]
+                crossing=next((int(k) for ki,k in enumerate(Kgrid)
+                               if selection[ki]>generation[ki]),None)
+                crossovers.append({"family":family,"panel":panel_name,
+                    "panel_n_max":nmax,"cohort":cohort,"model_variant":v,
+                    "K_star_on_grid":crossing,"K_grid":list(Kgrid),
+                    "definition":"selection loss O_orbit-E1 strictly exceeds no-orbit-candidate generation failure"})
+                gflo,gfhi=np.quantile(failure_draws,(.025,.975),axis=0)
+                sllo,slhi=np.quantile(selection_draws,(.025,.975),axis=0)
+                for ai,k in enumerate(Kgrid):
+                    anatomy.append({"family":family,"panel":panel_name,
+                        "panel_n_max":nmax,"cohort":cohort,"model_variant":v,
+                        "K":k,"generation_failure":float(generation[ai]),
+                        "selection_loss":float(selection[ai]),
+                        "generation_lo95":float(np.clip(gflo[ai],0,1)),
+                        "generation_hi95":float(np.clip(gfhi[ai],0,1)),
+                        "selection_lo95":float(np.clip(sllo[ai],0,1)),
+                        "selection_hi95":float(np.clip(slhi[ai],0,1))})
+                for ki,K in enumerate(Kgrid):
                         if family=="DAPS" and K==4 and cohort!="B22":
                             continue
                         for pi,policy in enumerate(POLICIES):
@@ -253,7 +274,7 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
                                 "point":val,
                                 "lo95":float(np.clip(min(lo[ki,pi],val),0,1)),
                                 "hi95":float(np.clip(max(hi[ki,pi],val),0,1))})
-    return output,diagnostics
+    return output,diagnostics,anatomy,crossovers
 
 def main():
     ap=argparse.ArgumentParser()
@@ -269,7 +290,7 @@ def main():
     rows,sha=read_a8(args.a8)
     crosscheck(rows)
     rng=np.random.default_rng(SEED)
-    predictions,fits=run(rows,rng,args.point_reps,args.bootstrap,args.boot_reps)
+    predictions,fits,anatomy,crossovers=run(rows,rng,args.point_reps,args.bootstrap,args.boot_reps)
     out={"version":"DRAFT_PREFIX_CONDITIONAL_UNREGISTERED",
       "source_sha256":sha,"seed":SEED,
       "estimand":"K-subset U-statistics from a fixed nmax-run pool with observed"
@@ -279,7 +300,8 @@ def main():
               " exponential spacings + S2 reference + rare-C tail sensitivity",
       "uncertainty":"Conditional panel noise + cluster bootstrap of model hyperparameters;"
                     " model-conditional, not a partial identification interval",
-      "predictions":predictions,"fit_diagnostics":fits}
+      "predictions":predictions,"fit_diagnostics":fits,
+      "anatomy_curves":anatomy,"crossover_K":crossovers}
     path=Path(args.output);path.parent.mkdir(parents=True,exist_ok=True)
     out["interval_type"]="predictive_realized_panel"
     out["variant_comparison_rule"]={
