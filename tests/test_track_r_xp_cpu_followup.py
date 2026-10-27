@@ -24,13 +24,19 @@ class HistoricalAndProspectiveTests(unittest.TestCase):
                      new_candidate_outcomes_inspected=False)
         with self.assertRaisesRegex(RuntimeError,"COUNTS"):
             validate_a8b(a,b,tau,receipt)
+        # Exercise the receipt violation with an otherwise count-valid
+        # 12-group synthetic threshold table.
+        grouped=[dict(source=f"S{i}",family="FAST",
+                      n_candidates=str(270),
+                      tau_signed_good_q95="0.14") for i in range(12)]
+        grouped[0]["source"]="S1_b22"
         tampered=deepcopy(receipt);tampered["gt_images_read"]=True
         with self.assertRaisesRegex(RuntimeError,"SOURCE_RECEIPT"):
-            validate_a8b(a,b,tau,tampered)
+            validate_a8b(a,b,grouped,tampered)
 
     def test_D1_Good20_tau_exact_q95_linear_and_order(self):
         rows=[]
-        for iid in ("a.png","b.png"):
+        for iid in (f"image_{i:03d}.png" for i in range(100)):
             for j in range(4):
                 rows.append(dict(image_id=iid,rep=j,
                   psnr_raw=21.0 if j<2 else 14.0,
@@ -41,7 +47,7 @@ class HistoricalAndProspectiveTests(unittest.TestCase):
         self.assertAlmostEqual(tau,0.03)
         self.assertEqual("".join(r["label"] for r in rows[:4]),"GGOI")
         z=per_image(rows,tau)
-        self.assertEqual(len(z),2)
+        self.assertEqual(len(z),100)
         self.assertEqual(z[0]["run_labels"],"GGOI")
         self.assertEqual(z[1]["e0_rank_order"],"0,1,2,3")
 

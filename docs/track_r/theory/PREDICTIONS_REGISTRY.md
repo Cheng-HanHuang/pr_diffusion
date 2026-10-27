@@ -11,13 +11,14 @@
 
 | Freeze | Theory branch | Commit | Path | SHA-256 | Commit time (UTC) | Seen by planner (UTC) | Covers |
 |---|---|---|---|---|---|---|---|
-| v1 | — | — | `docs/track_r/theory/TH1_PREDICTIONS_v1.json` | — | — | — | FFHQ: FAST (S5), SITCOM (B22+DEV80), DAPS (B22+DEV80); due **Oct 31** |
-| v2 (optional) | — | — | `docs/track_r/theory/TH1_PREDICTIONS_v2.json` | — | — | — | ImageNet FAST; due 48 h after the XP-D1 phase-1 counts |
-| mech (optional) | — | — | `docs/track_r/theory/TH2_MECH_PREDICTIONS_v1.json` | — | — | — | XP-K (data-term calibration) and XP-G (σ dose-response) outcomes, prereg A5.4; due with v1, by **Oct 31** at the latest |
+| v1 | — | — | `docs/track_r/theory/TH1_PREDICTIONS_v1.json` | — | — | — | FFHQ: FAST (S5), SITCOM (B22+DEV80), DAPS (B22+DEV80), on the A6.4 panels; target Oct 28–29, hard deadline **Oct 31** |
+| v2 (optional) | — | — | `docs/track_r/theory/TH1_PREDICTIONS_v2.json` | — | — | — | ImageNet FAST (panel n = 16); due 48 h after the XP-D1 phase-1 strings land in `docs/track_r/executors/xp/theory_inputs/` (A6.6) |
+| mech v1 | `theory/prdiff-track-r-th-20261026` | `225885c297d9a02f9934e65aa1b17e1c45a2d732` | `docs/track_r/theory/TH2_MECH_PREDICTIONS_v1.json` | `65364b2f0be7e34f7681dfb9a6b40e1edf00ba2ea816b16d56961c724ff38436` (planner-verified with `git show` at the commit and at head `58418ed`) | 2026-10-27T04:21:21Z (on GitHub by the push event of 2026-10-27T04:23:20Z, head `c190b5b`) | 2026-10-27T15:35Z (approx.; first `git show` by the planner) | XP-K and XP-G (prereg A5.4): directional forecasts only (DAPS and SITCOM GOOD-run ρ/σ rises toward 1 under calibration); FAST and XP-G abstain. Also within-image class order on new native replicates: G beats C in > 75% of pairs; DAPS and FAST favor G over O more than SITCOM. **REGISTERED** |
 
 **Embargo status:**
 - FFHQ K > 4 outcomes (XP-A, XP-B, XP-F; B22 DAPS K > 2): **EMBARGOED** until v1 is registered.
 - ImageNet FAST outcomes with run index ≥ 4: **EMBARGOED** until v2 is registered, or until 48 h after the phase-1 counts if no v2 is made.
-- XP-K and XP-G outcomes: **not shared with the theory executor** until its optional mechanism predictions are registered, or until it declines them (by Oct 31). They are not embargoed otherwise (XP prereg A5.4).
+- XP-K and XP-G outcomes: mechanism forecasts v1 are **registered** (2026-10-27), so these outcomes may be shared with the theory executor once they exist.
+- The mech file's class-order forecasts concern new native FFHQ runs, which stay under the v1 embargo. Registering the mech file does **not** lift it.
 
 **Freeze contents (XP prereg A5.9).** v1 keeps the S1–S3 curves as the exchangeable-ranks reference and adds a rank-calibrated forecast. The A8 ranks reject S2 at K ≤ 4.

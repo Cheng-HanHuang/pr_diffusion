@@ -45,6 +45,15 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
     - v1 freezes both the S2 reference and a rank-calibrated forecast.
   - **Notes:** `docs/track_r/executors/xp/01_PLANNER_NOTES_20261027.md` and `docs/track_r/executors/theory/01_PLANNER_GUIDANCE_20261027.md`.
   - **Theory-executor reads:** it may read `docs/track_r/executors/r0n/returns/` on the XP branch, plus N1c on the r0n branch. It may **not** read `docs/track_r/executors/xp/returns/`.
+- **Update 2026-10-27, 12:30 (planner):**
+  - Prereg **A6**:
+    - A4.4 ruled from documents (400 × 5, pending replay);
+    - XP-E′ eligible;
+    - evaluation panels;
+    - predictive-interval agreement;
+    - XP-D1 phase 2 generated now.
+  - The theory executor may also read `docs/track_r/executors/xp/theory_inputs/` on the XP branch. Only files cleared for it are placed there.
+  - TH2 mechanism forecasts v1 are registered.
 
 ## B26 branch override
 

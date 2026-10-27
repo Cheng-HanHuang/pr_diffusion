@@ -30,6 +30,7 @@ Rotated runs thus fit worse than upright ones for DAPS and FAST-DIPS, but not fo
 Among the $100$ image--solver pairs whose passing runs include a \good run and some other class, $\Eo$ picks the \good run in $92$, against $51.9$ expected under (S2).
 The residual is therefore a much better verifier against \cons runs than (S2) assumes, and \cref{eq:curves} is a pessimistic reference.
 We model the race explicitly: given the classes of the $K$ runs, the residual minimizer is drawn with class-dependent weights, which we fit to the within-image ranks of runs $0$--$3$ \pending{TH1 v1: race model, fitted weights, tail assumption}.
+Under such a race the per-image ceiling of $\Eo$ is $pw_G/(pw_G+o_gw_{O}+o_pw_{P}+cw_C)$ rather than $p/s$, and the oracle gap need not grow monotonically: it can peak and then shrink as additional \good runs displace selected \cons runs (supplement)\claim{C-T10}.
 Whether the selection loss stays small as $K$ grows depends on the lower tail of the residuals of \cons runs relative to \good runs of the same image, which four runs per image cannot reveal; such tail competition decides the large-$N$ behavior of best-of-$N$ selection~\cite{yano2026tail}.
 
 \paragraph{Generation failures and selection loss.}
@@ -46,7 +47,8 @@ These estimates need no model; comparing them with the forecasts tests the model
 \paragraph{Frozen forecasts.}
 Four runs per image identify only the first four moments of the per-image class mixture: two mixtures that agree on every possible four-run count can differ by $9.6$ points in $\Oraw$ at $K{=}64$ (supplement)\claim{C-T8}.
 Forecasts beyond $K{=}4$ are therefore conditional on the fitted model, and their intervals do not include model error.
-We fit the models to runs $0$--$3$ of each image, froze the forecasts with intervals under (S2) and under the fitted race, and only then evaluated runs $4$--$63$ \pending{registry entry: predictions file SHA and commit time}.
+We fit the models to runs $0$--$3$ of each image, froze the forecasts with intervals under (S2), under the fitted race and under a rare-tail alternative, and only then evaluated runs $4$--$63$ \pending{registry entry: predictions file SHA and commit time}.
+Because the new runs extend each image's observed runs, the forecast target is the subset estimator on the completed panel, conditional on the observed runs and their residual order, and the intervals are predictive intervals for that realized panel.
 \Cref{fig:kcurves} compares the forecasts with the observed curves for FAST-DIPS ($K\le64$), SITCOM ($K\le16$, or $32$) and DAPS ($K\le8$) on FFHQ \pending{XP-A, XP-B, XP-F; and ImageNet FAST-DIPS if frozen (v2)}.
 
 \begin{figure}[t]
