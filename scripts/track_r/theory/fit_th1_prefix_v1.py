@@ -137,6 +137,35 @@ def sample_panel(row,alpha,fit,variant,nmax,rng):
     assert len(labels)==nmax
     return np.asarray(labels,dtype=int),scores
 
+
+def exact_prefix_oracles(row,alpha,Kgrid,nmax):
+    """Exact conditional EXPECTED K-subset oracles, given observed A8 prefix.
+
+    Integrate the probability that a uniform K-subset of the completed
+    nmax panel contains no successful member: choose j old non-success
+    runs and K-j future draws. The future draws are iid conditional on
+    theta, and the Dirichlet marginal supplies beta non-success moments.
+    """
+    C=np.asarray(row["counts"],dtype=float)
+    posterior=C+np.asarray(alpha,dtype=float)
+    total=float(posterior.sum())
+    n0=int(row["n"]);m=nmax-n0
+    if m<0:raise ValueError("panel smaller than observed prefix")
+    output=np.empty((len(Kgrid),2))
+    for col,target in enumerate(((0,), (0,1,2))):
+        g0=int(sum(C[j] for j in target))
+        non=float(sum(posterior[j] for j in range(5) if j not in target))
+        moments=[1.]
+        for h in range(1,max(Kgrid)+1):
+            moments.append(moments[-1]*(non+h-1)/(total+h-1))
+        for ki,k in enumerate(Kgrid):
+            zero=0.
+            for j in range(max(0,k-m),min(k,n0-g0)+1):
+                h=k-j
+                zero+=math.comb(n0-g0,j)*math.comb(m,h)/math.comb(nmax,k)*moments[h]
+            output[ki,col]=1-zero
+    return output
+
 def rank_weights(n,k):
     den=math.comb(n,k)
     return np.asarray([
@@ -191,6 +220,14 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
         fitted_tau1=fit_weights(fr,tau=1.0)
         for panel_name,(nmax,Kgrid) in PANELS[family].items():
             sim={}
+            # Closed-form conditional oracle means share one class model
+            # across all selection rules; no Monte Carlo disagreement.
+            exact_oracles={}
+            for cohort in ("B22","DEV80"):
+                c=cohort_data[cohort]
+                exact_oracles[cohort]=np.mean([
+                    exact_prefix_oracles(row,c["alpha"],Kgrid,nmax)
+                    for row in c["rows"]],axis=0)
             for cohort in ("B22","DEV80"):
                 c=cohort_data[cohort]
                 for v in VARIANTS:
@@ -234,11 +271,18 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
                         bb=np.asarray(fitboot[cohort,v])
                         size=N_BY_COHORT[cohort]
                     point=a.mean(axis=0)
+                    simulation_mean=point.copy()
+                    if cohort=="POOLED":
+                        oracle=(100/180)*exact_oracles["B22"]+(80/180)*exact_oracles["DEV80"]
+                    else:
+                        oracle=exact_oracles[cohort]
+                    point[:,2:]=oracle
                     # Center the bootstrap to isolate its parameter
                     # fluctuations; panel draws already reflect the future
                     # finite-n U-statistic noise conditional on observed A8.
                     sel=rng.integers(0,len(bb),len(a))
                     draws=a+(bb[sel]-bb.mean(axis=0)[None,:,:])
+                    draws[:,:,2:]+=(oracle-simulation_mean[:,2:])[None,:,:]
                     lo,hi=np.quantile(draws,(.025,.975),axis=0)
                     failure_draws=1-draws[:,:,3]
                     selection_draws=draws[:,:,3]-draws[:,:,1]
