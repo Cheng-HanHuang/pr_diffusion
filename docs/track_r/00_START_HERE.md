@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-10-26 by the planner (Claude).
+**Updated:** 2026-10-27 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -13,6 +13,21 @@
   - **XP-E is cancelled.** DAPS `test-ffhq` overlaps the locked holdout by one id.
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
+
+- **2026-10-27, 00:00 (planner):**
+  - **NP dropped** from the paper (Cheng, 2026-10-26 23:01). Paper counts are now on DAPS, SITCOM and FAST-DIPS only (1,960 runs; 540 image–solver pairs).
+  - **Prereg amendment A5:**
+    - XP-I (PC-DAPS) becomes CRITICAL-if-ready, and XP-I2 adds ImageNet;
+    - new XP-K: a parameter-only calibration of each solver's data term to σ;
+    - new analysis A5.5 (the noise floor) and the A8b residual strings;
+    - A7 is now required;
+    - the XP-F8 replay gate;
+    - v1 freezes both the S2 reference and a rank-calibrated forecast.
+  - **New facts from A8 and N1c:**
+    - S2 is rejected: within an image, GOOD beats CONSISTENT in 200/205 pairs;
+    - DAPS and SITCOM fit the noise: every GOOD run has ρ < σ.
+  - **Notes:** [`executors/theory/01_PLANNER_GUIDANCE_20261027.md`](executors/theory/01_PLANNER_GUIDANCE_20261027.md) and [`executors/xp/01_PLANNER_NOTES_20261027.md`](executors/xp/01_PLANNER_NOTES_20261027.md).
+  - **Freeze:** v1 target Oct 29, 18:00 ET; hard deadline Oct 31.
 
 **Track R** is reliability per compute for diffusion-prior Fourier phase retrieval.
 
@@ -37,19 +52,19 @@
 | Stage | What | Status |
 |---|---|---|
 | **R0-N.2** | Amendment 2 **revision D.1**, CPU: N1h → **A8 per-image strings (by Oct 28)** → ladder (vs O_orbit) → A7 export with SSIM/LPIPS → crosswalk | **AUTHORIZED, urgent; return by 2026-10-29** |
-| **XP** | `XP_PREREG_v1_1.md` (+ amendments A1–A3; A2 = DAPS-4K for the published-protocol replication):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1–A4; two lanes (CRITICAL / BACKGROUND); cap 400 GPU-h** |
-| **TH1** | Selection theory for the paper; predictions v1 frozen by **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **AUTHORIZED, start now** (theory executor, handoff rev B.1) |
-| **TH2** | Inner-functional theory (feasibility memo due Nov 13) | AUTHORIZED (memo only) |
+| **XP** | `XP_PREREG_v1_1.md` (+ amendments A1–A5; A2 = DAPS-4K for the published-protocol replication; A5 = XP-I promoted, XP-K, A5.5, A8b, F8 gate):<br>• **Tier A (Nov 2):** XP-0/T; FAST FFHQ n=16; XP-C; XP-C2 equivariance defect; FAST ImageNet n=16<br>• **Tier B (Nov 6):** FAST n=64; SITCOM n=16 on 180 ids; DAPS ImageNet n=4 on 100; SITCOM ImageNet; DAPS FFHQ n=8<br>• **Tier C (Nov 20):** SITCOM n=32, DPS, PC-DAPS, noise robustness, 512-canvas control, FAST ImageNet n=64, conditional XP-E′<br>• XP-E cancelled | **GO given (2026-10-26); FROZEN v1.1 + A1–A5; two lanes (CRITICAL / BACKGROUND); cap 400 GPU-h.** Planner notes 2026-10-27 |
+| **TH1** | Selection theory for the paper; predictions v1 (S2 reference + rank-calibrated race) — target **Oct 29 18:00 ET**, hard **Oct 31** (embargo on K > 4 outcomes until registered); note due Nov 6 | **IN PROGRESS** (interim `12e0ff3` accepted; guidance 2026-10-27) |
+| **TH2** | Noise-floor theory (over-weighted data terms; within-image residual races; orientation leak); optional mechanism forecasts for XP-K/XP-G by Oct 31 | AUTHORIZED, refocused 2026-10-27 |
 
 ## Documents (read in this order)
 
 1. **Top-venue plan** (2026-10-25; read the 2026-10-26 update box first): [`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`](../planning/track_r/2026-10-25_TOP_VENUE_PLAN.md)
-2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded; amendments A1–A4: lanes, NP dropped, SITCOM settings, DiffFPR), with handoff revision C (autopilot) [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md)
+2. **Experiments:** [`docs/planning/track_r/XP_PREREG_v1_1.md`](../planning/track_r/XP_PREREG_v1_1.md) (v1 is superseded; amendments A1–A5: lanes, NP dropped, SITCOM settings, DiffFPR; A5 = PC-DAPS promoted, XP-K, noise floor), with handoff revision C (autopilot) [`executors/xp/00_XP_EXECUTOR_HANDOFF.md`](executors/xp/00_XP_EXECUTOR_HANDOFF.md) and the planner notes [`executors/xp/01_PLANNER_NOTES_20261027.md`](executors/xp/01_PLANNER_NOTES_20261027.md)
 3. **Theory:**
    - program v1.2 [`docs/planning/track_r/THEORY_PROGRAM_v1.md`](../planning/track_r/THEORY_PROGRAM_v1.md);
    - literature digest [`2026-10-26_THEORY_LIT_DIGEST.md`](../planning/track_r/2026-10-26_THEORY_LIT_DIGEST.md);
    - kickoff prompts: [`executors/xp/KICKOFF_PROMPT.md`](executors/xp/KICKOFF_PROMPT.md), [`executors/theory/KICKOFF_PROMPT.md`](executors/theory/KICKOFF_PROMPT.md);
-   - handoff revision B.1 [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md);
+   - handoff revision B.1 [`executors/theory/00_THEORY_EXECUTOR_HANDOFF.md`](executors/theory/00_THEORY_EXECUTOR_HANDOFF.md) and the planner guidance [`executors/theory/01_PLANNER_GUIDANCE_20261027.md`](executors/theory/01_PLANNER_GUIDANCE_20261027.md);
    - predictions registry [`theory/PREDICTIONS_REGISTRY.md`](theory/PREDICTIONS_REGISTRY.md).
 4. **R0 decision and rulings** (§§1–10; §10 is K2): [`docs/planning/track_r/2026-10-23_R0_PLANNER_DECISION.md`](../planning/track_r/2026-10-23_R0_PLANNER_DECISION.md)
 5. **PC-DAPS positioning** (read its K2 update box first): [`docs/planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md`](../planning/track_r/2026-10-24_PC_DAPS_POSITIONING.md)
@@ -73,7 +88,7 @@
 | R0-N.2 | Amendment 2 revision D.1 (CPU) | NEXT, urgent (A8 Oct 28; return Oct 29) | executor and Cheng |
 | XP | `XP_PREREG_v1_1` (GPU, ≤ 400 GPU-hours, tiers A/B/C) | **GO given 2026-10-26** | executor and Cheng |
 | TH1 / TH2 | Theory program v1.2 | AUTHORIZED, starting | theory executor |
-| Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback. Draft in `docs/paper/track_r_cvpr27/` (claims ledger, figures plan) | skeleton and first prose done Oct 26 (builds, 7 pp. with placeholders) | planner drafts, Cheng and coauthors edit |
+| Paper | CVPR 2027 attempt (go/no-go Nov 8) → SPL / EUSIPCO fallback. Draft in `docs/paper/track_r_cvpr27/` (claims ledger, figures plan) | revised Oct 27: NP-free counts, E1_CLIP table, S2 rejection, noise floor, theory corrections (builds; ≈7.5 pp. of text with placeholders) | planner drafts, Cheng and coauthors edit |
 | N4 | Clean-image probe (withdrawn) | — | — |
 | X5/X6 | PC-DAPS audit and noise robustness: now XP-I and XP-G (Tier C, supplement) | in XP v1.1 | executor and Cheng |
 | R1 / R2 | Pipeline and prospective evaluation | CANCELLED | — |

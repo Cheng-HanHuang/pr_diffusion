@@ -1,5 +1,7 @@
 # Track R · XP executor handoff: evaluation-only extensions (GPU), revision C (autopilot)
 
+> **2026-10-27: read [`01_PLANNER_NOTES_20261027.md`](01_PLANNER_NOTES_20261027.md) and prereg amendment A5.** They give the Tier B correction, the CPU block (A4.4, A8b, A7, A5.5), the one-launch queue, the XP-I and XP-K engineering, and VRAM sizing.
+
 **From:** planner (Claude), 2026-10-26 14:30.
 - **Revision C replaces B.2.** It adds:
   - **two lanes** (CRITICAL / BACKGROUND);

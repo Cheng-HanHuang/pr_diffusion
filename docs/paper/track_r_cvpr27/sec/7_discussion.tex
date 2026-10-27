@@ -7,11 +7,13 @@ For phase retrieval with diffusion priors we recommend:
 (ii) never mix runs across metrics;
 (iii) report the share of orbit errors and evaluate up to the orbit when orientation is not the object of study;
 (iv) state the selection rule, $K$ and the compute per image;
-(v) report how failures split into generation failures and selection misses.
+(v) report how failures split into generation failures and selection losses;
+(vi) report residuals relative to the noise level, and do not read a residual threshold as a certificate of correctness.
 \pending{Tighten once the decomposition numbers are in.}
 
 \paragraph{Limitations.}
 We study one operator family and two datasets, with controls on noise level and canvas size in the supplement.
-The selection model assumes independent runs and residual exchangeability within consistent classes; we test these assumptions on held-out runs rather than proving them.
-\Cref{thm:tv} bounds orientation preference along the sampling path, while we measure the defect on noised ground-truth images.
+The selection model assumes independent runs; exchangeable residual ranks fail on our data, so forecasts beyond four runs rest on a fitted race and its tail assumption, which we test on held-out runs rather than prove.
+\Cref{thm:tv} covers samplers with Gaussian transitions up to their returned state; it does not cover FAST-DIPS's final denoising step, and we measure a denoiser-level proxy of the defect rather than the defect along each sampler's path.
 Uniqueness up to the orbit is assumed, not proven, for the standard canvas.
+Most images of cohort~B come from FFHQ's training split, and we cannot tell whether the denoiser saw them.

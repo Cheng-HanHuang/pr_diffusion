@@ -2,49 +2,61 @@
 \label{sec:selection}
 
 \paragraph{Model.}
-Fix an image.
+Fix an image and a solver.
 Each run independently falls into \good, \orbit (global or partial), \cons or \incons with probabilities $(p,o_g,o_p,c,u)$; let $q=p+o_g+o_p$ and $s=q+c$.
+What selection achieves depends on how the residual ranks runs of different classes.
 We assume
-(S1) \incons runs have larger residual than all others;
-(S2) within \good, \orbit and \cons, residual ranks are exchangeable; and
-(S3) the orientation test fixes a global orbit error with probability $\tau_g$, cannot fix a partial one, and breaks a \good run with probability $h$.
-Then
+(S1) \incons runs have a larger residual than all others; and
+(S3) the orientation test fixes a global orbit error with probability $\phi_g$ and a partial one with probability $\phi_p$, and breaks a \good run with probability $h$, independently of $K$.
+The simplest assumption on the remaining ranks is
+(S2) within \good, \orbit and \cons, residual ranks are exchangeable.
+Under (S1)--(S3), with $a=(1-h)p+\phi_g o_g+\phi_p o_p$,
 \begin{align}
 \Oraw(K)&=1-(1-p)^K, \qquad \Oorb(K)=1-(1-q)^K,\notag\\
 \Eo(K)&=\bigl[1-(1-s)^K\bigr]\,p/s,\notag\\
-\Eone(K)&=\bigl[1-(1-s)^K\bigr]\,\bigl((1-h)p+\tau_g o_g\bigr)/s,
+\Eone(K)&=\bigl[1-(1-s)^K\bigr]\,a/s,
 \label{eq:curves}
 \end{align}
-where each quantity is the probability that the policy returns a \good image\claim{C-T5}.
-Under (S1)--(S2), the residual minimizer is a uniformly random member of the consistent runs, so $\Eo$ has the same law as ``return the first run that passes'': \cref{eq:curves} is the imperfect-verifier model of Stroebl~\etal\cite{stroebl2026limits} with a verifier that never rejects a \good run, for which \cons runs are false positives and orbit errors are false positives that no measurement-based verifier can reject (\cref{cor:blind}).
+where each quantity is the probability that the policy returns a \good image, and the last two are $0$ if $s=0$\claim{C-T5}.
+Under (S1)--(S2) the residual minimizer has the same label law as ``return the first run that passes'', so \cref{eq:curves} is the imperfect-verifier model of Stroebl~\etal\cite{stroebl2026limits}: \cons runs are false positives, and orbit errors are false positives that no measurement-based verifier can reject (\cref{cor:blind}).
+In this model the gaps $\Oorb-\Eone$ and $\Oraw-\Eo$ never decrease with $K$; for $q>0$ and global-only repair ($h=0$, $\phi_g=1$, $\phi_p=0$), the first tends to $(c+o_p)/s$\claim{C-T6}.
 Heterogeneity across images enters through a mixture over $(p,o_g,o_p,c,u)$, fitted to per-image class counts.
 
-\paragraph{Consequences.}
-As $K\to\infty$, $\Eone$ tends to $((1-h)p+\tau_g o_g)/s$, below $\Oorb\to 1$ whenever $c>0$ or $o_p>0$.
-For $h=0$ and $\tau_g=1$, each image's gap $\Oorb(K)-\Eone(K)$ equals $o_p$ at $K=1$ and grows by
-\begin{equation}
-q(1-q)^K-(p+o_g)(1-s)^K\;\ge\;(p+o_g)\bigl[(1-q)^K-(1-s)^K\bigr]\;\ge\;0
-\end{equation}
-per added run; the same holds for $\Oraw-\Eo$.
-\emph{The ground-truth advantage never shrinks as $K$ grows}, and it saturates at $(c+o_p)/s$ per image\claim{C-T6}.
-The failures of the selected run split into \emph{generation failures} (no consistent run among the $K$), which vanish geometrically, and \emph{selection misses}, which grow toward $c/s$; the model predicts for each solver the $K$ at which the second overtakes the first.
+\paragraph{Residual ranks are not exchangeable.}
+(S1) holds in our FFHQ runs: within an image, a \good run has a smaller residual than an \incons run in $570$ of $571$ pairs.
+(S2) does not.
+A \good run beats a \cons run of the same image in $200$ of $205$ pairs, and a global orbit error in $50$ of $69$: DAPS $21/24$, FAST-DIPS $15/15$, SITCOM $14/30$\claim{C-A7}.
+Rotated runs thus fit worse than upright ones for DAPS and FAST-DIPS, but not for SITCOM, the solver that fits the data most closely (\cref{sec:audit}).
+Among the $100$ image--solver pairs whose passing runs include a \good run and some other class, $\Eo$ picks the \good run in $92$, against $51.9$ expected under (S2).
+The residual is therefore a much better verifier against \cons runs than (S2) assumes, and \cref{eq:curves} is a pessimistic reference.
+We model the race explicitly: given the classes of the $K$ runs, the residual minimizer is drawn with class-dependent weights, which we fit to the within-image ranks of runs $0$--$3$ \pending{TH1 v1: race model, fitted weights, tail assumption}.
+Whether the selection loss stays small as $K$ grows depends on the lower tail of the residuals of \cons runs relative to \good runs of the same image, which four runs per image cannot reveal; such tail competition decides the large-$N$ behavior of best-of-$N$ selection~\cite{yano2026tail}.
+
+\paragraph{Generation failures and selection loss.}
+We split a failed $\Eone$ pick into a \emph{generation failure}, when no run reaches the threshold in any orientation, with probability $(1-q)^K$, and the \emph{selection loss} $\Oorb(K)-\Eone(K)$.
+Generation failures vanish geometrically in $K$.
+Under (S2) the selection loss grows toward $(c+o_p)/s$; in a race that \good runs usually win, it stays small.
+The $K$ at which the selection loss overtakes generation failures is the forecast that best separates the two models.
 
 \paragraph{Exact estimators.}
 Given $n$ runs of an image, the average of any policy over all $\binom nK$ subsets is an unbiased estimate of its $K$-run value, and it has a closed form.
 For an argmin rule, the run ranked $r$-th by increasing residual is selected with probability $\binom{n-r}{K-1}/\binom nK$; for a maximum-type oracle, the run ranked $j$-th by increasing score is selected with probability $\binom{j-1}{K-1}/\binom nK$; and success probabilities take the form $1-\binom{n-g}{K}/\binom nK$ familiar from pass@$k$~\cite{chen2021codex}\claim{C-T7}.
-Comparing these model-free estimates with \cref{eq:curves} tests (S1)--(S2).
+These estimates need no model; comparing them with the forecasts tests the model.
 
-\paragraph{Frozen predictions.}
-We fit the mixture to runs $0$--$3$ of each image, freeze the predicted curves with intervals, and only then evaluate runs $4$--$63$ \pending{registry entry: predictions file SHA and commit time}.
-\Cref{fig:kcurves} compares the predictions with the observed curves for FAST-DIPS ($K\le64$), SITCOM ($K\le16$) and DAPS ($K\le8$) on FFHQ \pending{XP-A, XP-B, XP-F; and ImageNet FAST-DIPS if frozen (v2)}.
+\paragraph{Frozen forecasts.}
+Four runs per image identify only the first four moments of the per-image class mixture: two mixtures that agree on every possible four-run count can differ by $9.6$ points in $\Oraw$ at $K{=}64$ (supplement)\claim{C-T8}.
+Forecasts beyond $K{=}4$ are therefore conditional on the fitted model, and their intervals do not include model error.
+We fit the models to runs $0$--$3$ of each image, froze the forecasts with intervals under (S2) and under the fitted race, and only then evaluated runs $4$--$63$ \pending{registry entry: predictions file SHA and commit time}.
+\Cref{fig:kcurves} compares the forecasts with the observed curves for FAST-DIPS ($K\le64$), SITCOM ($K\le16$, or $32$) and DAPS ($K\le8$) on FFHQ \pending{XP-A, XP-B, XP-F; and ImageNet FAST-DIPS if frozen (v2)}.
 
 \begin{figure}[t]
 \centering
 \fbox{\parbox[c][4.2cm][c]{0.94\linewidth}{\centering\small
   $\goodrate$ vs.\ $K$ (log scale) for $\Eo$, $\Eone$, $\Oraw$, $\Oorb$:\\
-  observed (dots, 95\% CI) and frozen predictions (bands).\\
+  observed (dots, 95\% CI) and frozen forecasts\\
+  (bands: S2 reference and fitted race).\\
   Panels: FAST-DIPS, SITCOM, DAPS (FFHQ).\\[3pt]
   \pending{XP-A64, XP-B16/B32, XP-F8 after the v1 freeze}}}
-\caption{\textbf{Best-of-$K$ against frozen predictions.} Predictions are fitted on four runs per image and frozen before more runs are evaluated. \pending{one-line result}}
+\caption{\textbf{Best-of-$K$ against frozen forecasts.} Forecasts are fitted on four runs per image and frozen before more runs are evaluated. \pending{one-line result}}
 \label{fig:kcurves}
 \end{figure}

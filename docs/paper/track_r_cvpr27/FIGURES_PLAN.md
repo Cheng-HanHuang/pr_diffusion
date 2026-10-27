@@ -7,7 +7,10 @@
 | Fig. 1c | Protocol layers: first run → GT-free E1_CLIP → O_raw → per-metric oracle (PSNR) | R0-N.2 A4.3/A7 (FFHQ); XP-D2 (ImageNet) | Nov 6 | Main |
 | Tab. 1 | Selection protocols in the literature | Verified sources (ledger C-P1) | Now | Main |
 | Tab. 2 | FFHQ decomposition per solver: first, mean-of-K, E1_CLIP, O_raw, O_orbit, per-metric oracle; PSNR/SSIM/LPIPS/Good25 | R0-N.2 A4.3/A7 | Oct 29–Nov 2 | Main |
-| Fig. 2 | K-curves against frozen predictions: FAST to 64, SITCOM to 16 (32), DAPS to 8 | XP-A64, XP-B16/B32, XP-F8; TH1 v1 predictions | Nov 6 | Main |
+| Fig. 2 | K-curves against frozen forecasts: FAST to 64, SITCOM to 16 (32), DAPS to 8; two forecast bands per policy (S2 reference; fitted race) | XP-A64, XP-B16/B32, XP-F8; TH1 v1 | Nov 6 | Main |
+| Fig. 2b (or inset) | Within-image residual win rates (G vs C, G vs O, C vs I) per solver, image-cluster CIs | A8 ranks (now); A5.5 | Oct 30 | Main |
+| Tab. 5 / Fig. 4 | Noise floor: ρ/σ by class and solver (with ρ(x★)), and the fit-error vs absorbed-noise split; XP-K calibrated vs native | N1c (now); A5.5; XP-K | Nov 8 | Main (compact) |
+| Tab. 6 | PC-DAPS on the same measurements: per-particle anatomy, its own mean-of-4, E0/E1 over particles, DAPS K = 4 | XP-I (XP-I2) | Nov 6 | Main if ready, else supplement |
 | Tab. 3 | ImageNet audit: FAST, SITCOM, DAPS (published DAPS-4K protocol vs GT-free) | XP-D1–D3 | Nov 6 | Main |
 | Fig. 3 | Failure anatomy vs K: generation failure / selection miss / uncorrected orientation | XP analysis | Nov 6 | Main |
 | Tab. 4 | Orientation tests on GT and reconstructions (CLIP face/G1/G2, 2F prior, S_mid, UnivFD), per dataset | XP-C; N2; XP-D | Nov 5 | Main (compact) or supplement |

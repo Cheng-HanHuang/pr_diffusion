@@ -1,4 +1,58 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-26)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-27)
+
+> **Third update, 2026-10-27, 00:00 ET** (the newest; read it first).
+>
+> **Decision recorded:** NP is dropped (Cheng, 2026-10-26 23:01). Every paper count is now on DAPS, SITCOM and FAST-DIPS: 1,960 runs, 540 image–solver pairs.
+>
+> **Verified facts** (A8 @ `83abf26`, A4.3, B2, N1c; ledger C-A1–C-A7, C-S5–C-S7):
+> 1. **GT-free selection.** E0 followed by the CLIP test recovers 92.6–97.5% of the orbit-oracle mean-PSNR gain. It beats the GT raw oracle in 4 of 5 strata, and its Good25 is within 0–2 images of O_orbit.
+> 2. **The residual is a strong within-image verifier.**
+>    - GOOD beats CONSISTENT in 200/205 pairs and INCONSISTENT in 570/571.
+>    - In the 100 mixed-passing pairs, E0 picks GOOD in 92, against 51.9 expected under S2. **S2 is rejected.**
+>    - Only 3 selection misses occur in 540 pairs.
+> 3. **Generation failure dominates at K ≤ 4:** 66 of the 70 failures left after CLIP.
+> 4. **Noise floor.** Every GOOD run of DAPS and SITCOM has ρ < σ (medians 0.946σ and 0.884σ); FAST sits at 0.997σ, while the truth has ρ★ = σ ± 0.1%.
+>    - The cause is in the code. DAPS and SITCOM-ODE weight the data term 50× and 25× the likelihood at σ = 0.05 and return a Langevin iterate. FAST constrains ‖v − y‖ ≤ 0.05 (vs σ√m ≈ 33) but returns its denoised estimate.
+>    - So τ is solver-relative, and for DAPS and SITCOM it would reject the ground truth.
+> 5. **Orientation.**
+>    - CLIP fixes 58/58 global orbit errors with 0/1,171 harm.
+>    - Rotated runs fit worse than GOOD runs for DAPS (21/24) and FAST (15/15), but not for SITCOM (14/30). The solver's non-equivariance thus leaks into the ranks, while Cor. 1 still holds exactly.
+>
+> **Actions taken:**
+> - Prereg **A5**:
+>   - XP-I becomes CRITICAL-if-ready, and XP-I2 is added;
+>   - new XP-K, a parameter-only calibration of each data term to σ;
+>   - analysis A5.5 (Δ = D − 2C per candidate), A8b, and A7 now required;
+>   - the F8 replay gate;
+>   - v1 freezes both the S2 reference and a rank-calibrated forecast;
+>   - revised queue and drop orders.
+> - Theory guidance and executor notes (2026-10-27).
+> - Paper revised (Secs. 0–7, ledger).
+> - Freeze target moved up to **Oct 29, 18:00 ET** (hard deadline Oct 31).
+>
+> **Planner's view.**
+> - **The story changes, for the better.**
+>   - The K ≤ 4 data do not support "an imperfect verifier whose ceiling bites as K grows".
+>   - The measured picture is sharper: the residual **cannot** certify orientation (exact symmetry) or absolute correctness (a solver-set noise floor below σ), but it **can** rank runs of the same image almost perfectly.
+>   - Today, what limits the protocol is generation, not selection.
+>   - The frozen K-scaling test now asks a real question: does the near-perfect paired ranking survive to K = 64 (race), or do rare low-residual wrong runs take over (tail competition; SITCOM is the place to look)? Either outcome is publishable, and the forecasts are written before the data.
+> - **Risks:**
+>   1. If the race model simply holds, the K-curves confirm "selection is not the bottleneck", which is solid but less dramatic. The paper then rests on the noise floor, the symmetry results and the audit.
+>   2. The CONSISTENT class may be mostly near misses rather than other images. The A7 contact sheets decide, and the wording is hedged until then.
+>   3. The theory is standard machinery applied carefully. Reviewers will judge the empirical findings.
+>   4. PC-DAPS (Oct 22) is concurrent work that reviewers will raise; XP-I is the answer.
+>   5. Page budget: about 7.5 pages of text already, with placeholders. The estimators and part of Sec. 4 will move to the supplement.
+> - **Publication image:**
+>   - Title direction (decide Nov 10): something like "What Can a Measurement Residual Certify? Symmetry, Noise Floors and Best-of-K in Diffusion Phase Retrieval".
+>   - Main text:
+>     - Fig. 1: the orbit and the defect proxy;
+>     - Tab. 1: protocols;
+>     - Tab. 2: the FFHQ decomposition (done);
+>     - Fig. 2: K-curves with S2 and race bands, plus rank win rates;
+>     - Tab. 3: ImageNet, including the published DAPS-4K protocol;
+>     - a noise-floor table with XP-K;
+>     - a PC-DAPS comparison, if ready.
+> - **Odds.** CVPR acceptance is plausible but not likely: roughly 20–30% if Tier A/B and v1 land cleanly. SPL/EUSIPCO remains a strong fallback whatever happens.
 
 > **Update 2026-10-26 (Cheng's decisions, 00:57).**
 >

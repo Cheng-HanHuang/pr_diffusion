@@ -53,7 +53,59 @@
 >    - Also report the K-curve of a two-stage selector: "residual threshold τ, then the best prior score among passing runs, then the orientation test".
 >    - This is an analysis of what selection *could* gain from a prior term, not a proposed method. It answers whether failure type (ii) is fixable without the ground truth.
 
-**Status:** FROZEN v1.1 with amendments A1–A4 (planner, 2026-10-26).
+> **Amendment A5 (planner, 2026-10-26 23:55 ET).** Written before any XP outcome with run index ≥ 4 had been scored or seen; no XP-K, XP-I or A5.5 data exist. NP's removal from the paper is confirmed by Cheng (2026-10-26 23:01).
+> 1. **Clarification, no change.** Tier B = XP-A64, XP-B16, **XP-D2 (DAPS-4K, ImageNet)**, **XP-D3 (SITCOM, ImageNet)** and XP-F8. XP-E′ is Tier C and runs only if A4.4 says so. (The executor log of 2026-10-26 22:34 swaps D2 and D3 and lists XP-E′ in Tier B; this file governs.)
+> 2. **XP-F8 gate.** XP-F8 needs, in order:
+>    - (a) the R0-N.2 **A4.4** record (annealing steps, ODE steps and NFE per run, from the historical S1/S2 DAPS receipts);
+>    - (b) an **8-root exact replay** of historical DAPS candidates (first 2 sorted ids × runs 0–1, per cohort), as passed by FAST and SITCOM, on the source tree that will generate XP-F8. The historical checkout of `e7a77d0` carries default-off B20.11/B21.3 edits in `sampler.py`. Use the pristine sparse checkout if it reproduces the historical candidates exactly with the historical configuration; otherwise use the historical checkout with those features off, and record why;
+>    - (c) new seeds that continue each cohort's historical RNG lineage (B22: the sequential stream; DEV80: independent seeds), with the no-collision check.
+> 3. **XP-I (PC-DAPS) is promoted to CRITICAL-if-ready**, data cut Nov 6.
+>    - Engineering happens now in the BACKGROUND lane. Once its smoke passes, its GPU jobs take CRITICAL priority behind any ready Tier A/B job.
+>    - If it misses Nov 6, it reverts to BACKGROUND and the supplement.
+>    - Scope as in §2 (FFHQ, 180 ids, one bag of 4 particles, the native FFHQ phase-retrieval command at `59b2f04`: 200 annealing steps, bag size 4, pruning on; our frozen signed y).
+>    - **New XP-I2** (BACKGROUND): the same on the 100 ImageNet images with `imagenet256ddpm`.
+>    - Analysis per bag: R0 labels and the PC-DAPS `pr_outcomes` labels (A4.1 rule) for every particle; first particle; mean over the bag (PC-DAPS's reporting); E0, E1_CLIP, O_raw and O_orbit over the bag; DAPS at K = 4 on the same ids for comparison.
+> 4. **New XP-K, a data-term calibration intervention** (BACKGROUND, parameter-only; pre-specified here).
+>    - **Why.** All three solvers weight the measurement far above the Gaussian likelihood at σ = 0.05, and R0-N N1c shows that every GOOD run of DAPS and SITCOM has ρ < σ. In detail:
+>      - DAPS's Langevin score uses −∇‖A(x)−y‖²/τ²;
+>      - SITCOM-ODE's Langevin loss is ‖A(x)−y‖²/(2τ²);
+>      - both use τ = 0.01, i.e. 50× and 25× the weight 1/(2σ²);
+>      - FAST-DIPS projects an auxiliary residual onto an L2 ball of radius ε = 0.05, whereas the noise norm is σ√m ≈ 33.3.
+>    - **Design.** B22, 100 ids, n = 4 per family, with **exactly one parameter changed** from the frozen settings:
+>      - SITCOM-ODE: Langevin τ = σ = 0.05 (the Euler measurement-gradient step is unchanged);
+>      - FAST-DIPS: ε = σ√m = 33.26;
+>      - DAPS: τ = √2·σ = 0.0707, with the historical FFHQ configuration, after the XP-F8 gate (2).
+>    - Seeds follow the XP rule with dataset `ffhq_cal`. Same frozen y. Labels use the frozen native τ thresholds; ρ/σ is also reported.
+>    - **Outcomes** (descriptive, vs the same ids' historical native runs, K = 4; DAPS K = 2):
+>      - class rates (G/O/C/I);
+>      - the median and IQR of ρ/σ for GOOD runs;
+>      - the fraction of runs with ρ < ρ★ (A5.5);
+>      - first-run Good25;
+>      - E1_CLIP and O_orbit at K = 4.
+>    - **Directional hypotheses** (exploratory):
+>      - H-K1: calibration moves the GOOD-run ρ/σ of DAPS and SITCOM toward 1;
+>      - H-K2: the CONSISTENT share of SITCOM's non-GOOD runs falls.
+>      - No hypothesis on PSNR.
+>    - Not part of v1 and not embargoed. It is reported whatever its outcome. It is **not** proposed as a method.
+> 5. **New analysis A5.5: the noise floor** (CPU; evaluation-only; pre-specified now, before any ρ★ value has been computed).
+>    - **Per-candidate quantities.** For every scored candidate x̂ of DAPS, SITCOM and FAST-DIPS (R0 runs now; XP stages once their outcomes are allowed), with the exact frozen signed y, in float64:
+>      - ρ★ = ‖A(x★) − y‖/√m;
+>      - Δ = (‖A(x̂) − y‖² − ‖A(x★) − y‖²)/σ²;
+>      - D = ‖A(x̂) − A(x★)‖²/σ²;
+>      - C = ⟨y − A(x★), A(x̂) − A(x★)⟩/σ², so that Δ = D − 2C. C > 0 means the run has absorbed part of the noise.
+>    - **Report**, per family × cohort × class (G, O_g, O_p, C, I):
+>      - n, and the median and IQR of Δ, D and C;
+>      - the fraction with ρ < ρ★;
+>      - per (family, cohort), whether ρ★ ≤ τ, i.e. whether the ground truth would pass the solver's own consistency threshold.
+>    - **Also report** within-image pairwise residual win rates (GOOD vs CONSISTENT, GOOD vs global ORBIT, CONSISTENT vs INCONSISTENT) with image-cluster bootstrap CIs. The planner computed these from the A8 rank strings: 200/205, 50/69 and 92/92; reproduce them.
+> 6. **A8b** (CPU; committed; GT-free): per (image, family) row as in A8, the ρ_signed of every historical run in run-index order (6 significant digits), and per (source, family) the frozen τ. The theory executor may read it.
+> 7. **A7 becomes required** (target Oct 28), adding the A5.5 columns (`rho_star`, `Delta`, `D`, `C`) to A7.1. It is still delivered only as a ZIP to Cheng, not committed. The UnivFD fix and harm counts are recounted on the three public families from the stored scores.
+> 8. **Queue order and drop order, revised.**
+>    - **BACKGROUND launch order:** XP-K (SITCOM and FAST parts at once; DAPS after the F8 gate) → XP-I (CRITICAL once ready, item 3) → XP-B32 → XP-G → XP-I2 → XP-H → XP-G2 → XP-J → XP-D4 → XP-E′.
+>    - **Drop order:** XP-E′ → XP-J → XP-D4 → XP-G2 → XP-H → XP-I2 → XP-G → XP-K → XP-B32 → XP-I → XP-F8 → XP-D3 → XP-B16 (60 ids) → XP-D2 (25 images) → XP-A64. Tier A is never dropped.
+> 9. **Theory freeze contents** (§5.1 amended). The S1–S3 curves stay in v1 as the **exchangeable-ranks reference** (Stroebl-type ceiling). The A8 rank strings reject S2 at K ≤ 4: GOOD beats CONSISTENT in 200/205 within-image pairs, and E0 picks GOOD in 92 of 100 images with a mixed passing set, against 51.9 expected under S2. So v1 should also freeze a **rank-calibrated forecast**: class-dependent residual races fitted to the K ≤ 4 ranks (and to A8b if available), with the tail assumption stated. The monotone-gap shape prediction applies to the S2 reference only. The agreement criterion (§5.6) is unchanged.
+
+**Status:** FROZEN v1.1 with amendments A1–A5 (planner, 2026-10-26).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

@@ -13,7 +13,11 @@
 |---|---|---|---|---|---|---|---|
 | v1 | — | — | `docs/track_r/theory/TH1_PREDICTIONS_v1.json` | — | — | — | FFHQ: FAST (S5), SITCOM (B22+DEV80), DAPS (B22+DEV80); due **Oct 31** |
 | v2 (optional) | — | — | `docs/track_r/theory/TH1_PREDICTIONS_v2.json` | — | — | — | ImageNet FAST; due 48 h after the XP-D1 phase-1 counts |
+| mech (optional) | — | — | `docs/track_r/theory/TH2_MECH_PREDICTIONS_v1.json` | — | — | — | XP-K (data-term calibration) and XP-G (σ dose-response) outcomes, prereg A5.4; due with v1, by **Oct 31** at the latest |
 
 **Embargo status:**
 - FFHQ K > 4 outcomes (XP-A, XP-B, XP-F; B22 DAPS K > 2): **EMBARGOED** until v1 is registered.
 - ImageNet FAST outcomes with run index ≥ 4: **EMBARGOED** until v2 is registered, or until 48 h after the phase-1 counts if no v2 is made.
+- XP-K and XP-G outcomes: **not shared with the theory executor** until its optional mechanism predictions are registered, or until it declines them (by Oct 31). They are not embargoed otherwise (XP prereg A5.4).
+
+**Freeze contents (XP prereg A5.9).** v1 keeps the S1–S3 curves as the exchangeable-ranks reference and adds a rank-calibrated forecast. The A8 ranks reject S2 at K ≤ 4.
