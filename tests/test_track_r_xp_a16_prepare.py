@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch
 from scripts.track_r.xp_a16_prepare_cpu import build
-from scripts.track_r.r0_5_fast_prepare_cpu import native_seed
+from scripts.track_r.r0_5_prepare_cpu import native_seed
 
 def fake():
     rows=[];catalog=[];counter=0
@@ -43,8 +43,10 @@ class ExpandK16(unittest.TestCase):
         old[5]["seed"]+=17
         with (patch("scripts.track_r.xp_a16_prepare_cpu.frozen_roots",
                     return_value=old),
-              patch("scripts.track_r.xp_a16_prepare_cpu.sha",return_value="")):
-            with self.assertRaises(RuntimeError):
+              patch("scripts.track_r.xp_a16_prepare_cpu.sha",
+                    side_effect=lambda x:next(z["measurement_sha256"] for z in cat
+                                              if z["measurement_path"]==x))):
+            with self.assertRaisesRegex(RuntimeError,"HISTORICAL_SEEDS"):
                 build({},cat)
     def test_conflicting_historical_measurement_stops(self):
         old,cat=fake()

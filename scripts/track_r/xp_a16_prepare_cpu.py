@@ -3,7 +3,7 @@
 import argparse,hashlib,json,os,subprocess,sys
 from collections import defaultdict
 from pathlib import Path
-from scripts.track_r.r0_5_fast_prepare_cpu import native_seed
+from scripts.track_r.r0_5_prepare_cpu import native_seed
 from scripts.track_r.r0_5_fast_gpu import CANARY_HEAD,frozen_roots,SOURCE_HEAD
 from scripts.track_r.xp_t_fast_prepare_cpu import ROOT,WT,BASE,R05,R05_SHA,guard,sha
 from scripts.track_r.xp_0_inventory_cpu import CATALOG
