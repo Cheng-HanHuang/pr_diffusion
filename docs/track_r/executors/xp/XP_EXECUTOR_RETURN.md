@@ -1161,3 +1161,68 @@ XP-C/C2 GT-clean checkpoint diagnostics do not require K16
 quality embargo release. Stick to the A4 critical-first
 queue, and report to the planner that A16 native generations
 are now complete.
+
+## XP planner A5 merge + completed XP-A16 publication (2026-10-27)
+
+PAC published the independently verified embargo-safe operational
+XP-A16 evidence at
+`d73388d586f0ef599c1e04fc188e51a8df9338bc`.
+All six publication regression tests PASSED; all 38 native
+chunk receipts and **2,160 reconstructed tensor and PNG pairs**
+were hash verified. Exactly 2160/2160 new candidates completed,
+2.5861581238130262 GPU-hours, clean timing on all four
+physical devices. Original completion receipt SHA256
+`68cdb23bb6c8092a82464e032f3c7e448d9c2be579a4357ba4597ec6efd8e544`.
+The complete candidate-quality embargo remains in place;
+only non-GT operational JSON receipts were published.
+
+Planner `claude/prdiff-track-r-planner-20261021` at
+`ac92b7321917e99fd828a757a66579c43dedff11`
+was structurally merged with executor at
+`d73388d586f0ef599c1e04fc188e51a8df9338bc`
+as dual-parent commit
+`3ec3dabe5b512c5f7c04dc5e3be377e82454a4a5`.
+Comparison to merge base showed **no overlapping modified paths**.
+A5 and the 2026-10-27 planner notes are now governing.
+
+**Corrections.** Tier B is XP-A64, XP-B16, XP-D2
+(DAPS-4K on ImageNet), XP-D3 (SITCOM-ODE on ImageNet)
+and XP-F8. XP-E′ is **Tier C**, conditional on A4.4 proving
+that historical FFHQ DAPS differs from published DAPS-4K.
+Same-GPU W={1,2,4} throughput is optional, not a gate.
+New GPU VRAM admission is sized from verified per-method
+peak use, approximately 1.5× peak + 2 GiB, not the
+obsolete fixed 32 GiB.
+
+**Immediate CPU work:** A8b per-run six-significant-digit signed rho
+and source/family frozen tau strings, appended to the exact
+published A8 760-row table, with strict R0.7 3,240-row SHA
+and label replay; A4.4 targeted read-only metadata probe
+for historical S1/S2/S3 DAPS settings. The A4.4 probe does
+*not* claim a configuration merely from a command default;
+it must later identify actual historical run receipts,
+per-run annealing/ODE/Langevin steps and NFE to gate
+the replay and F8. A7 ZIP and A5.5 noise-floor table are
+still required and not falsely marked complete.
+
+**Autopilot objective:** critical-first queue D1 phase 1
+→ registered A8-style v2 prep → XP-C/C2 → D1 phase 2
+(sealed) → A64 → B16 co-admitted with D2 if devices
+are free → D3 → source-verified 8-root DAPS replay
+→ F8 (sealed). Background XP-K / B32 / G / I /
+I2 / H / G2 / J / D4 / E′ only if no ready critical
+job exists. Single stop file, no killing running or
+foreign processes, per-attempt telemetry, no relaunch
+of completed or partial immutable roots without an
+audited resume. The existing
+`scripts/track_r/xp_gpu_controller.py` is a general
+framework but *not* a license to manufacture missing
+scientific stage manifests or bypass per-family replay
+and smoke gates. A long-running launch must only
+include already implemented, CPU-tested, freeze-verified
+jobs. Do not launch unspecified Tier A/B workers.
+
+**ImageNet provenance statement (XP-D2):** ImageNet validation
+images are indices 0–99 of the sorted `rglob(ext)`
+file order, matching DAPS's `test-imagenet.yaml`
+`start_id:0,end_id:100` on the 1,000-image archive.
