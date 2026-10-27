@@ -1,0 +1,44 @@
+{
+  "audit": {
+    "gt_read": false,
+    "new_outcomes_scored": false,
+    "per_stage_candidates": {
+      "A64": 8640,
+      "D1_P1": 400,
+      "D2": 400
+    },
+    "per_stage_jobs": {
+      "A64": 90,
+      "D1_P1": 5,
+      "D2": 400
+    },
+    "reconstruction_files_sha256_verified": 18880,
+    "total_validated_candidates": 9440
+  },
+  "candidate_quality_inspected": false,
+  "controller": {
+    "expected_jobs": 495,
+    "gpu_hours": 33.700021154943386,
+    "timing_clean_jobs": 491,
+    "timing_unverified_jobs": 4
+  },
+  "deferred_stage": "D1_P2",
+  "frozen_prep_sha256": "bffd29a095cda4b8575a08bde48cca152d50cf3af84e799f080619c8c8e409e4",
+  "generation_head": "8d9bfed0fa62735791987a24791cfb97123540d8",
+  "gt_read": false,
+  "other_gpu_jobs_interrupted": false,
+  "prediction_registry_updated": false,
+  "publication_head": "46119a923bf61707aa44971ebc60d249eb0de65a",
+  "reconstruction_images_copied": false,
+  "smoke_receipt_sha256": "b3ecb9c4c61350978e65465d8cc9a08008157a835865e921ab6d91c3ef6f6b7d",
+  "source_code_identical_to_generator_commit": true,
+  "stage_manifest_sha256": {
+    "A64": "bbfe0dbd12d963b24ce84d6a24e9b6129c53b46654d423bf630dc2d0976bf848",
+    "D1_P1": "1716a8cf3be6868e2341e26f956fdf009436625a8052b9f08b16ed35a9dcd3d9",
+    "D1_P2": "3107d40c495886c52ea2a407f4d8f74079278fffffaa93f4f55eff1edb5272f7",
+    "D2": "9b08c8527c3388cfb44b56f934f62b3e48d254ea433867b1c4d87f5ce8335f44"
+  },
+  "state_receipt_sha256": "574396036a58df30a01dfc60a1292a36a75a7bb080dccbf4e37132f20ae5cf3d",
+  "status": "XP_NIGHT_OPERATIONAL_EVIDENCE_PASS",
+  "theory_freeze_required_for_scoring_D1_P2_A64": true
+}

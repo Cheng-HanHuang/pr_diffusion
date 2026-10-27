@@ -1,0 +1,31 @@
+{
+  "head": "8d9bfed0fa62735791987a24791cfb97123540d8",
+  "no_gt_access": true,
+  "outcomes_scored": false,
+  "stages": {
+    "A64": {
+      "calibration_reference_s": 3.32078449,
+      "median_native_sampling_wall_s": 3.3466863080393523,
+      "n_new_roots": 96,
+      "source_outcome_inspected": false
+    },
+    "D1_P1": {
+      "calibration_reference_s": 7.190894621,
+      "median_native_sampling_wall_s": 7.077465287875384,
+      "n_new_roots": 8,
+      "source_outcome_inspected": false
+    },
+    "D2": {
+      "calibration_reference_s": 166.23148921877146,
+      "median_native_sampling_wall_s": 166.35338677442633,
+      "n_new_roots": 8,
+      "source_outcome_inspected": false
+    }
+  },
+  "stages_excluded_from_overnight_main": {
+    "D1_P2": "awaits D1_P1 analysis/prediction registry",
+    "F8": "historical DAPS config and exact replay not certified",
+    "XP_C_C2": "distinct GT diagnostic worker not yet qualified"
+  },
+  "status": "XP_NIGHT_ALL_SMOKES_PASS"
+}
