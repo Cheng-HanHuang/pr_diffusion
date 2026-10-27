@@ -85,7 +85,27 @@ def main():
                 seen_fast_replay=True
         elif d.name.startswith("xp_a16_"):
             p=d/"XP_A16_PREP.json"
-            if p.is_file():
+            status=d/"XP_A16_STATUS.json"
+            complete=d/"XP_A16_GENERATION_COMPLETE.json"
+            if complete.is_file():
+                v=read(complete)
+                lines.append("XP-A16 "+v.get("status","UNKNOWN")+
+                    " roots="+str(v.get("new_roots"))+
+                    " chunks="+str(v.get("n_chunks"))+
+                    " gpu_h="+str(round(float(v.get("total_gpu_hours",0)),4))+
+                    " timing_clean="+str(v.get("clean_timing_eligible"))+
+                    " outcomes_embargoed="+str(v.get("outcomes_embargoed")))
+            elif status.is_file():
+                v=read(status)
+                lines.append("XP-A16 "+v.get("state","UNKNOWN")+
+                    " phase="+str(v.get("phase"))+
+                    " roots="+str(v.get("completed_roots"))+"/2160"+
+                    " active="+str(v.get("running_chunks"))+
+                    " gpu_h="+str(round(float(v.get("gpu_hours",0)),4))+
+                    " embargo="+str(v.get("outcomes_embargoed")))
+                if v.get("state") in ("FAILED","STOP_ADMISSION_TIMEOUT"):
+                    action.append("XP-A16 "+str(v.get("reason")))
+            elif p.is_file():
                 v=read(p)
                 lines.append("XP-A16 "+v.get("status","UNKNOWN")+
                     " images="+str(v.get("n_images"))+

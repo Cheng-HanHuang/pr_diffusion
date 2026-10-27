@@ -1031,3 +1031,74 @@ as the still-outstanding same-device W={1,2,4} XP-T
 throughput comparison. Project the full stage from the
 3.321 s per-candidate FAST FFHQ pilot, approximately 1.99
 GPU-hours of sampling plus launch/validation overhead.
+
+## XP-A16 GT-free manifest PASS; guarded four-GPU native generation authored
+
+PAC finished XP-A16 input preparation under
+`f67bd915dab3ce39be96264ca6a1ec002ad623ff`:
+four focused CPU regression tests PASS,
+`XP_A16_PREP_PASS images=180 new_roots=2160 K=16`,
+with pristine future-run task manifest SHA256
+`796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432`.
+Frozen output directory:
+`/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a16_20261027T022827Z`.
+R0 native seeds and exact S5 measurement identities passed;
+the prior 720 roots (run indices 0–3) remain untouched.
+No XP-A16 GPU runs have been started at the time of this authoring.
+
+### XP-A16 native FAST generation: implementation and scientific guards
+
+The 4-GPU supervisor `xp_a16_supervisor.py` reuses the replay-verified
+native FAST worker `xp_fast_gpu.py` with a **narrow pinned-manifest
+amendment**: when its input producer differs from the current execution
+commit, it accepts **only** the exact XP-A16 frozen 2,160-root manifest,
+producer `f67bd915dab3ce39be96264ca6a1ec002ad623ff`,
+SHA256 `796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432`,
+with all 100 B22 and 80 DEV80 IDs, 12 new indices 4..15 per image,
+and full native `R0FAST|cohort|id|rep` seed identity. The pinned
+external FAST implementation and checkpoint remain unchanged.
+No change is made to historical FAST native replay acceptance.
+
+The scheduler partitions 2,160 GT-free candidates into **38 distinct,
+image-aligned chunks**. The two 12-root smoke chunks cover one image
+each from the B22 and DEV80 cohorts (starts 0 and 1200); they must
+each produce and hash-validate all 12 native candidates before the
+remaining **36 chunks / 2,136 roots** are admitted. Main chunks are
+up to 60 roots (five images) and are dynamically assigned to four
+physical Blackwell GPUs, at most one native FAST process per GPU.
+Each worker preflights the exact immutable manifest/source/model
+checkpoint and all measurement SHA-256s for its assigned inputs.
+It writes immutable original native root receipts,
+`reconstruction.pt` and `reconstruction.png` for eventual
+post-freeze CPU scoring, never scores or displays them in this phase.
+For every finished chunk, the supervisor checks the original
+`R0_5_CHUNK_COMPLETE` and all per-root receipt/file hashes,
+native model/measurement/method identity and counts before recording
+operational progress.
+
+The queue requires clean GPU admission with 32 GiB requested
+allocation + 2 GiB margin under the hard 80% VRAM ceiling,
+monitors GPU foreign processes and memory throughout, has a
+12 GPU-hour aggregate ceiling, and stops admitting new work
+on errors or a stop request; active workers are not killed.
+It records timing cleanliness independently of generation PASS.
+It does not automatically overwrite/clean incomplete chunks.
+A future recovery must audit original files and live PIDs before
+resuming under the same generation commit.
+
+**Theory outcome embargo:** The generation manifest and supervisor
+receipts expose *only* candidate counts, sealed SHA-256 file
+identities, native timings, GPU cost, and operational status.
+No images, per-run reconstruction quality, PSNR, success/failure
+labels, K-curves, or GT paths are read or reported. The registered
+`docs/track_r/theory/TH1_PREDICTIONS_v1.json` theory freeze
+must precede any XP-A16 per-image outcomes or run-index>=4
+quality evaluation. The FAST source's historical 0..3 performance
+does not authorize the new 4..15 outcomes.
+No confirmation/test/demo FFHQ cohort may be accessed.
+
+If PAC passes the guarded launch and all 2,160 roots, report the
+generation completion SHA and counts to the planner promptly,
+keeping all outcome labels under embargo. Continue to XP-C,
+XP-C2 and ImageNet XP-D1 for the Nov 2 scientific cutoff rather
+than shifting effort into optional XP-T throughput arms.
