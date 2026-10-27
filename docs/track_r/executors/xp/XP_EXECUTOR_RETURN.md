@@ -1244,3 +1244,19 @@ file order, matching DAPS's `test-imagenet.yaml`
 12. No GT, scoring, best-of-K metrics, images or per-run outcome labels are read, printed or committed by these workers. All D1-P2/A64 output remains sealed pending the relevant theory registry.
 
 This is a **bounded, safe first overnight queue**, not a claim that the full A5 controller is complete. It uses the already-pinned native FAST/DDPM and pristine upstream DAPS-4K code, not the experimental B20/B21 modified sampler. Unlike the previous stage-by-stage human-assisted runs, the detached launcher can complete the entire validated smoke/main sequence without another human command if all independent preflights pass. PAC verification of the new launcher remains pending.
+
+## 2026-10-27 overnight GT-free generation: completion report pending independent PAC publication
+
+**Return digest (embargo-safe):**
+1. PAC user submitted `XP_NIGHT_AUTOPILOT.log` showing `XP_NIGHT_SMOKE_RC=0` and `XP_NIGHT_SMOKE_PASS`: 112/112 smoke roots, 0.6232 GPU-hours.
+2. The unattended main run then reports `XP_NIGHT_STATUS MAIN_PASS`, `XP_NIGHT_MAIN_RC=0`, 9,440/9,440 roots and **33.7 GPU-hours**. This is a generation milestone, not a quality or theory test.
+3. The complete stage partition is **FAST ImageNet D1 phase 1: 400**, **FAST FFHQ A64: 8640**, **DAPS-4K ImageNet D2: 400**.
+4. The generated results are at `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_overnight_20261027T045215Z`.
+5. Generation commit: `8d9bfed0fa62735791987a24791cfb97123540d8`. Input prep SHA256: `bffd29a095cda4b8575a08bde48cca152d50cf3af84e799f080619c8c8e409e4`.
+6. ImageNet K>4 **D1 phase 2 is frozen but was not generated**. FFHQ A64 and historical XP-A16 K>4 quality outcomes remain unopened pending the v1 theory freeze; D1 P1 outcomes are permitted to derive the ImageNet v2 prediction handoff, but **have not been scored in this generation step**.
+7. Current exact D1 P1/A64/D2 GPU wall/peak classifications are preserved in the PAC controller ledger, not inferred from the console log; inspect publisher summary before making timing claims.
+8. Historical A8b residual strings were produced CPU-only (760 rows, 3,240 old candidates, 12 tau groups), but Git publication is still due. Original A8 remains frozen.
+9. Historical DAPS A4.4 still lacks source-verified resolved configs, and therefore F8/E′ are still gated.
+10. The new `xp_night_publish_cpu.py` independently validates 495 scheduled jobs, hashes **18,880** generated tensor/PNG artifacts, verifies native FAST and DAPS per-candidate original receipts, the 3 smoke gates, 4 frozen manifest SHA256s, GT-free/no-quality-release indicators, and the original generation source byte identities. It publishes aggregate operational JSON only.
+11. **Do not relaunch or clean** this completed run. GT-free audit and publication must PASS before reporting it as independently certified or using it to allocate further experiment capacity.
+12. Scientific next step: after publication, score **D1 phase 1 only** with frozen ImageNet Good20/Orbit thresholds and commit A8-style run strings. Request planner/theory v2 freeze; independently advance XP-C/C2 engineering and Tier B B16/D3. Keep A64 and A16 outcomes under v1 embargo until registry order is verified.
