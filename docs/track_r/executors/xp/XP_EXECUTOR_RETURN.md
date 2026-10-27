@@ -1321,3 +1321,20 @@ Timing and the mapping from DDPM-1000 index into each native
 checkpoint's noise schedule remain required before XP-C2 GPU
 launch. The XP-C CLIP/G1/G2 and denoiser/orientation workers
 also remain to implement and replay-test.
+
+## Round-2 planner A6: CPU milestone closed and 4-GPU next queue prepared (2026-10-27)
+
+**Digest (embargo-safe):**
+1. Historical A8b published under `c638b5469000a3923d30309dd886aba327d8fea3`, PASS 760 image rows / 3240 old candidate rhos / 12 frozen source-family thresholds, original A8 projection identical.
+2. FAST ImageNet **D1 phase 1 only** scored under Good20 and frozen tau_IN q0.95 of raw Good20 0..3 runs. 100 cleared A8-style strings published to `docs/track_r/executors/xp/theory_inputs/XP_D1_P1_K4_A8_STYLE_PER_IMAGE.csv` at `41d4121c011d55de7f8c29c2b41151f63315fb90`; SHA256 `c21778803a17821ecf51857af6378273c2b583d4d19938d0c42e401f20178bc1`. G1 CLIP decisions still pending. Independent v2 forecast window now open.
+3. C/C2 GT-clean **input** freeze completed: 280 images, 10080 tuples; CPU `XP_C_C2_PREP_PASS`, root `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_c_c2_20261027T160117Z`. No diagnostic GPU inference authorized by preparation alone.
+4. Planner round 2 at `31bb56cf5b3cda5035670b932c33a16b753d6380`, A6, merged with executor at `27e66045bf3c55fd42b736d60dc95e53b7ccd49b`. Independent v1/v2 freeze and D1 phase2 generation permitted sealed. Four unverified overnight job timings are excluded from paper timing.
+5. New stage CPU preparer `xp_a6_prepare_cpu.py` validates pristine original D1_P2 manifest SHA256 `3107d40c495886c52ea2a407f4d8f74079278fffffaa93f4f55eff1edb5272f7`, freezes 400 SITCOM D3 (native ImageNet-100) and 720 DAPS-4K E′ FFHQ (new dataset `ffhq_daps4k` seed domain), with original 180 FFHQ signed y and all checkpoints SHA-checked.
+6. Original native FAST generator has a **narrow exception** for only the pinned D1_P2 source manifest, with complete 100-image×12-run / seed / measurement verification. The existing A16 historical-source exception is unchanged. No quality evaluation is performed by either worker.
+7. `xp_a6_native_worker.py` delegates GPU sampling to the *unchanged* calibrated SITCOM and pristine DAPS-4K workers after strict source/manifest/y/model checks, writing separate new root receipts and hash-checked reconstruction files.
+8. `xp_a6_supervisor.py` runs 40 initial smoke roots (D1 24; D3 8; E′ 8); automatically starts main only if all complete and median native sampling time is within ±50% of the calibrated reference. Four GPUs max, one worker/GPU, clean admission and 80% VRAM ceiling. Measured VRAM peak×1.5 +2 GiB reservations, NOT the obsolete fixed 32 GiB.
+9. Both a single `STOP_AFTER_ACTIVE` file and an 11-hour wall / 40 aggregate GPU-hour cap stop new admissions and drain ongoing processes. Completed output receipts are reverified on attempted resume; orphan/partial jobs require manual audit (no blind retry, no cleanup, no foreign PID kill).
+10. **TIME_UNAWARE scientific candidate-generation stage** and **TIME_AWARE operational telemetry/timing classification** are explicitly separated. Generation success is not equated to clean timing. XP paper timings continue to use XP-T batch-1 only.
+11. The main queue performs **2,320 GT-free candidates**: D1_P2=1200 (sealed), D3=400 (not scored), E′=720 (sealed). Approx native aggregate 22 GPU-hours, practical 7–10 h four-GPU wall with worker overhead. CPU tests, smoke and actual runs remain to be performed by Cheng on PAC.
+12. **XP-B16 intentionally omitted:** the historical B22 cohort uses a sequential post-model RNG stream, so naive new independent seeds cannot be declared exchangeable. Requires exact B22 continuation/replay. C/C2 workers likewise need checkpoint/time mapping and smoke; F8 requires historical DAPS 400×5 replay. These stages should be integrated in later autopilot after gates clear.
+13. No A16/A64/ D1P2/E′ quality outcomes, GT or protected cohort opened. The historical FFHQ v1 embargo is still active, and the ImageNet v2 runs 4–15 remain sealed.

@@ -130,9 +130,14 @@ def preflight(a):
     producer=a.roots_source_head or a.expected_head
     rows=frozen_roots(manifest,producer)
     if producer!=a.expected_head:
-        from scripts.track_r.xp_a16_contract import validate_a16_source
-        validate_a16_source(roots,a.roots_sha,manifest,rows,
-                            producer,a.start,a.count)
+        if (manifest.get("stage")=="D1_P2" and a.dataset=="imagenet"):
+            from scripts.track_r.xp_a6_d1p2_contract import validate
+            validate(roots,a.roots_sha,manifest,rows,
+                     producer,a.start,a.count)
+        else:
+            from scripts.track_r.xp_a16_contract import validate_a16_source
+            validate_a16_source(roots,a.roots_sha,manifest,rows,
+                                producer,a.start,a.count)
     if a.start<0 or not 1<=a.count<=120 or a.start+a.count>len(rows):
         raise RuntimeError("STOP_XP_FAST_SLICE")
     chosen=rows[a.start:a.start+a.count]
