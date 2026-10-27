@@ -1,0 +1,64 @@
+{
+  "checkout_mode": "local_copy_git_objects_no_hardlinks_sparse_before_checkout",
+  "data_directory_materialized": false,
+  "head": "0a6a1b69dd3eef39ebfe95be4f2ce6b99abdac33",
+  "no_gpu_work": true,
+  "old_checkout_mutated": false,
+  "original_modified_checkout": "/egr/research-pac/huang248/pr_diffusion_b19_solver/external/daps",
+  "original_sampler_blob": "ae1fc6908bb1e7f0c0349d4f82cdf20364389db8",
+  "pinned_upstream_head": "e7a77d094167084faed19b599b96673b7bb11447",
+  "pristine_checkout": "/egr/research-pac/huang248/external/DAPS_XP_NATIVE_4K",
+  "pristine_sampler_blob": "0e0d1bf9d7893278c8d5589583ba1d3f10bcd972",
+  "sparse_patterns": [
+    "/sampler.py",
+    "/cores/**",
+    "/forward_operator/**",
+    "/model/**",
+    "/configs/sampler/**",
+    "/configs/task/**",
+    "/configs/model/**"
+  ],
+  "status": "XP_T_DAPS4K_PRISTINE_NATIVE_PASS",
+  "tracked_files_verified": {
+    "configs/model/ffhq256ddpm.yaml": {
+      "blob_sha": "3e9427c04d664629ffb42ba94598532cdba625b5",
+      "sha256": "2e822d93381009a8e39b7f2b851092af7cd642d14355e1121723678048d8e70c"
+    },
+    "configs/model/imagenet256ddpm.yaml": {
+      "blob_sha": "910e75a427189492e746db4f65bf48dc8393edba",
+      "sha256": "1605b37b735829699f3cf36b92182bbff3cfaf9c2d5609391e0d0697b49f3e7d"
+    },
+    "configs/sampler/edm_daps.yaml": {
+      "blob_sha": "4817a9105374d880888ae0ca762c0187e7ab669c",
+      "sha256": "3c7f5815dedb87f76a8c6d05ad8e846a03ef5a3b4b09db268a011f77e1d5e6d6"
+    },
+    "configs/task/phase_retrieval.yaml": {
+      "blob_sha": "918cf4c386630c34623c1811c727cff3fdfa6c59",
+      "sha256": "9472836109c843a7fc23b09133f02e029de3fd671fcd003b846f78860ac903ea"
+    },
+    "cores/mcmc.py": {
+      "blob_sha": "63acf780e8049dbe3af1b78f8c197404ee85d402",
+      "sha256": "a22532b2373b0ec21f45fb23d52f377202fc21e6f4a71306081d6a64fde4e989"
+    },
+    "cores/scheduler.py": {
+      "blob_sha": "85056e20039042a6818d98a0bc9f7b3ea516db7c",
+      "sha256": "1773e5b132a71bf213dafd9b1373cd7cdfc0bc40b6bab737bda5d50423cbb8ae"
+    },
+    "forward_operator/__init__.py": {
+      "blob_sha": "b52f73993ff0e63ad48605fbfd3b95ab68f82aef",
+      "sha256": "e6e7e888ac2fa35ba01b3c7cbb317bc6d28db89830f98428b28e6de234348bd8"
+    },
+    "model/__init__.py": {
+      "blob_sha": "0575dcd4f31ed377bcc9ed9286dfc0d0debbaf4a",
+      "sha256": "62e488124d5cbcf42c6d04af1e6c15671f2d4f35dce8b953d48f8f81b7b6365c"
+    },
+    "model/ddpm/unet.py": {
+      "blob_sha": "a9b61b142a082f62d139c05328989a1907017ece",
+      "sha256": "a4b46b31e08093cb0b16adb82686ea6989e72a9c4ff178b5f5342f7cb0266b45"
+    },
+    "sampler.py": {
+      "blob_sha": "0e0d1bf9d7893278c8d5589583ba1d3f10bcd972",
+      "sha256": "da2d516c82f7be61916c12aee42c85d91c374f90a9b87632ac1cb56e1a66a165"
+    }
+  }
+}

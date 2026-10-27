@@ -1,0 +1,13 @@
+{
+  "conservative_total_projected_gpu_hours": 1.0127296631314675,
+  "gpu_hour_cap": 6.0,
+  "gt_free": true,
+  "indices": [
+    0,
+    9
+  ],
+  "model_loads_strictly_verified": true,
+  "native_wall_s_ffhq": 64.85709743620828,
+  "native_wall_s_imagenet": 166.62396842241287,
+  "status": "XP_T_DAPS4K_SMOKE_PASS"
+}

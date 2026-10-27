@@ -1,0 +1,14 @@
+{
+  "canonical_4k_configuration": true,
+  "ffhq_roots": 9,
+  "gpu_work_performed": false,
+  "gt_free": true,
+  "head": "0a6a1b69dd3eef39ebfe95be4f2ce6b99abdac33",
+  "imagenet_roots": 9,
+  "manifest_sha256": "1f71f0bff208e1823ceb68fbe58a805c6b28241fe04da577efb35bdf65ed30c0",
+  "model_weights_not_loaded": true,
+  "n_images": 6,
+  "n_roots": 18,
+  "source_head": "e7a77d094167084faed19b599b96673b7bb11447",
+  "status": "XP_T_DAPS4K_PREP_PASS"
+}
