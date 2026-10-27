@@ -1102,3 +1102,62 @@ generation completion SHA and counts to the planner promptly,
 keeping all outcome labels under embargo. Continue to XP-C,
 XP-C2 and ImageNet XP-D1 for the Nov 2 scientific cutoff rather
 than shifting effort into optional XP-T throughput arms.
+
+## XP-A16 FFHQ native FAST generation: full 2160/2160 PASS (PAC)
+
+Under native generator HEAD
+`56c84c457d21b04fdb26e6b866a4071c09c655b7`, PAC ran
+the guarded XP-A16 four-GPU generation successfully:
+
+- 10/10 focused CPU tests PASS, 12-root native FAST preflight PASS;
+  the exact immutable manifest SHA was
+  `796429527d01963668a67c5e39949803cb8cc5ecfc35d01dcb20c5ca1e978432`.
+- Frozen run root:
+  `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a16_20261027T022827Z`.
+  The two separate first-image smoke chunks passed (one B22, one DEV80).
+  All **38 of 38** image-aligned native chunks completed, corresponding
+  to **2160 of 2160** new FAST roots, run indices 4..15 over all
+  180 FFHQ image IDs. The historical 720 roots, indices 0..3,
+  were not regenerated.
+- Final status `PASS`, phase `COMPLETE`, reason null,
+  zero active processes and zero running chunks; **2.5861581238130262
+  aggregate GPU-hours**, under the 12 GPU-h stage ceiling.
+  `clean_timing_eligible=true`.
+- Generation completion receipt:
+  `XP_A16_GENERATION_COMPLETE.json`, **SHA256
+  `68cdb23bb6c8092a82464e032f3c7e448d9c2be579a4357ba4597ec6efd8e544`**.
+  Both status and completion explicitly
+  `outcomes_embargoed=true`.
+
+This is a **successful native generation**, NOT an XP-A16
+reconstruction-quality result. The GPU process loaded no GT,
+did not run reconstruction scoring, and did not expose per-image
+or per-run PSNR or K-scaling curves. New reconstructions remain
+stored immutably on PAC; the prediction/quality embargo for
+K>4 results is in force until
+`docs/track_r/theory/TH1_PREDICTIONS_v1.json` is frozen.
+The theory executor may see only this operational completion
+report, not the candidate images or outcomes.
+
+The CPU publication tool
+`xp_a16_publish_cpu.py` is now available to independently verify
+the exact frozen manifest and completion SHA, native metadata
+for all 38 disjoint chunks, 2160 individual root receipts,
+all 4-GPU CLEAN timing classifications, and all 4320
+reconstruction tensor/PNG file hashes.
+It copies only operational JSON receipts and an audit summary
+to `docs/track_r/executors/xp/returns/XP_A16_GENERATION_20261027T022827Z/`,
+**never candidate images, outcome metrics, or GT**.
+The publication must be run on PAC and pushed as a separate
+commit. This historical execution result is verified from PAC's
+user-shared complete status/log; independent publication pending.
+
+**Critical next dependencies:** Tier-A Nov 2 includes XP-C,
+XP-C2 and FAST-ImageNet XP-D1.
+The D1 ImageNet first K4 images may be generated and scored
+to establish the second v2 predictions freeze; no K>=4 D1
+outcomes may be shown to theory until v2 registration.
+XP-C/C2 GT-clean checkpoint diagnostics do not require K16
+quality embargo release. Stick to the A4 critical-first
+queue, and report to the planner that A16 native generations
+are now complete.
