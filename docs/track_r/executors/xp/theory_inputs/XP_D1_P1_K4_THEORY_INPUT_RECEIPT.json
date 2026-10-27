@@ -1,0 +1,26 @@
+{
+  "CLIP_G1_decisions": "PENDING_XP_C_CLIP_WORKER",
+  "D1_phase2_evaluated": false,
+  "FFHQ_K_gt4_evaluated": false,
+  "contains_per_run_quality_values": false,
+  "dataset": "imagenet",
+  "evaluation_head": "c638b5469000a3923d30309dd886aba327d8fea3",
+  "family": "FAST",
+  "n_images": 100,
+  "n_runs": 400,
+  "native_generation_head": "8d9bfed0fa62735791987a24791cfb97123540d8",
+  "per_image_csv_sha256": "c21778803a17821ecf51857af6378273c2b583d4d19938d0c42e401f20178bc1",
+  "primary_good_psnr_db": 20.0,
+  "publication_head": "c638b5469000a3923d30309dd886aba327d8fea3",
+  "run_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "source_evaluation_receipt_sha256": "0d02a9336b109bc91f35aa505279f59117b4cb8a2a9975192bbce941ad375ab8",
+  "status": "XP_D1_P1_K4_THEORY_INPUT_PASS",
+  "tau_estimation": "numpy quantile linear, raw Good20 only, original indices 0-3",
+  "tau_in_signed_good_q95": 0.050182999856770036,
+  "theory_v2_clock_starts_at_commit": true
+}
