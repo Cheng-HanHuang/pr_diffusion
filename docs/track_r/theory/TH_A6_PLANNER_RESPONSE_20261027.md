@@ -42,3 +42,16 @@ TH1 v1 is NOT frozen. The A8b gate (Oct 28 noon ET), A6 end-to-end run, final co
 ## Paper positioning
 
 The differentiated contribution remains an experimentally tested, cross-native-solver, physics-specific decomposition and prospective held-out K predictions. Classical weighted-score racing, Stein identities and Gaussian/Fourier symmetry are credited. No further generic toy proofs proposed.
+
+
+## Update after Cheng uploaded original A8 (2026-10-27)
+
+**The original-A8 access blocker is RESOLVED.** The file /mnt/data/R0N2_PER_IMAGE_COUNTS.csv was mounted and the byte-level SHA-256 independently recomputed: 197d0c8ea2aa47fa17dd379d518f647d7a47d89b3c614449fb106959b7bb45a6, exactly the prereg source checksum. It has 79,404 bytes and 760 data rows. Retaining the 540 allowed rows reproduces 1,960 run counts and family/cohort sizes. The text above about the minimal anonymous fixture as the only local file was accurate at initial A6 handoff but has now been **superseded**.
+
+A separate independent local Python/NumPy/SciPy reconstruction of the fitted alpha, regularized Bradley--Terry rank weights, observed-rank-conditional exponential scoring, completed-panel simulation, and exact K-subset selection estimators **passed a raw-A8 primary-panel smoke test for all four variants**. No real future-run results or XP returns were read. The current upstream GitHub forecaster file itself has not been executed locally; the planner's production A6 run and check_a6_panel_contract.py must still be completed.
+
+The A6 theory has also improved: the posterior conditional mean of every K-subset oracle on the completed panel is an **exact beta-hypergeometric finite sum**, independent of the rank-selection model. See TH1_A6_EXACT_PREFIX_ORACLE_20261027.md and newly committed tests. The GitHub fitter now inserts these exact O_raw and O_orbit point forecasts and recenters each model-conditional *realized-panel predictive interval* around them, keeping actual future-panel sampling uncertainty intact. The A6 validator now requires oracle point-forecast equality across variants.
+
+The original per-run CLIP calibration has additionally been inspected: all **58/58 allowed global ORBIT runs** have clip_fix_ok=1. The primary E1_CLIP idealized global-orientation repair is therefore consistent with observed A8 for this family set (there is one partial-ORBIT, not globally correctable). This does NOT establish future perfect repair from the small calibration sample.
+
+**Do not freeze v1 before the A8b timing gate:** its authorized GitHub publication directory remained absent at last check, and it may be used only if it arrives before Oct 28 noon ET. This appendix does not change the separate TH2 mech v1.1 freeze SHA or access rules.
