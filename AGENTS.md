@@ -54,6 +54,13 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
     - XP-D1 phase 2 generated now.
   - The theory executor may also read `docs/track_r/executors/xp/theory_inputs/` on the XP branch. Only files cleared for it are placed there.
   - TH2 mechanism forecasts v1 are registered.
+- **Update 2026-10-27, 17:15 (planner):**
+  - Prereg **A7**:
+    - generation-only stages may share GPUs with other users' jobs: VRAM headroom required, at most 2 Track R GPUs while foreign jobs run, foreign processes never touched; Cheng may revoke this;
+    - the B16 lineage gate regenerates B22 SITCOM runs 0–3 for every image;
+    - v2 is due Oct 29, 12:01 ET.
+  - TH2 mech v1.1 is registered.
+  - Round-3 notes are in `executors/{theory,xp}/03_*`.
 
 ## B26 branch override
 

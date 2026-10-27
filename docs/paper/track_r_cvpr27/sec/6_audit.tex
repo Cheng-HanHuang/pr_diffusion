@@ -64,8 +64,9 @@ FAST-DIPS returns a denoised estimate.
 In a linear model whose data term is weighted $\kappa$ times the likelihood, a posterior sample that is determined by the data in $r$ directions has $\E\rho^2/\sigma^2=1-(r/m)(1-1/\kappa)$ (supplement; for $\kappa\to\infty$ this is the classical $\sigma^2(m-r)$ of a fitted solution~\cite{stein1981sure})\claim{C-T9}.
 The medians correspond to $r/m\approx0.11$ for DAPS ($\kappa=50$) and $0.23$ for SITCOM ($\kappa=25$); these are illustrations, not measured ranks \pending{A5.5: exact $\rho(\xs)$ per image and the decomposition into fit error and absorbed noise}.
 Two consequences follow.
-A residual threshold is a property of the solver: for DAPS and SITCOM the $\tau$ of \cref{sec:setup} lies below $\sigma$ and would reject the ground truth.
+A residual threshold is a property of the solver: the $\tau$ of \cref{sec:setup} is $0.0475$--$0.0476$ for DAPS and $0.0449$--$0.0450$ for SITCOM, below $\sigma=0.05$, so it would reject the ground truth; for FAST-DIPS it is $0.0501$\claim{C-A6}.
 And measurement consistency cannot certify a reconstruction in absolute terms; it is informative as a paired comparison between runs scored against the same noise, which is how selection uses it.
+Within an image, a \cons run of SITCOM has a larger residual than a \good run by a median of only $0.7\%$ of $\sigma$, yet the order is systematic, because the noise shared by the two runs cancels in the comparison\claim{C-A8}.
 \pending{XP-K: the same images with each solver's data term calibrated to $\sigma$.}
 
 \paragraph{ImageNet.}

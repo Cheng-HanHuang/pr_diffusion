@@ -1,6 +1,24 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-27)
 
-> **Fourth update, 2026-10-27, 12:30 ET** (the newest; read it first).
+> **Fifth update, 2026-10-27, 17:15 ET** (the newest; read it first).
+> - **Executor:**
+>   - A8b and the ImageNet D1-P1 theory strings are published; the v2 clock runs to Oct 29, 12:01 ET.
+>   - D1 phase 2 (1,200 runs) and XP-D3 (400) are generated.
+>   - XP-E′ stopped at 45 of 720 runs because other users' jobs took the GPUs; resume as audited.
+>   - About 52 GPU-h used in total.
+>   - B22 DAPS lineage is confirmed: all 200 candidates come from B21.11 Fresh2. The 400 × 5 replay is pending.
+> - **Theory:**
+>   - mech v1.1 registered.
+>   - The A6 forecaster ran on the raw A8 in the planner's environment. Its contract validator failed on 5 DAPS cohort-A rows: Monte Carlo selector estimates exceeded the exact oracle by at most 4.4e-4. A control-variate fix makes it pass (976/252/60 rows).
+>   - v1 target remains Oct 28, 18:00 ET.
+> - **Prereg A7:**
+>   - co-tenant GPU admission for generation stages (default; Cheng may revoke);
+>   - the B16 lineage gate by full regeneration of B22 runs 0–3;
+>   - F8 seeds;
+>   - the v2 deadline.
+> - **Verified for the paper:** exact τ (DAPS 0.0475–0.0476; SITCOM 0.0449–0.0450; FAST 0.0501). Within-image C − G residual gaps are a median of 0.7% of σ for SITCOM, yet ordered.
+>
+> **Fourth update, 2026-10-27, 12:30 ET.**
 > - **Overnight GPU (executor, issue #42):**
 >   - generated and certified: XP-A16 (2,160 runs), XP-A64 (8,640), XP-D1 phase 1 (400) and XP-D2 (400);
 >   - about 39 GPU-h used of 400;
