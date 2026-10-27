@@ -1,0 +1,28 @@
+{
+  "dataset_count": 2,
+  "external_source_head": "275ab67efbd8146bffca20155171ba6be1169c09",
+  "ffhq_images": [
+    "60044",
+    "60140",
+    "60814"
+  ],
+  "ffhq_roots": 9,
+  "gt_access": false,
+  "head": "87fe898e0c876a5a153f91d8acca9c40e00a8120",
+  "imagenet_images": [
+    "ILSVRC2012_val_00049000.JPEG",
+    "ILSVRC2012_val_00049001.JPEG",
+    "ILSVRC2012_val_00049002.JPEG"
+  ],
+  "imagenet_roots": 9,
+  "manifest_sha256": "995915c3b7b7a00b1d4d678a4a013c8cc9c2445a513704a92e513d93d6d97131",
+  "model_sha256s": {
+    "ffhq": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+    "imagenet": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1"
+  },
+  "n_images": 6,
+  "n_roots": 18,
+  "no_existing_candidate_rewritten": true,
+  "no_gpu_work": true,
+  "status": "XP_T_SITCOM_PREP_PASS"
+}

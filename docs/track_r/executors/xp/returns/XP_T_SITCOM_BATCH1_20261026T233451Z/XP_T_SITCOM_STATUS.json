@@ -1,0 +1,40 @@
+{
+  "active_pids": [],
+  "clean_timing_eligible": true,
+  "completed_roots": 18,
+  "gpu_hours": 0.36916114673742817,
+  "head": "dacd57d0739ee218490befde50b2bed5991bb80b",
+  "manifest_sha256": "995915c3b7b7a00b1d4d678a4a013c8cc9c2445a513704a92e513d93d6d97131",
+  "per_dataset": {
+    "ffhq": {
+      "gt_access": false,
+      "model_loading_wall_s_median": 0.4823186700232327,
+      "n_images": 3,
+      "n_roots": 9,
+      "runs_per_image": 3,
+      "sampling_cuda_event_s_median": 32.104341796875,
+      "sampling_wall_s_mean": 33.16156414197758,
+      "sampling_wall_s_median": 32.104482267051935
+    },
+    "imagenet": {
+      "gt_access": false,
+      "model_loading_wall_s_median": 2.179649708326906,
+      "n_images": 3,
+      "n_roots": 9,
+      "runs_per_image": 3,
+      "sampling_cuda_event_s_median": 58.34248046875,
+      "sampling_wall_s_mean": 58.526482558240076,
+      "sampling_wall_s_median": 58.342772816773504
+    }
+  },
+  "physical_gpus_used": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "reason": null,
+  "running_roots": 0,
+  "state": "PASS",
+  "total_roots": 18
+}
