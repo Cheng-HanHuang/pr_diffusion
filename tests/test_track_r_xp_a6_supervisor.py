@@ -42,10 +42,14 @@ class A6Tests(unittest.TestCase):
         def fake_sha(path):
             text=str(path)
             return "a"*64 if "/im_" in text else "b"*64
-        with patch.object(prep,"frozen_roots",return_value=a16), \
+        # Production frozen_roots() returns manifest["rows"], not
+        # the manifest dict.  Assert this call shape explicitly; otherwise
+        # iterating a dict silently supplies strings ("rows", "head", ...).
+        with patch.object(prep,"frozen_roots",return_value=a16["rows"]) as frozen, \
              patch.object(prep,"check_file",side_effect=Path), \
              patch.object(prep,"sha",side_effect=fake_sha):
             d3,e=prep.build(common,a16)
+        frozen.assert_called_once_with(a16,prep.A16_HEAD)
         self.assertEqual(len(d3),400)
         self.assertEqual(len(e),720)
         self.assertEqual({x["rep"] for x in d3},set(range(4)))
