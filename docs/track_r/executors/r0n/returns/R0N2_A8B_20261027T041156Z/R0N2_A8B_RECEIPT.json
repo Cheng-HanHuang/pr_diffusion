@@ -1,0 +1,17 @@
+{
+  "A8B_csv_sha256": "e099138f6abaf46b0826377be04be2b0a47de0e5c20fa0847bc62dfd074cd901",
+  "A8_original_sha256": "197d0c8ea2aa47fa17dd379d518f647d7a47d89b3c614449fb106959b7bb45a6",
+  "R07_original_sha256": "0c01c80acf54c48771904725bdcf0a7c5f0b966ac168b074c5cb8a5690c6ad59",
+  "gpu_used": false,
+  "gt_images_read": false,
+  "head": "369a44e2158991e04c68bfeae1f2a945a4958c43",
+  "historical_only": true,
+  "n_candidates": 3240,
+  "n_rows": 760,
+  "new_candidate_outcomes_inspected": false,
+  "rho_encoding": "six significant digits, semicolon separated, frozen run-index order",
+  "status": "R0N2_A8B_PASS",
+  "tau_csv_sha256": "a86d625ec574614ad42131ae648b84beefe7ce8cb340516ce6a2ae65f20db9f5",
+  "tau_encoding": "frozen float64 plus six-significant-digit display; source+family",
+  "tau_groups": 12
+}
