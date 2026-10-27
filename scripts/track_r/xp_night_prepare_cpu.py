@@ -72,12 +72,16 @@ def construct(imagenet,old,a16):
         or any(len(historical_seeds[k])!=16 for k in aliases)):
         raise RuntimeError("STOP_NIGHT_A64_HISTORICAL_LINEAGE")
     all_rows={}
+    imagenet_fast_seeds=defaultdict(set)
     for stage, reps in (("D1_P1",range(0,4)),("D1_P2",range(4,16))):
         rows=[]
         for r in imagenet:
             iid=r["basename"]
             for rep in reps:
                 seed=imagenet_seed("XP|FAST|imagenet",iid,rep,2**31)
+                if seed in imagenet_fast_seeds[iid]:
+                    raise RuntimeError("STOP_NIGHT_D1_FAST_SEED_COLLISION")
+                imagenet_fast_seeds[iid].add(seed)
                 rows.append(dict(
                     uid=f"XP|FAST|imagenet|{iid}|rep{rep}",
                     source="XP_D1",measurement_source="XP_IMAGENET100",
@@ -93,10 +97,12 @@ def construct(imagenet,old,a16):
         path,digest=next(iter(aliases[key]))
         if file_sha(safely(path))!=digest:
             raise RuntimeError("STOP_NIGHT_A64_Y_SHA")
+        new_seeds=set()
         for rep in range(16,64):
             seed=native_seed(cohort,iid,rep)
-            if seed in historical_seeds[key]:
+            if seed in historical_seeds[key] or seed in new_seeds:
                 raise RuntimeError("STOP_NIGHT_A64_SEED_COLLISION")
+            new_seeds.add(seed)
             rows.append(dict(
                 uid=f"S5_r0_fast|FAST|{cohort}_{iid}|rep{rep}",
                 source="S5_r0_fast",measurement_source=cohort,
@@ -108,10 +114,14 @@ def construct(imagenet,old,a16):
     rows=[]
     for r in imagenet:
         iid=r["basename"]
+        unique_seeds=set()
         for rep in range(4):
             # Frozen generic new-family ImageNet seed rule:
             # SHA256('XP|DAPS|imagenet|<basename>|<rep>') first8 BE % 2**31.
             seed=imagenet_seed("XP|DAPS|imagenet",iid,rep,2**31)
+            if seed in unique_seeds:
+                raise RuntimeError("STOP_NIGHT_D2_SEED_COLLISION")
+            unique_seeds.add(seed)
             rows.append(dict(
                 uid=f"XP|DAPS|imagenet|{iid}|rep{rep}",
                 family="DAPS",dataset="imagenet",image_id=iid,
