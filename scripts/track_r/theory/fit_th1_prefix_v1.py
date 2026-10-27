@@ -277,12 +277,22 @@ def run(rows,rng,point_reps=250,bootstrap=60,boot_reps=3):
                     else:
                         oracle=exact_oracles[cohort]
                     point[:,2:]=oracle
+                    # A6 planner control variate: shift selected-class predictions
+                    # by their own panel's exact-vs-MC oracle discrepancy.
+                    # This preserves 0 <= E0 <= O_raw and E1 <= O_orbit
+                    # without mixing Monte Carlo selector with analytic oracle.
+                    delta_raw=oracle[:,0]-simulation_mean[:,2]
+                    delta_orb=oracle[:,1]-simulation_mean[:,3]
+                    point[:,0]=simulation_mean[:,0]+delta_raw
+                    point[:,1]=simulation_mean[:,1]+delta_orb
                     # Center the bootstrap to isolate its parameter
                     # fluctuations; panel draws already reflect the future
                     # finite-n U-statistic noise conditional on observed A8.
                     sel=rng.integers(0,len(bb),len(a))
                     draws=a+(bb[sel]-bb.mean(axis=0)[None,:,:])
                     draws[:,:,2:]+=(oracle-simulation_mean[:,2:])[None,:,:]
+                    draws[:,:,0]+=delta_raw[None,:]
+                    draws[:,:,1]+=delta_orb[None,:]
                     lo,hi=np.quantile(draws,(.025,.975),axis=0)
                     failure_draws=1-draws[:,:,3]
                     selection_draws=draws[:,:,3]-draws[:,:,1]
