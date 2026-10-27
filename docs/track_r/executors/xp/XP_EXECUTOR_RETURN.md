@@ -980,3 +980,54 @@ Tier B, Nov 6, includes SITCOM FFHQ XP-B16, SITCOM ImageNet XP-D2,
 DAPS-4K ImageNet XP-D3 and FFHQ XP-E′ among other preregistered arms.
 The exact planner's locked `XP_PREREG_v1_1.md` remains authoritative
 for population IDs, run index semantics, seeds, and scoring rules.
+
+## XP-T DAPS-4K evidence published; start Tier A XP-A16 (CPU-only prep)
+
+PAC executed the CPU DAPS-4K evidence publisher, passing five focused
+regression tests and all 18 source/reconstruction/timing gates.
+`XP_T_DAPS4K_TIMING_EVIDENCE_STAGE_PASS` was pushed to
+`codex/prdiff-track-r-xp-20261026` at verified PAC commit
+`622dd3ef78096b2162dbb182571852eb366a6e21`.
+Source final receipt SHA256 is
+`6f07bc2672c3d643996c3f5653b1e7eea63a676b3050a10766ae883e06fc2c41`.
+All three methods' native W=1 timing pilots have evidence published.
+
+Next critical action is **XP-A16** (Nov 2 data cut):
+FAST-DIPS on the exact 180 FFHQ S5 images, new native run
+indices 4–15 (12/image, 2,160 new candidates), extending each
+image's frozen S5 run indices 0–3 to n=16.
+Prior 8-root native FAST replay has
+`XP_FAST_REPLAY_RECOVERY_PASS`, 8/8 exact historical PNGs,
+8/8 matching frozen R0 labels, max PSNR discrepancy
+1.9032504212646018e-6 dB. The committed replay receipt is at
+`docs/track_r/executors/xp/returns/XP_FAST_REPLAY_RECOVER_20261026T204735Z/XP_FAST_REPLAY_RECOVERY_STATUS.json`.
+
+The new CPU-only `xp_a16_prepare_cpu.py` freezes 2,160 input
+rows after verifying the original 720 native R0.5 historical
+tasks, 100 B22 and 80 DEV80 FFHQ images, the unique canonical
+signed y and SHA per image, matching S5 catalog provenance,
+and the native historical seed rule:
+`int.from_bytes(SHA256("R0FAST|<cohort>|<image_id>|<rep>")[:8],
+"little") & ((1 << 63)-1)`.
+New seeds for rep=4..15 must not duplicate existing 0..3 seeds
+on the same image, or one another. The new FAST row UIDs extend
+the same `S5_r0_fast|FAST|<cohort>_<id>|rep<n>` family as S5.
+The manuscript preregistration `XP_PREREG_v1_1.md` remains the
+authoritative specification, including the smoke gate and
+freeze order.
+
+This implementation **only freezes GT-free input rows**; no new
+sampling, scoring, figures or labels are authorized here.
+For all FFHQ XP-A outcomes with run index >=4, preserve the
+**TH1 v1 freeze and registry embargo**: before the theory prediction
+registry is frozen, no labels, counts, metrics, K-curves, or
+image-level reconstruction outcomes may be inspected, committed,
+or shared with the theory executor. GPU generation and completion
+counts alone are permissible before the freeze. XP-C/XP-C2
+clean-GT diagnostic outputs are independently permissible.
+W=1 independent roots on four GPUs may be used for the initial
+XP-A16 smoke and main execution; this should not be mislabeled
+as the still-outstanding same-device W={1,2,4} XP-T
+throughput comparison. Project the full stage from the
+3.321 s per-candidate FAST FFHQ pilot, approximately 1.99
+GPU-hours of sampling plus launch/validation overhead.
