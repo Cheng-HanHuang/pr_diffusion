@@ -219,21 +219,108 @@ def predict_frozen(rows,rng,posterior_mc,bootstrap,nquad,panels):
                                     "policy":policy,"metric":"good25",
                                     "K":K,"n_images":n,
                                     "point":float(point[ki,j])})
-        # Later bootstrap and predictive panel simulation below attach
-        # interval fields consistently to all variant/policy records.
         for v in VARIANTS:
             shapes.append({"family":family,"model_variant":v,
-               "statement":("monotone O_orbit-E1 gap"
-                 if v=="S2" else "NO monotone-gap constraint")})
-        # For audit generation definition: no correct-orbit candidate.
-        # Selection loss is O_orbit-E1, and their sum is 1-E1.
-    # Conservative model-conditional intervals: resample fixed image
-    # class posterior and future panels in bootstrap work. We prefer
-    # generating them reproducibly rather than inventing Gaussian CIs.
-    #
-    # Pooling/fixed-cohort bootstrap and joint fitted race uncertainty
-    # will be added BEFORE --freeze; do not mark any draft as frozen
-    # while 'lo95'/'hi95' are absent.
+                "statement":("O_orbit-E1 and O_raw-E0 nondecreasing"
+                    if v=="S2" else
+                    "No universal monotone-gap constraint under class score racing")})
+        # First compute the *audit-defined* decomposition and strict
+        # crossover K, with generation meaning NO correct-orbit candidate,
+        # not the S1/S2 'no passing candidate' event.
+        allK=tuple(range(1,65))
+        across={}
+        for cohort in ("B22","DEV80"):
+            C=strata[cohort]["C"];a=strata[cohort]["alpha"]
+            theta=posterior_samples(C,a,rng,max(64,posterior_mc))
+            ref=posterior_quantities(C,a,allK)
+            gen=1-ref[:,3]
+            across[cohort]={}
+            for v in VARIANTS:
+                curve=(ref if v=="S2" else
+                       evaluate(theta,fitparams,v,allK,quad))
+                if v!="S2":curve[:,2:]=ref[:,2:]
+                loss=curve[:,3]-curve[:,1]
+                if np.min(loss)<-0.007:
+                    raise ValueError("selector beats its own GT orbit oracle")
+                across[cohort][v]={"gen":gen,"loss":loss}
+        for cohort in COHORTS:
+            for v in VARIANTS:
+                if cohort=="POOLED":
+                    gen=(100/180*across["B22"][v]["gen"]+
+                         80/180*across["DEV80"][v]["gen"])
+                    sel=(100/180*across["B22"][v]["loss"]+
+                         80/180*across["DEV80"][v]["loss"])
+                else:
+                    gen=across[cohort][v]["gen"]
+                    sel=across[cohort][v]["loss"]
+                star=next((k for k in allK if
+                           sel[k-1]>gen[k-1]+1e-12),None)
+                crossover.append({"family":family,"cohort":cohort,
+                    "model_variant":v,"K_star":star,
+                    "lo95":None,"hi95":None,
+                    "generation_definition":"no GOOD or ORBIT in K runs",
+                    "selection_definition":"O_orbit(K)-E1(K)"})
+        # Parameter/cluster bootstrap, evaluated on the ORIGINAL fixed
+        # images after refitting to resampled rows. Panel noise separately
+        # simulates the exact K-subset U-statistics of nmax future runs.
+        boot={}
+        for cohort in ("B22","DEV80"):
+            for v in VARIANTS:
+                boot[cohort,v]=np.empty((bootstrap,len(KGRID[family]),4))
+        for b in range(bootstrap):
+            bootrows=[]
+            ab={}
+            for cohort in ("B22","DEV80"):
+                sampled=image_bootstrap(data[family,cohort],rng)
+                bootrows.extend(sampled)
+                ab[cohort]=fit_alpha(counts_matrix(sampled))
+            wb=fit_weights(bootrows)
+            for cohort in ("B22","DEV80"):
+                C=strata[cohort]["C"]
+                theta=posterior_samples(C,ab[cohort],rng,48)
+                ref=posterior_quantities(C,ab[cohort],KGRID[family])
+                for v in VARIANTS:
+                    zz=(ref if v=="S2" else
+                        evaluate(theta,wb,v,KGRID[family],quad))
+                    if v!="S2":zz[:,2:]=ref[:,2:]
+                    boot[cohort,v][b]=zz
+        panelsim={}
+        for cohort in ("B22","DEV80"):
+            C=strata[cohort]["C"];a=strata[cohort]["alpha"]
+            for v in VARIANTS:
+                panelsim[cohort,v]=n_panel_noise(
+                    C,a,fitparams,v,KGRID[family],rng,nrep=panels)
+        for v in VARIANTS:
+            for cohort in COHORTS:
+                if cohort=="POOLED":
+                    bootcurve=(100/180*boot["B22",v]+
+                               80/180*boot["DEV80",v])
+                    pc=(100/180*panelsim["B22",v]+
+                        80/180*panelsim["DEV80",v])
+                    main=(100/180*strata["B22"]["points"][v]+
+                          80/180*strata["DEV80"]["points"][v])
+                else:
+                    bootcurve=boot[cohort,v]
+                    pc=panelsim[cohort,v]
+                    main=strata[cohort]["points"][v]
+                # Model-conditional parameter bootstrap and finite-panel
+                # U-statistic realization noise; centered to preserve point.
+                bidx=rng.integers(0,len(bootcurve),max(bootstrap,panels))
+                pidx=rng.integers(0,len(pc),max(bootstrap,panels))
+                draws=(main[None,:,:]+
+                      bootcurve[bidx]-bootcurve.mean(axis=0)[None,:,:]+
+                      pc[pidx]-pc.mean(axis=0)[None,:,:])
+                lo,hi=np.quantile(draws,(.025,.975),axis=0)
+                for record in out:
+                    if (record["family"]!=family or
+                        record["cohort"]!=cohort or
+                        record["model_variant"]!=v):continue
+                    ki=KGRID[family].index(record["K"])
+                    policy_i=POLICIES.index(record["policy"])
+                    record["lo95"]=float(min(lo[ki,policy_i],
+                                          record["point"]))
+                    record["hi95"]=float(max(hi[ki,policy_i],
+                                          record["point"]))
     return out,fits,shapes,crossover
 
 def main():
@@ -248,10 +335,11 @@ def main():
     ap.add_argument("--code-commit")
     ap.add_argument("--freeze",action="store_true")
     args=ap.parse_args()
+    if args.freeze and (not args.data_commit or not args.code_commit):
+        raise ValueError("--freeze requires exact data and code commit hashes")
     if args.freeze:
-        raise RuntimeError("v1 freeze blocked until parameter/bootstrap"
-                           " uncertainty, panel U-stat intervals, and A8b"
-                           " conditional gate are implemented and validated")
+        raise RuntimeError("freeze is blocked until A8b deadline (Oct 28 18:00 ET)"
+            " is checked and end-to-end source-data tests are recorded")
     rows,sha=read_a8(args.a8)
     crosscheck(rows)
     rng=np.random.default_rng(SEED)
@@ -264,7 +352,7 @@ def main():
          "fit_data":["authorized A8 K<=4 ranks and class counts"],
          "predictions":vals,"fit_diagnostics":fits,
          "shape_predictions":shapes,"crossover_K":crossover,
-         "uncertainty":"PENDING: no bands in unregistered draft"}
+         "uncertainty":"Seeded resampling of calibration images within fixed strata to refit Dirichlet hyperparameters and class-race weights, evaluated on the original images; simulated finite nmax panels assessed by exact all-K-subset U-statistics. Model-conditional only; no high-K partial identification guarantee."}
     out=Path(args.output);out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps(obj,indent=2,sort_keys=True)+"\n")
     print("TH1_RANK_RACE_DRAFT_ONLY",out,len(vals))
