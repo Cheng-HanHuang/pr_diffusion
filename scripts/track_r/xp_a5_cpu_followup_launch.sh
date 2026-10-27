@@ -23,6 +23,8 @@ fi
 echo "=== CPU-ONLY FOLLOW-UP TESTS ==="
 "$PY" -m unittest discover -s "$WT/tests" \
   -p 'test_track_r_xp_cpu_followup.py' -q
+"$PY" -m unittest discover -s "$WT/tests" \
+  -p 'test_track_r_xp_d1p1_theory_publish.py' -q
 
 echo "=== PUBLISH HISTORICAL A8b NEXT TO A8 ==="
 "$PY" "$WT/scripts/track_r/xp_r0n2_a8b_publish_cpu.py" \
@@ -42,6 +44,17 @@ STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
   --expected-head "$HEAD" \
   --out "$BASE/xp_d1p1_eval_$STAMP"
 echo "XP_D1P1_CPU_RESULT_DIR=$BASE/xp_d1p1_eval_$STAMP"
+
+echo "=== CLEAR AND PUBLISH ONLY D1-P1 K4 THEORY STRINGS ==="
+"$PY" "$WT/scripts/track_r/xp_d1p1_theory_publish_cpu.py" \
+  --expected-head "$HEAD" --eval-dir "$BASE/xp_d1p1_eval_$STAMP"
+git -C "$WT" add docs/track_r/executors/xp/theory_inputs
+git -C "$WT" commit -m \
+  "data(track-r): publish cleared ImageNet D1 phase-1 K4 theory-input strings"
+git -C "$WT" push origin "$BRANCH"
+HEAD="$(git -C "$WT" rev-parse HEAD)"
+test -z "$(git -C "$WT" status --porcelain)"
+echo "XP_D1P1_THEORY_INPUT_PUBLISHED_COMMIT=$HEAD"
 
 echo "=== XP-C/C2 CLEAN-GT DIAGNOSTIC INPUT PREPARATION ONLY ==="
 "$PY" "$WT/scripts/track_r/xp_c_c2_prepare_cpu.py" \
