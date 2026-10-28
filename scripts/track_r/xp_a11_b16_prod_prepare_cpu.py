@@ -101,6 +101,54 @@ def build(b22,cat):
     check(len(set(pairs))==len(pairs),"LAST_UID_COLLISION")
     return b22_groups,b24_groups
 
+def build_b32(b22_groups,b24_groups):
+    """Authorized BACKGROUND after B16, same lineage, new indices 16..31.
+
+    Requires no new outcome / GT reads, only the frozen source-domain seeds.
+    """
+    b32_b22=[];b32_b24=[]
+    for index,g in enumerate(b22_groups):
+        prefix=[dict(r) for r in g["rows"]]
+        check(len(prefix)==16 and
+              [r["rep"] for r in prefix]==list(range(16)),
+              "B32_B22_PREFIX")
+        iid=g["image_id"]
+        rows=prefix
+        for rep in range(16,32):
+            rows.append(dict(prefix[0],
+                uid=f"S1_b22|SITCOM|{iid}|run{rep}",rep=rep))
+        b32_b22.append(dict(
+            task_id=f"b32_b22_{index:03d}_{iid}",source="S1_b22",
+            image_id=iid,rows=rows,new_roots=16,
+            historical_prefix_computations=16,
+            runtime_mode="sequential_post_model"))
+    byimage=defaultdict(list)
+    for g in b24_groups:
+        byimage[g["image_id"]].append(g["rows"][0])
+    check(len(byimage)==80,"B32_B24_IMAGE_COUNT")
+    for iid in sorted(byimage):
+        old=sorted(byimage[iid],key=lambda r:r["rep"])
+        check([r["rep"] for r in old]==list(range(4,16)),
+              "B32_B24_PREFIX")
+        labels=[c for c in "ABCD" if all(
+            seed63(c,iid,r["rep"])%(2**32)==r["seed"] for r in old)]
+        check(len(labels)==1,"B32_B24_SEED_LINEAGE")
+        label=labels[0]
+        full=[seed63(label,iid,rep)%(2**32) for rep in range(32)]
+        check(len(set(full))==32,"B32_B24_COLLISION")
+        for rep in range(16,32):
+            r=dict(old[0],uid=f"S2_b24_dev80|SITCOM|{iid}|rep{rep}",
+                   rep=rep,seed=full[rep])
+            b32_b24.append(dict(
+                task_id=f"b32_b24_{iid}_{rep:02d}",source="S2_b24_dev80",
+                image_id=iid,rows=[r],new_roots=1,
+                historical_prefix_computations=0,
+                runtime_mode="independent_model_seed"))
+    check(len(b32_b22)==100 and len(b32_b24)==1280 and
+          sum(g["new_roots"] for g in b32_b22+b32_b24)==2880,
+          "B32_2880_TASKS")
+    return b32_b22,b32_b24
+
 def main(a):
     check(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
     check(git(WT,"rev-parse","HEAD")==a.expected_head and
@@ -133,6 +181,7 @@ def main(a):
     cat=json.loads(safe(CATALOG).read_text())["rows"]
     check(len(cat)==3240,"R07_CATALOG")
     b22,b24=build(gated["rows"],cat)
+    b32_b22,b32_b24=build_b32(b22,b24)
     out=Path(a.out)
     check(out.parent==BASE and out.name.startswith("xp_a11_b16_prod_") and
           not out.exists() and not out.is_symlink(),"OUT")
@@ -152,9 +201,13 @@ def main(a):
         "b22_rng_rule":"seed43_post_model_reset_per_image_then_runs0_to15",
         "n_b22_images":100,"n_b24_images":80,
         "n_new_roots":2160,"n_new_b22":1200,"n_new_b24":960,
+        "n_background_b32_roots":2880,"n_b32_b22":1600,
+        "n_b32_b24":1280,
+        "background_requires_full_b16_completion":True,
         "GT_supplied":False,"historical_candidate_supplied":False,
         "new_outcomes_embargoed":True,
-        "b22_groups":b22,"b24_groups":b24}
+        "b22_groups":b22,"b24_groups":b24,
+        "b32_b22_groups":b32_b22,"b32_b24_groups":b32_b24}
     mf=out/"XP_A11_B16_PROD_TASKS.json"
     with mf.open("x") as f:
         json.dump(manifest,f,sort_keys=True,indent=2,allow_nan=False);f.write("\n")
