@@ -356,6 +356,7 @@ def main(a):
             assert_ok(state["status"] in (
                 "STOP_B16_PRODUCTION_WORKER_OR_RECEIPT",
                 "B16_PRODUCTION_DRAINED_RESUMABLE",
+                "B16_PRODUCTION_DRAINED_BUDGET",
                 "B16_PRODUCTION_RUNNING",
                 "B16_PRODUCTION_RECONCILING"),"RECOVERY_STATE")
             # This records the new controller's source identity without
@@ -441,6 +442,7 @@ def main(a):
             smoke=B22_SMOKE|B24_SMOKE
             b32_smoke=B32_B22_SMOKE|B32_B24_SMOKE
             fatal=False
+            last_gpu_wait_event=0.
             while len(done)<len(groups):
                 deadline_reached=time.time()>=state["deadline_epoch"]
                 gpu_budget_reached=(state["gate_spent_gpu_seconds"]+
@@ -621,10 +623,14 @@ def main(a):
                         gpu,reasons=choose_generation_gpu(
                             available,occupied)
                         if gpu is None:
-                            if launched==0:
+                            if launched==0 and (
+                                time.monotonic()-last_gpu_wait_event>=60):
+                                last_gpu_wait_event=time.monotonic()
                                 event(run,"WAIT_A10_GENERATION_GPU_HEADROOM",
                                       eligible_devices=len(available),
-                                      reasons=reasons)
+                                      reasons=reasons,
+                                      foreign_jobs_are_allowed=True,
+                                      min_poll_seconds=a.poll)
                             break
                         assert_ok(gpu not in occupied,
                                   "ONE_TRACK_R_WORKER_PER_GPU")
