@@ -1,0 +1,604 @@
+{
+  "K_grid": [
+    8,
+    12,
+    16
+  ],
+  "base_v2_sha256": "8dda36349efc55848c585b0fbed06641fe0c0bf7c3594044e421d1bde0bf8f55",
+  "clip_class_posterior_counts": {
+    "C": {
+      "beta_alpha": 1,
+      "beta_beta": 189,
+      "rate_override_zero": true,
+      "successes": 0,
+      "total": 188
+    },
+    "G": {
+      "beta_alpha": 96,
+      "beta_beta": 6,
+      "rate_override_zero": false,
+      "successes": 95,
+      "total": 100
+    },
+    "I": {
+      "beta_alpha": 1,
+      "beta_beta": 43,
+      "rate_override_zero": true,
+      "successes": 0,
+      "total": 42
+    },
+    "O": {
+      "beta_alpha": 58,
+      "beta_beta": 11,
+      "rate_override_zero": false,
+      "successes": 57,
+      "total": 67
+    },
+    "P": {
+      "beta_alpha": 1,
+      "beta_beta": 4,
+      "rate_override_zero": false,
+      "successes": 0,
+      "total": 3
+    }
+  },
+  "cluster_sensitivity": "beta_image_cluster: resample images as clusters for the class-conditional decision posterior, while forecasting the original 100 image IDs",
+  "code_commit": "2c86da1776719f5710e44cd829191f4634c2ad6d",
+  "dataset": "ImageNet",
+  "decision_columns": {
+    "chosen_good": "g1_chosen_good",
+    "g1_choice": "g1_choice",
+    "g1_margin": "g1_margin",
+    "g2_choice": "g2_choice",
+    "g2_margin": "g2_margin",
+    "image_id": "image_id",
+    "label": "label",
+    "run_index": "run"
+  },
+  "decision_estimation": "Beta(1,1) class-conditional posterior, future runs iid conditional class and shared class rate; known four-run G1 outcomes conditioned upon exactly",
+  "draft_sha256": "87d1d06d7421ff3a9791b20f59efadbd4bc39e4b8c8ac51d61614de4d39850da",
+  "family": "FAST",
+  "forecast_comparison_rule": "primary beta_class E1 coverage at 8/12/16; report beta_image_cluster separately; no posthoc swapping or refitting v2",
+  "freeze_utc": "2026-10-28T19:04:30.133731+00:00",
+  "frozen_model": "registered v2 alpha/rank parameters copied unchanged; no v2 point or band overwritten",
+  "immutability": {
+    "existing_v2_predictions_unchanged": true,
+    "new_artifact_only": "TH1_PREDICTIONS_v2_E1.json",
+    "registered_phase1_SHA256": "c21778803a17821ecf51857af6378273c2b583d4d19938d0c42e401f20178bc1",
+    "registered_v2_sha256": "8dda36349efc55848c585b0fbed06641fe0c0bf7c3594044e421d1bde0bf8f55"
+  },
+  "interval_type": "predictive_realized_panel",
+  "metric": "good20",
+  "n_images": 100,
+  "oracle_anchor_checks": [
+    {
+      "registered_O_orbit": [
+        0.784669355403103,
+        0.8309094441418512,
+        0.8586503360431297
+      ],
+      "shift": [
+        0.002041911735658708,
+        0.002351924518617432,
+        0.0024503360431292753
+      ],
+      "simulated_O_orbit": [
+        0.7826274436674443,
+        0.8285575196232338,
+        0.8562000000000004
+      ],
+      "variant": "race"
+    },
+    {
+      "registered_O_orbit": [
+        0.784669355403103,
+        0.8309094441418512,
+        0.8586503360431297
+      ],
+      "shift": [
+        7.695891070647054e-05,
+        -2.2957741978579804e-05,
+        -6.394967115608274e-05
+      ],
+      "simulated_O_orbit": [
+        0.7845923964923965,
+        0.8309324018838298,
+        0.8587142857142858
+      ],
+      "variant": "S2"
+    },
+    {
+      "registered_O_orbit": [
+        0.784669355403103,
+        0.8309094441418512,
+        0.8586503360431297
+      ],
+      "shift": [
+        -0.001486173512425637,
+        -0.0020486563291072235,
+        -0.0023210925282994843
+      ],
+      "simulated_O_orbit": [
+        0.7861555289155286,
+        0.8329581004709584,
+        0.8609714285714292
+      ],
+      "variant": "tail"
+    },
+    {
+      "registered_O_orbit": [
+        0.784669355403103,
+        0.8309094441418512,
+        0.8586503360431297
+      ],
+      "shift": [
+        -0.0012921675184203174,
+        -0.0010944334091690378,
+        -0.001006806814013994
+      ],
+      "simulated_O_orbit": [
+        0.7859615229215233,
+        0.8320038775510202,
+        0.8596571428571437
+      ],
+      "variant": "race_tau1"
+    }
+  ],
+  "panel_n_max": 16,
+  "phase1_clip_sha256": "0a2989180b67afa6fc9c6fccdffe7680030f4214d7b672ecd4fe50e5b010cf44",
+  "phase1_sha256": "c21778803a17821ecf51857af6378273c2b583d4d19938d0c42e401f20178bc1",
+  "policy_definition": "single E0-selected candidate, apply G1 orientation decision to that candidate, score g_tilde",
+  "predictions": [
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.6408707578895048,
+      "lo95": 0.5228519350456821,
+      "metric": "good20",
+      "model_variant": "race",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5784805508742981,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.6665494519911447,
+      "lo95": 0.5257395618812547,
+      "metric": "good20",
+      "model_variant": "race",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5943918774228564,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.6824503360431293,
+      "lo95": 0.5197003360431293,
+      "metric": "good20",
+      "model_variant": "race",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6026789074717009,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.6433079481683617,
+      "lo95": 0.5012533897638031,
+      "metric": "good20",
+      "model_variant": "race",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5789134563638696,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.67395497702167,
+      "lo95": 0.504560105226798,
+      "metric": "good20",
+      "model_variant": "race",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5949092051744698,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.6987003360431292,
+      "lo95": 0.49686700270979595,
+      "metric": "good20",
+      "model_variant": "race",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6032693836621765,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.4974866519953996,
+      "lo95": 0.4054221220808698,
+      "metric": "good20",
+      "model_variant": "S2",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.45261142666517423,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.5132319873129665,
+      "lo95": 0.39702992687340605,
+      "metric": "good20",
+      "model_variant": "S2",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.45780883189695426,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.5299360503288439,
+      "lo95": 0.3799360503288439,
+      "metric": "good20",
+      "model_variant": "S2",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.46033605032884356,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.5204421255342065,
+      "lo95": 0.39413759950468064,
+      "metric": "good20",
+      "model_variant": "S2",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.45344874724582823,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.5368440141749935,
+      "lo95": 0.38718916069513987,
+      "metric": "good20",
+      "model_variant": "S2",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.4596521512759878,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.5460471614399549,
+      "lo95": 0.3708804947732883,
+      "metric": "good20",
+      "model_variant": "S2",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.4629947804875746,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.6835653999141474,
+      "lo95": 0.5669052406289883,
+      "metric": "good20",
+      "model_variant": "tail",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6256746922884402,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.7050959865280356,
+      "lo95": 0.5652013436708926,
+      "metric": "good20",
+      "model_variant": "tail",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6327501034825097,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.7176789074717005,
+      "lo95": 0.5476789074717006,
+      "metric": "good20",
+      "model_variant": "tail",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6297360503288432,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.6895473713377858,
+      "lo95": 0.5614115710269854,
+      "metric": "good20",
+      "model_variant": "tail",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6249934578438727,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.7043456965402455,
+      "lo95": 0.5589939566135059,
+      "metric": "good20",
+      "model_variant": "tail",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6319684804230298,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.7233177963605892,
+      "lo95": 0.5348177963605895,
+      "metric": "good20",
+      "model_variant": "tail",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.6287630344558275,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.6159128441365913,
+      "lo95": 0.5191401362888834,
+      "metric": "good20",
+      "model_variant": "race_tau1",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5716930983268456,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.6448448523051166,
+      "lo95": 0.5191345501073146,
+      "metric": "good20",
+      "model_variant": "race_tau1",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5876791615672832,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_class",
+      "family": "FAST",
+      "hi95": 0.668993193185986,
+      "lo95": 0.516243193185986,
+      "metric": "good20",
+      "model_variant": "race_tau1",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5967646217574146,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 8,
+      "O_orbit_registered_point": 0.784669355403103,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.6280088857492996,
+      "lo95": 0.5086761351665489,
+      "metric": "good20",
+      "model_variant": "race_tau1",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5697004512208655,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 12,
+      "O_orbit_registered_point": 0.8309094441418512,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.6561962259314902,
+      "lo95": 0.5085948523051164,
+      "metric": "good20",
+      "model_variant": "race_tau1",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5852372882025524,
+      "policy": "E1_CLIP"
+    },
+    {
+      "K": 16,
+      "O_orbit_registered_point": 0.8586503360431297,
+      "cohort": "D1_fixed100",
+      "dataset": "ImageNet",
+      "decision_model": "beta_image_cluster",
+      "family": "FAST",
+      "hi95": 0.6819654154082082,
+      "lo95": 0.5058820820748748,
+      "metric": "good20",
+      "model_variant": "race_tau1",
+      "n_images": 100,
+      "panel": "primary",
+      "panel_n_max": 16,
+      "point": 0.5940868439796368,
+      "policy": "E1_CLIP"
+    }
+  ],
+  "production_run": {
+    "boot_reps": 3,
+    "bootstrap": 60,
+    "contract": "check_th1_imagenet_v2_e1_contract.py PASS 24",
+    "environment": {
+      "numpy": "2.5.3",
+      "python": "3.13.16",
+      "scipy": "1.18.1"
+    },
+    "point_reps": 350,
+    "script": "scripts/track_r/theory/fit_th1_imagenet_v2_e1.py"
+  },
+  "provenance": {
+    "phase2_outcomes_seen": false,
+    "source_limited_to_runs_0_3": true,
+    "xp_returns_accessed": false
+  },
+  "seed": 20261028,
+  "simulation_draw_checks": [
+    {
+      "all_E1_le_orbit": true,
+      "draws": 350,
+      "variant": "race"
+    },
+    {
+      "all_E1_le_orbit": true,
+      "draws": 350,
+      "variant": "S2"
+    },
+    {
+      "all_E1_le_orbit": true,
+      "draws": 350,
+      "variant": "tail"
+    },
+    {
+      "all_E1_le_orbit": true,
+      "draws": 350,
+      "variant": "race_tau1"
+    }
+  ],
+  "source_data_disclosure": "Only ImageNet D1 FAST run indices 0-3 and their G1/G2 CLIP choices/margins/GT decision were inspected; NO phase-2 or xp/returns accessed.",
+  "status": "FROZEN_BEFORE_IMAGENET_D1_PHASE2_UNBLINDING",
+  "version": "TH1_PREDICTIONS_v2_E1"
+}
