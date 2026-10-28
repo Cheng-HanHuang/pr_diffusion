@@ -104,6 +104,9 @@ def load_decisions(args, image_rows):
         for field in ("g1_choice","g2_choice"):
             if not rec[cols[field]].strip():
                 raise ValueError("empty CLIP orientation choice "+str(key))
+        if label in ("C","I") and good:
+            raise ValueError("non-orbit candidate marked orientation-GOOD "
+                  "in phase-1 CLIP input; stop for label/GT audit")
         out[key]=good
         raw_by_id.setdefault(image,[]).append((label,good))
     if len(out)!=400 or len(raw_by_id)!=100:
@@ -214,7 +217,7 @@ def run(rows,old_flags,raw_by_id,base,point_reps,bootstrap,boot_reps):
         point=empirical_mean[:,0]+shift
         if np.any(point>targets+1e-10):
             raise ValueError("E1 mean exceeds registered orbit oracle")
-        boot_mean=np.empty((bootstrap,len(GRID)))
+        boot_loss=np.empty((bootstrap,len(GRID)))
         ids=[r["image_id"]for r in rows]
         for b in range(bootstrap):
             # CLUSTER decisions by IMAGE, but retain the original
@@ -222,23 +225,32 @@ def run(rows,old_flags,raw_by_id,base,point_reps,bootstrap,boot_reps):
             sampled_ids=[ids[int(i)]for i in
                 rng.integers(0,len(ids),len(ids))]
             a,n=counts_from_images(raw_by_id,sampled_ids)
-            vals=np.zeros((boot_reps,len(GRID)))
+            vals=np.zeros((boot_reps,len(GRID),2))
             for t in range(boot_reps):
                 rates=sample_rates(a,n,rng)
                 vals[t]=run_panel(rows,alpha,params,variant,
-                                old_flags,rates,rng,rankw)[:,0]
-            boot_mean[b]=vals.mean(axis=0)
-        # Primary predictive interval: original beta uncertainty and
-        # future-panel noise; sensitivity adds image-cluster variation
-        # of the CLIP class rates only. No refitting frozen v2.
-        primary=main[:, :, 0]+shift[None,:]
+                                old_flags,rates,rng,rankw)
+            boot_loss[b]=np.mean(vals[:,:,1]-vals[:,:,0],axis=0)
+        # Draw-wise coupled oracle and selector. The cluster sensitivity
+        # perturbs SELECTION LOSS, not E1 by itself, and clips the loss
+        # into the feasible interval. Thus every reported simulated
+        # selection respects 0 <= E1 <= the paired orbit oracle.
+        paired_orbit=main[:,:,1]+shift[None,:]
+        paired_loss=main[:,:,1]-main[:,:,0]
+        primary=paired_orbit-paired_loss
         indices=rng.integers(0,bootstrap,size=point_reps)
-        sensitivity=primary+(boot_mean[indices]-boot_mean.mean(axis=0))
+        cluster_loss=paired_loss+(boot_loss[indices]-boot_loss.mean(axis=0))
+        cluster_loss=np.clip(cluster_loss,0,paired_orbit)
+        sensitivity=paired_orbit-cluster_loss
+        if np.any(primary>paired_orbit+1e-12) or np.any(sensitivity>paired_orbit+1e-12):
+            raise ValueError("E1 exceeds its paired orbit oracle")
         for decision_model,values in (("beta_class",primary),
                                       ("beta_image_cluster",sensitivity)):
             lo,hi=np.quantile(values,(.025,.975),axis=0)
+            variant_point=(point if decision_model=="beta_class"
+                           else values.mean(axis=0))
             for ki,k in enumerate(GRID):
-                val=float(point[ki])
+                val=float(variant_point[ki])
                 rec={
                    "family":"FAST","dataset":"ImageNet",
                    "metric":"good20","cohort":"D1_fixed100",
