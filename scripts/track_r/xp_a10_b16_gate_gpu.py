@@ -81,6 +81,15 @@ def checked_source(run,expected_head,index,gpu,preflight):
           "OUTPUT_EXISTS")
     return manifest,selected,output,pre
 
+def native_adapter(a,mf):
+    """Adapt frozen A10 field names to the audited native B22 sampler API."""
+    check(mf["source_head"]==SITCOM_HEAD,"NATIVE_SOURCE_ALIAS")
+    check("native_source_head" not in mf,"NO_MANIFEST_FIELD_REWRITE")
+    worker_manifest=dict(mf,native_source_head=mf["source_head"])
+    args=SimpleNamespace(mode="b22",out=str(a.out),gpu=a.gpu,
+                         expected_head=a.expected_head)
+    return args,worker_manifest
+
 def main(a):
     run=Path(a.run)
     check(run.parent==BASE and run.name.startswith("xp_a10_b16_gate_")
@@ -98,13 +107,9 @@ def main(a):
     # and its historical native_source_head key. The frozen A10 manifest
     # records this same source hash as source_head. Adapt in memory only:
     # never rewrite the immutable GPU/CPU manifests.
-    check(mf["source_head"]==SITCOM_HEAD,"NATIVE_SOURCE_ALIAS")
-    check("native_source_head" not in mf,"NO_MANIFEST_FIELD_REWRITE")
-    worker_manifest=dict(mf,native_source_head=mf["source_head"])
-    result=native.generate(
-       SimpleNamespace(mode="b22",out=str(out),gpu=a.gpu,
-                       expected_head=a.expected_head),
-       worker_manifest,rows)
+    worker_args,worker_manifest=native_adapter(
+        SimpleNamespace(out=out,gpu=a.gpu,expected_head=a.expected_head),mf)
+    result=native.generate(worker_args,worker_manifest,rows)
     print("B16_GATE_NATIVE_IMAGE_PASS",rows[0]["image_id"],flush=True)
     return result
 
