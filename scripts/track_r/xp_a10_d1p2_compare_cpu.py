@@ -167,13 +167,30 @@ def stats_psnr(x,gt,y,tau):
     return x8,dict(label=label,rho=rho,good_raw=raw>=GOOD,
         good_orbit=orbit>=GOOD,flip_good=float(z["111"])>=GOOD,
         raw=raw,orbit=orbit,best=best)
-def conditional_selection(panel,k):
-    # Observed residual selection and generation ceiling conditioned on
-    # the fixed realized class composition: descriptive A9.2 analogue.
-    x=exact_panel(panel,k)
-    return dict(E0_given_labels_and_ranks=x["E0"],
-                O_raw_given_labels=x["O_raw"],
-                O_orbit_given_labels=x["O_orbit"])
+def conditional_pl_given_labels(panel,k,wO,wC):
+    """Exact subset-hypergeometric PL GOOD win, conditional on 16 labels.
+
+    Relative rates: G=1, global/partial ORBIT=wO, CONSISTENT=wC,
+    INCONSISTENT=0 (last, as frozen in TH1_RANK_RACE_MATH).
+    No phase-2 rank is used in this prediction; no refit.
+    """
+    need(len(panel)==16 and 1<=k<=16 and
+         0<wO<=1 and 0<wC<=1,"PL_CONTRACT")
+    counts=Counter(r["label"] for r in panel)
+    ng=counts["G"];no=counts["O"]+counts["P"];nc=counts["C"];ni=counts["I"]
+    total=math.comb(16,k)
+    expectation=0.
+    for g in range(min(k,ng)+1):
+        for o in range(min(k-g,no)+1):
+            for c in range(min(k-g-o,nc)+1):
+                i=k-g-o-c
+                if not 0<=i<=ni:continue
+                chance=(math.comb(ng,g)*math.comb(no,o)*
+                        math.comb(nc,c)*math.comb(ni,i))/total
+                weight=g+o*wO+c*wC
+                expectation+=chance*(g/weight if weight else 0.)
+    need(-1e-10<=expectation<=1+1e-10,"PL_VALUE")
+    return expectation
 def main(a):
     global ARGS
     ARGS=a
@@ -320,6 +337,21 @@ def main(a):
         class_diff.append(dict(label=label,p1_count=a,p2_count=b,
           p1_rate=a/400,p2_rate=b/1200,rate_difference=obs,
           paired_image_signflip_p=(hits+1)/(flips+1)))
+    conditional=[]
+    weights={
+      "race":forecasts["v2"]["rank_weights_primary"],
+      "race_tau1":forecasts["v2"]["rank_weights_sensitivity"],
+      "S2":{"w_O":1.,"w_C":1.}}
+    for k in K:
+        for variant,w in weights.items():
+            modelval=sum(conditional_pl_given_labels(
+                items,k,float(w["w_O"]),float(w["w_C"]))
+                for items in panel_data.values())/100
+            conditional.append(dict(K=k,variant=variant,
+                observed_E0=observed[(k,"E0")],
+                frozen_PL_given_labels=modelval,
+                model_minus_observed=modelval-observed[(k,"E0")],
+                n_images=100))
     never=[dict(image_id=iid,run_labels="".join(r["label"] for r in items),
                 n_good=0)
            for iid,items in sorted(panel_data.items())
@@ -335,7 +367,8 @@ def main(a):
          phase_exchangeability=class_diff,
          never_good_images=never,
          E1_method="frozen per-candidate G1 choice; G2 secondary",
-         composition_conditional_selection="realized labels and ranks only; full frozen v2 PL rank-law attribution requires separate analysis",
+         composition_conditional_selection=conditional,
+         composition_rule="exact hypergeometric subset distribution with frozen exponential-rate rank weights, I weight zero; conditional on realized 16-run class counts, no model refit",
          B16_F8_outcomes_opened=False,
          EPRIME_outcomes_opened=False,
          prospective_predictions_refitted=False)
