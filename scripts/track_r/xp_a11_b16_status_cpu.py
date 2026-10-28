@@ -40,7 +40,11 @@ def main():
     print("B22 smoke:",state.get("b22_smoke_pass",False),
           "DEV80 smoke:",state.get("b24_smoke_pass",False))
     print("Embargo: NO new GT labels opened (generation-only)")
-    print("Recorded GPU-h (completed workers):",round(used/3600,3),"/48.0")
+    cap=float(state.get("A10_limit_gpu_hours",48.0))
+    print("Recorded GPU-h (completed workers):",round(used/3600,3),
+          "/",cap)
+    if state.get("A10_planner_sha"):
+        print("A10 planner:",state["A10_planner_sha"][:12])
     if deadline:
         print("Original campaign deadline UTC:",
               datetime.datetime.fromtimestamp(float(deadline),
