@@ -29,7 +29,7 @@ fi
 "$PY" "$ROOT/scripts/track_r/theory/fit_th1_imagenet_v2_e1.py" \
   --input "$IN" --clip "$CLIP" --clip-sha256 "$CLIP_SHA256" \
   --base-v2 "$BASE" --output "$DRAFT" \
-  --point-reps 350 --bootstrap 60 --boot-reps 3
+  --point-reps 350 --bootstrap 60 --boot-reps 3 "$@"
 "$PY" "$ROOT/scripts/track_r/theory/check_th1_imagenet_v2_e1_contract.py" \
   --draft "$DRAFT" --base-v2 "$BASE"
 "$PY" "$ROOT/scripts/track_r/theory/seal_th1_imagenet_v2_e1.py" \
