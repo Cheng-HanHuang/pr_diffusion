@@ -400,6 +400,12 @@ def main(a):
                 if b24ok and not state["b24_smoke_pass"]:
                     state["b24_smoke_pass"]=True
                     event(run,"B24_SMOKE_NATIVE_PASS",n=4)
+                if B32_B22_SMOKE<=done and not state["b32_b22_smoke_pass"]:
+                    state["b32_b22_smoke_pass"]=True
+                    event(run,"B32_B22_SMOKE_NATIVE_PASS",n=32)
+                if B32_B24_SMOKE<=done and not state["b32_b24_smoke_pass"]:
+                    state["b32_b24_smoke_pass"]=True
+                    event(run,"B32_B24_SMOKE_NATIVE_PASS",n=4)
                 if len(active)<a.max_parallel:
                     if not state["b22_smoke_pass"] or not state["b24_smoke_pass"]:
                         possible=sorted(smoke)
