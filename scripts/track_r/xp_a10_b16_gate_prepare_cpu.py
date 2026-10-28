@@ -29,8 +29,11 @@ def checked(cond,reason):
     if not cond:raise RuntimeError("STOP_B16_PREP_"+reason)
 
 def git(path,*args):
+    # Git --porcelain uses a significant leading status column: " M" means
+    # an unstaged modification. str.strip() destroys it and falsely fails the
+    # strict source-integrity gate. Remove only terminal line endings.
     return subprocess.check_output(
-        ["git","-C",str(path),*args],text=True,timeout=30).strip()
+        ["git","-C",str(path),*args],text=True,timeout=30).rstrip("\r\n")
 
 def commit_json(p,v):
     with p.open("x",encoding="utf-8") as f:
