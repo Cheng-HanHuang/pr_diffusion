@@ -1,12 +1,15 @@
 """Synthetic zero-GPU tests for B16 400-root -> 2160-root autonomous handoff."""
 from __future__ import annotations
 import hashlib
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 from scripts.track_r import xp_a11_b16_prod_prepare_cpu as prep
 from scripts.track_r.xp_a11_b16_handoff_autopilot import (
     B22_SMOKE,B24_SMOKE,B32_B22_SMOKE,B32_B24_SMOKE,
-    REFERENCE_SEC,validate_sample_speed_for_smoke)
+    REFERENCE_SEC,validate_sample_speed_for_smoke,
+    RUNNER_WT,launch)
 
 class TestB16Production(unittest.TestCase):
     def test_frozen_seed_domain_matches_historical_algorithm(self):
@@ -72,6 +75,24 @@ class TestB16Production(unittest.TestCase):
         self.assertEqual(b22groups[0]["rows"][4]["seed"],43)
         self.assertEqual(b24groups[0]["rows"][0]["seed"],
                          prep.seed63("C","01000",4)%(2**32))
+
+    def test_recovery_launch_uses_original_worker_not_controller(self):
+        self.assertEqual(RUNNER_WT,
+                         prep.ROOT/"pr_diffusion_track_r_xp_handoff_20261028")
+        with tempfile.TemporaryDirectory() as td:
+            run=Path(td)
+            (run/"logs").mkdir()
+            tasks=[{"task_id":"b22_062_dummy","new_roots":12}]
+            with patch("scripts.track_r.xp_a11_b16_handoff_autopilot.subprocess.Popen") as popen:
+                popen.return_value.pid=12345
+                item=launch(run,"079228b3ebe55dba2ac7bc7ae2c8187113290409",
+                            tasks,0,2,1)
+            self.assertEqual(item["gpu"],2)
+            args,kw=popen.call_args
+            self.assertEqual(args[0][1],
+                             str(RUNNER_WT/"scripts/track_r/xp_a11_b16_prod_worker_gpu.py"))
+            self.assertEqual(kw["env"]["PYTHONPATH"],str(RUNNER_WT))
+            self.assertEqual(kw["env"]["CUDA_VISIBLE_DEVICES"],"2")
 
     def test_slow_native_production_is_not_a_scientific_receipt_failure(self):
         # Observed Oct 28: 77.5 s native CUDA-event times with correct
