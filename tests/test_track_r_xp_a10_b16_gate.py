@@ -8,6 +8,7 @@ from unittest.mock import patch
 from scripts.track_r import xp_a10_b16_gate_prepare_cpu as prep
 from scripts.track_r.xp_a10_b16_gate_gpu import native_adapter
 from types import SimpleNamespace
+from scripts.track_r.xp_a10_b16_gate_autopilot import SAMPLE_REFERENCE_SEC,SAMPLE_REFERENCE_SHA
 
 def fake_catalog():
     roots={};scores={}
@@ -44,6 +45,18 @@ class TestB16FullGate(unittest.TestCase):
         self.assertNotIn("historical_candidate_path",roots[0])
         self.assertEqual(offline[0]["historical_raw_label"],
                          "NONORBIT_INCONSISTENT")
+    def test_ffhq_smoke_timing_reference_not_imagenet(self):
+        # Exact published FFHQ median for XP-T SITCOM 9-root calibration,
+        # while ImageNet's published median is 58.34277 s.
+        self.assertAlmostEqual(SAMPLE_REFERENCE_SEC,32.104482267051935,places=10)
+        self.assertEqual(SAMPLE_REFERENCE_SHA,
+                         "bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e")
+        samples=(25.193,23.027,22.603,22.542)
+        median=sum(sorted(samples)[1:3])/2
+        self.assertGreaterEqual(median,0.5*SAMPLE_REFERENCE_SEC)
+        self.assertLessEqual(median,1.5*SAMPLE_REFERENCE_SEC)
+        self.assertLess(median,0.5*58.342772816773504)
+
     def test_native_adapter_contract(self):
         frozen={"source_head":prep.SITCOM_HEAD,"rows":[{"uid":"sample"}]}
         args,source=native_adapter(
