@@ -28,6 +28,10 @@ REFERENCE_SEC=32.104482267051935
 MARGIN_MIB=2048
 B22_SMOKE={0,1}
 B24_SMOKE={100,101,112,113}
+B32_B22_SMOKE={1060,1061}
+B32_B24_SMOKE={1160,1161,1176,1177}
+B16_TASKS=1060
+ALL_TASKS=2440
 
 def on_stop(sig,frame):
     global STOP
@@ -66,15 +70,18 @@ def frozen(run,head):
               pre["status"]=="B16_PRODUCTION_PREP_PASS_GATE_PENDING" and
               sha(path)==pre["manifest_sha256"],"MANIFEST")
     mf=json.loads(path.read_text())
-    groups=mf["b22_groups"]+mf["b24_groups"]
+    groups=(mf["b22_groups"]+mf["b24_groups"]+
+            mf["b32_b22_groups"]+mf["b32_b24_groups"])
     assert_ok(mf["head"]==head and
               mf["n_new_roots"]==2160 and
               mf["n_new_b22"]==1200 and mf["n_new_b24"]==960 and
               mf["GT_supplied"] is False and
               mf["historical_candidate_supplied"] is False and
               mf["new_outcomes_embargoed"] is True and
-              len(groups)==1060 and
-              len({g["task_id"] for g in groups})==1060,
+              mf["n_background_b32_roots"]==2880 and
+              mf["background_requires_full_b16_completion"] is True and
+              len(groups)==ALL_TASKS and
+              len({g["task_id"] for g in groups})==ALL_TASKS,
               "PRODUCTION_SCHEMA")
     reference=WT/"docs/track_r/executors/xp/returns/XP_T_SITCOM_BATCH1_20261026T233451Z/XP_T_SITCOM_COMPLETE.json"
     assert_ok(sha(reference)=="bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e",
@@ -157,7 +164,8 @@ def verify_task(run,groups,manifest_sha,index,head):
               int(summary.get("consumed_prefix_roots",0))==
               g["historical_prefix_computations"],
               "GROUP_SUMMARY_"+str(index))
-    new=g["rows"][4:] if index<100 else g["rows"]
+    prefix=4 if index<100 else 16 if 1060<=index<1160 else 0
+    new=g["rows"][prefix:]
     assert_ok(len(new)==g["new_roots"] and
               len(summary["roots"])==len(new),"NEW_ROOT_COUNT")
     secs=[]
@@ -243,7 +251,8 @@ def main(a):
                        gate_spent_gpu_seconds=None,first_start_epoch=None,
                        deadline_epoch=None,
                        no_new_outcomes_opened=True,
-                       b22_smoke_pass=False,b24_smoke_pass=False)
+                       b22_smoke_pass=False,b24_smoke_pass=False,
+                       b32_b22_smoke_pass=False,b32_b24_smoke_pass=False)
             save(statepath,state)
             done=set()
             attempts=state["attempts"]
@@ -296,6 +305,7 @@ def main(a):
             state["first_start_epoch"]=admission["gate_first_start_epoch"]
             state["deadline_epoch"]=admission["gate_deadline_epoch"]
             smoke=B22_SMOKE|B24_SMOKE
+            b32_smoke=B32_B22_SMOKE|B32_B24_SMOKE
             fatal=False
             while len(done)<len(groups):
                 deadline_reached=time.time()>=state["deadline_epoch"]
@@ -320,7 +330,8 @@ def main(a):
                     if rc is None:
                         elapsed=time.monotonic()-v["start"]
                         g=groups[idx]
-                        limit=(16 if idx<100 else 1)*REFERENCE_SEC*3+60
+                        limit=(32 if 1060<=idx<1160 else
+                               16 if idx<100 else 1)*REFERENCE_SEC*3+60
                         if elapsed>limit:
                             if not fatal:
                                 event(run,"WORKER_TIMEOUT_WAITING_TO_DRAIN",
@@ -381,11 +392,16 @@ def main(a):
                 if len(active)<a.max_parallel:
                     if not state["b22_smoke_pass"] or not state["b24_smoke_pass"]:
                         possible=sorted(smoke)
+                    elif not set(range(B16_TASKS))<=done:
+                        possible=range(B16_TASKS)
+                    elif not state["b32_b22_smoke_pass"] or not state["b32_b24_smoke_pass"]:
+                        possible=sorted(b32_smoke)
                     else:
                         possible=range(len(groups))
                     idx=next((i for i in possible if i not in done and i not in active),None)
                     if idx is not None:
-                        conservative_s=((16 if idx<100 else 1)*
+                        conservative_s=((32 if 1060<=idx<1160
+                                         else 16 if idx<100 else 1)*
                                          REFERENCE_SEC*1.5+60)
                         if remaining_gpu_s<conservative_s:
                             event(run,"GPU_BUDGET_TOO_LOW_FOR_NEXT_GROUP",
@@ -414,27 +430,28 @@ def main(a):
             if fatal:
                 store("STOP_B16_PRODUCTION_WORKER_OR_RECEIPT")
                 print("ACTION NEEDED: B16_PRODUCTION_WORKER_OR_RECEIPT",
-                      "tasks",len(done),"/1060",flush=True)
+                      "tasks",len(done),"/2440",flush=True)
                 return 8
             if len(done)==len(groups):
-                store("B16_PRODUCTION_GENERATION_PASS_EMBARGOED")
-                assert_ok(sum(groups[i]["new_roots"] for i in done)==2160,
-                          "COMPLETE_2160")
-                proof=dict(status="B16_PRODUCTION_GENERATION_PASS_EMBARGOED",
+                store("B16_AND_B32_GENERATION_PASS_EMBARGOED")
+                assert_ok(sum(groups[i]["new_roots"] for i in done)==5040,
+                          "COMPLETE_5040")
+                proof=dict(status="B32_BACKGROUND_GENERATION_PASS_EMBARGOED",
                     head=a.expected_head,manifest_sha256=msha,
-                    n_new_roots=2160,n_b22=1200,n_b24=960,
+                    n_new_roots=2880,n_b22=1600,n_b24=1280,
+                    B16_new_roots_already_verified=2160,
                     no_new_outcomes_opened=True,
                     inherited_first_start_epoch=state["first_start_epoch"],
                     inherited_deadline_epoch=state["deadline_epoch"],
                     campaign_gpu_hours=(state["gate_spent_gpu_seconds"]+
                                         state["spent_gpu_seconds"])/3600)
-                write_x(run/"XP_A11_B16_PROD_COMPLETE.json",proof)
-                print("B16_PRODUCTION_GENERATION_PASS_EMBARGOED",
-                      "new_roots=2160",flush=True)
+                write_x(run/"XP_A12_B32_COMPLETE.json",proof)
+                print("B16_AND_B32_GENERATION_PASS_EMBARGOED",
+                      "new_roots=5040",flush=True)
                 return 0
             store("B16_PRODUCTION_DRAINED_RESUMABLE")
-            print("B16_PRODUCTION_DRAINED_RESUMABLE",
-                  "tasks",len(done),"/1060",
+            print("B16_B32_PRODUCTION_DRAINED_RESUMABLE",
+                  "tasks",len(done),"/2440",
                   "new_roots",sum(groups[i]["new_roots"] for i in done),
                   flush=True)
             return 0
