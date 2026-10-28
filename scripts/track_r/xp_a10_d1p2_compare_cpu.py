@@ -165,7 +165,8 @@ def stats_psnr(x,gt,y,tau):
     elif rho<=tau:label="C"
     else:label="I"
     return x8,dict(label=label,rho=rho,good_raw=raw>=GOOD,
-        good_orbit=orbit>=GOOD,raw=raw,orbit=orbit,best=best)
+        good_orbit=orbit>=GOOD,flip_good=float(z["111"])>=GOOD,
+        raw=raw,orbit=orbit,best=best)
 def conditional_selection(panel,k):
     # Observed residual selection and generation ceiling conditioned on
     # the fixed realized class composition: descriptive A9.2 analogue.
@@ -228,7 +229,8 @@ def main(a):
                 dat=dict(run=rep,rho=metrics["rho"],
                          good_raw=metrics["good_raw"],
                          good_orbit=metrics["good_orbit"],
-                         label=metrics["label"])
+                         label=metrics["label"],
+                         flip_good=metrics["flip_good"])
                 if rep<4:
                     prev=p1choices[(iid,rep)]
                     need(prev["label"]==metrics["label"],"P1_CLASS_MATCH")
@@ -253,7 +255,7 @@ def main(a):
                     choice="111" if delta>0 else "000"
                     # Frozen A8 rule: 180-degree inversion only.
                     chosen_good=(r["good_raw"] if choice=="000"
-                                 else r["label"]=="O")
+                                 else r["flip_good"])
                     r[arm+"_chosen_good"]=int(chosen_good)
                     r[arm+"_choice"]=choice
                     r[arm+"_margin"]=float(delta)
