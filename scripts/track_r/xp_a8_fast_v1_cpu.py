@@ -24,7 +24,7 @@ from scripts.track_r.xp_fast_gpu import frozen_roots,root_folder,validate_comple
 from scripts.track_r.xp_a16_publish_cpu import (
     GEN_HEAD as A16_GEN,verify_chunk_proofs)
 from scripts.track_r.r0_2_g0_cpu import gt_source
-from scripts.track_r.r0_7_stats import orbit_psnr_channel_mse
+from prdiffusion.track_r.r0_7_stats import orbit_psnr_channel_mse
 from prdiffusion.track_r.physics import to_rgb8,psnr_rgb8,rho_signed
 
 ROOT=Path("/egr/research-pac/huang248")
