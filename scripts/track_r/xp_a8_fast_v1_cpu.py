@@ -28,7 +28,7 @@ from scripts.track_r.r0_7_stats import orbit_psnr_channel_mse
 from prdiffusion.track_r.physics import to_rgb8,psnr_rgb8,rho_signed
 
 ROOT=Path("/egr/research-pac/huang248")
-A7WT=ROOT/"pr_diffusion_track_r_a7_cpu"
+AUTHOR_WT=Path(__file__).resolve().parents[2]
 ORIGINAL=ROOT/"pr_diffusion_track_r"
 BASE=ROOT/"outputs/pr_diffusion/track_r"
 PINNED_A6_HEAD="b7af2f7135beb6e8367d83f028e0fbaf163bc7bd"
@@ -43,7 +43,7 @@ V1_SHA="c19798f9e4b45b6f3c5fd44e96180edaf18104c35d5a3700ba35d81369377753"
 COMP_COMMIT="5782149155056ea06869de4262dc2b9f259c3d10"
 COMP_PATH="docs/track_r/theory/TH1_PREDICTIONS_v1_PER_IMAGE.csv"
 COMP_SHA="74190e6722a11d1e7e16118984f89bbc5281f665629902db244b5740cd783462"
-REGISTRY=A7WT/"docs/track_r/theory/PREDICTIONS_REGISTRY.md"
+REGISTRY=AUTHOR_WT/"docs/track_r/theory/PREDICTIONS_REGISTRY.md"
 K4=4
 GOOD=25.
 POLICIES=("E0","O_raw","O_orbit")
@@ -64,7 +64,7 @@ def sha(path):
     return h.hexdigest()
 
 def head_guard(head):
-    for repo,expected in ((A7WT,head),(ORIGINAL,PINNED_A6_HEAD)):
+    for repo,expected in ((AUTHOR_WT,head),(ORIGINAL,PINNED_A6_HEAD)):
         actual=subprocess.check_output(["git","-C",str(repo),"rev-parse","HEAD"],text=True).strip()
         dirty=subprocess.check_output(["git","-C",str(repo),"status","--porcelain"],text=True).strip()
         if actual!=expected or dirty:raise RuntimeError("STOP_A8_FAST_CHECKOUT_DRIFT")
@@ -72,9 +72,9 @@ def head_guard(head):
 def register_first(head):
     # Source and registry access is authorized; no outcomes are accessed.
     receipt,v1=read_registered_forecasts(
-        A7WT,REGISTRY,"v1",V1_COMMIT,V1_PATH,V1_SHA,head)
+        AUTHOR_WT,REGISTRY,"v1",V1_COMMIT,V1_PATH,V1_SHA,head)
     creceipt,companion=read_registered_forecasts(
-        A7WT,REGISTRY,"v1 companion",COMP_COMMIT,COMP_PATH,COMP_SHA,head)
+        AUTHOR_WT,REGISTRY,"v1 companion",COMP_COMMIT,COMP_PATH,COMP_SHA,head)
     if len(v1)!=976 or len(companion)!=14800:
         raise RuntimeError("STOP_A8_FAST_REGISTERED_PANEL_CONTRACT")
     return receipt,creceipt,v1
