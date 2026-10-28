@@ -269,9 +269,15 @@ def main(a):
                 return 0
             save("STOP_WORKER_FAILURE" if fatal else
                  "DRAINED_RESUMABLE" if stopped else "INCOMPLETE")
+            if fatal:
+                print("ACTION NEEDED: B16_GATE_STOP_WORKER_FAILURE",
+                      len(done),"/100 images",
+                      "gpu_h",round(state["spent_gpu_seconds"]/3600,4),
+                      flush=True)
+                return 8
             print("B16_GATE_DRAINED_RESUMABLE",len(done),"/100 images",
                   "gpu_h",round(state["spent_gpu_seconds"]/3600,4),flush=True)
-            return 8 if fatal else 0
+            return 0
         finally:
             save(state.get("status","STOP_UNEXPECTED"))
 
