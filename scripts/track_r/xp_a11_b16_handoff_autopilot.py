@@ -153,6 +153,15 @@ def certify_gate():
        gate_spent_gpu_seconds=float(state["spent_gpu_seconds"]),
        B16_new_run_labels_opened=False)
 
+def validate_sample_speed_for_smoke(index,median,source):
+    """Pre-registered smoke timing gate, not an ongoing quality criterion."""
+    assert_ok(math.isfinite(median) and median>0,"NONFINITE_SAMPLE_MEDIAN")
+    is_smoke=index in (B22_SMOKE|B24_SMOKE|B32_B22_SMOKE|B32_B24_SMOKE)
+    if is_smoke:
+        assert_ok(0.5*REFERENCE_SEC<=median<=1.5*REFERENCE_SEC,
+                  "FFHQ_SMOKE_SPEED_"+source)
+    return is_smoke
+
 def verify_task(run,groups,manifest_sha,index,head):
     g=groups[index]
     p=run/"gpu"/g["task_id"]
@@ -195,10 +204,7 @@ def verify_task(run,groups,manifest_sha,index,head):
     mid=sorted(secs)[len(secs)//2]
     if len(secs)%2==0:
         mid=(sorted(secs)[len(secs)//2-1]+mid)/2
-    is_smoke=index in (B22_SMOKE|B24_SMOKE|B32_B22_SMOKE|B32_B24_SMOKE)
-    if is_smoke:
-        assert_ok(0.5*REFERENCE_SEC<=mid<=1.5*REFERENCE_SEC,
-                  "FFHQ_SMOKE_SPEED_"+g["source"])
+    validate_sample_speed_for_smoke(index,mid,g["source"])
     return sum(secs)
 
 def launch(run,head,groups,index,gpu,attempt):
