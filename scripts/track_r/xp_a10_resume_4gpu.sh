@@ -48,6 +48,7 @@ print("A10_CONTROLLER_SYNTAX_PASS")
 PY
 
 echo "===== READ-ONLY CAMPAIGN INVENTORY ====="
+set +e
 "$PY" - "$RUN" "$OLD" "$MANIFEST" <<'PY'
 import json,hashlib,sys
 from pathlib import Path
@@ -84,8 +85,9 @@ bad=[(i,count) for i,count in s["attempts"].items()
 if bad:raise RuntimeError("STOP_RETRY_EXHAUSTED_NEEDS_AUDIT "+str(bad[:12]))
 PY
 RC=$?
+set -e
 if [ "$RC" = 12 ]; then exit 0; fi
-test "$RC" = 0
+test "$RC" = 0 || { echo "ACTION NEEDED: PRE_LAUNCH_AUDIT_FAILED"; exit 8; }
 
 # No external PID is stopped. If the old *Track R controller* is still
 # alive, request its own drain via the existing file protocol.
