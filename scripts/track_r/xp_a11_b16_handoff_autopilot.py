@@ -26,7 +26,10 @@ CACHE=ROOT/"outputs/.cache/track_r"
 RUNNER_WT=ROOT/"pr_diffusion_track_r_xp_handoff_20261028"
 MAX_GPU_H=48.
 EST_EARLIER_GPU_H=68.
-VRAM_REQUIRED_MIB=32000
+# A10.1 generation-only: conservative 8 GiB job headroom plus 2 GiB
+# safety margin; the admission routine also enforces <=80% device use.
+# Prior 32 GiB request was unnecessarily restrictive for native FFHQ SITCOM.
+VRAM_REQUIRED_MIB=8192
 REFERENCE_SEC=32.104482267051935
 MARGIN_MIB=2048
 B22_SMOKE={0,1}
@@ -459,11 +462,15 @@ def main(a):
                         g=groups[idx]
                         limit=(32 if 1060<=idx<1160 else
                                16 if idx<100 else 1)*REFERENCE_SEC*3+60
-                        if elapsed>limit:
-                            if not fatal:
-                                event(run,"WORKER_TIMEOUT_WAITING_TO_DRAIN",
-                                      index=idx,elapsed=elapsed,limit=limit)
-                            fatal=True
+                        # A10: production wall time is NOT a validity check.
+                        # A foreign co-tenant can substantially slow native
+                        # sampling. Warn once but never reject a job merely
+                        # because it has exceeded the clean-GPU reference.
+                        if elapsed>limit and not v.get("slow_warning"):
+                            v["slow_warning"]=True
+                            event(run,"PRODUCTION_WALL_SLOW_WARNING_ONLY",
+                                  index=idx,elapsed=elapsed,reference_guard_s=limit,
+                                  timing_used_for_validity=False)
                         continue
                     state["spent_gpu_seconds"]+=time.monotonic()-v["start"]
                     active.pop(idx)
@@ -568,38 +575,65 @@ def main(a):
                         possible=sorted(smoke)
                     elif not set(range(B16_TASKS))<=done:
                         possible=range(B16_TASKS)
+                    elif a.a10:
+                        # A10.2: F8 and XP-C must precede any B32 job.
+                        possible=()
                     elif not state["b32_b22_smoke_pass"] or not state["b32_b24_smoke_pass"]:
                         possible=sorted(b32_smoke)
                     else:
                         possible=range(len(groups))
-                    idx=next((i for i in possible if i not in done and i not in active),None)
-                    if idx is not None:
+
+                    # Work-conserving scheduling: fill *all* available physical
+                    # GPUs in this pass, not just one job every poll tick.
+                    # One Track R worker per GPU remains a hard invariant.
+                    occupied={v["gpu"] for v in active.values()}
+                    available=[c for c in cards if c.index not in occupied
+                               and c.visibility=="known"]
+                    budget_available=remaining_gpu_s
+                    launched=0
+                    while available and len(active)<a.max_parallel:
+                        idx=next((i for i in possible
+                                  if i not in done and i not in active),None)
+                        if idx is None:break
                         conservative_s=((32 if 1060<=idx<1160
                                          else 16 if idx<100 else 1)*
                                          REFERENCE_SEC*1.5+60)
-                        if remaining_gpu_s<conservative_s:
+                        if budget_available<conservative_s:
                             event(run,"GPU_BUDGET_TOO_LOW_FOR_NEXT_GROUP",
-                                  index=idx,remaining_gpu_s=remaining_gpu_s,
+                                  index=idx,remaining_gpu_s=budget_available,
                                   conservative_s=conservative_s)
-                            store("B16_PRODUCTION_DRAINED_BUDGET")
-                            if not active:break
-                            time.sleep(a.poll)
-                            continue
-                        occupied={v["gpu"] for v in active.values()}
-                        # Co-tenancy for generation is authorized; strictly
-                        # refuse unknown visibility and insufficient free VRAM.
-                        available=[c for c in cards if c.index not in occupied and
-                                   c.visibility=="known"]
-                        gpu,_=choose_gpu(available,VRAM_REQUIRED_MIB,
+                            break
+                        gpu,reasons=choose_gpu(
+                            available,VRAM_REQUIRED_MIB,
                             clean_only=False,safety_margin_mib=MARGIN_MIB,
                             fraction=.80)
-                        if gpu is not None:
-                            attempt=int(attempts.get(str(idx),0))+1
-                            attempts[str(idx)]=attempt
-                            v=launch(run,a.expected_head,groups,idx,gpu,attempt)
-                            active[idx]=v
-                            event(run,"START",index=idx,gpu=gpu,pid=v["proc"].pid)
-                            store("B16_PRODUCTION_RUNNING")
+                        if gpu is None:
+                            if launched==0:
+                                event(run,"WAIT_A10_GENERATION_GPU_HEADROOM",
+                                      eligible_devices=len(available),
+                                      reasons=reasons)
+                            break
+                        assert_ok(gpu not in occupied,
+                                  "ONE_TRACK_R_WORKER_PER_GPU")
+                        attempt=int(attempts.get(str(idx),0))+1
+                        attempts[str(idx)]=attempt
+                        v=launch(run,a.expected_head,groups,idx,gpu,attempt)
+                        active[idx]=v
+                        occupied.add(gpu)
+                        budget_available-=conservative_s
+                        available=[c for c in available if c.index!=gpu]
+                        launched+=1
+                        event(run,"START",index=idx,gpu=gpu,pid=v["proc"].pid,
+                              scheduled_batch_size=launched,
+                              timing_measured=False)
+                        store("B16_PRODUCTION_RUNNING")
+                    if launched:
+                        event(run,"A10_BATCH_ADMISSION_COMPLETE",
+                              n_new_workers=launched,
+                              total_active=len(active),
+                              physical_gpus=sorted(occupied),
+                              poll_seconds=a.poll,
+                              one_worker_per_gpu=True)
                 time.sleep(a.poll)
             if fatal:
                 store("STOP_B16_PRODUCTION_WORKER_OR_RECEIPT")
