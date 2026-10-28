@@ -17,14 +17,22 @@
 | mech v1 | `theory/prdiff-track-r-th-20261026` | `225885c297d9a02f9934e65aa1b17e1c45a2d732` | `docs/track_r/theory/TH2_MECH_PREDICTIONS_v1.json` | `65364b2f0be7e34f7681dfb9a6b40e1edf00ba2ea816b16d56961c724ff38436` (planner-verified with `git show` at the commit and at head `58418ed`) | 2026-10-27T04:21:21Z (on GitHub by the push event of 2026-10-27T04:23:20Z, head `c190b5b`) | 2026-10-27T15:35Z (approx.; first `git show` by the planner) | XP-K and XP-G (prereg A5.4): directional forecasts only (DAPS and SITCOM GOOD-run ρ/σ rises toward 1 under calibration); FAST and XP-G abstain. Also within-image class order on new native replicates: G beats C in > 75% of pairs; DAPS and FAST favor G over O more than SITCOM. **REGISTERED** |
 | mech v1.1 | `theory/prdiff-track-r-th-20261026` | `5abad48dfeb759550c0954f286f73c0ac2eeeb58` | `docs/track_r/theory/TH2_MECH_PREDICTIONS_v1_1.json` | `11262301fc00bb0c9483639719564c7f2e04bd8fa0fc146cef2c8477324b758d` (planner-verified at the commit and at head `1e3e8d9`) | 2026-10-27T15:56:47Z (on GitHub, confirmed through the REST API at 21:02Z; no A5.5 value existed then) | 2026-10-27T20:55Z (approx.) | A5.5 noise-floor decomposition for GOOD runs.<br>• DAPS: D/r ≈ 1.02, C/r ≈ 1, Δ/r ≈ −0.98.<br>• SITCOM: D/r ≈ 1.04, C/r ≈ 1, Δ/r ≈ −0.96.<br>• FAST: Δ ≥ 0 if the noise coupling is negligible.<br>• Orientation-leak directions.<br>Note: the signs of Δ and C for DAPS and SITCOM GOOD runs follow already from N1c (ρ < σ ⇒ Δ < 0 ⇒ C > D/2). The informative forecasts are the ratios D/C and Δ/C, and FAST's sign. **REGISTERED** |
 
-**Embargo status (updated 2026-10-28, prereg A8):**
-- FFHQ K > 4 outcomes (XP-A, XP-B, XP-F; B22 DAPS K > 2): **LIFTED** by the registration of v1 in this commit. The XP analysis may score and commit them to `xp/returns/`. The theory executor receives observed-vs-forecast summaries through the planner; v1 is not refitted.
+**Embargo status (updated 2026-10-28 06:00 ET, prereg A8 and A9):**
+- FFHQ K > 4 outcomes (XP-A, XP-B, XP-F; B22 DAPS K > 2): lifted by the registration of v1 (planner `19945af`) for the XP analysis; results go to `xp/returns/`. v1 is not refitted.
+  - **Exception (A9.4): XP-B16 and XP-F8 outcomes are SEALED again** until the earliest of: registration of a v3 forecast; the theory executor's declaration that there will be none; **2026-10-31 12:00 ET**. Generation and the A7.2 lineage gate may proceed.
+  - The theory executor receives FFHQ K > 4 results through the planner, and the FAST per-image strings only after `v2 E1` is registered or the A8.2 deadline passes (A9.3).
 - ImageNet FAST outcomes with run index ≥ 4 (XP-D1 phase 2): v2 is registered, but under A8.2 they stay **EMBARGOED** until the earliest of: (a) registration of a v2 E1_CLIP addendum; (b) the theory executor's declaration that there will be none; (c) **2026-10-29 12:01 ET**.
 - XP-D2 and XP-D3 (DAPS-4K and SITCOM on ImageNet, K = 4): no forecast concerns them, and they are published in `xp/returns/`. Do not relay them to the theory executor until the D1 phase-2 embargo lifts (A8.2).
 - XP-K and XP-G outcomes: mechanism forecasts v1 and v1.1 are **registered**, so these outcomes may be shared with the theory executor once they exist.
 - A5.5 (historical noise-floor decomposition): may be shared with the theory executor.
 - **v2 clock:** the XP-D1 phase-1 strings landed at `41d4121` (2026-10-27 12:01:51 ET); v2 was due by 2026-10-29 12:01 ET (prereg A7.4) and was registered on 2026-10-28.
 
-**Registry keys for parsers.** The first column is the key: `v1`, `v1 companion`, `v2`, `mech v1`, `mech v1.1` (and `v2 E1` if an addendum is registered). The commit, path and SHA cells are wrapped in backticks; strip them before comparing.
+**Prospective results recorded (no forecast is changed by them):**
+
+| Date | Freeze tested | XP commit | Outcome |
+|---|---|---|---|
+| 2026-10-28 | v1, FAST (S5) FFHQ, primary n = 64 and secondary n = 16 | `07d5460` (`XP_A8_FAST_V1_20261028T090445Z`; independent audit PASS; 10,800 new runs rescored) | **The primary race forecast misses.** Primary E0 coverage: race 6/21 (B22 6/7, DEV80 0/7, pooled 0/7), S2 15/21, tail 11/21, race_tau1 13/21. Every variant misses most O_raw and O_orbit points: the observed oracle at K = 64 is 96.1% pooled against 98.8% forecast, with 7 never-GOOD images against 2.2 expected. E1_CLIP pending (A9.2d). |
+
+**Registry keys for parsers.** The first column is the key: `v1`, `v1 companion`, `v2`, `mech v1`, `mech v1.1` (and `v2 E1` and `v3` once registered). The commit, path and SHA cells are wrapped in backticks; strip them before comparing.
 
 **Freeze contents (XP prereg A5.9).** v1 keeps the S1–S3 curves as the exchangeable-ranks reference and adds a rank-calibrated forecast. The A8 ranks reject S2 at K ≤ 4.

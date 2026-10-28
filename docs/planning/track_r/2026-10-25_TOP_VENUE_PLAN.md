@@ -1,6 +1,22 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-28)
 
-> **Sixth update, 2026-10-28, 03:30 ET** (the newest; read it first).
+> **Seventh update, 2026-10-28, 06:00 ET** (the newest; read it first).
+> - **First prospective test: v1 fails for FAST-DIPS** (XP `07d5460`, independent audit PASS; the planner re-derived all 360 rows). The miss is mainly in generation.
+>   - **Cohort A (random):** the race forecast of E0 holds at 6 of 7 values of K.
+>   - **Cohort B (hard):** it fails at all 7.
+>   - **Oracle, both cohorts:** overforecast. At K = 64, 96.1% of images have a GOOD run, against 98.8% forecast.
+>   - **Where the miss comes from:** 25 images had no GOOD run in their first four. 7 of them never produced one in 64, against 2.2 expected.
+>   - **Selection loss** at K = 64 is 2.2%, between the race (0.7%) and S2 (6.9%).
+>   - **By the frozen rule,** S2 scores better on E0 (15 vs 6 of 21), from offsetting errors.
+> - **Paper consequence.** Sec. 5 now reports the miss as the result: four runs cannot tell a hard image from a hopeless one (C-T8), and recommendation (vii) asks that best-of-K be measured at the K reported. Fig. 2 is real.
+> - **v2 E1 addendum:** the planner's QA found an anchor error (E1 inflated by 0.14–0.34). A verbatim patch goes to the theory executor; the addendum is frozen after it is applied.
+> - **CLIP G1 on ImageNet phase 1:** it fixes 85% of global orbit errors and harms 5% of GOOD runs.
+> - **Prereg A9:**
+>   - exploratory decomposition, starting with the exchangeability check;
+>   - an optional v3 for B16/F8, with their outcomes sealed until Oct 31, 12:00 ET at the latest;
+>   - GPU campaign authorized: B16 with its lineage gate, the DAPS replay, then F8.
+>
+> **Sixth update, 2026-10-28, 03:30 ET.**
 > - **Freezes done ahead of target.** TH1 v1 (FFHQ; theory `8ef5f94`, SHA `c19798f9…`), its per-image companion (`5782149`) and v2 (ImageNet FAST; `340dc5d`, SHA `8dda3634…`) are frozen, pushed and registered.
 >   - The planner ran the theory executor's production code, adding only packaging (a τ display fix in the v1 seal; a v2 sealer).
 >   - **The FFHQ K > 4 embargo is lifted.**
