@@ -1,0 +1,13 @@
+{
+  "completed_roots": 2320,
+  "gpu_hours": 28.90766636376049,
+  "outcomes_scored": false,
+  "stage_counts": {
+    "D1_P2": 1200,
+    "D3": 400,
+    "EPRIME": 720
+  },
+  "state_sha256": "e014143472a12488c7b5b296cc8f8fd7da65d961e5091f0d9d00c82c86b4bbc2",
+  "status": "A6_MAIN_PASS_STATE_VERIFIED",
+  "timing_unverified_jobs": 6
+}

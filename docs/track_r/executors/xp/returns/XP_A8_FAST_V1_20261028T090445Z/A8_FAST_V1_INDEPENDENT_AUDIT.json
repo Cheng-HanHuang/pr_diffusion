@@ -1,0 +1,35 @@
+{
+  "a6_final": {
+    "completed_roots": 2320,
+    "gpu_hours": 28.90766636376049,
+    "outcomes_scored": false,
+    "stage_counts": {
+      "D1_P2": 1200,
+      "D3": 400,
+      "EPRIME": 720
+    },
+    "state_sha256": "e014143472a12488c7b5b296cc8f8fd7da65d961e5091f0d9d00c82c86b4bbc2",
+    "status": "A6_MAIN_PASS_STATE_VERIFIED",
+    "timing_unverified_jobs": 6
+  },
+  "auditor_head": "639f9dfedfd477f515348f671ecc44d2603d627e",
+  "compared": {
+    "all_observations_independently_recomputed": true,
+    "coverage_by_variant": {
+      "S2": 34,
+      "race": 26,
+      "race_tau1": 35,
+      "tail": 26
+    },
+    "n_distinct_observed_panels": 30,
+    "n_forecast_rows": 360,
+    "n_summary_rows": 72
+  },
+  "frozen_forecasts_verified_before_outcomes": true,
+  "n_new_reconstructions_independently_rescored": 10800,
+  "no_theory_refit": true,
+  "original_result_path": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a8_fast_v1_20261028T090445Z/A8_FAST_V1_COMPARISON.json",
+  "original_result_sha256": "f1fde0ba2cfa74eca65a7b47ba27edb1af8aaa6ae747449d1e825b7ec650da8e",
+  "scorer_head": "f2bcb07dc8ff73c234cb45ae2b6cef3828f44660",
+  "status": "A8_FAST_V1_INDEPENDENT_AUDIT_PASS"
+}
