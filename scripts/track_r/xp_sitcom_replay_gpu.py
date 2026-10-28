@@ -214,6 +214,15 @@ def generate(a,manifest,rows):
         from sampler import get_sampler
     out=Path(a.out)
     out.mkdir(parents=True,exist_ok=False)
+    # Production-only extension: replay historical B22 prefix to advance
+    # its post-model RNG stream, but persist ONLY new runs 4..15. Default
+    # remains zero for the audited historical 8-root and 400-root gates.
+    skip_prefix=int(getattr(a,"skip_prefix_n",0))
+    if skip_prefix:
+        if (a.mode!="b22" or skip_prefix!=4 or len(rows)!=16
+            or [int(r["rep"]) for r in rows]!=list(range(16))
+            or len({r["image_id"] for r in rows})!=1):
+            raise RuntimeError("STOP_SITCOM_PROD_PREFIX_CONTRACT")
     saved=[];wall=time.perf_counter()
     try:
         op,sampler,model,model_load_s=instantiate(
@@ -224,7 +233,7 @@ def generate(a,manifest,rows):
             post_torch=torch.get_rng_state().clone()
             post_cuda=[x.clone() for x in torch.cuda.get_rng_state_all()]
         previous_image=None
-        for row in rows:
+        for root_idx,row in enumerate(rows):
             if a.mode=="b22" and row["image_id"]!=previous_image:
                 np.random.set_state(post_np)
                 torch.set_rng_state(post_torch.clone())
@@ -270,6 +279,13 @@ def generate(a,manifest,rows):
             validate_reconstruction(reconstructed)
             if a.mode=="b22" and (steps[0]!=200 or selector[0] is None):
                 raise RuntimeError("STOP_SITCOM_REPLAY_B22_SELECTOR")
+            # Prefix runs are fully executed to consume native randomness.
+            # No GT, historical candidate, or outcome is accessed.
+            if root_idx<skip_prefix:
+                print("XP_SITCOM_PROD_PREFIX_CONSUMED",row["rep"],flush=True)
+                del reconstructed,observation,reference,x_start
+                torch.cuda.empty_cache()
+                continue
             reconstruction=reconstructed.detach().cpu().float()
             dest=folder(out,row)
             dest.mkdir(parents=False,exist_ok=False)
@@ -308,6 +324,7 @@ def generate(a,manifest,rows):
                 "mode":a.mode,"index":a.index if a.mode=="b24" else None,
                 "head":a.expected_head,"prep_head":PREP_HEAD,
                 "manifest_sha256":MANIFEST_SHA,"new_roots":len(saved),
+                "consumed_prefix_roots":skip_prefix,
                 "model_load_s":model_load_s,
                 "worker_wall_s":time.perf_counter()-wall,
                 "roots":saved}
