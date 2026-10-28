@@ -219,8 +219,9 @@ def generate(a,manifest,rows):
     # remains zero for the audited historical 8-root and 400-root gates.
     skip_prefix=int(getattr(a,"skip_prefix_n",0))
     if skip_prefix:
-        if (a.mode!="b22" or skip_prefix!=4 or len(rows)!=16
-            or [int(r["rep"]) for r in rows]!=list(range(16))
+        if (a.mode!="b22" or skip_prefix not in (4,16)
+            or len(rows)!=(16 if skip_prefix==4 else 32)
+            or [int(r["rep"]) for r in rows]!=list(range(len(rows)))
             or len({r["image_id"] for r in rows})!=1):
             raise RuntimeError("STOP_SITCOM_PROD_PREFIX_CONTRACT")
     saved=[];wall=time.perf_counter()
