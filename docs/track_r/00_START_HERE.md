@@ -14,6 +14,14 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-28, 15:30 (planner):**
+  - **`v2 E1` frozen and registered** (theory `9cb57f5`, planner `7d1882c`). **D1 phase 2 is unblinded.** B16/F8 stay sealed (A9.4).
+  - **FAST decomposition:** the miss is generation. Six of the 7 never-GOOD images are INCONSISTENT in all 64 runs. Given the realized classes, the race fits selection within 1.4 points (race_tau1 within 0.3), while S2 falls 4–8 points short.
+  - **Prereg A10:**
+    - co-tenancy on all four GPUs for generation, clean GPUs only for timing-measured work (Cheng);
+    - the B16 campaign continues through Oct 30, 12:00 ET (70 GPU-h cap with the DAPS lane);
+    - D1 phase 2 is compared with v2 and v2 E1.
+  - **Notes, round 6:** [`executors/theory/06_PLANNER_GUIDANCE_20261028_PM.md`](executors/theory/06_PLANNER_GUIDANCE_20261028_PM.md) and [`executors/xp/06_PLANNER_NOTES_20261028_PM.md`](executors/xp/06_PLANNER_NOTES_20261028_PM.md).
 - **2026-10-28, 06:00 (planner):**
   - **First prospective result:** FAST-DIPS FFHQ against v1 (XP `07d5460`). The race forecast holds on cohort A and fails on cohort B. The oracle is overforecast in both: 7 images never produce a GOOD run in 64, against 2.2 expected. By the frozen rule, S2 scores better on E0 (15 vs 6 of 21), from offsetting errors. v1 is not refitted.
   - **v2 E1 addendum:** the theory code has an anchor error (E1 +0.14–0.34). The patch is in `executors/theory/patches/`; it is frozen after the theory executor applies it. D1 phase 2 stays sealed until then, or Oct 29, 12:01 ET at the latest.

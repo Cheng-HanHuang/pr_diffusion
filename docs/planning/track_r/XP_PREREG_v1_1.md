@@ -225,7 +225,30 @@
 >    - then the XP-C prior and UnivFD tests on GT, then the BACKGROUND lane;
 >    - **optional (Tier C):** 192 more FAST runs on each of the 7 never-GOOD images (1,344 runs, about 2 GPU-h at A16's 4.3 s per run), to tell a zero success probability from a small one.
 
-**Status:** FROZEN v1.1 with amendments A1–A9 (planner, 2026-10-28).
+> **Amendment A10 (planner, 2026-10-28 15:30 ET).** Written after `v2 E1` was registered (planner `7d1882c`) and before any XP-D1 phase-2 outcome had been scored. XP-B16 is in production (748/2,160 roots at the last checkpoint); B16 and F8 outcomes stay sealed (A9.4).
+> 1. **Co-tenancy (replaces the A7.1 two-GPU cap; Cheng, 2026-10-28 15:02).**
+>    - **Generation stages** (every GT-free sampling job, including B16, B32, F8 production and CLIP scoring) may run alongside other users' jobs on any of the four GPUs. The other A7.1 conditions stay:
+>      - free VRAM is at least the job's request;
+>      - device memory stays at or below 80% after admission;
+>      - at most one Track R worker runs per GPU;
+>      - foreign processes are never touched.
+>    - **Timing-measured work** (XP-T, and any run whose wall time is reported) runs on clean GPUs only. When a foreign job appears, no new timing job starts. A timing job that overlapped a foreign job is marked timing-contaminated and rerun.
+>    - **Replays and lineage gates** may run under co-tenancy. They pass on bitwise equality, or on the registered tolerance: 0.1 dB raw PSNR with an identical label.
+>    - **Telemetry and validity.**
+>      - Each receipt records the foreign-process inventory sampled during the job.
+>      - Production wall time is never a validity criterion; only smoke groups keep the speed envelope.
+>      - On Oct 28, B16 ran on four GPUs while a foreign job was present. That is recorded as a deviation from A7.1, with no effect on reconstruction validity.
+> 2. **Campaign window and budget.**
+>    - **Window and cap.** The B16 campaign continues past its 12-hour window (Oct 28, 18:57 ET) through **Oct 30, 12:00 ET**. B16, the DAPS replay and F8 share a cap of 70 GPU-h, including the 10.9 GPU-h already spent; total use stays under the 400 GPU-h cap.
+>    - **Order:**
+>      - B16 to completion;
+>      - the DAPS lane as soon as its adapter is certified, in parallel with B16 whenever a GPU is free. The lane is the 8-root 400 × 5 replay with the historical code, configuration, seeds and checkpoint, then F8;
+>      - then the XP-C GPU tests;
+>      - B32 only after F8.
+> 3. **XP-D1 phase 2 is unblinded** (A8.2(a)). Compare it with v2 (E0, O_raw, O_orbit) and with v2 E1 (E1_CLIP from G1 decisions on the phase-2 candidates) by the frozen rules. Add the A9.2 decomposition: the exchangeability check (phase 1 vs phase 2), the composition-conditional selection test, and the never-GOOD case list.
+> 4. **The A9.2(b) test for FAST** was computed by the planner from the published strings (`docs/track_r/planner_analysis/A9_2b_FAST_conditional_selection/`). The executor reproduces it independently with its own code.
+
+**Status:** FROZEN v1.1 with amendments A1–A10 (planner, 2026-10-28).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

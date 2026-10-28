@@ -1,6 +1,19 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-28)
 
-> **Seventh update, 2026-10-28, 06:00 ET** (the newest; read it first).
+> **Eighth update, 2026-10-28, 15:30 ET** (the newest; read it first).
+> - **`v2 E1` frozen and registered.** Race E1 is 0.60 at K = 16, against E0 0.41 and O_orbit 0.86. D1 phase 2 is unblinded and is the second prospective test.
+> - **FAST decomposition.**
+>   - **Generation:** the 7 never-GOOD images are unsolvable for FAST-DIPS; 6 are INCONSISTENT in all 64 runs.
+>   - **Selection** (given the realized classes): primary race within 1.4 points, race_tau1 within 0.3, S2 4–8 points short. The residual is a strong verifier, and best-of-K extrapolation fails on generation.
+>   - **No significant drift** between historical and new runs.
+> - **B16:** the 400/400 historical lineage replay passes; production is at 748/2,160 (slow co-tenant periods).
+> - **Prereg A10:**
+>   - co-tenancy on all four GPUs for generation, clean GPUs only for timing (Cheng);
+>   - campaign through Oct 30, 12:00 ET with the DAPS lane;
+>   - B32 last.
+> - **Paper:** main text is at the 8-page limit. Pending results must replace text, not add to it.
+>
+> **Seventh update, 2026-10-28, 06:00 ET.**
 > - **First prospective test: v1 fails for FAST-DIPS** (XP `07d5460`, independent audit PASS; the planner re-derived all 360 rows). The miss is mainly in generation.
 >   - **Cohort A (random):** the race forecast of E0 holds at 6 of 7 values of K.
 >   - **Cohort B (hard):** it fails at all 7.

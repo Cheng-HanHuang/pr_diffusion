@@ -75,6 +75,7 @@ This lies below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above
 Selection behaves differently from FFHQ.
 Of the $4.2$\,dB that the per-metric oracle adds to the first run, the residual pick recovers $1.9$\,dB, and searching the orientation orbit would add another $2.1$\,dB: no measurement-based selector can tell an orbit error from its upright counterpart (\cref{cor:blind}), and on ImageNet such errors are common.
 SITCOM, run with its FFHQ phase-retrieval settings and the ImageNet model, follows the same pattern at a lower level\claim{C-A10}.
+A generic orientation test transfers in part: with the prompts ``a photo.'' and ``an upside-down photo.'', CLIP repairs $57$ of the $67$ global orbit errors among $400$ FAST-DIPS runs and flips $5$ of the $100$ \good runs\claim{C-A11}.
 \pending{$\Eone$ with the generic prompts (G1), anatomy, and FAST-DIPS against its frozen forecast (XP-D1).}
 
 \begin{table}[t]

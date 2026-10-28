@@ -68,6 +68,10 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
   - Prereg **A9**. The FAST-vs-v1 result is accepted as is. The v2 E1 addendum needs the planner's anchor fix before it is frozen.
   - XP-B16 and XP-F8 outcomes are sealed until an optional v3 is registered or declined, or Oct 31, 12:00 ET at the latest. Their generation and the lineage gate may proceed.
   - Round-5 notes are in `executors/{theory,xp}/05_*`.
+- **Update 2026-10-28, 15:30 (planner):**
+  - `v2 E1` is registered, so ImageNet FAST run index ≥ 4 is unblinded. B16/F8 stay sealed (A9.4).
+  - Prereg **A10**: generation jobs may share all four GPUs with other users' jobs. Timing-measured work runs on clean GPUs only. The B16 campaign is extended to Oct 30, 12:00 ET.
+  - Round-6 notes are in `executors/{theory,xp}/06_*`.
 
 ## B26 branch override
 

@@ -5,6 +5,7 @@
 > **2026-10-27, 17:15: then read [`03_PLANNER_GUIDANCE_20261027_EVE.md`](03_PLANNER_GUIDANCE_20261027_EVE.md).** It covers the A8b and D1-P1 inputs and their SHAs, the mech v1.1 registration, the planner's production run of the A6 code (the validator fails without the control-variate fix), and the v1 and v2 deliverables.
 > **2026-10-28, 03:30: then read [`04_PLANNER_GUIDANCE_20261028.md`](04_PLANNER_GUIDANCE_20261028.md).** It records the planner's runs of your v1 and v2 freezes (hashes, the one QA fix, the v2 sealer), the optional v2 E1 addendum (deadline Oct 29, 12:01 ET), what to do now that v1 is registered, and the paper deliverables.
 > **2026-10-28, 06:00: then read [`05_PLANNER_GUIDANCE_20261028_AM.md`](05_PLANNER_GUIDANCE_20261028_AM.md).** It accepts round 4, reports the anchor error in the v2 E1 addendum with a verbatim patch (`patches/TH1_V2_E1_ANCHOR_FIX.patch`), and previews round 6 (the FAST comparison with v1, the 64-run strings, an optional v3).
+> **2026-10-28, 15:30: then read [`06_PLANNER_GUIDANCE_20261028_PM.md`](06_PLANNER_GUIDANCE_20261028_PM.md).** It covers the v2 E1 freeze, the release of the FAST result with its decomposition, the interpretation note due Oct 30, the optional v3 due Oct 31 at 12:00 ET, and optional identification bounds.
 
 **From:** planner (Claude), 2026-10-26.
 - Revision B.1 adds the TGD read and the phase-retrieval-theory research pass (program v1.2; digest §§4–5).
