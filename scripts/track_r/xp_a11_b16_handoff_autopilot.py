@@ -214,6 +214,7 @@ def main(a):
     run.joinpath("gpu").mkdir(exist_ok=True)
     run.joinpath("logs").mkdir(exist_ok=True)
     run.joinpath("pycache").mkdir(exist_ok=True)
+    run.joinpath("quarantine").mkdir(exist_ok=True)
     (CACHE/"tmp").mkdir(parents=True,exist_ok=True)
     with (run/"B16_PRODUCTION_CONTROLLER.lock").open("a+") as lock:
         try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -322,8 +323,29 @@ def main(a):
                     state["spent_gpu_seconds"]+=time.monotonic()-v["start"]
                     active.pop(idx)
                     if rc!=0:
-                        event(run,"WORKER_FAILED",index=idx,rc=rc,log=v["log"])
-                        fatal=True
+                        attempt=int(attempts.get(str(idx),0))
+                        event(run,"WORKER_FAILED",index=idx,rc=rc,
+                              attempt=attempt,log=v["log"])
+                        # Exactly one same-seed retry. Quarantine any partial
+                        # output without deleting it or treating it as valid.
+                        if attempt<2:
+                            path=run/"gpu"/v["task_id"]
+                            if path.exists():
+                                assert_ok(path.is_dir() and not path.is_symlink(),
+                                          "FAILED_TASK_OUTPUT_SYMLINK")
+                                quarantine=run/"quarantine"/(
+                                    v["task_id"]+"_failed_try"+str(attempt))
+                                assert_ok(not quarantine.exists(),
+                                          "QUARANTINE_ALREADY_EXISTS")
+                                path.rename(quarantine)
+                                event(run,"FAILED_ATTEMPT_QUARANTINED",
+                                      index=idx,path=str(quarantine))
+                            event(run,"ONE_RETRY_AUTHORIZED",
+                                  index=idx,next_attempt=attempt+1)
+                        else:
+                            fatal=True
+                        store("B16_PRODUCTION_RETRY_PENDING" if not fatal
+                              else "STOP_B16_PRODUCTION_WORKER")
                         continue
                     try:
                         secs=verify_task(run,groups,msha,idx,a.expected_head)
