@@ -94,9 +94,17 @@ def main(a):
     # run/seed algorithm. New per-image manifests are validated above.
     native.PREP_HEAD=a.expected_head
     native.MANIFEST_SHA=pre["manifest_sha256"]
+    # The audited native generator expects the runner's expected_head
+    # and its historical native_source_head key. The frozen A10 manifest
+    # records this same source hash as source_head. Adapt in memory only:
+    # never rewrite the immutable GPU/CPU manifests.
+    check(mf["source_head"]==SITCOM_HEAD,"NATIVE_SOURCE_ALIAS")
+    check("native_source_head" not in mf,"NO_MANIFEST_FIELD_REWRITE")
+    worker_manifest=dict(mf,native_source_head=mf["source_head"])
     result=native.generate(
-       SimpleNamespace(mode="b22",out=str(out),gpu=a.gpu),
-       mf,rows)
+       SimpleNamespace(mode="b22",out=str(out),gpu=a.gpu,
+                       expected_head=a.expected_head),
+       worker_manifest,rows)
     print("B16_GATE_NATIVE_IMAGE_PASS",rows[0]["image_id"],flush=True)
     return result
 
