@@ -15,20 +15,27 @@ def main():
         or not r.is_dir() or r.is_symlink()):
         raise RuntimeError("STOP_STATUS_RUN")
     manifest=read(r/"XP_A11_B16_PROD_TASKS.json")
-    group=manifest["b22_groups"]+manifest["b24_groups"]
+    group=(manifest["b22_groups"]+manifest["b24_groups"]+
+           manifest["b32_b22_groups"]+manifest["b32_b24_groups"])
     statepath=r/"B16_PRODUCTION_STATE.json"
     gatepath=BASE/GATE_NAME/"B16_GATE_STATE.json"
     gate=read(gatepath) if gatepath.is_file() else {}
     state=read(statepath) if statepath.is_file() else {}
     done=state.get("done",[])
     completed=sum(group[i]["new_roots"] for i in done)
+    b16_done=[i for i in done if i<1060]
+    b32_done=[i for i in done if i>=1060]
+    b16_count=sum(group[i]["new_roots"] for i in b16_done)
+    b32_count=sum(group[i]["new_roots"] for i in b32_done)
     used=float(gate.get("spent_gpu_seconds",0.)) + float(state.get("spent_gpu_seconds",0.))
     deadline=state.get("deadline_epoch") or gate.get("deadline_epoch")
     print("B16 12H CAMPAIGN STATUS")
     print("Gate:",gate.get("status","NO_STATE"),"historical images",
           len(gate.get("done",[])),"/100")
     print("Handoff:",state.get("status","NOT_STARTED"))
-    print("B16 production: tasks",len(done),"/1060; new roots",completed,"/2160")
+    print("B16 CRITICAL:",len(b16_done),"/1060 tasks;",b16_count,"/2160 roots")
+    print("B32 BACKGROUND:",len(b32_done),"/1380 tasks;",b32_count,"/2880 roots")
+    print("Combined completed new roots:",completed,"/5040")
     print("Active:",len(state.get("active",[])),"physical GPU slots")
     print("B22 smoke:",state.get("b22_smoke_pass",False),
           "DEV80 smoke:",state.get("b24_smoke_pass",False))
