@@ -42,6 +42,19 @@ class TestB16FullGate(unittest.TestCase):
         self.assertNotIn("historical_candidate_path",roots[0])
         self.assertEqual(offline[0]["historical_raw_label"],
                          "NONORBIT_INCONSISTENT")
+    def test_git_porcelain_preserves_leading_status_column(self):
+        with patch.object(prep.subprocess,"check_output",
+                          return_value=" M model/__pycache__/precond.cpython-38.pyc\\n"):
+            status=prep.git("/mock/SITCOM_ODE","status","--porcelain=v1",
+                            "--untracked-files=no")
+        self.assertEqual(status,
+                         " M model/__pycache__/precond.cpython-38.pyc")
+        self.assertEqual(status[:2]," M")
+        self.assertTrue(
+            prep.check_native_checkout(
+                prep.SITCOM_HEAD,status,"")["native_solver_model_operator_source_clean"]
+        )
+
     def test_missing_run_fails_closed(self):
         catalog,scores=fake_catalog()
         catalog.pop()
