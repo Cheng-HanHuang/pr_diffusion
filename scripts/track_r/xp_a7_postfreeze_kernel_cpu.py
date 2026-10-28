@@ -113,7 +113,7 @@ def compare_interval(observed,forecast):
             and lo<=point<=hi and hi>lo):
         raise ValueError("bad interval")
     se=(hi-lo)/3.92
-    if typ=="predictive_panel":
+    if typ in ("predictive_panel","predictive_realized_panel"):
         ok=lo<=observed<=hi;z=(observed-point)/se
     elif typ=="parameter_only":
         if "se_observed" not in forecast:raise ValueError("missing SE_obs")
@@ -123,6 +123,8 @@ def compare_interval(observed,forecast):
         ok=abs(observed-point)<=2*se;z=(observed-point)/se
     else:
         raise ValueError("unknown predictive interval type")
+    if typ=="predictive_realized_panel":
+        z=abs(observed-point)/max((hi-lo)/3.92,0.005)
     return {"inside":ok,"standardized_residual":z,
             "point":point,"observed":observed,"lo95":lo,"hi95":hi,
             "interval_type":typ}
@@ -130,7 +132,7 @@ def compare_interval(observed,forecast):
 def verify_freeze(repo,registry,freeze_key,theory_commit,forecast_path,
                   expected_sha,first_outcome_commit):
     """Call *before opening any prospective outcome file*."""
-    if freeze_key not in ("v1","v2 (optional)"):
+    if freeze_key not in ("v1","v1 companion","v2"):
         raise RuntimeError("STOP_POSTFREEZE_WRONG_SCOPE")
     lines=Path(registry).read_text().splitlines()
     matches=[]
@@ -141,7 +143,7 @@ def verify_freeze(repo,registry,freeze_key,theory_commit,forecast_path,
     if len(matches)!=1 or len(matches[0])<7:
         raise RuntimeError("STOP_POSTFREEZE_NO_REGISTRY")
     entry=matches[0]
-    if (entry[2]!=theory_commit or
+    if (entry[2].strip(chr(96))!=theory_commit or
         entry[3].strip(chr(96))!=forecast_path or
         expected_sha not in entry[4] or
         any(not x or x=="—" for x in (theory_commit,expected_sha))):
@@ -158,6 +160,38 @@ def verify_freeze(repo,registry,freeze_key,theory_commit,forecast_path,
         raise RuntimeError("STOP_POSTFREEZE_FORECAST_AFTER_OUTCOME")
     return dict(status="FREEZE_AUTHORIZED",freeze=freeze_key,
                 forecast_sha256=expected_sha,freeze_time=t,outcome_time=v)
+
+def read_registered_forecasts(repo,registry,freeze_key,theory_commit,
+                              forecast_path,forecast_sha,first_outcome_commit):
+    """Verify immutable source and chronology BEFORE parsing any forecast."""
+    receipt=verify_freeze(repo,registry,freeze_key,theory_commit,
+                          forecast_path,forecast_sha,first_outcome_commit)
+    data=subprocess.check_output(["git","-C",str(repo),"show",
+                       theory_commit+":"+forecast_path],timeout=90)
+    if freeze_key=="v1 companion":
+        import io
+        rows=list(csv.DictReader(io.StringIO(data.decode())))
+        if not rows:raise RuntimeError("STOP_POSTFREEZE_EMPTY_COMPANION")
+        return receipt,rows
+    payload=json.loads(data)
+    if payload.get("interval_type")!="predictive_realized_panel":
+        raise RuntimeError("STOP_POSTFREEZE_PREDICTIVE_CONTRACT")
+    if freeze_key=="v1" and len(payload.get("predictions",[]))!=976:
+        raise RuntimeError("STOP_POSTFREEZE_V1_COUNT")
+    if freeze_key=="v2" and len(payload.get("predictions",[]))!=36:
+        raise RuntimeError("STOP_POSTFREEZE_V2_COUNT")
+    required=("family","cohort","panel","panel_n_max","model_variant",
+              "K","policy","point","lo95","hi95")
+    keyed={}
+    for row in payload["predictions"]:
+        if any(k not in row for k in required):
+            raise RuntimeError("STOP_POSTFREEZE_FORECAST_FIELDS")
+        key=tuple(row[k] for k in required[:7])
+        if key in keyed:raise RuntimeError("STOP_POSTFREEZE_DUPLICATE_KEY")
+        if not all(math.isfinite(float(row[k])) for k in ("point","lo95","hi95")):
+            raise RuntimeError("STOP_POSTFREEZE_NONFINITE_FORECAST")
+        keyed[key]=dict(row,interval_type=payload["interval_type"])
+    return receipt,keyed
 
 def validate_kernel():
     rng=random.Random(20261028)
