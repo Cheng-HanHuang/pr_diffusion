@@ -1,6 +1,27 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-27)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-28)
 
-> **Fifth update, 2026-10-27, 17:15 ET** (the newest; read it first).
+> **Sixth update, 2026-10-28, 03:30 ET** (the newest; read it first).
+> - **Freezes done ahead of target.** TH1 v1 (FFHQ; theory `8ef5f94`, SHA `c19798f9…`), its per-image companion (`5782149`) and v2 (ImageNet FAST; `340dc5d`, SHA `8dda3634…`) are frozen, pushed and registered.
+>   - The planner ran the theory executor's production code, adding only packaging (a τ display fix in the v1 seal; a v2 sealer).
+>   - **The FFHQ K > 4 embargo is lifted.**
+>   - D1 phase 2 stays embargoed until a v2 E1 addendum, or Oct 29, 12:01 ET at the latest (prereg A8).
+> - **v2 forecast (ImageNet FAST, K = 16, race):** E0 0.41 [0.31, 0.51], against S2 0.30, O_raw 0.68 and O_orbit 0.86. E0 is predicted to stay flat in K while the oracles rise, because orbit errors nearly tie GOOD runs in the residual race (w_O = 0.77).
+> - **XP-D2/D3** (ImageNet, K = 4), DAPS-4K, in dB:
+>
+>   | Policy | DAPS-4K (dB) |
+>   |---|---|
+>   | First run | 18.0 |
+>   | E0 | 19.9 |
+>   | Per-metric oracle | 22.3 |
+>   | Orbit oracle | 24.4 |
+>
+>   - The per-metric oracle is below DAPS Table 1 (25.78) but above PC-DAPS's independent DAPS-4K rerun (20.98). Comparability checks are in A8.6; we will not claim to reproduce Table 1.
+>   - SITCOM is lower throughout (first 14.8, per-metric oracle 18.2).
+> - **Executor queue:**
+>   - CPU: CLIP decisions for D1-P1 (feeds the v2 E1 addendum), then FAST A16/A64 vs v1, the first prospective test.
+>   - GPU: XP-E′ (running), then B16 with its lineage gate, then the DAPS replay and F8.
+>
+> **Fifth update, 2026-10-27, 17:15 ET.**
 > - **Executor:**
 >   - A8b and the ImageNet D1-P1 theory strings are published; the v2 clock runs to Oct 29, 12:01 ET.
 >   - D1 phase 2 (1,200 runs) and XP-D3 (400) are generated.

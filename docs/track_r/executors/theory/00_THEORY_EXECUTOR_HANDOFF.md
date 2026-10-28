@@ -3,6 +3,7 @@
 > **2026-10-27: read [`01_PLANNER_GUIDANCE_20261027.md`](01_PLANNER_GUIDANCE_20261027.md) first.** It covers where A8 is, the S2 rejection, the v1 contents and target (Oct 29, 18:00 ET), the TH2 refocus on the noise floor, and the reading permissions.
 > **2026-10-27, 12:30: then read [`02_PLANNER_GUIDANCE_20261027_PM.md`](02_PLANNER_GUIDANCE_20261027_PM.md).** It covers the mech v1 registration, the planner's run of your code on the real A8, what the v1 freeze still needs (panels, interval type, sensitivity), v2, and `theory_inputs/`.
 > **2026-10-27, 17:15: then read [`03_PLANNER_GUIDANCE_20261027_EVE.md`](03_PLANNER_GUIDANCE_20261027_EVE.md).** It covers the A8b and D1-P1 inputs and their SHAs, the mech v1.1 registration, the planner's production run of the A6 code (the validator fails without the control-variate fix), and the v1 and v2 deliverables.
+> **2026-10-28, 03:30: then read [`04_PLANNER_GUIDANCE_20261028.md`](04_PLANNER_GUIDANCE_20261028.md).** It records the planner's runs of your v1 and v2 freezes (hashes, the one QA fix, the v2 sealer), the optional v2 E1 addendum (deadline Oct 29, 12:01 ET), what to do now that v1 is registered, and the paper deliverables.
 
 **From:** planner (Claude), 2026-10-26.
 - Revision B.1 adds the TGD read and the phase-retrieval-theory research pass (program v1.2; digest §§4–5).

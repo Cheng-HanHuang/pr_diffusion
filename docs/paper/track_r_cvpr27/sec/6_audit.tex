@@ -70,7 +70,29 @@ Within an image, a \cons run of SITCOM has a larger residual than a \good run by
 \pending{XP-K: the same images with each solver's data term calibrated to $\sigma$.}
 
 \paragraph{ImageNet.}
-\pending{XP-D1--D3: anatomy, the published DAPS protocol (DAPS-4K, per-metric oracle) next to first run and $\Eone$, and orientation tests with generic prompts. Reference: the published DAPS value is $25.78\pm6.92$\,dB~\cite{zhang2025daps}.}
+On the $100$ ImageNet test images of DAPS, under the published protocol (DAPS-4K; the best of four runs per metric, chosen against the ground truth), DAPS reaches $22.3$\,dB and SSIM $0.52$ (\cref{tab:imagenet})\claim{C-A9}.
+This lies below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above an independent rerun of DAPS-4K in~\cite{kocabas2026pcdaps} ($20.98$\,dB)\claim{C-P2} \pending{A8.6 comparability checks}.
+Selection behaves differently from FFHQ.
+Of the $4.2$\,dB that the per-metric oracle adds to the first run, the residual pick recovers $1.9$\,dB, and searching the orientation orbit would add another $2.1$\,dB: no measurement-based selector can tell an orbit error from its upright counterpart (\cref{cor:blind}), and on ImageNet such errors are common.
+SITCOM, run with its FFHQ phase-retrieval settings and the ImageNet model, follows the same pattern at a lower level\claim{C-A10}.
+\pending{$\Eone$ with the generic prompts (G1), anatomy, and FAST-DIPS against its frozen forecast (XP-D1).}
+
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Solver & First & $\Eo$ & Per-metric & $\Oorb$ \\
+\midrule
+DAPS-4K & 18.04 / .386 & 19.94 / .447 & 22.28 / .518 & 24.37 / .570 \\
+SITCOM & 14.85 / .228 & 16.31 / .270 & 18.24 / .317 & 20.02 / .359 \\
+\midrule
+\multicolumn{5}{@{}l}{\footnotesize DAPS paper~\cite{zhang2025daps}: 25.78 / .743; DAPS-4K rerun in~\cite{kocabas2026pcdaps}: 20.98 / .461.}\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{ImageNet, $100$ images, four runs each: mean PSNR (dB) / SSIM.} ``Per-metric'' is the published protocol: the best run per metric against the ground truth. $\Oorb$ also searches each run's orientation orbit\claim{C-A9}\claim{C-A10}. \pending{$\Eone$ (G1); LPIPS with the VGG network of~\cite{zhang2025daps}}.}
+\label{tab:imagenet}
+\end{table}
 
 \paragraph{PC-DAPS on the same measurements.}
 \pending{XP-I: per-particle anatomy, PC-DAPS's own reporting (mean over its four particles), and $\Eo$/$\Eone$ over the particles, next to DAPS at $K{=}4$ on the same images.}

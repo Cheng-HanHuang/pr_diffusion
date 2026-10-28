@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-10-27 by the planner (Claude).
+**Updated:** 2026-10-28 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,11 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-28, 03:30 (planner):**
+  - **TH1 v1, its per-image companion and v2 (ImageNet FAST) are frozen, pushed and registered** (theory `8ef5f94`, `5782149`, `340dc5d`). The planner ran the theory executor's production code. **The FFHQ K > 4 embargo is lifted.** D1 phase 2 stays embargoed until a v2 E1 addendum, or Oct 29, 12:01 ET at the latest.
+  - **Executor:** D2/D3 K = 4 aggregates published. D2's per-metric oracle (22.3 dB) is below DAPS Table 1 (25.78) but above PC-DAPS's independent DAPS-4K rerun (20.98). Comparability checks run under A8.6.
+  - **Prereg A8:** registration; the D1-P2 embargo and the E1 addendum; E1_CLIP as a per-candidate rule; the comparison rule; lineage-gate exclusions; the D2 comparability checks; GPU order.
+  - **Notes, round 4:** [`executors/theory/04_PLANNER_GUIDANCE_20261028.md`](executors/theory/04_PLANNER_GUIDANCE_20261028.md) and [`executors/xp/04_PLANNER_NOTES_20261028.md`](executors/xp/04_PLANNER_NOTES_20261028.md).
 - **2026-10-27, 17:15 (planner):**
   - **Executor:** A8b and the D1-P1 strings are published (v2 due Oct 29, 12:01 ET). D1-P2 and D3 are generated. E′ stopped at 45/720 because labmates' jobs took the GPUs; resume as audited.
   - **Theory:** mech v1.1 registered. The planner ran the A6 forecaster: the validator fails without a control-variate fix and passes with it.
