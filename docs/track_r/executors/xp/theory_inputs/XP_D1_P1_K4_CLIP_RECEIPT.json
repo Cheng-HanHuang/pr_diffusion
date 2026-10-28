@@ -1,0 +1,48 @@
+{
+  "D1_P1_frozen_labels_sha256": "c21778803a17821ecf51857af6378273c2b583d4d19938d0c42e401f20178bc1",
+  "D1_P2_outcomes_opened": false,
+  "analysis_head": "724a5fe28c0264d01e1cd6309ecee8934ac4eba0",
+  "csv_sha256": "0a2989180b67afa6fc9c6fccdffe7680030f4214d7b672ecd4fe50e5b010cf44",
+  "g1_111": 168,
+  "g1_good": 152,
+  "g1_prompts_inverted": [
+    "an upside-down photo."
+  ],
+  "g1_prompts_upright": [
+    "a photo."
+  ],
+  "g2_111": 173,
+  "g2_good": 150,
+  "g2_prompts_inverted": [
+    "an upside-down photo.",
+    "an upside-down photo of a scene.",
+    "an upside-down photo of an object.",
+    "a photo that is upside down.",
+    "a photo rotated by 180 degrees.",
+    "an inverted photo."
+  ],
+  "g2_prompts_upright": [
+    "a photo.",
+    "a photo of a scene.",
+    "a photo of an object.",
+    "a good photo.",
+    "a natural photo.",
+    "a photo of something."
+  ],
+  "generation_head": "8d9bfed0fa62735791987a24791cfb97123540d8",
+  "gt_used_for_binary_chosen_good_only": true,
+  "model": "CLIP ViT-L/14",
+  "model_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+  "n_candidates": 400,
+  "n_images": 100,
+  "native_univfd_head": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619",
+  "rule": "choose 111 iff u(R111*x)>u(x), else 000",
+  "run_indices": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "scoring_device": "cpu",
+  "status": "XP_D1_P1_K4_CLIP_DECISIONS_PASS"
+}
