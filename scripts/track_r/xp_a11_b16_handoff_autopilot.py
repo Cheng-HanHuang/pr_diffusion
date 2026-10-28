@@ -219,6 +219,21 @@ def verify_task(run,groups,manifest_sha,index,head):
     validate_sample_speed_for_smoke(index,mid,g["source"])
     return sum(secs)
 
+def choose_generation_gpu(cards,occupied):
+    """A10.1: one Track R worker/GPU; foreign PIDs are not a veto.
+
+    The underlying admission checks projected memory <=80% and reserves
+    VRAM_REQUIRED_MIB plus MARGIN_MIB. Unknown inventory is not eligible.
+    """
+    available=[c for c in cards if c.index not in occupied
+               and c.visibility=="known"]
+    gpu,reasons=choose_gpu(available,VRAM_REQUIRED_MIB,
+                           clean_only=False,safety_margin_mib=MARGIN_MIB,
+                           fraction=.80)
+    assert_ok(gpu is None or gpu not in occupied,
+              "ONE_TRACK_R_WORKER_PER_GPU")
+    return gpu,reasons
+
 def launch(run,head,groups,index,gpu,attempt):
     g=groups[index]
     log=run/"logs"/f"B16_{index:04d}_{g['task_id']}_try{attempt:02d}.log"
@@ -603,10 +618,8 @@ def main(a):
                                   index=idx,remaining_gpu_s=budget_available,
                                   conservative_s=conservative_s)
                             break
-                        gpu,reasons=choose_gpu(
-                            available,VRAM_REQUIRED_MIB,
-                            clean_only=False,safety_margin_mib=MARGIN_MIB,
-                            fraction=.80)
+                        gpu,reasons=choose_generation_gpu(
+                            available,occupied)
                         if gpu is None:
                             if launched==0:
                                 event(run,"WAIT_A10_GENERATION_GPU_HEADROOM",
