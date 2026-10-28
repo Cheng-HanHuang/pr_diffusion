@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 from scripts.track_r import xp_a11_b16_prod_prepare_cpu as prep
 from scripts.track_r.xp_a11_b16_handoff_autopilot import (
-    B22_SMOKE,B24_SMOKE,REFERENCE_SEC)
+    B22_SMOKE,B24_SMOKE,B32_B22_SMOKE,B32_B24_SMOKE,REFERENCE_SEC)
 
 class TestB16Production(unittest.TestCase):
     def test_frozen_seed_domain_matches_historical_algorithm(self):
@@ -50,6 +50,15 @@ class TestB16Production(unittest.TestCase):
             b22groups,b24groups=prep.build(b22,catalog)
         self.assertEqual(len(b22groups),100)
         self.assertEqual(len(b24groups),960)
+        b32_b22,b32_b24=prep.build_b32(b22groups,b24groups)
+        self.assertEqual(len(b32_b22),100)
+        self.assertEqual(len(b32_b24),1280)
+        self.assertEqual(sum(g["new_roots"] for g in b32_b22+b32_b24),
+                         2880)
+        self.assertEqual([r["rep"] for r in b32_b22[0]["rows"]],
+                         list(range(32)))
+        self.assertEqual(b32_b24[0]["rows"][0]["rep"],16)
+        self.assertEqual(b32_b24[-1]["rows"][0]["rep"],31)
         self.assertEqual(sum(x["new_roots"] for x in b22groups+b24groups),2160)
         self.assertEqual([r["rep"] for r in b22groups[0]["rows"]],
                          list(range(16)))
@@ -66,6 +75,8 @@ class TestB16Production(unittest.TestCase):
     def test_smoke_sets_and_ffhq_timing_frozen(self):
         self.assertEqual(B22_SMOKE,{0,1})
         self.assertEqual(B24_SMOKE,{100,101,112,113})
+        self.assertEqual(B32_B22_SMOKE,{1060,1061})
+        self.assertEqual(B32_B24_SMOKE,{1160,1161,1176,1177})
         self.assertAlmostEqual(REFERENCE_SEC,32.104482267051935)
         self.assertTrue(16.05 < 22.8 < 1.5*REFERENCE_SEC)
 
