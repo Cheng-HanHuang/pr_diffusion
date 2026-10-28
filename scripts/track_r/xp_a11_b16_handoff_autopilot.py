@@ -293,6 +293,12 @@ def main(a):
                 deadline_reached=time.time()>=state["deadline_epoch"]
                 gpu_budget_reached=(state["gate_spent_gpu_seconds"]+
                                     state["spent_gpu_seconds"])>=a.max_gpu_hours*3600
+                # Include running jobs and a conservative next-job
+                # reservation before admitting more GPU work.
+                live_gpu_s=sum(time.monotonic()-v["start"] for v in active.values())
+                remaining_gpu_s=(a.max_gpu_hours*3600
+                                 -state["gate_spent_gpu_seconds"]
+                                 -state["spent_gpu_seconds"]-live_gpu_s)
                 halted=(STOP or (run/"STOP_AFTER_ACTIVE").exists()
                         or deadline_reached or gpu_budget_reached or fatal)
                 cards=collect(own_roots=[v["proc"].pid for v in active.values()])
@@ -350,6 +356,16 @@ def main(a):
                         possible=range(len(groups))
                     idx=next((i for i in possible if i not in done and i not in active),None)
                     if idx is not None:
+                        conservative_s=((16 if idx<100 else 1)*
+                                         REFERENCE_SEC*1.5+60)
+                        if remaining_gpu_s<conservative_s:
+                            event(run,"GPU_BUDGET_TOO_LOW_FOR_NEXT_GROUP",
+                                  index=idx,remaining_gpu_s=remaining_gpu_s,
+                                  conservative_s=conservative_s)
+                            store("B16_PRODUCTION_DRAINED_BUDGET")
+                            if not active:break
+                            time.sleep(a.poll)
+                            continue
                         occupied={v["gpu"] for v in active.values()}
                         # Co-tenancy for generation is authorized; strictly
                         # refuse unknown visibility and insufficient free VRAM.
