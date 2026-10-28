@@ -31,7 +31,7 @@ def evaluate(run,head,index):
            len(tasks["rows"])==len(references["rows"])==400 and
            0<=index<100,"MANIFEST_SCHEMA")
     import torch
-    from prdiffusion.track_r.physics import to_rgb8,rho_signed
+    from prdiffusion.track_r.physics import to_rgb8,from_rgb8,rho_signed
     from prdiffusion.track_r.r0_7_stats import orbit_psnr_channel_mse
     from scripts.track_r.r0_2_g0_cpu import gt_source,read_tensor
     from scripts.b22.b22_smoke_common import tensor_content_sha256
@@ -72,7 +72,7 @@ def evaluate(run,head,index):
         best=float(max(psnr.values()))
         if raw>=25:label="GOOD"
         elif best>=25:label="ORBIT_ERROR"
-        elif float(rho_signed(tensor,y)[0])<=ref["historical_tau"]:
+        elif float(rho_signed(from_rgb8(to_rgb8(tensor)),y)[0])<=ref["historical_tau"]:
             label="NONORBIT_CONSISTENT"
         else:label="NONORBIT_INCONSISTENT"
         delta=abs(raw-float(ref["historical_raw_psnr"]))
