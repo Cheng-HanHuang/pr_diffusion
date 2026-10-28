@@ -63,6 +63,7 @@ class TestB16FullGate(unittest.TestCase):
     def test_historical_smoke_is_two_independent_cpu_checks(self):
         with TemporaryDirectory() as tmp:
             run=Path(tmp)
+            (run/"logs").mkdir()
             with patch("scripts.track_r.xp_a10_b16_gate_autopilot.subprocess.run") as invoke:
                 invoke.return_value.returncode=0
                 cpu_smoke(run,"pinned")
@@ -75,6 +76,7 @@ class TestB16FullGate(unittest.TestCase):
     def test_historical_smoke_failure_blocks_progress(self):
         with TemporaryDirectory() as tmp:
             run=Path(tmp)
+            (run/"logs").mkdir()
             with patch("scripts.track_r.xp_a10_b16_gate_autopilot.subprocess.run") as invoke:
                 invoke.return_value.returncode=8
                 with self.assertRaisesRegex(RuntimeError,"HISTORICAL_SMOKE_0"):
