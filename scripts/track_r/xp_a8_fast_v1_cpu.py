@@ -23,7 +23,7 @@ from scripts.track_r.xp_night_publish_cpu import (
 from scripts.track_r.xp_fast_gpu import frozen_roots,root_folder,validate_complete
 from scripts.track_r.xp_a16_publish_cpu import (
     GEN_HEAD as A16_GEN,verify_chunk_proofs)
-from scripts.track_r.r0_2_g0_cpu import gt_source
+from scripts.track_r.r0_2_g0_cpu import gt_source,read_tensor
 from prdiffusion.track_r.r0_7_stats import orbit_psnr_channel_mse
 from prdiffusion.track_r.physics import to_rgb8,psnr_rgb8,rho_signed
 
@@ -154,17 +154,16 @@ def future_inputs():
 
 def score_future(identities,scored,a16files,a64files):
     import torch
-    from scripts.track_r.r0_2_g0_cpu import gt_source
     torch.set_num_threads(min(4,torch.get_num_threads()))
     total=0
     for cohort,iid in sorted(identities):
         gtpath,gtfmt,ypath,yhash=identities[(cohort,iid)]
         if sha(ypath)!=yhash:raise RuntimeError("STOP_A8_FAST_MEAS_HASH")
         g8=to_rgb8(gt_source({"gt_path":gtpath,"gt_format":gtfmt}).float())
-        record=torch.load(safe(ypath),map_location="cpu",weights_only=True)
-        y=record["measurement"].float()
-        if y.shape!=(1,3,384,384):
-            raise RuntimeError("STOP_A8_FAST_Y_SHAPE")
+        # R0 measurements may be saved as direct tensors or keyed dicts.
+        # Reuse the frozen G0 loader for type, shape and finiteness checks.
+        y=read_tensor(safe(ypath),("measurement","y","observation"),
+                      (1,3,384,384))
         group=scored[(cohort,iid)]
         for rep in range(4,64):
             candidate=(a16files if rep<16 else a64files)
