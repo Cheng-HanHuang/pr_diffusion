@@ -14,6 +14,11 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-28, 06:00 (planner):**
+  - **First prospective result:** FAST-DIPS FFHQ against v1 (XP `07d5460`). The race forecast holds on cohort A and fails on cohort B. The oracle is overforecast in both: 7 images never produce a GOOD run in 64, against 2.2 expected. By the frozen rule, S2 scores better on E0 (15 vs 6 of 21), from offsetting errors. v1 is not refitted.
+  - **v2 E1 addendum:** the theory code has an anchor error (E1 +0.14–0.34). The patch is in `executors/theory/patches/`; it is frozen after the theory executor applies it. D1 phase 2 stays sealed until then, or Oct 29, 12:01 ET at the latest.
+  - **Prereg A9:** exploratory decomposition; release rules; an optional v3 for B16/F8 (B16/F8 outcomes sealed until v3, its decline, or Oct 31, 12:00 ET); the GPU campaign B16 + replay → F8.
+  - **Notes, round 5:** [`executors/theory/05_PLANNER_GUIDANCE_20261028_AM.md`](executors/theory/05_PLANNER_GUIDANCE_20261028_AM.md) and [`executors/xp/05_PLANNER_NOTES_20261028_AM.md`](executors/xp/05_PLANNER_NOTES_20261028_AM.md).
 - **2026-10-28, 03:30 (planner):**
   - **TH1 v1, its per-image companion and v2 (ImageNet FAST) are frozen, pushed and registered** (theory `8ef5f94`, `5782149`, `340dc5d`). The planner ran the theory executor's production code. **The FFHQ K > 4 embargo is lifted.** D1 phase 2 stays embargoed until a v2 E1 addendum, or Oct 29, 12:01 ET at the latest.
   - **Executor:** D2/D3 K = 4 aggregates published. D2's per-metric oracle (22.3 dB) is below DAPS Table 1 (25.78) but above PC-DAPS's independent DAPS-4K rerun (20.98). Comparability checks run under A8.6.

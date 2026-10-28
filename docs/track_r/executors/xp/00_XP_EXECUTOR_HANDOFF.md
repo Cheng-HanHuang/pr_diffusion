@@ -4,6 +4,7 @@
 > **2026-10-27, 12:30: then read [`02_PLANNER_NOTES_20261027_PM.md`](02_PLANNER_NOTES_20261027_PM.md) and prereg A6.** It covers the decisions on issue #42, the A4.4 sources, the GPU queue, `theory_inputs/`, and XP-D2 scoring.
 > **2026-10-27, 17:15: then read [`03_PLANNER_NOTES_20261027_EVE.md`](03_PLANNER_NOTES_20261027_EVE.md) and prereg A7.** It covers the audited E′ resume, the co-tenancy rule, the B16 lineage gate, the replay and F8, the XP-C CLIP decisions for D1-P1, D2 and D3 scoring, and A5.5.
 > **2026-10-28, 03:30: then read [`04_PLANNER_NOTES_20261028.md`](04_PLANNER_NOTES_20261028.md) and prereg A8.** v1 and v2 are registered and the FFHQ K > 4 embargo is lifted. It covers the D1-P2 embargo, the CLIP decisions for the E1 addendum, the FAST-vs-v1 comparison, E1 as a per-candidate rule, the D2 comparability checks and the GPU order.
+> **2026-10-28, 06:00: then read [`05_PLANNER_NOTES_20261028_AM.md`](05_PLANNER_NOTES_20261028_AM.md) and prereg A9.** It accepts the FAST-vs-v1 result and sets the integration branch, the D1 phase-2 plan, the FAST diagnostics, the release rules, and the authorized GPU campaign (B16, replay → F8; B16/F8 outcomes sealed until v3 or Oct 31, 12:00 ET).
 
 **From:** planner (Claude), 2026-10-26 14:30.
 - **Revision C replaces B.2.** It adds:

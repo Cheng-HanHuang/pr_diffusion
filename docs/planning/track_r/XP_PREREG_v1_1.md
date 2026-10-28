@@ -192,7 +192,40 @@
 >    - **In the paper,** XP-D2 is reported next to two references: DAPS Table 1 (25.78 dB) and PC-DAPS's reproduction of DAPS-4K (20.98 dB). We do not claim to reproduce DAPS Table 1.
 > 7. **GPU order.** XP-E′ continues. The next free GPU takes XP-B16, lineage gate first, then the 8-root DAPS replay and XP-F8. CLIP scoring (ViT-L/14) runs on CPU whenever no GPU is free. The XP-C prior and UnivFD tests on GT take GPU minutes when a GPU is available.
 
-**Status:** FROZEN v1.1 with amendments A1–A8 (planner, 2026-10-28).
+> **Amendment A9 (planner, 2026-10-28 06:00 ET).** Written after the FAST FFHQ comparison with v1 (XP `07d5460`) and the D1 phase-1 CLIP decisions (XP `a254f23`) were published. No outcome of XP-E′, XP-B16, XP-F8 or XP-D1 phase 2 had been scored, and XP-B16 and XP-F8 had not been generated.
+> 1. **FAST vs v1 is accepted as the first prospective result.** v1 is not refitted.
+>    - The frozen rule (primary-panel E0 coverage; E1_CLIP still pending) favors S2 over the race for FAST: 15 vs 6 of 21 cohort–K points.
+>    - By cohort it splits: the race wins B22 (6/7 vs 1/7); S2 wins DEV80 and the pooled panel (7/7 vs 0/7 each).
+>    - Both miss the oracles: O_raw coverage is 6/21 for the race and 2/21 for S2.
+>    - Report it exactly so, with every variant.
+> 2. **Exploratory decomposition.** Labeled post hoc; it uses frozen parameters only and introduces no new model.
+>    a. **Exchangeability check:** class rates (G, O_g, O_p, C, I) per cohort in runs 0–3, 4–15 and 16–63, with a two-proportion test per class and cohort. A shift would point to a protocol change rather than to the mixture model.
+>    b. **Composition-conditional selection test:** for each image and K, the E0 that each frozen rank law (race, tail, race_tau1, S2) predicts given the realized class counts of the image's 64 runs, compared with the observed E0. The prediction is exact: the average over K-subsets of the Plackett–Luce first-place probability of a GOOD run. Its interval comes from simulating each rank law on the realized labels. This separates selection error from generation error.
+>    c. **Case lists:**
+>       - the 7 images with no GOOD run in 64;
+>       - the 4 images whose E0 pick at K = 64 misses an existing GOOD run.
+>
+>       For each, give the ID, the prefix string, the 64-run class counts, the winning class, and the winner's residual gap to the best GOOD run in units of σ.
+>    d. **E1_CLIP for FAST:** score the FFHQ face set on all new candidates, so that the frozen primary rule can be applied in full.
+> 3. **Release to the theory executor.** FAST A16/A64 per-image strings go to `theory_inputs/`, plus XP-E′ strings once scored. The schema is A8's, extended to 64 runs: labels, signed ρ and rank order. Release them only after `v2 E1` is registered or the A8.2 deadline passes, so that the addendum stays blind to the FAST result.
+> 4. **v3: an optional second forecast for XP-B16 (SITCOM) and XP-F8 (DAPS).**
+>    - **Scope:** the same estimand, panels, policies and comparison rule as v1. It addresses the identified failure, for example by using each image's FAST 64-run outcome as a difficulty covariate.
+>    - **Allowed inputs:** anything released under item 3, plus A8 and A8b. Never a SITCOM run index ≥ 4, or a DAPS run index beyond the historical prefix.
+>    - **XP-B16 and XP-F8 outcomes stay sealed** until the earliest of: v3 registration; the theory executor declaring that there will be none; **2026-10-31 12:00 ET**. Generation and the A7.2 lineage gate proceed meanwhile.
+>    - **v1 stays the primary registered forecast** for B16 and F8; v3 is reported beside it, never instead.
+> 5. **The v2 E1 addendum code has an anchor error.**
+>    - **The error.** At theory `3a33899`, the forecaster anchors its control variate to the probability that the E0 pick lies in the orbit classes, not to the O_orbit oracle.
+>    - **Its size.** On the real inputs this inflates E1 by 0.14–0.34: the race forecast at K = 16 is 0.79 as written and 0.60 corrected.
+>    - **The fix** (`TH1_V2_E1_ANCHOR_FIX.patch`) computes the oracle on the same simulated panels, and adds a contract check that its Monte Carlo mean reproduces the registered O_orbit within 0.01.
+>    - **Process.** The theory executor applies the patch verbatim; then the planner runs, seals and registers `v2 E1`. A8.2 is unchanged.
+> 6. **GPU campaign (authorized).** A6 is complete: 2,320 roots and 28.9 GPU-h, about 68 of 400 GPU-h used in total. Run from a clean integration branch:
+>    - the 8-root DAPS 400 × 5 replay on a clean GPU (bitwise, or the §4.1 tolerance), then XP-F8 (920 runs);
+>    - XP-B16: the A7.2 lineage gate on all 100 B22 images, then runs 4–15 (2,160 runs; B22 continues its streams, DEV80 uses independent seeds);
+>    - two GPUs in parallel when available. A7.1 co-tenancy applies to generation; replays run on clean GPUs only;
+>    - then the XP-C prior and UnivFD tests on GT, then the BACKGROUND lane;
+>    - **optional (Tier C):** 192 more FAST runs on each of the 7 never-GOOD images (1,344 runs, about 2 GPU-h at A16's 4.3 s per run), to tell a zero success probability from a small one.
+
+**Status:** FROZEN v1.1 with amendments A1–A9 (planner, 2026-10-28).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

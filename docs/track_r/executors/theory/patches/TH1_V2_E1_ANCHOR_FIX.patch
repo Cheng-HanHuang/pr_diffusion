@@ -1,0 +1,99 @@
+diff --git a/scripts/track_r/theory/check_th1_imagenet_v2_e1_contract.py b/scripts/track_r/theory/check_th1_imagenet_v2_e1_contract.py
+index 999d99e..ea8c7c2 100644
+--- a/scripts/track_r/theory/check_th1_imagenet_v2_e1_contract.py
++++ b/scripts/track_r/theory/check_th1_imagenet_v2_e1_contract.py
+@@ -53,6 +53,13 @@ def check(draft_path,base_path):
+     assert len(x["simulation_draw_checks"])==4
+     assert {i["variant"]for i in x["simulation_draw_checks"]}==set(VARIANTS)
+     assert all(i["all_E1_le_orbit"] for i in x["simulation_draw_checks"])
++    # The control-variate anchor must be the simulated O_orbit ORACLE, so it
++    # must reproduce the registered v2 O_orbit up to Monte Carlo error.
++    anchors=x["oracle_anchor_checks"]
++    assert {a["variant"] for a in anchors}==set(VARIANTS) and len(anchors)==4
++    for a in anchors:
++        assert len(a["shift"])==len(KGRID)
++        assert all(abs(s)<0.01 for s in a["shift"]),(a["variant"],a["shift"])
+     targets={(r["model_variant"],r["K"]):r["point"]
+         for r in base["predictions"] if r["policy"]=="O_orbit"}
+     assert len(targets)==12
+diff --git a/scripts/track_r/theory/fit_th1_imagenet_v2_e1.py b/scripts/track_r/theory/fit_th1_imagenet_v2_e1.py
+index 9435fdd..beda10b 100644
+--- a/scripts/track_r/theory/fit_th1_imagenet_v2_e1.py
++++ b/scripts/track_r/theory/fit_th1_imagenet_v2_e1.py
+@@ -23,7 +23,7 @@ from pathlib import Path
+ import numpy as np
+ 
+ from fit_th1_imagenet_v2 import load_imagenet
+-from fit_th1_prefix_v1 import sample_panel, rank_weights
++from fit_th1_prefix_v1 import sample_panel, rank_weights, pass_at_k
+ from audit_a8_rank_race import fit_weights
+ 
+ BASE_SHA="8dda36349efc55848c585b0fbed06641fe0c0bf7c3594044e421d1bde0bf8f55"
+@@ -175,11 +175,14 @@ def run_panel(rows,alpha,params,variant,old_flags,rates,rng,rankw):
+         selected=correct[order]
+         # Literal policy: a single candidate's chosen orientation,
+         # not a second pass ranking on another score.
+-        orbit=(labels<=2).astype(float)
++        # Column 1 is the O_orbit ORACLE of a uniform K-subset of this
++        # completed panel (the estimand of the registered v2 O_orbit),
++        # NOT the orbit membership of the E0 pick (planner fix, 2026-10-28).
++        n_orbit=int(np.count_nonzero(labels<=2))
+         for ki,k in enumerate(GRID):
+             w=rankw[k]
+             outcomes[ki,0]+=np.dot(w,selected)
+-            outcomes[ki,1]+=np.dot(w,orbit[order])
++            outcomes[ki,1]+=pass_at_k(NMAX,n_orbit,k)
+     return outcomes/len(rows)
+ 
+ def run(rows,old_flags,raw_by_id,base,point_reps,bootstrap,boot_reps):
+@@ -200,7 +203,7 @@ def run(rows,old_flags,raw_by_id,base,point_reps,bootstrap,boot_reps):
+         raise ValueError("phase-1 class totals differ from registered v2")
+     rng=np.random.default_rng(SEED)
+     rankw={k:rank_weights(NMAX,k)for k in GRID}
+-    result=[];draw_audit=[]
++    result=[];draw_audit=[];anchor_checks=[]
+     for variant in VARIANTS:
+         params=rank_params[variant]
+         main=np.zeros((point_reps,len(GRID),2))
+@@ -214,6 +217,15 @@ def run(rows,old_flags,raw_by_id,base,point_reps,bootstrap,boot_reps):
+         # O_orbit mean, and transfer the SAME delta to E1. This
+         # preserves E1<=O_orbit draw by draw, and does not alter v2.
+         shift=targets-empirical_mean[:,1]
++        # The simulated oracle must reproduce the registered v2 O_orbit up
++        # to Monte Carlo error; a large shift means a wrong anchor quantity.
++        if np.any(np.abs(shift)>0.01):
++            raise ValueError("simulated O_orbit oracle differs from registered"
++                             " v2 by more than 0.01: anchor error")
++        anchor_checks.append({"variant":variant,
++            "simulated_O_orbit":[float(x) for x in empirical_mean[:,1]],
++            "registered_O_orbit":[float(x) for x in targets],
++            "shift":[float(x) for x in shift]})
+         point=empirical_mean[:,0]+shift
+         if np.any(point>targets+1e-10):
+             raise ValueError("E1 mean exceeds registered orbit oracle")
+@@ -279,7 +291,7 @@ def run(rows,old_flags,raw_by_id,base,point_reps,bootstrap,boot_reps):
+                    "beta_beta":int(totals[i]-stats[i]+1),
+                    "rate_override_zero":bool(i>=3 and stats[i]==0)}
+                for i in range(5)}
+-    return result,stats_out,draw_audit
++    return result,stats_out,draw_audit,anchor_checks
+ 
+ def main():
+     p=argparse.ArgumentParser()
+@@ -309,7 +321,7 @@ def main():
+     rows,phase_sha=load_imagenet(args.input)
+     flags,raw_by_id,clip_sha,cols=load_decisions(args,rows)
+     ranked=get_old_ranked_flags(args.input,flags)
+-    forecasts,fit,audits=run(
++    forecasts,fit,audits,anchors=run(
+        rows,ranked,raw_by_id,base,
+        args.point_reps,args.bootstrap,args.boot_reps)
+     obj={
+@@ -338,6 +350,7 @@ def main():
+           " no posthoc swapping or refitting v2",
+       "clip_class_posterior_counts":fit,
+       "simulation_draw_checks":audits,
++      "oracle_anchor_checks":anchors,
+       "predictions":forecasts,
+       "provenance":{"phase2_outcomes_seen":False,
+                     "xp_returns_accessed":False,

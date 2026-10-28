@@ -50,17 +50,22 @@ Four runs per image identify only the first four moments of the per-image class 
 Forecasts beyond $K{=}4$ are therefore conditional on the fitted model, and their intervals do not include model error.
 We fit the models to runs $0$--$3$ of each image, froze the forecasts with intervals under (S2), under the fitted race and under a rare-tail alternative, and only then evaluated runs $4$--$63$: the predictions file was committed on 2026-10-28 at 06:22 UTC, before any of these runs was scored (SHA-256 and commit in the supplement)\claim{C-R1}.
 Because the new runs extend each image's observed runs, the forecast target is the subset estimator on the completed panel, conditional on the observed runs and their residual order, and the intervals are predictive intervals for that realized panel.
-\Cref{fig:kcurves} compares the forecasts with the observed curves for FAST-DIPS ($K\le64$), SITCOM ($K\le16$, or $32$) and DAPS ($K\le8$) on FFHQ \pending{XP-A, XP-B, XP-F}.
+\Cref{fig:kcurves} compares the forecasts with the observed curves for FAST-DIPS ($K\le64$) on FFHQ \pending{SITCOM ($K\le16$) and DAPS ($K\le8$): XP-B16, XP-F8}.
 FAST-DIPS on ImageNet has its own frozen forecast for $K\le16$, fitted to the first four runs of each image\claim{C-R2} \pending{XP-D1 phase 2}.
+
+\paragraph{The forecast fails where four runs are blind.}
+For FAST-DIPS, the frozen race forecast covers the observed $\Eo$ at six of the seven values of $K$ in cohort A, at none in cohort B, and it overestimates the oracles in both (\cref{fig:kcurves}).
+At $K{=}64$, $96.1\%$ of the $180$ images have a \good run, against a forecast of $98.8\%$, and $\Eo$ returns one for $93.9\%$, against $98.1\%$\claim{C-F1}.
+The miss lies mostly in generation.
+Of the $25$ images without a \good run among their first four, $18$ produced one later and $7$ never did in $64$ runs; the forecast expected $2.2$, because its mixture shrinks an image with four failures toward its cohort's success rate\claim{C-F2}.
+Whether such an image is hard or hopeless is exactly what four runs cannot identify\claim{C-T8}.
+Selection loses more than the race predicts and far less than (S2): at $K{=}64$, $\Eo$ misses an existing \good run for $2.2\%$ of the images, against $0.7\%$ forecast by the race and $6.9\%$ by (S2)\claim{C-F1}.
+By the frozen comparison rule, (S2) still scores better on $\Eo$ ($15$ against $6$ of $21$ cohort--$K$ points), because its pessimistic selection offsets the optimistic generation that all variants share; neither covers the oracles.
+\pending{$\Eone$; the composition-conditional selection test; SITCOM and DAPS against v1 and a second frozen forecast (A9).}
 
 \begin{figure}[t]
 \centering
-\fbox{\parbox[c][4.2cm][c]{0.94\linewidth}{\centering\small
-  $\goodrate$ vs.\ $K$ (log scale) for $\Eo$, $\Eone$, $\Oraw$, $\Oorb$:\\
-  observed (dots, 95\% CI) and frozen forecasts\\
-  (bands: S2 reference and fitted race).\\
-  Panels: FAST-DIPS, SITCOM, DAPS (FFHQ).\\[3pt]
-  \pending{XP-A64, XP-B16/B32, XP-F8 after the v1 freeze}}}
-\caption{\textbf{Best-of-$K$ against frozen forecasts.} Forecasts are fitted on four runs per image and frozen before more runs are evaluated. \pending{one-line result}}
+\includegraphics[width=\linewidth]{fig/kcurves_fast.pdf}
+\caption{\textbf{Best-of-$K$ against frozen forecasts, FAST-DIPS on FFHQ.} Observed values are exact subset averages over each image's $64$ runs; the forecasts were fitted on runs $0$--$3$ and frozen before runs $4$--$63$ were scored. The race forecast of $\Eo$ (band: $95\%$ predictive interval) holds for the random cohort and fails for the hard cohort, and the oracle $\Oorb$ falls short of its forecast in both\claim{C-F1}. \pending{SITCOM and DAPS panels; $\Eone$.}}
 \label{fig:kcurves}
 \end{figure}
