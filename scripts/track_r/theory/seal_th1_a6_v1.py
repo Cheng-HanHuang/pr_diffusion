@@ -61,7 +61,9 @@ def check_a8b(a8,a8b,tau):
                for j in range(n-1)):
             raise ValueError("residual order mismatch %d"%i)
         tv=tau_map[(b["source"],b["family"])]
-        if abs(tv-float(b["tau_signed_good_q95"]))>1e-12:
+        # A8b stores the per-image tau as a 6-significant-digit display string;
+        # compare it with the exact float64 tau rounded the same way.
+        if f"{tv:.6g}"!=b["tau_signed_good_q95"].strip():
             raise ValueError("tau mismatch %d"%i)
         for c,r in zip(b["run_labels"],ro):
             if c=="C" and r>tv+1e-9:
