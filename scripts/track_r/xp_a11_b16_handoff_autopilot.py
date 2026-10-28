@@ -21,6 +21,9 @@ STOP=False
 PY=ROOT/"conda-envs/prdiff_track_r/bin/python"
 SPY=ROOT/"conda-envs/sitcom_ode_bw/bin/python"
 CACHE=ROOT/"outputs/.cache/track_r"
+# Separate scientific runner from the controller checkout: the former must
+# remain pinned to the 2026-10-28 manifest HEAD across controller repairs.
+RUNNER_WT=ROOT/"pr_diffusion_track_r_xp_handoff_20261028"
 MAX_GPU_H=48.
 EST_EARLIER_GPU_H=68.
 VRAM_REQUIRED_MIB=32000
@@ -57,11 +60,13 @@ def event(run,event_name,**kw):
         f.write(json.dumps(rec,sort_keys=True,allow_nan=False)+"\n")
         f.flush();os.fsync(f.fileno())
 
-def frozen(run,head):
+def frozen(run,head,controller_head):
     assert_ok(run.parent==BASE and run.name.startswith("xp_a11_b16_prod_")
               and run.is_dir() and not run.is_symlink(),"RUN")
-    assert_ok(git(WT,"rev-parse","HEAD")==head and
-              not git(WT,"status","--porcelain"),"SOURCE_SHA")
+    assert_ok(controller_head and git(WT,"rev-parse","HEAD")==controller_head
+              and not git(WT,"status","--porcelain"),"CONTROLLER_SOURCE_SHA")
+    assert_ok(git(RUNNER_WT,"rev-parse","HEAD")==head and
+              not git(RUNNER_WT,"status","--porcelain"),"PINNED_RUNNER_SOURCE_SHA")
     assert_ok(git(A6,"rev-parse","HEAD")==A6_HEAD and
               not git(A6,"status","--porcelain"),"A6_FROZEN")
     pre=json.loads(safe(run/"XP_A11_B16_PROD_PREP.json").read_text())
@@ -83,7 +88,7 @@ def frozen(run,head):
               len(groups)==ALL_TASKS and
               len({g["task_id"] for g in groups})==ALL_TASKS,
               "PRODUCTION_SCHEMA")
-    reference=WT/"docs/track_r/executors/xp/returns/XP_T_SITCOM_BATCH1_20261026T233451Z/XP_T_SITCOM_COMPLETE.json"
+    reference=RUNNER_WT/"docs/track_r/executors/xp/returns/XP_T_SITCOM_BATCH1_20261026T233451Z/XP_T_SITCOM_COMPLETE.json"
     assert_ok(sha(reference)=="bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e",
               "FFHQ_TIMING_CALIBRATION_SHA")
     refdata=json.loads(reference.read_text())
@@ -214,13 +219,13 @@ def launch(run,head,groups,index,gpu,attempt):
     env=dict(os.environ)
     env.update(CUDA_VISIBLE_DEVICES=str(gpu),
                PYTHONDONTWRITEBYTECODE="1",PYTHONNOUSERSITE="1",
-               PYTHONPATH=str(WT),
+               PYTHONPATH=str(RUNNER_WT),
                PYTHONPYCACHEPREFIX=str(run/"pycache"/f"task{index:04d}"),
                TMPDIR=str(CACHE/"tmp"),XDG_CACHE_HOME=str(CACHE),
                CUBLAS_WORKSPACE_CONFIG=":4096:8",
                OMP_NUM_THREADS="4",MKL_NUM_THREADS="4",
                OPENBLAS_NUM_THREADS="4",NUMEXPR_NUM_THREADS="4")
-    cmd=[str(SPY),str(WT/"scripts/track_r/xp_a11_b16_prod_worker_gpu.py"),
+    cmd=[str(SPY),str(RUNNER_WT/"scripts/track_r/xp_a11_b16_prod_worker_gpu.py"),
          "--run",str(run),"--expected-head",head,
          "--index",str(index),"--gpu",str(gpu)]
     with log.open("x") as f:
@@ -234,7 +239,7 @@ def main(a):
     assert_ok(0<a.poll<=60 and 1<=a.max_parallel<=4 and
               0<a.max_gpu_hours<=48,"ARGS")
     run=Path(a.run)
-    mf,groups,prep=frozen(run,a.expected_head)
+    mf,groups,prep=frozen(run,a.expected_head,a.controller_head)
     msha=prep["manifest_sha256"]
     run.joinpath("gpu").mkdir(exist_ok=True)
     run.joinpath("logs").mkdir(exist_ok=True)
