@@ -53,6 +53,13 @@ def check(draft_path,base_path):
     assert len(x["simulation_draw_checks"])==4
     assert {i["variant"]for i in x["simulation_draw_checks"]}==set(VARIANTS)
     assert all(i["all_E1_le_orbit"] for i in x["simulation_draw_checks"])
+    # The control-variate anchor must be the simulated O_orbit ORACLE, so it
+    # must reproduce the registered v2 O_orbit up to Monte Carlo error.
+    anchors=x["oracle_anchor_checks"]
+    assert {a["variant"] for a in anchors}==set(VARIANTS) and len(anchors)==4
+    for a in anchors:
+        assert len(a["shift"])==len(KGRID)
+        assert all(abs(s)<0.01 for s in a["shift"]),(a["variant"],a["shift"])
     targets={(r["model_variant"],r["K"]):r["point"]
         for r in base["predictions"] if r["policy"]=="O_orbit"}
     assert len(targets)==12
