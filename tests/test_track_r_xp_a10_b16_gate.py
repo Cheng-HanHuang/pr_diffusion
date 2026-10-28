@@ -6,6 +6,8 @@ from __future__ import annotations
 import unittest
 from unittest.mock import patch
 from scripts.track_r import xp_a10_b16_gate_prepare_cpu as prep
+from scripts.track_r.xp_a10_b16_gate_gpu import native_adapter
+from types import SimpleNamespace
 
 def fake_catalog():
     roots={};scores={}
@@ -42,6 +44,21 @@ class TestB16FullGate(unittest.TestCase):
         self.assertNotIn("historical_candidate_path",roots[0])
         self.assertEqual(offline[0]["historical_raw_label"],
                          "NONORBIT_INCONSISTENT")
+    def test_native_adapter_contract(self):
+        frozen={"source_head":prep.SITCOM_HEAD,"rows":[{"uid":"sample"}]}
+        args,source=native_adapter(
+            SimpleNamespace(out="/unused",gpu=1,expected_head="abc123"),
+            frozen)
+        self.assertEqual(args.expected_head,"abc123")
+        self.assertEqual(args.mode,"b22")
+        self.assertEqual(args.gpu,1)
+        self.assertEqual(source["native_source_head"],prep.SITCOM_HEAD)
+        self.assertEqual(source["rows"],frozen["rows"])
+        self.assertNotIn("native_source_head",frozen)
+        with self.assertRaisesRegex(RuntimeError,"NATIVE_SOURCE_ALIAS"):
+            native_adapter(SimpleNamespace(out="/unused",gpu=0,
+                           expected_head="abc"),{"source_head":"wrong"})
+
     def test_git_porcelain_preserves_leading_status_column(self):
         with patch.object(prep.subprocess,"check_output",
                           return_value=" M model/__pycache__/precond.cpython-38.pyc\n"):
