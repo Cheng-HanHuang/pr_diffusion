@@ -13,7 +13,7 @@ from scripts.track_r.xp_a10_b16_gate_prepare_cpu import (
     BASE,WT,source_sha,sha,git,safe)
 from scripts.track_r.xp_a10_b16_gate_gpu import image_folder
 from scripts.track_r.r0_2_g0_cpu import gt_source,read_tensor
-from prdiffusion.track_r.physics import to_rgb8,rho_signed
+from prdiffusion.track_r.physics import to_rgb8,from_rgb8,rho_signed
 from prdiffusion.track_r.r0_7_stats import orbit_psnr_channel_mse
 from scripts.b22.b22_smoke_common import tensor_content_sha256
 
@@ -76,7 +76,7 @@ def score(run,head):
         orbit=orbit_psnr_channel_mse(x8,gtcache[key])
         raw=float(orbit["000"])
         best=float(max(orbit.values()))
-        residual=float(rho_signed(x,ycache[key])[0])
+        residual=float(rho_signed(from_rgb8(x8),ycache[key])[0])
         if raw>=25:label="GOOD"
         elif best>=25:label="ORBIT_ERROR"
         elif residual<=float(ref["historical_tau"]):
