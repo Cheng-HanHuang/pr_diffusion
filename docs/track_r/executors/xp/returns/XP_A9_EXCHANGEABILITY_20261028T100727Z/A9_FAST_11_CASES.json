@@ -1,0 +1,229 @@
+{
+  "B16_F8_outcomes_opened": false,
+  "D1_P2_outcomes_opened": false,
+  "cases": [
+    {
+      "best_good_run": 45,
+      "category": "K64_SELECTION_LOSS",
+      "class_counts": {
+        "C": 3,
+        "G": 1,
+        "I": 60,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "11159",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "C",
+      "rank_winner_run": 24,
+      "winner_minus_best_good_rho_over_sigma": -0.00028349459999993387,
+      "winner_rho_signed": 0.05003967881
+    },
+    {
+      "best_good_run": 34,
+      "category": "K64_SELECTION_LOSS",
+      "class_counts": {
+        "C": 1,
+        "G": 2,
+        "I": 11,
+        "O_g": 50,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "21603",
+      "n_runs": 64,
+      "prefix_4": "O_g;O_g;O_g;I",
+      "rank_winner_class": "O_g",
+      "rank_winner_run": 51,
+      "winner_minus_best_good_rho_over_sigma": -0.0003454835999999739,
+      "winner_rho_signed": 0.04950266331
+    },
+    {
+      "best_good_run": 51,
+      "category": "K64_SELECTION_LOSS",
+      "class_counts": {
+        "C": 1,
+        "G": 1,
+        "I": 60,
+        "O_g": 2,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "56397",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "O_g",
+      "rank_winner_run": 30,
+      "winner_minus_best_good_rho_over_sigma": -3.4272000000445946e-06,
+      "winner_rho_signed": 0.04993822426
+    },
+    {
+      "best_good_run": 43,
+      "category": "K64_SELECTION_LOSS",
+      "class_counts": {
+        "C": 2,
+        "G": 4,
+        "I": 58,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "58560",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "C",
+      "rank_winner_run": 28,
+      "winner_minus_best_good_rho_over_sigma": -0.000601038400000059,
+      "winner_rho_signed": 0.05002174154
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 0,
+        "G": 0,
+        "I": 64,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "B22",
+      "image_id": "65003",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "I",
+      "rank_winner_run": 46,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.0511803031
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 0,
+        "G": 0,
+        "I": 64,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "18549",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "I",
+      "rank_winner_run": 61,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.05019048229
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 0,
+        "G": 0,
+        "I": 64,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "34587",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "I",
+      "rank_winner_run": 5,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.05013615265
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 0,
+        "G": 0,
+        "I": 64,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "43272",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "I",
+      "rank_winner_run": 30,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.05017581955
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 29,
+        "G": 0,
+        "I": 35,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "47283",
+      "n_runs": 64,
+      "prefix_4": "C;C;I;C",
+      "rank_winner_class": "C",
+      "rank_winner_run": 9,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.04982286319
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 0,
+        "G": 0,
+        "I": 64,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "61603",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "I",
+      "rank_winner_run": 23,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.05017321929
+    },
+    {
+      "best_good_run": null,
+      "category": "NEVER_GOOD",
+      "class_counts": {
+        "C": 0,
+        "G": 0,
+        "I": 64,
+        "O_g": 0,
+        "O_p": 0
+      },
+      "cohort": "DEV80",
+      "image_id": "67273",
+      "n_runs": 64,
+      "prefix_4": "I;I;I;I",
+      "rank_winner_class": "I",
+      "rank_winner_run": 22,
+      "winner_minus_best_good_rho_over_sigma": null,
+      "winner_rho_signed": 0.05011435971
+    }
+  ],
+  "n_images": 180,
+  "n_never_good": 7,
+  "n_selection_losses": 4,
+  "n_total_candidates": 11520,
+  "notes": [
+    "Winner is the minimum signed-rho candidate at K=64.",
+    "Gap=(winner signed rho - best raw-GOOD signed rho)/sigma.",
+    "Missing gap for never-GOOD images is represented as null.",
+    "Post-hoc case census only; no model refit.",
+    "Per-image results stay in xp/returns under A9.3."
+  ],
+  "sigma": 0.05,
+  "source_sha256": "d616dd50f10352e98b891a99b9a153d5d72a93c61e44381827147dcca23f5466",
+  "status": "A9_FAST_11_CASES_POSTHOC_PASS"
+}
