@@ -59,21 +59,37 @@ def preflight(args):
           ==mf["native_checkpoint_provenance"] and
           settings(json.loads(safe(A6/"configs/b22/b22_2_overnight.json").read_text()))
           ==mf["config"],"SOURCE_DRIFT")
-    all_groups=mf["b22_groups"]+mf["b24_groups"]
-    check(len(all_groups)==1060 and 0<=args.index<1060,"TASK_INDEX")
+    all_groups=(mf["b22_groups"]+mf["b24_groups"]+
+                mf["b32_b22_groups"]+mf["b32_b24_groups"])
+    check(len(all_groups)==2440 and 0<=args.index<2440 and
+          mf["n_background_b32_roots"]==2880 and
+          mf["background_requires_full_b16_completion"] is True,
+          "TASK_INDEX")
     task=all_groups[args.index]
     rows=task["rows"]
-    check(task["new_roots"]== (12 if args.index<100 else 1) and
-          len(rows)== (16 if args.index<100 else 1),"TASK_SHAPE")
-    if args.index<100:
-        check([r["rep"] for r in rows]==list(range(16)) and
+    is_b22=args.index<100 or 1060<=args.index<1160
+    is_b32=args.index>=1060
+    prefix=16 if (is_b22 and is_b32) else 4 if is_b22 else 0
+    check(task["new_roots"]==(16 if prefix==16 else 12 if prefix==4 else 1)
+          and len(rows)==(32 if prefix==16 else 16 if prefix==4 else 1),
+          "TASK_SHAPE")
+    if is_b22:
+        check([r["rep"] for r in rows]==list(range(len(rows))) and
               len({r["image_id"] for r in rows})==1 and
               all(r["rng_mode"]=="sequential_post_model" and r["seed"]==43
                   for r in rows),"B22_NATIVE_RNG")
     else:
-        check(4<=rows[0]["rep"]<=15 and
+        check((16 if is_b32 else 4)<=rows[0]["rep"]<=
+              (31 if is_b32 else 15) and
               rows[0]["rng_mode"]=="independent_model_seed" and
               0<=rows[0]["seed"]<2**32,"B24_NATIVE_SEED")
+    if is_b32 and not args.preflight_only:
+        completed=json.loads(safe(run/"XP_A11_B16_PROD_COMPLETE.json").read_text())
+        check(completed["status"]=="B16_PRODUCTION_GENERATION_PASS_EMBARGOED"
+              and completed["n_new_roots"]==2160 and
+              completed["manifest_sha256"]==pre["manifest_sha256"] and
+              completed["no_new_outcomes_opened"] is True,
+              "B32_REQUIRES_FULL_B16")
     for r in rows:
         check(sha(r["measurement_path"])==r["measurement_sha256"],"Y_HASH")
     out=run/"gpu"/task["task_id"]
@@ -97,11 +113,12 @@ def main(args):
         return 0
     native.PREP_HEAD=args.expected_head
     native.MANIFEST_SHA=pre["manifest_sha256"]
-    mode="b22" if args.index<100 else "b24"
+    mode="b22" if (args.index<100 or 1060<=args.index<1160) else "b24"
+    prefix=16 if 1060<=args.index<1160 else 4 if args.index<100 else 0
     worker_args=SimpleNamespace(
         mode=mode,index=(4 if mode=="b24" else None),
         expected_head=args.expected_head,gpu=args.gpu,out=str(out),
-        skip_prefix_n=(4 if mode=="b22" else 0))
+        skip_prefix_n=prefix)
     check(mf["native_source_head"]==SITCOM_HEAD,"NATIVE_SOURCE_HEAD")
     rc=native.generate(worker_args,mf,task["rows"])
     check(rc==0,"NATIVE_RETURN")
