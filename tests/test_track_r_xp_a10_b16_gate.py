@@ -8,6 +8,9 @@ from unittest.mock import patch
 from scripts.track_r import xp_a10_b16_gate_prepare_cpu as prep
 from scripts.track_r.xp_a10_b16_gate_gpu import native_adapter
 from types import SimpleNamespace
+from scripts.track_r.xp_a10_b16_gate_autopilot import cpu_smoke
+from tempfile import TemporaryDirectory
+from pathlib import Path
 from scripts.track_r.xp_a10_b16_gate_autopilot import SAMPLE_REFERENCE_SEC,SAMPLE_REFERENCE_SHA
 
 def fake_catalog():
@@ -56,6 +59,28 @@ class TestB16FullGate(unittest.TestCase):
         self.assertGreaterEqual(median,0.5*SAMPLE_REFERENCE_SEC)
         self.assertLessEqual(median,1.5*SAMPLE_REFERENCE_SEC)
         self.assertLess(median,0.5*58.342772816773504)
+
+    def test_historical_smoke_is_two_independent_cpu_checks(self):
+        with TemporaryDirectory() as tmp:
+            run=Path(tmp)
+            with patch("scripts.track_r.xp_a10_b16_gate_autopilot.subprocess.run") as invoke:
+                invoke.return_value.returncode=0
+                cpu_smoke(run,"pinned")
+            self.assertEqual(invoke.call_count,2)
+            self.assertTrue((run/"logs"/"B16_HISTORICAL_SMOKE_000.log").is_file())
+            self.assertTrue((run/"logs"/"B16_HISTORICAL_SMOKE_001.log").is_file())
+            self.assertEqual((run/"B16_GATE_EVENTS.jsonl").read_text().count(
+                             "B16_HISTORICAL_8ROOT_SMOKE_PASS"),1)
+
+    def test_historical_smoke_failure_blocks_progress(self):
+        with TemporaryDirectory() as tmp:
+            run=Path(tmp)
+            with patch("scripts.track_r.xp_a10_b16_gate_autopilot.subprocess.run") as invoke:
+                invoke.return_value.returncode=8
+                with self.assertRaisesRegex(RuntimeError,"HISTORICAL_SMOKE_0"):
+                    cpu_smoke(run,"pinned")
+            self.assertEqual(invoke.call_count,1)
+            self.assertFalse((run/"B16_GATE_EVENTS.jsonl").exists())
 
     def test_native_adapter_contract(self):
         frozen={"source_head":prep.SITCOM_HEAD,"rows":[{"uid":"sample"}]}
