@@ -101,10 +101,10 @@ def validate_start(run,head):
     require(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CONTROLLER_GPU_VISIBILITY")
     return mf
 
-def spawn(run,head,index,gpu):
+def spawn(run,head,index,gpu,attempt):
     rows=json.loads(safe(run/"XP_A10_B16_GATE_TASKS.json").read_text())["rows"]
     iid=rows[4*index]["image_id"]
-    log=run/"logs"/f"B16_{index:03d}_{iid}.log"
+    log=run/"logs"/f"B16_{index:03d}_{iid}_attempt_{attempt:03d}.log"
     require(not log.exists(),"LOG_EXISTS")
     env=os.environ.copy()
     env.update(CUDA_VISIBLE_DEVICES=str(gpu),
@@ -165,6 +165,7 @@ def main(a):
                     state["deadline_epoch"]>=state["first_start_epoch"] and
                     state.get("active")==[],"RESTART_STATE")
             done=set(state["done"])
+            state.setdefault("attempts",{})
             require(all(isinstance(i,int) and 0<=i<100 for i in done),
                     "RESTART_DONE")
             for i in sorted(done):
@@ -174,12 +175,13 @@ def main(a):
             state=dict(status="STARTED",head=a.expected_head,
                 manifest_sha256=mf["_manifest_sha"],
                 first_start_epoch=now,deadline_epoch=now+a.hours*3600,
-                active=[],done=[],quarantined=[],spent_gpu_seconds=0.,
+                active=[],done=[],quarantined=[],attempts={},spent_gpu_seconds=0.,
                 B16_new_run_labels_opened=False)
             done=set()
             dump(st,state)
         active={}
         stopped=False
+        fatal=False
         all_jobs=set(range(100))
         def save(status):
             state.update(status=status,active=[
@@ -215,9 +217,10 @@ def main(a):
                         save("STOP_WORKER_FAILURE")
                         record(run,"WORKER_FAILED",index=i,returncode=result,log=v["log"])
                         stopped=True
+                        fatal=True
                         continue
                     timings=verify_group(run,mf,i,a.expected_head,
-                         check_times=i<2)
+                         check_times=(i<2 and not v["contaminated"]))
                     if v["contaminated"] or v["seen_samples"]<2:
                         orig=image_folder(run,v["image_id"])
                         dest=run/"quarantine"/f"{orig.name}_attempt_{len(state['quarantined']):04d}"
@@ -247,7 +250,9 @@ def main(a):
                             clean_only=True,safety_margin_mib=2048,
                             fraction=0.80)
                         if gpu is not None:
-                            v=spawn(run,a.expected_head,idx,gpu)
+                            next_attempt=int(state["attempts"].get(str(idx),0))+1
+                            state["attempts"][str(idx)]=next_attempt
+                            v=spawn(run,a.expected_head,idx,gpu,next_attempt)
                             active[idx]=v
                             record(run,"LAUNCH",index=idx,gpu=gpu,pid=v["proc"].pid)
                             save("RUNNING")
@@ -262,10 +267,11 @@ def main(a):
                        max_abs_delta_db=result["max_abs_delta_db"])
                 print("B16_GATE_400_REPLAY_PASS",result["n_pass"],flush=True)
                 return 0
-            save("DRAINED_RESUMABLE" if stopped else "INCOMPLETE")
+            save("STOP_WORKER_FAILURE" if fatal else
+                 "DRAINED_RESUMABLE" if stopped else "INCOMPLETE")
             print("B16_GATE_DRAINED_RESUMABLE",len(done),"/100 images",
                   "gpu_h",round(state["spent_gpu_seconds"]/3600,4),flush=True)
-            return 0
+            return 8 if fatal else 0
         finally:
             save(state.get("status","STOP_UNEXPECTED"))
 
