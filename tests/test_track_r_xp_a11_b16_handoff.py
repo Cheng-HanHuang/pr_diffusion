@@ -9,7 +9,7 @@ from scripts.track_r import xp_a11_b16_prod_prepare_cpu as prep
 from scripts.track_r.xp_a11_b16_handoff_autopilot import (
     B22_SMOKE,B24_SMOKE,B32_B22_SMOKE,B32_B24_SMOKE,
     REFERENCE_SEC,validate_sample_speed_for_smoke,
-    RUNNER_WT,launch)
+    RUNNER_WT,launch,A10_PLANNER_SHA,A10_DEADLINE_EPOCH,A10_GPU_H)
 
 class TestB16Production(unittest.TestCase):
     def test_frozen_seed_domain_matches_historical_algorithm(self):
@@ -75,6 +75,15 @@ class TestB16Production(unittest.TestCase):
         self.assertEqual(b22groups[0]["rows"][4]["seed"],43)
         self.assertEqual(b24groups[0]["rows"][0]["seed"],
                          prep.seed63("C","01000",4)%(2**32))
+
+    def test_a10_explicit_budget_and_deadline(self):
+        from datetime import datetime,timezone
+        self.assertEqual(A10_PLANNER_SHA,
+            "4144e0bc2cc073b05260b18781bd620f36e37763")
+        self.assertEqual(A10_GPU_H,70.)
+        self.assertEqual(datetime.fromtimestamp(
+            A10_DEADLINE_EPOCH,timezone.utc).isoformat(),
+            "2026-10-30T16:00:00+00:00")
 
     def test_recovery_launch_uses_original_worker_not_controller(self):
         self.assertEqual(RUNNER_WT,
