@@ -1,6 +1,9 @@
 """A8 FAST v1 panel semantics and forecast comparison (synthetic, CPU only)."""
 import unittest
-from scripts.track_r.xp_a8_fast_v1_cpu import compare
+import tempfile
+from pathlib import Path
+import torch
+from scripts.track_r.xp_a8_fast_v1_cpu import compare,read_tensor
 
 class A8FASTPanels(unittest.TestCase):
     def fake(self):
@@ -35,6 +38,25 @@ class A8FASTPanels(unittest.TestCase):
                  r["K"]==64 and r["policy"]=="O_raw"]
         self.assertEqual(len(samples),4)
         self.assertTrue(all(abs(v["observed"]-1)<1e-12 for v in samples))
+    def test_frozen_measurement_direct_tensor_and_dict(self):
+        shape=(1,3,384,384)
+        measurement=torch.zeros(shape,dtype=torch.float32)
+        with tempfile.TemporaryDirectory(prefix="a8_fast_meas_") as tmp:
+            for name,payload in (
+                ("tensor",measurement),
+                ("dict",{"measurement":measurement}),
+                ("alias",{"y":measurement}),
+            ):
+                path=Path(tmp)/(name+".pt")
+                torch.save(payload,path)
+                actual=read_tensor(path,("measurement","y","observation"),shape)
+                self.assertTrue(torch.equal(actual,measurement))
+                self.assertEqual(actual.dtype,torch.float32)
+            bad=Path(tmp)/"bad_shape.pt"
+            torch.save(torch.zeros((1,3,256,256)),bad)
+            with self.assertRaisesRegex(RuntimeError,"BAD_TENSOR_SHAPE"):
+                read_tensor(bad,("measurement","y","observation"),shape)
+
     def test_bad_cohort_size_stops(self):
         d=self.fake()
         del d[("S1_b22","0")]
