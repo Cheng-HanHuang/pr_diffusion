@@ -378,6 +378,17 @@ def main(a):
                           native_sample_s=round(secs,4),
                           contaminated=v["contaminated"])
                     store("B16_PRODUCTION_RUNNING")
+                if set(range(B16_TASKS))<=done:
+                    complete=run/"XP_A11_B16_PROD_COMPLETE.json"
+                    if not complete.exists():
+                        proof=dict(status="B16_PRODUCTION_GENERATION_PASS_EMBARGOED",
+                            head=a.expected_head,manifest_sha256=msha,
+                            n_new_roots=2160,n_b22=1200,n_b24=960,
+                            no_new_outcomes_opened=True,
+                            inherited_first_start_epoch=state["first_start_epoch"],
+                            inherited_deadline_epoch=state["deadline_epoch"])
+                        write_x(complete,proof)
+                        event(run,"B16_PRODUCTION_FULL_PASS_EMBARGOED",n_new=2160)
                 if halted or fatal:
                     if not active:break
                     time.sleep(a.poll);continue
