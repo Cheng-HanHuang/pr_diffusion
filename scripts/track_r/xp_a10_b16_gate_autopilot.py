@@ -19,7 +19,12 @@ from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 PY_CPU=ROOT/"conda-envs/prdiff_track_r/bin/python"
 PY_SITCOM=ROOT/"conda-envs/sitcom_ode_bw/bin/python"
 CACHE=ROOT/"outputs/.cache/track_r"
-SAMPLE_REFERENCE_SEC=58.343
+# XP-T SITCOM calibrated on FFHQ (NOT ImageNet): immutable published
+# XP_T_SITCOM_COMPLETE.json SHA256 bb2c3c... and FFHQ median 32.104482...
+# 58.343 was the ImageNet median and caused a spurious FFHQ smoke rejection.
+SAMPLE_REFERENCE_SEC=32.104482267051935
+SAMPLE_REFERENCE_JSON="docs/track_r/executors/xp/returns/XP_T_SITCOM_BATCH1_20261026T233451Z/XP_T_SITCOM_COMPLETE.json"
+SAMPLE_REFERENCE_SHA="bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e"
 GPU_VRAM_MIB=32000
 STOP=False
 
@@ -98,6 +103,16 @@ def validate_start(run,head):
             mf["historical_candidate_supplied"] is False,
             "FROZEN_MANIFEST")
     mf["_manifest_sha"]=prep["manifest_sha256"]
+    # Verify calibration provenance before admitting even one replay group.
+    timing_path=WT/SAMPLE_REFERENCE_JSON
+    require(sha(timing_path)==SAMPLE_REFERENCE_SHA,"FFHQ_TIMING_REFERENCE_HASH")
+    reference=json.loads(timing_path.read_text())
+    require(reference.get("family")=="SITCOM" and
+            reference.get("clean_timing_eligible") is True and
+            reference.get("per_dataset",{}).get("ffhq",{}).get("n_roots")==9 and
+            abs(float(reference["per_dataset"]["ffhq"]["sampling_wall_s_median"])-
+                SAMPLE_REFERENCE_SEC)<1e-10,
+            "FFHQ_TIMING_REFERENCE_SCHEMA")
     require(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CONTROLLER_GPU_VISIBILITY")
     return mf
 
@@ -279,7 +294,23 @@ def main(a):
                   "gpu_h",round(state["spent_gpu_seconds"]/3600,4),flush=True)
             return 0
         finally:
-            save(state.get("status","STOP_UNEXPECTED"))
+            # Never leave native GPU workers orphaned on an unexpected
+            # controller error (e.g., failed smoke receipt/timing checks).
+            # No signals are sent: drain every child that we started.
+            if active:
+                state["fatal_error"]="UNEXPECTED_EXCEPTION_WITH_ACTIVE_WORKERS"
+                record(run,"STOP_UNEXPECTED_DRAIN_BEGIN",
+                       active_indices=sorted(active))
+                for idx,v in list(active.items()):
+                    v["proc"].wait()
+                    state["spent_gpu_seconds"]+=time.monotonic()-v["started"]
+                    record(run,"STOP_UNEXPECTED_CHILD_DRAINED",
+                           index=idx,gpu=v["gpu"],returncode=v["proc"].returncode,
+                           log=v["log"])
+                    active.pop(idx)
+                save("STOP_UNEXPECTED_DRAINED_UNVERIFIED")
+            else:
+                save(state.get("status","STOP_UNEXPECTED"))
 
 if __name__=="__main__":
     signal.signal(signal.SIGTERM,signal_stop)
