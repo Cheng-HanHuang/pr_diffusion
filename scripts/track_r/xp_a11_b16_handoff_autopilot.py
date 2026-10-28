@@ -76,6 +76,13 @@ def frozen(run,head):
               len(groups)==1060 and
               len({g["task_id"] for g in groups})==1060,
               "PRODUCTION_SCHEMA")
+    reference=WT/"docs/track_r/executors/xp/returns/XP_T_SITCOM_BATCH1_20261026T233451Z/XP_T_SITCOM_COMPLETE.json"
+    assert_ok(sha(reference)=="bb2c3c377f07be2982e412eb96ff1a8b35805146dc021cc8baab3abd6ddc075e",
+              "FFHQ_TIMING_CALIBRATION_SHA")
+    refdata=json.loads(reference.read_text())
+    assert_ok(abs(float(refdata["per_dataset"]["ffhq"]["sampling_wall_s_median"])
+                  -REFERENCE_SEC)<1e-10,
+              "FFHQ_TIMING_CALIBRATION_VALUE")
     assert_ok(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_CONTROLLER")
     return mf,groups,pre
 
