@@ -35,6 +35,10 @@ B32_B22_SMOKE={1060,1061}
 B32_B24_SMOKE={1160,1161,1176,1177}
 B16_TASKS=1060
 ALL_TASKS=2440
+A10_PLANNER_SHA="4144e0bc2cc073b05260b18781bd620f36e37763"
+A10_DEADLINE_EPOCH=datetime.datetime(
+    2026,10,30,16,0,0,tzinfo=datetime.timezone.utc).timestamp()
+A10_GPU_H=70.0
 
 def on_stop(sig,frame):
     global STOP
@@ -233,11 +237,26 @@ def launch(run,head,groups,index,gpu,attempt):
                            stderr=subprocess.STDOUT,start_new_session=True)
     return dict(proc=p,index=index,gpu=gpu,task_id=g["task_id"],
                 start=time.monotonic(),log=str(log),samples=0,
-                contaminated=False)
+                contaminated=False,telemetry=[])
 
 def main(a):
     assert_ok(0<a.poll<=60 and 1<=a.max_parallel<=4 and
-              0<a.max_gpu_hours<=48,"ARGS")
+              0<a.max_gpu_hours<=70,"ARGS")
+    if a.a10:
+        assert_ok(a.max_gpu_hours==A10_GPU_H and
+                  a.controller_head and a.planner_sha==A10_PLANNER_SHA,
+                  "A10_AUTHORIZATION_FLAGS")
+        # The planner's frozen A10 source must be locally available and
+        # textually verified; do not trust an unexamined CLI flag.
+        prereg=subprocess.check_output(
+            ["git","-C",str(WT),"show",
+             a.planner_sha+":docs/planning/track_r/XP_PREREG_v1_1.md"],
+            text=True,timeout=30)
+        assert_ok("Amendment A10 (planner, 2026-10-28 15:30 ET)" in prereg
+                  and "70 GPU-h" in prereg
+                  and "Oct 30" in prereg
+                  and "B32 only after F8" in prereg,
+                  "A10_PLANNER_SOURCE")
     run=Path(a.run)
     mf,groups,prep=frozen(run,a.expected_head,a.controller_head)
     msha=prep["manifest_sha256"]
@@ -245,6 +264,7 @@ def main(a):
     run.joinpath("logs").mkdir(exist_ok=True)
     run.joinpath("pycache").mkdir(exist_ok=True)
     run.joinpath("quarantine").mkdir(exist_ok=True)
+    run.joinpath("telemetry").mkdir(exist_ok=True)
     (CACHE/"tmp").mkdir(parents=True,exist_ok=True)
     with (run/"B16_PRODUCTION_CONTROLLER.lock").open("a+") as lock:
         try:fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -272,6 +292,28 @@ def main(a):
             done=set()
             attempts=state["attempts"]
         active={}
+        if a.a10:
+            previous=state.get("deadline_epoch")
+            assert_ok(state["status"] in (
+                "B16_PRODUCTION_DRAINED_RESUMABLE",
+                "B16_PRODUCTION_RUNNING",
+                "B16_PRODUCTION_RECOVERED",
+                "STOP_B16_PRODUCTION_WORKER_OR_RECEIPT",
+                "B16_PRODUCTION_DRAINED_BUDGET",
+                "A10_B16_GENERATION_COMPLETE_WAIT_F8"),
+                "A10_PREVIOUS_STATE")
+            assert_ok(not state["active"],"A10_INFLIGHT_JOBS")
+            assert_ok(state.get("first_start_epoch") is not None and
+                      state.get("gate_spent_gpu_seconds") is not None and
+                      previous is not None and previous<A10_DEADLINE_EPOCH,
+                      "A10_ORIGINAL_TIMELINE")
+            assert_ok(state.get("spent_gpu_seconds",0)+
+                      state["gate_spent_gpu_seconds"]<A10_GPU_H*3600,
+                      "A10_GPU_BUDGET_EXHAUSTED")
+            state.setdefault("A9_original_deadline_epoch",previous)
+            state["A10_planner_sha"]=A10_PLANNER_SHA
+            state["A10_limit_gpu_hours"]=A10_GPU_H
+            state["deadline_epoch"]=A10_DEADLINE_EPOCH
         def store(status):
             state["status"]=status
             state["done"]=sorted(done)
@@ -367,7 +409,17 @@ def main(a):
                       "ADMISSION_PROVENANCE")
             state["gate_spent_gpu_seconds"]=float(admission["gate_spent_gpu_seconds"])
             state["first_start_epoch"]=admission["gate_first_start_epoch"]
-            state["deadline_epoch"]=admission["gate_deadline_epoch"]
+            state["deadline_epoch"]=(A10_DEADLINE_EPOCH if a.a10
+                                      else admission["gate_deadline_epoch"])
+            if a.a10:
+                assert_ok(state["A9_original_deadline_epoch"]==
+                          admission["gate_deadline_epoch"],"A10_ORIGINAL_GATE_DEADLINE")
+                event(run,"A10_CAMPAIGN_EXTENSION_AUTHORIZED",
+                      planner_sha=A10_PLANNER_SHA,
+                      old_deadline=admission["gate_deadline_epoch"],
+                      deadline=state["deadline_epoch"],
+                      combined_gpu_h_limit=A10_GPU_H)
+                store("A10_B16_PRODUCTION_RUNNING")
             smoke=B22_SMOKE|B24_SMOKE
             b32_smoke=B32_B22_SMOKE|B32_B24_SMOKE
             fatal=False
@@ -386,6 +438,17 @@ def main(a):
                 cards=collect(own_roots=[v["proc"].pid for v in active.values()])
                 for idx,v in list(active.items()):
                     card=next((c for c in cards if c.index==v["gpu"]),None)
+                    if a.a10:
+                        observation={"utc":datetime.datetime.now(
+                                         datetime.timezone.utc).isoformat(),
+                                     "gpu_index":v["gpu"],
+                                     "visibility":card.visibility if card else "unknown",
+                                     "gpu_uuid":card.uuid if card else None,
+                                     "used_mib":card.used_mib if card else None,
+                                     "free_mib":card.free_mib if card else None,
+                                     "process_pids":list(card.process_pids) if card else [],
+                                     "foreign_process_pids":list(card.foreign_pids) if card else []}
+                        v["telemetry"].append(observation)
                     if not card or card.visibility!="known":
                         v["contaminated"]=True
                     if card and card.foreign_pids:v["contaminated"]=True
@@ -404,6 +467,30 @@ def main(a):
                         continue
                     state["spent_gpu_seconds"]+=time.monotonic()-v["start"]
                     active.pop(idx)
+                    if a.a10:
+                        # A10.1: immutable sidecar receipt for each group.
+                        # Do not modify the frozen science-worker receipts.
+                        transcript=dict(
+                           status="A10_GPU_TELEMETRY_RECORDED",
+                           controller_head=a.controller_head,
+                           runner_head=a.expected_head,
+                           manifest_sha256=msha,
+                           task_index=idx,
+                           task_id=v["task_id"],
+                           physical_gpu=v["gpu"],
+                           runner_exit_code=rc,
+                           foreign_pid_observed=any(bool(t["foreign_process_pids"])
+                                                    for t in v["telemetry"]),
+                           classification=("UNVERIFIED" if
+                                 any(t["visibility"]!="known" for t in v["telemetry"])
+                                 or not v["telemetry"] else
+                                 "CONTAMINATED" if
+                                 any(t["foreign_process_pids"] for t in v["telemetry"])
+                                 else "CLEAN_OBSERVED_AT_POLL"),
+                           observations=v["telemetry"])
+                        write_x(run/"telemetry"/
+                                f"XP_A10_GPU_INVENTORY_TASK_{idx:04d}.json",
+                                transcript)
                     if rc!=0:
                         attempt=int(attempts.get(str(idx),0))
                         event(run,"WORKER_FAILED",index=idx,rc=rc,
@@ -453,6 +540,12 @@ def main(a):
                             inherited_deadline_epoch=state["deadline_epoch"])
                         write_x(complete,proof)
                         event(run,"B16_PRODUCTION_FULL_PASS_EMBARGOED",n_new=2160)
+                if a.a10 and set(range(B16_TASKS))<=done and not active:
+                    store("A10_B16_GENERATION_COMPLETE_WAIT_F8")
+                    event(run,"A10_B16_COMPLETE_F8_NEXT_B32_BLOCKED",
+                          n_b16=2160,new_outcomes_opened=False)
+                    print("A10_B16_COMPLETE_WAIT_DAPS_F8",flush=True)
+                    return 0
                 if halted or fatal:
                     if not active:break
                     time.sleep(a.poll);continue
@@ -558,6 +651,8 @@ if __name__=="__main__":
     p.add_argument("--poll",type=int,default=20)
     p.add_argument("--reconcile-completed",action="store_true")
     p.add_argument("--controller-head",default="")
+    p.add_argument("--a10",action="store_true")
+    p.add_argument("--planner-sha",default="")
     try:sys.exit(main(p.parse_args()))
     except Exception as e:
         traceback.print_exc()
