@@ -194,6 +194,37 @@ def main(a):
     tf=Compose([ToTensor(),Resize(256),CenterCrop(256)])
     # Validate K4 native candidate records for all 400 before GT opening.
     files=[verify_one(run,a.stage,r,msha,head) for r in rows]
+    if a.preflight_only:
+        # Exhaustive 400/400 provenance checked above; now exercise one real
+        # GT, y, reconstruction and metric evaluation.  No files are written.
+        row=rows[0]
+        iid=row["image_id"]
+        if iid not in sources or iid not in measurements:
+            raise RuntimeError("STOP_A7_SCORE_PREFLIGHT_ID")
+        gtrow=sources[iid]
+        measurement=measurements[iid]
+        if (sha(safe(gtrow["source_path"]))!=gtrow["source_sha256"]
+            or sha(safe(measurement["measurement_path"]))!=measurement["measurement_sha256"]
+            or row["measurement_path"]!=measurement["measurement_path"]):
+            raise RuntimeError("STOP_A7_SCORE_PREFLIGHT_GT_OR_Y_HASH")
+        with Image.open(safe(gtrow["source_path"])) as im:
+            g=tf(im.convert("RGB")).unsqueeze(0)*2-1
+        y=torch.load(safe(measurement["measurement_path"]),map_location="cpu",
+                     weights_only=True)["measurement"].float()
+        x=torch.load(safe(files[0]),map_location="cpu",
+                     weights_only=True)["reconstruction"].float()
+        if tuple(x.shape)!=(1,3,256,256) or not torch.isfinite(x).all():
+            raise RuntimeError("STOP_A7_SCORE_PREFLIGHT_X")
+        m0=metric_one(x,g,torch,piq,lpips)
+        m1=metric_one(apply_orbit(x,"111"),g,torch,piq,lpips)
+        rho=float(rho_signed(x,y)[0])
+        if (any(not math.isfinite(v) for v in [*m0.values(),*m1.values(),rho])
+            or rho<0):
+            raise RuntimeError("STOP_A7_SCORE_PREFLIGHT_NONFINITE")
+        print("XP_A7_SCORE_PREFLIGHT_PASS stage="+a.stage+
+              " roots_checked=400 metrics=PSNR_SSIM_LPIPS orbit=111" +
+              " local_gt_only=true no_outputs=true",flush=True)
+        return
     scores=[];cache={}
     with torch.inference_mode():
         for i,(r,f) in enumerate(zip(rows,files)):
@@ -266,6 +297,7 @@ if __name__=="__main__":
     p.add_argument("--stage",choices=("D2","D3"),required=True)
     p.add_argument("--expected-head",required=True)
     p.add_argument("--out",required=True)
+    p.add_argument("--preflight-only",action="store_true")
     try:main(p.parse_args())
     except Exception as e:
         traceback.print_exc()
