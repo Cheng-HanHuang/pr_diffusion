@@ -158,6 +158,27 @@ def cpu_gate(run,head):
             "CPU_GATE_NOT_PASS")
     return result
 
+def cpu_smoke(run,head):
+    """Independent historical-only replay on first two four-run groups.
+
+    This is a scientific lineage gate, not merely a timing smoke: do not
+    admit image 2..99 until original PSNR/labels match for runs 0..3.
+    """
+    for index in (0,1):
+        log=run/"logs"/f"B16_HISTORICAL_SMOKE_{index:03d}.log"
+        require(not log.exists(),"SMOKE_LOG_EXISTS")
+        env=dict(os.environ)
+        env.update(CUDA_VISIBLE_DEVICES="",PYTHONDONTWRITEBYTECODE="1",
+                   PYTHONNOUSERSITE="1",PYTHONPATH=str(WT))
+        cmd=[str(PY_CPU),str(WT/"scripts/track_r/xp_a10_b16_gate_smoke_cpu.py"),
+             "--run",str(run),"--expected-head",head,
+             "--index",str(index)]
+        with log.open("x") as dest:
+            rc=subprocess.run(cmd,stdout=dest,stderr=subprocess.STDOUT,
+                              env=env,check=False).returncode
+        require(rc==0,"HISTORICAL_SMOKE_"+str(index))
+    record(run,"B16_HISTORICAL_8ROOT_SMOKE_PASS",n=8)
+
 def main(a):
     require(0<a.hours<=12 and 0<a.gpu_hours<=48 and
             1<=a.max_parallel<=4 and 5<=a.poll<=60,"ARGUMENTS")
@@ -181,6 +202,7 @@ def main(a):
                     state.get("active")==[],"RESTART_STATE")
             done=set(state["done"])
             state.setdefault("attempts",{})
+            state.setdefault("smoke_audited",False)
             require(all(isinstance(i,int) and 0<=i<100 for i in done),
                     "RESTART_DONE")
             for i in sorted(done):
@@ -190,7 +212,8 @@ def main(a):
             state=dict(status="STARTED",head=a.expected_head,
                 manifest_sha256=mf["_manifest_sha"],
                 first_start_epoch=now,deadline_epoch=now+a.hours*3600,
-                active=[],done=[],quarantined=[],attempts={},spent_gpu_seconds=0.,
+                active=[],done=[],quarantined=[],attempts={},
+                smoke_audited=False,spent_gpu_seconds=0.,
                 B16_new_run_labels_opened=False)
             done=set()
             dump(st,state)
@@ -249,13 +272,19 @@ def main(a):
                         record(run,"IMAGE_PASS",index=i,gpu=v["gpu"],
                                sampling_sec=sum(timings))
                     save("RUNNING")
+                # Image groups 0 and 1 must pass offline historical
+                # lineage checks before any later group is admitted.
+                if {0,1}<=done and not state["smoke_audited"] and not active:
+                    cpu_smoke(run,a.expected_head)
+                    state["smoke_audited"]=True
+                    save("B16_HISTORICAL_8ROOT_SMOKE_PASS")
                 if stopped:
                     if not active:break
                     time.sleep(a.poll);continue
                 if len(active)<a.max_parallel:
                     # Must finish first two preflight/smoke groups before all
                     # remaining historical replay jobs are admitted.
-                    eligible=range(2) if not {0,1}<=done else range(100)
+                    eligible=range(2) if not state["smoke_audited"] else range(100)
                     idx=next((i for i in eligible if i not in done
                               and i not in active),None)
                     if idx is not None:
