@@ -1,0 +1,53 @@
+{
+  "DAPS_Table1_direct_reproduction_claim": false,
+  "DAPS_published_Table1_reference": null,
+  "E1_CLIP_G1": "PENDING_CLIP_WORKER",
+  "O_orbit_raw_maximum_meaning": "ORACLE over 8 orbit transforms of all K4 candidates, not deployable selector",
+  "all_k_gt4_outcomes_untouched": true,
+  "candidate_ground_truth_metrics_not_in_github_return": true,
+  "evaluation_head": "8e1eeb88edff2280b26bd237122228d23b318492",
+  "family": "SITCOM",
+  "local_per_run_detail_not_committed": true,
+  "local_per_run_detail_sha256": "30f328d63b7d9b54e58c863ea33040d3ae2e8368c9c9cfea6f4712e7ecdec8d3",
+  "mean_over_images": {
+    "lpips": {
+      "E0_signed_rho": 0.5582738849520683,
+      "O_orbit_raw_maximum": 0.45260492369532584,
+      "first": 0.613931579887867,
+      "oracle_K4_per_metric": 0.501681504547596
+    },
+    "psnr_db": {
+      "E0_signed_rho": 16.31060908317566,
+      "O_orbit_raw_maximum": 20.02027006149292,
+      "first": 14.846142859458924,
+      "oracle_K4_per_metric": 18.24201078414917
+    },
+    "ssim": {
+      "E0_signed_rho": 0.2697860464826226,
+      "O_orbit_raw_maximum": 0.35933864437043667,
+      "first": 0.22768303025513886,
+      "oracle_K4_per_metric": 0.31675387021154167
+    }
+  },
+  "metrics": [
+    "psnr_db",
+    "ssim",
+    "lpips"
+  ],
+  "n_candidates": 400,
+  "n_images": 100,
+  "native_generation_head": "b7af2f7135beb6e8367d83f028e0fbaf163bc7bd",
+  "native_manifest_sha256": "19ab2f4ee78c65e5b8c7ab5964358802ce5bd9757ca47927bac6ab4bc0f071cd",
+  "publication_scope": "XP_RETURNS_ONLY_NOT_THEORY_INPUTS",
+  "publication_status": "CPU_K4_AGGREGATE_INDEPENDENTLY_RECOMPUTED",
+  "runs": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "scorer_source_sha256": "972a07731b814c80c18cbd75bdfd7665ab611b19ee261ca91c807521cc588a8f",
+  "source_aggregate_sha256": "07fe2ed690303a2e95f1c75d766ae494393f630bec23b2852a29805f7a1384a6",
+  "stage": "D3",
+  "status": "XP_A7_K4_IMAGE_METRIC_AGGREGATE_PASS"
+}
