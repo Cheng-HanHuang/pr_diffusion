@@ -61,6 +61,9 @@ This repository studies reliable diffusion-prior phase retrieval. The root guida
     - v2 is due Oct 29, 12:01 ET.
   - TH2 mech v1.1 is registered.
   - Round-3 notes are in `executors/{theory,xp}/03_*`.
+- **Update 2026-10-28, 03:30 (planner):**
+  - TH1 **v1**, its per-image companion and **v2** are registered. The FFHQ K > 4 embargo is lifted. ImageNet FAST run index ≥ 4 stays embargoed until a v2 E1 addendum is registered, or Oct 29, 12:01 ET at the latest (prereg **A8**).
+  - Round-4 notes are in `executors/{theory,xp}/04_*`.
 
 ## B26 branch override
 

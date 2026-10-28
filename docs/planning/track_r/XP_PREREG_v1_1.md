@@ -156,7 +156,43 @@
 > 3. **XP-F8 seeds.** XP-F8 continues the Fresh2 lineage for B22 runs 2–7 (rule audited from `B21_11_fresh2_final_val100_meas5401`) and the `B24_DEV80_DAPS_SOLVER_V1` domain for DEV80 runs 4–7, with the no-collision check. It follows the 8-root 400 × 5 replay (A6.1).
 > 4. **v2 clock.** It started at commit `41d4121` (2026-10-27 12:01:51 ET), so v2 is due by **2026-10-29 12:01 ET**. The CLIP G1 decisions for the D1 phase-1 runs are pending the XP-C worker. If they are not in `theory_inputs/` before the freeze, the v2 E1_CLIP forecast either abstains or states its φ_g and h assumption.
 
-**Status:** FROZEN v1.1 with amendments A1–A7 (planner, 2026-10-27).
+> **Amendment A8 (planner, 2026-10-28 03:00 ET).** Written after TH1 v1 and v2 were frozen and pushed (2026-10-28 06:22–06:33Z) and before any outcome of XP-A16, XP-A64, XP-D1 phase 2, XP-E′, XP-B16 or XP-F8 had been scored. The planner had seen the XP-D2/D3 K = 4 aggregates, which no forecast concerns.
+> 1. **Registration.** v1 (`8ef5f94`), its per-image companion (`5782149`) and v2 (`340dc5d`) are registered (registry, this commit).
+>    - The planner ran both freezes with the theory executor's production code, at its request. The only code the planner added is packaging, with no model change: the seal's τ comparison (`cfefd00`) and the v2 sealer and launcher (`dd5c5e6`).
+>    - **The FFHQ K > 4 embargo is lifted** for the XP analysis.
+> 2. **XP-D1 phase 2 stays embargoed** until the earliest of: (a) registration of a v2 E1_CLIP addendum; (b) the theory executor's declaration that there will be none; (c) **2026-10-29 12:01 ET**. The addendum:
+>    - uses only the G1/G2 decisions on the 400 phase-1 candidates (run index 0–3), which the executor commits as a new file in `theory_inputs/`;
+>    - adds E1_CLIP forecasts (same panel, K and variants) and changes no number in v2;
+>    - is written by the theory executor, then run and sealed by the planner, as v2 was.
+>
+>    XP-D2/D3 outcomes are not relayed to the theory executor until this embargo lifts.
+> 3. **E1_CLIP is a per-candidate rule.** The orientation test looks at one candidate. Let g̃(x) = 1 if the orientation that the test chooses for x is GOOD (computed directly: PSNR of the chosen member against GT). Since ρ is orbit-invariant, for a panel of n runs ranked by ρ (ties by run index):
+>
+>    E1_CLIP(K) = Σ_i g̃(x_(i)) · C(n − i, K − 1) / C(n, K),
+>
+>    which is E0's formula with g̃ in place of the GOOD indicator. No subset enumeration is needed. The same holds for E1_CLIP_G2, E1_2F and E1_S8.
+> 4. **Comparison with registered forecasts.** Before opening any outcome, verify the registry entry and the `git show` SHA. Then apply each file's frozen rule as written:
+>    - interval type `predictive_realized_panel` means "inside iff lo95 ≤ observed ≤ hi95";
+>    - standardized residual = |observed − point| / max((hi95 − lo95)/3.92, 0.005);
+>    - the primary panel's E0 and E1_CLIP coverage counts decide (v2: E0 only), with the residual as tie-break;
+>    - secondary panels, race_tau1 and tail are reported but do not decide.
+>
+>    Report every variant. Commit the comparison before any refit or new model.
+> 5. **Lineage-gate exclusions (A7.2).** If B22 images fail the gate, the primary SITCOM B22 and pooled comparisons use the retained images: the companion's per-image points averaged over them, with the frozen interval half-widths scaled by √(n_cohort / n_retained) and flagged approximate. The all-image comparison is reported as a secondary row.
+> 6. **XP-D2 comparability (no extra GPU).** Before XP-D2 enters the paper as "the published protocol":
+>    - **GT/y identity check.** The scored GT must be the image that produced y. For each of the 100 images:
+>      - **exact form:** regenerate n from its recorded seed and check ‖y − σn − A(x★)‖/√m ≤ 1e-4, with x★ the scorer's GT tensor (float32 round-off gives about 1e-6; a GT mismatch at 40 dB PSNR gives about 5e-3);
+>      - **statistical form** (if n cannot be regenerated): ρ(x★, y)/σ must lie within 1 ± 0.0043, i.e. 4 SD of ‖n‖/√m, which allows for 100 images.
+>
+>      Report the worst image and the torch and torchvision versions of the y-generation and scoring environments. If any image fails, rescore D1–D3 with the GT tensor of the y-generation environment.
+>    - **LPIPS.** Add DAPS's convention, `piq.LPIPS(replace_pooling=True)` (VGG16) on [0, 1] inputs, as the published-protocol LPIPS. Keep AlexNet LPIPS as secondary.
+>    - **Checkpoint.** Record the SHA-256 and size of the ImageNet checkpoint used by D2 and D3, and whether it is the file that DAPS's `download.sh` fetches as `imagenet256.pt`.
+>    - **Wrapper check on FFHQ.** From XP-E′ at K ≤ 4 on cohort A, report the DAPS-4K per-metric best of 4 next to DAPS Table 1 (30.63 / 0.851 / 0.139) and PC-DAPS's reproduction of DAPS-4K (29.66 / 0.770 / 0.177).
+>    - **Native spot check** with `posterior_sample.py` (8 images × 4 runs): Tier C, only if the checks above leave doubt.
+>    - **In the paper,** XP-D2 is reported next to two references: DAPS Table 1 (25.78 dB) and PC-DAPS's reproduction of DAPS-4K (20.98 dB). We do not claim to reproduce DAPS Table 1.
+> 7. **GPU order.** XP-E′ continues. The next free GPU takes XP-B16, lineage gate first, then the 8-root DAPS replay and XP-F8. CLIP scoring (ViT-L/14) runs on CPU whenever no GPU is free. The XP-C prior and UnivFD tests on GT take GPU minutes when a GPU is available.
+
+**Status:** FROZEN v1.1 with amendments A1–A8 (planner, 2026-10-28).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
