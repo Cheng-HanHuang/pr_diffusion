@@ -44,7 +44,7 @@ class TestB16FullGate(unittest.TestCase):
                          "NONORBIT_INCONSISTENT")
     def test_git_porcelain_preserves_leading_status_column(self):
         with patch.object(prep.subprocess,"check_output",
-                          return_value=" M model/__pycache__/precond.cpython-38.pyc\\n"):
+                          return_value=" M model/__pycache__/precond.cpython-38.pyc\n"):
             status=prep.git("/mock/SITCOM_ODE","status","--porcelain=v1",
                             "--untracked-files=no")
         self.assertEqual(status,
