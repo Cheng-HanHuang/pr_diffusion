@@ -188,13 +188,17 @@ def verify_task(run,groups,manifest_sha,index,head):
         t=float(r["sampling_wall_s"])
         assert_ok(math.isfinite(t) and 1<t<7200,"ROOT_WALL")
         secs.append(t)
-    # Published FFHQ ±50% timing range. A family-specific isolated
-    # failure stops the family before expanding beyond smoke.
+    # Timing admission is a *smoke-only* guard; non-smoke production
+    # reconstructions remain valid if a co-tenant or GPU frequency change
+    # slows subsequent samples. Never discard or rerun a completed, fully
+    # hash-verified group because of its wall-clock distribution.
     mid=sorted(secs)[len(secs)//2]
     if len(secs)%2==0:
         mid=(sorted(secs)[len(secs)//2-1]+mid)/2
-    assert_ok(0.5*REFERENCE_SEC<=mid<=1.5*REFERENCE_SEC,
-              "FFHQ_SMOKE_SPEED_"+g["source"])
+    is_smoke=index in (B22_SMOKE|B24_SMOKE|B32_B22_SMOKE|B32_B24_SMOKE)
+    if is_smoke:
+        assert_ok(0.5*REFERENCE_SEC<=mid<=1.5*REFERENCE_SEC,
+                  "FFHQ_SMOKE_SPEED_"+g["source"])
     return sum(secs)
 
 def launch(run,head,groups,index,gpu,attempt):
@@ -263,6 +267,49 @@ def main(a):
             state["active"]=[dict(index=i,pid=v["proc"].pid,gpu=v["gpu"])
                              for i,v in active.items()]
             save(statepath,state)
+        # Recovery from the original 2026-10-28 timing misclassification:
+        # only the 2026-10-28 R3 production manifest/runner are supported.
+        # A new controller checkout may execute this read-only audit while
+        # the native workers remain pinned to the immutable original HEAD.
+        if a.reconcile_completed:
+            assert_ok(a.expected_head=="079228b3ebe55dba2ac7bc7ae2c8187113290409",
+                      "RECOVERY_RUNNER_HEAD")
+            assert_ok(sha(run/"XP_A11_B16_PROD_TASKS.json")==
+                      "778ce4fa7d5ef9299e2530bbb32e8a28b3512e5abe97f0569bb3ec74e00247a9",
+                      "RECOVERY_FROZEN_MANIFEST")
+            assert_ok(state["status"] in (
+                "STOP_B16_PRODUCTION_WORKER_OR_RECEIPT",
+                "B16_PRODUCTION_DRAINED_RESUMABLE",
+                "B16_PRODUCTION_RUNNING",
+                "B16_PRODUCTION_RECONCILING"),"RECOVERY_STATE")
+            # This records the new controller's source identity without
+            # modifying any original manifest, receipt, or saved run HEAD.
+            code_source=Path(__file__).resolve()
+            event(run,"CONTROLLER_RECOVERY_STARTED",
+                  previous_status=state["status"],
+                  prior_done=len(done),
+                  controller_source_sha256=sha(code_source),
+                  frozen_runner_head=a.expected_head)
+            for i,g in enumerate(groups):
+                if i in done:
+                    continue
+                output=run/"gpu"/g["task_id"]
+                if not output.exists():
+                    continue
+                assert_ok(output.is_dir() and not output.is_symlink(),
+                          "RECOVERY_OUTPUT_PATH_"+str(i))
+                duration=verify_task(run,groups,msha,i,a.expected_head)
+                done.add(i)
+                event(run,"RECONCILED_COMPLETED_RECEIPTS",
+                      index=i,new_roots=g["new_roots"],
+                      validated_native_sample_s=round(duration,3),
+                      previously_unaccepted=True,
+                      new_labels_opened=False)
+                store("B16_PRODUCTION_RECONCILING")
+            event(run,"CONTROLLER_RECOVERY_COMPLETE",
+                  reconciled_total=len(done),
+                  new_labels_opened=False)
+            store("B16_PRODUCTION_RECOVERED")
         try:
             while not (run/"B16_PRODUCTION_ADMISSION.json").exists():
                 if STOP or (run/"STOP_AFTER_ACTIVE").exists():
@@ -492,6 +539,7 @@ if __name__=="__main__":
     p.add_argument("--max-parallel",type=int,default=4)
     p.add_argument("--max-gpu-hours",type=float,default=48.)
     p.add_argument("--poll",type=int,default=20)
+    p.add_argument("--reconcile-completed",action="store_true")
     try:sys.exit(main(p.parse_args()))
     except Exception as e:
         traceback.print_exc()
