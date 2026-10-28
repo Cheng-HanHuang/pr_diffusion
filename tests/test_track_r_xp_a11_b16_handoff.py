@@ -6,10 +6,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 from scripts.track_r import xp_a11_b16_prod_prepare_cpu as prep
+from prdiffusion.track_r.xp_gpu_telemetry import GPU
 from scripts.track_r.xp_a11_b16_handoff_autopilot import (
     B22_SMOKE,B24_SMOKE,B32_B22_SMOKE,B32_B24_SMOKE,
     REFERENCE_SEC,validate_sample_speed_for_smoke,
-    RUNNER_WT,launch,A10_PLANNER_SHA,A10_DEADLINE_EPOCH,A10_GPU_H)
+    RUNNER_WT,launch,A10_PLANNER_SHA,A10_DEADLINE_EPOCH,A10_GPU_H,
+    choose_generation_gpu,VRAM_REQUIRED_MIB)
 
 class TestB16Production(unittest.TestCase):
     def test_frozen_seed_domain_matches_historical_algorithm(self):
@@ -84,6 +86,29 @@ class TestB16Production(unittest.TestCase):
         self.assertEqual(datetime.fromtimestamp(
             A10_DEADLINE_EPOCH,timezone.utc).isoformat(),
             "2026-10-30T16:00:00+00:00")
+
+    def test_a10_generating_with_foreign_process_respects_memory(self):
+        self.assertEqual(VRAM_REQUIRED_MIB,8192)
+        foreign=GPU(index=0,uuid="g0",total_mib=97887,
+                    used_mib=12000,free_mib=85887,utilization_pct=75,
+                    process_pids=(777,),foreign_pids=(777,),
+                    visibility="known")
+        gpu,_=choose_generation_gpu([foreign],set())
+        self.assertEqual(gpu,0)  # co-tenancy allowed, unlike timing
+        gpu,_=choose_generation_gpu([foreign],{0})
+        self.assertIsNone(gpu)  # never two Track R workers/GPU
+        crowded=GPU(index=0,uuid="g0",total_mib=97887,
+                    used_mib=75000,free_mib=22887,utilization_pct=99,
+                    process_pids=(777,),foreign_pids=(777,),
+                    visibility="known")
+        gpu,reasons=choose_generation_gpu([crowded],set())
+        self.assertIsNone(gpu)  # would breach projected 80%
+        self.assertEqual(reasons[0],"WAIT_VRAM")
+        invisible=GPU(index=0,uuid="g0",total_mib=97887,
+                    used_mib=500,free_mib=97387,utilization_pct=0,
+                    visibility="unknown")
+        gpu,_=choose_generation_gpu([invisible],set())
+        self.assertIsNone(gpu)
 
     def test_recovery_launch_uses_original_worker_not_controller(self):
         self.assertEqual(RUNNER_WT,
