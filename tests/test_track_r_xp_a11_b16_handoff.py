@@ -5,7 +5,8 @@ import unittest
 from unittest.mock import patch
 from scripts.track_r import xp_a11_b16_prod_prepare_cpu as prep
 from scripts.track_r.xp_a11_b16_handoff_autopilot import (
-    B22_SMOKE,B24_SMOKE,B32_B22_SMOKE,B32_B24_SMOKE,REFERENCE_SEC)
+    B22_SMOKE,B24_SMOKE,B32_B22_SMOKE,B32_B24_SMOKE,
+    REFERENCE_SEC,validate_sample_speed_for_smoke)
 
 class TestB16Production(unittest.TestCase):
     def test_frozen_seed_domain_matches_historical_algorithm(self):
@@ -71,6 +72,20 @@ class TestB16Production(unittest.TestCase):
         self.assertEqual(b22groups[0]["rows"][4]["seed"],43)
         self.assertEqual(b24groups[0]["rows"][0]["seed"],
                          prep.seed63("C","01000",4)%(2**32))
+
+    def test_slow_native_production_is_not_a_scientific_receipt_failure(self):
+        # Observed Oct 28: 77.5 s native CUDA-event times with correct
+        # hashes, unchanged method, 200 native steps, GT never read.
+        for index in (58,59,60,61):
+            self.assertFalse(validate_sample_speed_for_smoke(
+                index,77.5,"S1_b22"))
+        for index in (0,1,100,101,112,113,1060,1061,1160,1161,1176,1177):
+            with self.assertRaisesRegex(RuntimeError,"FFHQ_SMOKE_SPEED"):
+                validate_sample_speed_for_smoke(index,77.5,"S1_b22")
+        self.assertFalse(validate_sample_speed_for_smoke(
+            58,22.8,"S1_b22"))
+        self.assertTrue(validate_sample_speed_for_smoke(
+            0,22.8,"S1_b22"))
 
     def test_smoke_sets_and_ffhq_timing_frozen(self):
         self.assertEqual(B22_SMOKE,{0,1})
