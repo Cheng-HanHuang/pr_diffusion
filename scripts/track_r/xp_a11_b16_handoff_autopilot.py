@@ -278,6 +278,11 @@ def main(a):
         # A new controller checkout may execute this read-only audit while
         # the native workers remain pinned to the immutable original HEAD.
         if a.reconcile_completed:
+            controller_root=Path(__file__).resolve().parents[2]
+            assert_ok(bool(a.controller_head) and
+                      git(controller_root,"rev-parse","HEAD")==a.controller_head and
+                      not git(controller_root,"status","--porcelain"),
+                      "RECOVERY_CONTROLLER_CODE_PIN")
             assert_ok(a.expected_head=="079228b3ebe55dba2ac7bc7ae2c8187113290409",
                       "RECOVERY_RUNNER_HEAD")
             assert_ok(sha(run/"XP_A11_B16_PROD_TASKS.json")==
@@ -295,6 +300,7 @@ def main(a):
                   previous_status=state["status"],
                   prior_done=len(done),
                   controller_source_sha256=sha(code_source),
+                  controller_head=a.controller_head,
                   frozen_runner_head=a.expected_head)
             for i,g in enumerate(groups):
                 if i in done:
@@ -546,6 +552,7 @@ if __name__=="__main__":
     p.add_argument("--max-gpu-hours",type=float,default=48.)
     p.add_argument("--poll",type=int,default=20)
     p.add_argument("--reconcile-completed",action="store_true")
+    p.add_argument("--controller-head",default="")
     try:sys.exit(main(p.parse_args()))
     except Exception as e:
         traceback.print_exc()
