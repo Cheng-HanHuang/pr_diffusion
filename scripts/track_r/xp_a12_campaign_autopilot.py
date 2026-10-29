@@ -189,6 +189,7 @@ def verified(a,run,task,dest,source_sha,roots,P):
  return sha(receipt)
 def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
  active={}
+ draining_reason=None
  cap=CAP[stage]*3600.
  def save(status):
   state["status"]=status
@@ -221,6 +222,11 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
      log=str(v["log"]),utc=datetime.datetime.now(
          datetime.timezone.utc).isoformat()))
    del active[idx]
+   if rc!=0 and draining_reason is not None:
+    emit(run,"INTERRUPTED_OWN_WORKER_CHARGED",name=name,reason=draining_reason,
+         charged_seconds=elapsed)
+    save("DRAINING_"+stage+"_"+draining_reason)
+    continue
    if rc!=0:
     raise RuntimeError("STOP_A12_NATIVE_RC_"+name+"_"+str(rc))
    digest=verified(a,run,job,v["dest"],v["root_sha"],roots,P)
@@ -228,6 +234,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
    emit(run,"ROOT_VERIFIED",job=job,digest=digest)
    save("RUN_"+stage)
  def loop():
+  nonlocal draining_reason
   save("RUN_"+stage)
   while len(state["done"])<len(tasks):
    cards=collect(own_roots=[v["proc"].pid for j,v in active.values()])
@@ -235,13 +242,15 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
    remaining=[(idx,j) for idx,j in enumerate(tasks)
               if str(idx) not in state["done"] and idx not in active]
    deadline=datetime.datetime(*DEADLINE[stage],tzinfo=ZoneInfo("America/Detroit"))
-   stop_reason=( "OPERATOR_STOP" if STOP or (run/"STOP_A12").exists()
+   stop_reason=(draining_reason if draining_reason is not None
+      else "OPERATOR_STOP" if STOP or (run/"STOP_A12").exists()
       else "DEADLINE" if datetime.datetime.now(ZoneInfo("America/Detroit"))>=deadline
       else "STAGE_CEILING" if current_spend()>=cap-30
       else "CAMPAIGN_CEILING" if (campaign0*3600+total_spend())>=CAMPAIGN_CAP*3600-30
       else "PROJECT_CEILING" if (project0*3600+total_spend())>=PROJECT_CAP*3600-30
       else None)
    if stop_reason:
+    draining_reason=stop_reason
     die_own()
     if not active:
      save("PARTIAL_"+stage+"_"+stop_reason)
