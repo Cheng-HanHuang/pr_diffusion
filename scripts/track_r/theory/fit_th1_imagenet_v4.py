@@ -12,6 +12,7 @@ import numpy as np
 from audit_a8_rank_race import fit_weights
 from fit_th1_dirichlet import fit as fit_alpha
 from fit_th1_prefix_v1 import sample_panel,rank_weights,pass_at_k,exact_prefix_oracles
+import v4_tail_cache  # noqa: F401  planner QA 2026-10-29: bit-identical cache of the tail-variant prefix law (see module docstring)
 
 PREFIX4_SHA="c21778803a17821ecf51857af6378273c2b583d4d19938d0c42e401f20178bc1"
 PANELS={"primary":(32,(16,24,32)),"secondary":(64,(32,48,64))}
