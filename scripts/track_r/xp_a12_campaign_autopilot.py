@@ -254,7 +254,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
    v["handle"].close()
    elapsed=time.monotonic()-v["start"]
    state["stage_seconds"][stage]+=elapsed
-   name=f"{stage}_{job['kind']}_{idx}_A{v['attempt']}"
+   name=f"{stage}_{job.get('sig','')}_{job['kind']}_{idx}_A{v['attempt']}"
    write(run/"cost"/(name+".json"),dict(status="A12_ATTEMPT_GPU_COST",
      stage=stage,job=job,rc=rc,elapsed_seconds=elapsed,
      charged_gpu_h=elapsed/3600,
@@ -312,7 +312,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
     if gpu is None:break
     cmd,dest,digest,exe=make_command(a,run,job,gpu,roots,P,0)
     gate(not dest.exists(),"NEW_TASK_OUTPUT_ALREADY_EXISTS")
-    key=f"{stage}_{job['kind']}_{idx}"
+    key=f"{stage}_{job.get('sig','')}_{job['kind']}_{idx}"
     log=run/"logs"/(key+".log")
     env=os.environ.copy()
     env.update(CUDA_VISIBLE_DEVICES=str(gpu),PYTHONPATH=str(Path(__file__).resolve().parents[2]),
@@ -341,7 +341,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
    v["handle"].close()
    elapsed=time.monotonic()-v["start"]
    state["stage_seconds"][stage]+=elapsed
-   name=f"{stage}_{job['kind']}_{idx}_A_EXCEPTION"
+   name=f"{stage}_{job.get('sig','')}_{job['kind']}_{idx}_A_EXCEPTION"
    write(run/"cost"/(name+".json"),dict(status="A12_FAILED_ATTEMPT_CHARGED",
       job=job,seconds=elapsed,charged_gpu_h=elapsed/3600,gpu=v["gpu"],
       pid=v["proc"].pid,returncode=v["proc"].returncode))
