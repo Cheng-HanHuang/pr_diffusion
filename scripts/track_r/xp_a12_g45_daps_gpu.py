@@ -18,7 +18,7 @@ from scripts.track_r.xp_a12_g45_prepare_cpu import sha,seed
 from scripts.track_r import xp_t_daps4k_worker_gpu as native
 def check(a):
     root=Path(a.run)
-    gate(root.parent==BASE and root.name.startswith("xp_a12_g45_prod_")
+    gate(root.parent==BASE and root.name.startswith(("xp_a12_g45_prod_","xp_a12_campaign_prod_"))
          and root.is_dir() and not root.is_symlink(),"G45_RUN")
     gate(a.stage in ("G4","G5") and a.phase in ("REPLAY","PROD"),
          "G45_STAGE_PHASE")
