@@ -1,0 +1,10 @@
+{
+  "comparison_sha256": "82f8f09c29393e7515f472e1d7facc58ba9892ca6ce41210d3f20e710b1e02cb",
+  "expected_head": "263b7c9c377a953e8f7b9d702f68af06e84c4c98",
+  "n_K16_E0_misses_with_raw_oracle": 17,
+  "n_images": 180,
+  "n_never_good": 15,
+  "per_image_sha256": "c259f8fef96d67d8ab91fdd727921c51fc983d14e8d36796e4d8d2f63f646054",
+  "rows": 288,
+  "status": "XP_B16_V1_PRIMARY_V3_SECONDARY_PROSPECTIVE_COMPARISON_PASS"
+}

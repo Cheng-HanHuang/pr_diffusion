@@ -1,0 +1,29 @@
+{
+  "Good25": 25.0,
+  "class_totals": {
+    "C": 638,
+    "G": 1688,
+    "I": 460,
+    "O_g": 94
+  },
+  "cohort_images": {
+    "B22": 100,
+    "DEV80": 80
+  },
+  "frozen_TAU": {
+    "B22": 0.0448503,
+    "DEV80": 0.0449706
+  },
+  "historical_R07_receipt_sha256": "50ff1550d3bb6fa64bac75d286c5cfab240e54ff391dba4ff9b0c3820f3e79c8",
+  "historical_R07_scores_sha256": "0c01c80acf54c48771904725bdcf0a7c5f0b966ac168b074c5cb8a5690c6ad59",
+  "n_historical": 720,
+  "n_images": 180,
+  "n_new": 2160,
+  "n_panel": 16,
+  "n_scored": 2880,
+  "no_gpu": true,
+  "per_candidate_sha256": "136d2688c8f47d420a51c581ee3f97919268b064f60fd416dc9beee76c1e2597",
+  "status": "XP_B16_16RUN_2880_CPU_SCORED_PASS",
+  "strings_sha256": "b910b69ec20ef6bb7e0099d4506c1109d0c40d4528a2a3f89f0a3433eb968051",
+  "v1_primary_v3_secondary_freeze_verified": true
+}

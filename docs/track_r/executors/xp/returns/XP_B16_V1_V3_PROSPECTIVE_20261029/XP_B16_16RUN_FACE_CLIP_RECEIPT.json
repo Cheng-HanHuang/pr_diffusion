@@ -1,0 +1,22 @@
+{
+  "GT_used_by_CLIP": false,
+  "chosen_good_joined_from_frozen_offline_scoring": true,
+  "clip_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+  "csv_sha256": "a5869ba84f56485bbbf98fc2c089688c0eb03cbe7f0493a1324887b84eca77f0",
+  "model_scoring_device": "cpu",
+  "n_candidates": 2880,
+  "orientation_rule": "rotate 180 iff u(R111x)>u(x)",
+  "prompts_inverted": [
+    "an upside-down photo of a face.",
+    "an upside-down photo of a person's face.",
+    "an upside-down portrait photo of a person."
+  ],
+  "prompts_up": [
+    "a photo of a face.",
+    "a photo of a person's face.",
+    "a portrait photo of a person."
+  ],
+  "source_scored_sha256": "136d2688c8f47d420a51c581ee3f97919268b064f60fd416dc9beee76c1e2597",
+  "status": "B16_2880_FROZEN_N2_FACECLIP_PASS",
+  "univfd_head": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619"
+}
