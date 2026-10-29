@@ -49,6 +49,31 @@ for name in (
  ast.parse(Path(name).read_text(),filename=name)
  print("F8_STATIC_PASS",name)
 PY
+    echo "===== CPU SMOKE: ORIGINAL DAPS IMAGEDATASET WITHOUT GT ====="
+    DAPS_PY="$ROOT/conda-envs/daps/bin/python"
+    DAPS_NATIVE="$ROOT/pr_diffusion_b19_solver/external/daps"
+    test -f "$DAPS_PY"
+    CUDA_VISIBLE_DEVICES="" "$DAPS_PY" - "$DAPS_NATIVE" "$BASE" <<'PY'
+import sys,tempfile
+from pathlib import Path
+from PIL import Image
+root=Path(sys.argv[1])
+base=Path(sys.argv[2])
+sys.path.insert(0,str(root))
+from data import get_dataset
+cache=base/".cache/f8_legacy"
+cache.mkdir(parents=True,exist_ok=True)
+with tempfile.TemporaryDirectory(prefix="dummy_dataset_",dir=str(cache)) as name:
+    dest=Path(name)
+    Image.new("RGB",(256,256),(0,0,0)).save(dest/"00000.png")
+    dataset=get_dataset("image",root=str(dest),
+        resolution=256,start_id=0,end_id=1,device="cpu")
+    image=dataset.get_data(1,0)
+    assert tuple(image.shape)==(1,3,256,256),image.shape
+    assert float(image.max())==-1.0 and float(image.min())==-1.0
+    print("F8_NATIVE_DUMMY_DATASET_CPU_SMOKE_PASS",
+          "one_original_image_record","no_GT",flush=True)
+PY
     echo "===== PRE-LAUNCH FOUR-GPU INVENTORY ====="
     nvidia-smi \
        --query-gpu=index,uuid,memory.used,memory.total,utilization.gpu \
