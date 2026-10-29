@@ -2,7 +2,8 @@
 """A10 legacy DAPS 400x5 one-root replay worker; ORIGINAL PATCHED native DAPS.
 
 All GPU-side inputs are GT-free and historical-candidate-free. Uses native
-Hydra CLI and DAPS Empty dataset, with the fixed historical measurement.
+Hydra CLI and DAPS original ImageDataset over a synthetic placeholder,
+with the fixed historical measurement. The placeholder never supplies GT.
 Preflight-only mode resolves and verifies Hydra config with GPUs hidden.
 Subsequent offline gate determines bitwise or 0.1 dB / label agreement.
 """
@@ -108,7 +109,13 @@ def native_command(row,dest):
     seed=int(row["native_seed"])
     return [
         str(DAPS_PY),str(ORIG_DAPS/"posterior_sample.py"),
-        "+data={name:empty,shape:[3,256,256],device:cuda}",
+        # Use DAPS original ImageDataset. Its Empty dataset passes an
+        # OmegaConf ListConfig to torch.zeros and fails at runtime. An
+        # RGB placeholder is created under this root's private output
+        # directory; the frozen y overrides synthetic measurement before
+        # sampling. The placeholder is NOT a historical or GT image.
+        "+data={name:image,root:"+str(dest/"synthetic_input")+
+            ",resolution:256,start_id:0,end_id:1,device:cuda}",
         "+measurement_path="+str(row["measurement_path"]),
         "+model=ffhq256ddpm","+sampler=edm_daps",
         "+task=phase_retrieval","task_group=pixel",
@@ -157,9 +164,12 @@ def check_cfg(cmd,row):
     fail(p.returncode==0,"HYDRA_CONFIG_RESOLVE "+p.stderr[-600:])
     cfg=yaml.safe_load(p.stdout)
     fail(isinstance(cfg,dict),"HYDRA_CONFIG_NOT_MAPPING")
-    fail(cfg["data"]["name"]=="empty"
-         and list(cfg["data"]["shape"])==[3,256,256],
-         "EMPTY_DATA_NOT_USED")
+    fail(cfg["data"]["name"]=="image"
+         and cfg["data"]["root"]==str(Path(cmd[cmd.index(next(x for x in cmd if x.startswith("save_dir=")))].split("=",1)[1])/"synthetic_input")
+         and int(cfg["data"]["resolution"])==256
+         and int(cfg["data"]["start_id"])==0
+         and int(cfg["data"]["end_id"])==1,
+         "SYNTHETIC_IMAGE_DATA_NOT_USED")
     fail(cfg["measurement_path"]==row["measurement_path"],
          "FIXED_MEASUREMENT_NOT_USED")
     fail(cfg["model"]["model_config"]["model_path"]==str(MODEL)
@@ -186,6 +196,16 @@ def do_gpu(a,row):
     dest=safe_output(root/f"replay_{a.index:02d}",root)
     cfg=check_cfg(native_command(row,dest),row)
     dest.mkdir(parents=False,exist_ok=False)
+    # Create exactly one deterministic RGB placeholder. The native DAPS
+    # ImageDataset loads this as a shape carrier; it is not GT and is
+    # never used to form the fixed phase-retrieval measurement.
+    from PIL import Image
+    synthetic_dir=dest/"synthetic_input"
+    synthetic_dir.mkdir(mode=0o700)
+    placeholder=synthetic_dir/"00000.png"
+    Image.new("RGB",(256,256),color=(0,0,0)).save(placeholder)
+    fail(sha(placeholder)==sha(synthetic_dir/"00000.png"),
+         "SYNTHETIC_PLACEHOLDER_HASH")
     hook=dest/"sitehook"
     hook.mkdir()
     (hook/"sitecustomize.py").write_text(TRACE_SOURCE)
@@ -228,6 +248,9 @@ def do_gpu(a,row):
          model_trace=m,model_trace_sha256=sha(trace),
          sample_sha256=sha(sample),sample_path=str(sample),
          native_log_sha256=sha(log),native_wall_seconds=elapsed,
+         synthetic_placeholder_sha256=sha(placeholder),
+         synthetic_placeholder_path=str(placeholder),
+         placeholder_used_for_shape_only=True,
          gt_passed_to_native=False,historical_candidate_passed_to_native=False,
          timing_measured=False,co_tenancy_allowed=True,
          offline_replay_comparison_pending=True)
