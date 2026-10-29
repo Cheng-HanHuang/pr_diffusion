@@ -151,7 +151,7 @@ def preflight(a):
             expected_prep=(
                 "XP_A12_G2_PREP_RECEIPT.json"
                 if manifest["stage"].startswith("A12_G2_") else
-                "XP_A12_G6_PREP_RECEIPT.json"
+                "XP_A13_G6_PREP_RECEIPT.json"
                 if manifest["stage"]=="A12_G6_FAST_IN_CLEAN" else
                 "XP_A12_G1B_PREP_RECEIPT.json")
             doc=json.loads(source(prep/expected_prep).read_text())
@@ -169,7 +169,7 @@ def preflight(a):
             elif manifest["stage"]=="A12_G6_FAST_IN_CLEAN":
                 valid=(prep.name.startswith("xp_a12_g6_prepare_") and
                        doc.get("status")==
-                        "XP_A12_G6_CONDITIONAL_CLEAN_TIMING_PREP_PASS" and
+                        "XP_A13_G6_CLEAN_TIMING_TWO_FAMILIES_PREP_PASS" and
                        doc.get("fast_manifest_sha256")==a.roots_sha and
                        len(rows)==9 and manifest.get("dataset")=="imagenet"
                        and doc.get("clean_GPUs_ONLY") is True)
