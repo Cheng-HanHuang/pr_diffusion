@@ -64,9 +64,12 @@ def main(a):
        prior6.is_file() and not prior6.is_symlink(),"G6_PRIOR_PATH")
   g6=jread(prior6)
   gate(g6["prior_campaign_sha256"]==sha(prior)
-       and g6["stage_ceiling_gpu_h"]==1.
-       if "stage_ceiling_gpu_h" in g6 else
-       g6["prior_campaign_sha256"]==sha(prior),
+       and g6["cap_gpu_h"]==1.
+       and 0<=g6["wall_gpu_h"]<=1.
+       and abs(g6["A12_total_charged_gpu_h"]-
+             (campaign0+g6["wall_gpu_h"]))<1e-6
+       and abs(g6["project_total_charged_gpu_h"]-
+             (project0+g6["wall_gpu_h"]))<1e-6,
        "G6_PRIOR_CONSISTENCY")
   project0=float(g6["project_total_charged_gpu_h"])
   campaign0=float(g6["A12_total_charged_gpu_h"])
