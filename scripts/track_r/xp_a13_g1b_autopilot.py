@@ -121,6 +121,13 @@ def verify(a,job,dest,receipt,rows):
  return sha(dest/"R0_5_CHUNK_COMPLETE.json")
 def main(a):
  wt,prep,receipt,rows,project_before,a12_before=inputs(a)
+ if a.preflight_only:
+  print("XP_A13_G1B_SOURCE_BUDGET_PRELIGHT_PASS",flush=True)
+  print("G1B_PREP_SHA256",receipt["manifest_sha256"],flush=True)
+  print("G1B_PRIOR_PROJECT_GPU_H",project_before,flush=True)
+  print("G1B_PRIOR_A12_GPU_H",a12_before,flush=True)
+  print("G1B_3200_NOROOT_INFERENCE=true",flush=True)
+  return
  run=Path(a.run)
  gate(run.parent==BASE and run.name.startswith("xp_a13_g1b_prod_")
       and not run.exists() and not run.is_symlink(),"FRESH_RUN")
@@ -275,6 +282,7 @@ def entry():
  p=argparse.ArgumentParser()
  for key in ("expected-head","prep","run"):
   p.add_argument("--"+key,required=True)
+ p.add_argument("--preflight-only",action="store_true")
  try:main(p.parse_args())
  except Exception as e:
   traceback.print_exc()
