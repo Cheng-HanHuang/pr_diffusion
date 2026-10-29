@@ -21,7 +21,7 @@ ROOT=Path("/egr/research-pac/huang248")
 BASE=ROOT/"outputs/pr_diffusion/track_r"
 WT=Path(__file__).resolve().parents[2]
 R07=BASE/"r0_7_cpu_20261023T080434Z/analysis"
-CAT=R07/"R0_7_OFFLINE_GT_CATALOG.json"
+CAT=BASE/"r0_7_cpu_20261023T080434Z/prepare/R0_7_OFFLINE_GT_CATALOG.json"
 SCORES=R07/"R0_7_SCORED_GT_ROWS.jsonl"
 R07_RECEIPT=R07/"R0_7_COMPLETE_RECEIPT.json"
 B21=ROOT/"outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401"
@@ -206,8 +206,10 @@ def admission():
     rec=read_json(B16/"XP_A11_B16_PROD_COMPLETE.json")
     fail(s["status"]=="A10_B16_GENERATION_COMPLETE_WAIT_F8"
          and s["active"]==[] and rec["n_new_roots"]==2160
-         and rec["no_new_outcomes_opened"] is True,
-         "B16_NOT_COMPLETE")
+         and rec["no_new_outcomes_opened"] is True
+         and sha(B16/"XP_A11_B16_PROD_COMPLETE.json")==
+             "5a3426464fb1164d98138bfbe52212fe38036f4401cf24c1379b6a283ac9e88d",
+         "B16_NOT_COMPLETE_OR_RECEIPT_DRIFT")
     used=(s["gate_spent_gpu_seconds"]+s["spent_gpu_seconds"])/3600
     fail(s["A10_limit_gpu_hours"]==A10_CAP_H
          and used<A10_CAP_H,
