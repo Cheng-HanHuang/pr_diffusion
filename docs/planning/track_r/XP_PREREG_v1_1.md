@@ -249,7 +249,49 @@
 > 3. **XP-D1 phase 2 is unblinded** (A8.2(a)). Compare it with v2 (E0, O_raw, O_orbit) and with v2 E1 (E1_CLIP from G1 decisions on the phase-2 candidates) by the frozen rules. Add the A9.2 decomposition: the exchangeability check (phase 1 vs phase 2), the composition-conditional selection test, and the never-GOOD case list.
 > 4. **The A9.2(b) test for FAST** was computed by the planner from the published strings (`docs/track_r/planner_analysis/A9_2b_FAST_conditional_selection/`). The executor reproduces it independently with its own code.
 
-**Status:** FROZEN v1.1 with amendments A1–A10 (planner, 2026-10-28).
+> **Amendment A11 (planner, 2026-10-29 04:15 ET): paper direction and a frozen GT-free protocol.** Written after the D1 phase-2 aggregate return (XP `70b290f`) and before any of the following reached the planner: a B16, F8 or E′ outcome; a D1 phase-2 per-image string, residual or CLIP margin; a D2/D3 per-image string.
+> 1. **Direction (Cheng, 2026-10-29 03:36: option (a)).**
+>    - **The deliverable.** The paper is rebuilt around:
+>      - a **ground-truth-free best-of-K protocol**: residual selection, zero-shot orientation test, abstention, sequential stopping;
+>      - the finding that **GT-free selection is predictable, while unsolved images are not**.
+>    - **The symmetry material** moves to the supplement, except a short Bayes-within-orbit statement. The orbit lemma is presented as classical.
+>    - **The constraint "No new method" is amended.** The protocol is a selection, stopping and reporting procedure over the existing solvers. It is evaluated offline on runs already generated or registered, and needs no new GPU work.
+> 2. **Protocol v1 is frozen** at planner `c598176` (committed 2026-10-29T07:49:32Z and pushed the same minute):
+>    - `docs/track_r/protocol/GTFREE_PROTOCOL_v1.md`, SHA-256 `7e9a5fd8b817a97351d07ae371b947688c8430cd5b9268fc99b954a493223919`;
+>    - `docs/track_r/protocol/gtfree_protocol.py`, SHA-256 `d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658`.
+>
+>    **Primary held-out panels:** D1-P2 (ImageNet FAST, 16 runs), B16 (SITCOM, 16) and F8 (DAPS, 8), each with M = 2, N_MAX = panel size, the frozen per-solver τ and the orientation step.
+>
+>    **Hypotheses:**
+>    - H1: no loss at equal compute, ≥ −0.01 on each panel.
+>    - H2: the gain tracks failure type: F8 ≥ +0.02 and larger than both B16 and D1-P2.
+>    - H3: FLAG_C precision for unsolved images ≥ 0.5 on F8 and D1-P2.
+>    - H4: D1-P2 selective success ≥ answered success + 0.05.
+>
+>    **Secondary (descriptive):**
+>    - E′;
+>    - D2/D3;
+>    - FAST FFHQ with face-CLIP E1;
+>    - E0 and label-free-τ variants;
+>    - the frontier.
+>
+>    **Rules.** Every hypothesis is reported, held or failed. There is no re-tuning; a later version is exploratory and is evaluated only on panels it has not seen.
+> 3. **Executor deliverables (CPU), after the B16 v1/v3 comparison is committed.**
+>    1. **Per-image strings in the A9 schema** (`image_id, cohort, labels_by_run, rho_signed_by_run`, plus τ and counts), for:
+>       - B16 (all 16 runs);
+>       - F8 (all 8);
+>       - D1-P2 (all 16);
+>       - E′ (4);
+>       - D2/D3 (4).
+>    2. **Orientation decisions, one row per candidate:**
+>       - the N2 face set for every B16, F8 and E′ candidate, with columns `image_id, run, label, f_choice, f_margin, f_chosen_good`;
+>       - G1/G2 for every D1-P2 and D2/D3 candidate, in the phase-1 file schema.
+>    3. **Run `gtfree_protocol.py` from `c598176`, unchanged**, with the commands in the spec (§4), and commit the outputs to `xp/returns/` before any further analysis. The planner reproduces them; a difference above 0.002 is a stop.
+> 4. **Release.** Protocol outputs and the strings in (3) may go to the theory executor once committed. No change to A9.3 otherwise.
+> 5. **Optional theory forecast `v3P`.** The predicted success and mean runs of the M = 2 rule under the registered class models: v2/v2 E1 for D1-P2, v3 for B16 and F8. Register by **Nov 1, 12:00 ET**. The planner runs production unchanged; if it runs after it has seen protocol outputs, the registry says so. `v3P` is reported beside the protocol results and never changes them.
+> 6. **Data cut.** Protocol results for D1-P2, B16 and F8 are Tier B (**Nov 6**). E′ and D2/D3 are Tier C.
+
+**Status:** FROZEN v1.1 with amendments A1–A11 (planner, 2026-10-29).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
