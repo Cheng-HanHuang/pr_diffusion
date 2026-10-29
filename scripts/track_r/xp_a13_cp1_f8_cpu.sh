@@ -43,6 +43,10 @@ echo '===== F8 FROZEN GT-FREE PROTOCOL V1 + H1/H2/H3 ====='
 "$PY" scripts/track_r/xp_a13_f8_protocol_cpu.py \
  --expected-head "$HEAD" --score-dir "$SCORE" --clip-dir "$CLIP" \
  --b16-protocol "$B16" --out "$PROT"
+printf '%s\n' "$SCORE" > "$BASE/XP_A13_F8_SCORE_LATEST.txt"
+printf '%s\n' "$CLIP" > "$BASE/XP_A13_F8_CLIP_LATEST.txt"
+printf '%s\n' "$COMP" > "$BASE/XP_A13_F8_COMPARE_LATEST.txt"
+printf '%s\n' "$PROT" > "$BASE/XP_A13_F8_PROTOCOL_LATEST.txt"
 echo "A13_CP1_B16_PROTOCOL=$B16"
 echo "A13_CP1_F8_SCORE=$SCORE"
 echo "A13_CP1_F8_CLIP=$CLIP"
