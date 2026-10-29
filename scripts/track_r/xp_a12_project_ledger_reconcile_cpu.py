@@ -10,7 +10,7 @@ If unknown GPU output directories, missing source receipts, or source
 disagreement exist, STOP and write NO verified budget ledger.
 """
 from __future__ import annotations
-import argparse,datetime,hashlib,json,math,os,sys,traceback
+import argparse,datetime,fcntl,hashlib,json,math,os,sys,traceback
 from pathlib import Path
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 
@@ -65,11 +65,25 @@ def one(stage,relative,key,scale):
          "NONFINITE_GPU_TIME_"+stage)
     gpu_h=float(value)/scale
     status=doc.get("status",doc.get("state"))
-    # An intermediate RUNNING state gives only a lower bound on charged
-    # GPU time. In particular the second A10 failed SITCOM gate snapshot
-    # is RUNNING (100.835 sec): do not claim it as a terminal exact cost.
-    gate(status not in ("RUNNING","STARTED","IN_PROGRESS"),
-         "NONTERMINAL_SOURCE_"+stage+"_STATUS_"+str(status))
+    # Historical 104836 gate can retain RUNNING after its controller's
+    # final save() when a post-child check raises and active == [].
+    # Its charged seconds are only admissible with an empty active list
+    # AND an unlocked, exclusively obtainable controller lock. This
+    # proves no controller remains to accrue another GPU interval.
+    # Any other nonterminal state remains a hard STOP.
+    if status in ("RUNNING","STARTED","IN_PROGRESS"):
+        gate(stage=="A10_FAILED_B16_GATE_2" and
+             doc.get("active")==[],
+             "NONTERMINAL_SOURCE_"+stage+"_STATUS_"+str(status))
+        lock=path.parent/"B16_GATE_CONTROLLER.lock"
+        gate(lock.is_file(),"HIST_CONTROLLER_LOCK_MISSING")
+        with lock.open("a+") as handle:
+            try:
+                fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            except BlockingIOError:
+                gate(False,"HIST_CONTROLLER_STILL_OWNED")
+            else:
+                fcntl.flock(handle,fcntl.LOCK_UN)
     return dict(stage=stage,gpu_h=gpu_h,
        source_receipt_path=str(path),source_receipt_sha256=sha(path),
        source_field=key,source_value=value,
