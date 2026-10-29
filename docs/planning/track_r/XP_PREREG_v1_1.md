@@ -240,6 +240,7 @@
 >      - On Oct 28, B16 ran on four GPUs while a foreign job was present. That is recorded as a deviation from A7.1, with no effect on reconstruction validity.
 > 2. **Campaign window and budget.**
 >    - **Window and cap.** The B16 campaign continues past its 12-hour window (Oct 28, 18:57 ET) through **Oct 30, 12:00 ET**. B16, the DAPS replay and F8 share a cap of 70 GPU-h, including the 10.9 GPU-h already spent; total use stays under the 400 GPU-h cap.
+>    - **Extension (planner, 2026-10-29 02:45 ET).** B16 is complete (38.0 GPU-h). If the DAPS lane is still running at Oct 30, 12:00 ET, it may continue through **Nov 1, 12:00 ET** under the same cap.
 >    - **Order:**
 >      - B16 to completion;
 >      - the DAPS lane as soon as its adapter is certified, in parallel with B16 whenever a GPU is free. The lane is the 8-root 400 × 5 replay with the historical code, configuration, seeds and checkpoint, then F8;
