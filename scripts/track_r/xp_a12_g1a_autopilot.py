@@ -156,7 +156,10 @@ def command(a,job,gpu,run,prep,receipt):
           "--out",str(dest),"--start",str(job["start"]),
           "--count",str(job["count"]),"--physical-gpu",str(gpu),
           "--dataset","imagenet","--oversample","2.0"]
-    if job.get("attempt",0)>0:args+=["--resume"]
+    # Resume only if a previous attempt created the native chunk.
+    # A failed preflight leaves no chunk and the next charged attempt
+    # must use a fresh --out rather than an invalid --resume.
+    if job.get("attempt",0)>0 and dest.exists():args+=["--resume"]
     return args,dest,digest
 def charge(root,job,v,rc):
     elapsed=time.monotonic()-v["start"]
@@ -223,124 +226,141 @@ def stage_loop(a,run,prep,receipt,refs,stage,state):
                for job,v in active.values()]
         write(run/"XP_A12_G1A_CONTROLLER_STATE.json",state)
     store("XP_A12_G1A_"+stage.upper()+"_RUNNING")
-    while len(complete)<len(jobs):
-        cards=collect(own_roots=[v["proc"].pid for job,v in active.values()])
-        for index,(job,v) in list(active.items()):
-            card=next((c for c in cards if c.index==v["gpu"]),None)
-            if card:
-                v["foreign"].update(card.foreign_pids)
-                v["samples"]+=1
-                v["max_used_mib"]=max(v["max_used_mib"],card.used_mib)
-                if card.used_mib>0.80*card.total_mib and v["proc"].poll() is None:
-                    emit(run,"A12_VRAM_RUNTIME_STOP_OWN_PID",
-                         gpu=v["gpu"],pid=v["proc"].pid,
-                         used=card.used_mib,total=card.total_mib)
-                    try:os.killpg(v["proc"].pid,signal.SIGTERM)
-                    except ProcessLookupError:pass
-            ret=v["proc"].poll()
-            if ret is None:continue
-            v["handle"].close()
-            seconds=charge(run,job,v,ret)
-            state["spent_gpu_seconds"]+=seconds
-            del active[index]
-            if ret==0:
-                try:
-                    digest=verify(run,prep,receipt,job,v["dest"],
-                                  v["manifest_sha"],refs)
-                    complete[str(index)]=digest
-                    emit(run,"CHUNK_VERIFIED",stage=stage,
-                         index=index,count=job["count"],digest=digest)
-                except Exception as exc:
-                    emit(run,"CHUNK_FAILED_VERIFICATION",stage=stage,
-                         index=index,error=str(exc))
+    try:
+        while len(complete)<len(jobs):
+            cards=collect(own_roots=[v["proc"].pid for job,v in active.values()])
+            for index,(job,v) in list(active.items()):
+                card=next((c for c in cards if c.index==v["gpu"]),None)
+                if card:
+                    v["foreign"].update(card.foreign_pids)
+                    v["samples"]+=1
+                    v["max_used_mib"]=max(v["max_used_mib"],card.used_mib)
+                    if card.used_mib>0.80*card.total_mib and v["proc"].poll() is None:
+                        emit(run,"A12_VRAM_RUNTIME_STOP_OWN_PID",
+                             gpu=v["gpu"],pid=v["proc"].pid,
+                             used=card.used_mib,total=card.total_mib)
+                        try:os.killpg(v["proc"].pid,signal.SIGTERM)
+                        except ProcessLookupError:pass
+                ret=v["proc"].poll()
+                if ret is None:continue
+                v["handle"].close()
+                seconds=charge(run,job,v,ret)
+                state["spent_gpu_seconds"]+=seconds
+                del active[index]
+                if ret==0:
+                    try:
+                        digest=verify(run,prep,receipt,job,v["dest"],
+                                      v["manifest_sha"],refs)
+                        complete[str(index)]=digest
+                        emit(run,"CHUNK_VERIFIED",stage=stage,
+                             index=index,count=job["count"],digest=digest)
+                    except Exception as exc:
+                        emit(run,"CHUNK_FAILED_VERIFICATION",stage=stage,
+                             index=index,error=str(exc))
+                        state["failures"].append(dict(stage=stage,index=index,
+                             attempt=job["attempt"],why=str(exc)))
+                        if stage=="replay":
+                            # Stop only our remaining replay worker; account
+                            # its elapsed GPU-hours before returning a STOP.
+                            fatal_replay_failure=True
+                            for other_job,other_v in active.values():
+                                if other_v["proc"].poll() is None:
+                                    try:os.killpg(other_v["proc"].pid,signal.SIGTERM)
+                                    except ProcessLookupError:pass
+                else:
                     state["failures"].append(dict(stage=stage,index=index,
-                         attempt=job["attempt"],why=str(exc)))
-                    if stage=="replay":
-                        # Stop only our remaining replay worker; account
-                        # its elapsed GPU-hours before returning a STOP.
-                        fatal_replay_failure=True
-                        for other_job,other_v in active.values():
-                            if other_v["proc"].poll() is None:
-                                try:os.killpg(other_v["proc"].pid,signal.SIGTERM)
-                                except ProcessLookupError:pass
-            else:
-                state["failures"].append(dict(stage=stage,index=index,
-                  attempt=job["attempt"],why="worker_exit_"+str(ret)))
-                emit(run,"CHUNK_NONZERO",stage=stage,index=index,
-                     attempt=job["attempt"],rc=ret,log=str(v["log"]))
-            store("XP_A12_G1A_"+stage.upper()+"_RUNNING")
-        if fatal_replay_failure:
-            reason="HISTORICAL_REPLAY_MISMATCH"
-        elif STOP or (run/"STOP_G1A").exists():
-            reason="OPERATOR_STOP"
-        elif datetime.datetime.now(ZoneInfo("America/Detroit"))>=DEADLINE:
-            reason="STAGE_DEADLINE"
-        elif state["spent_gpu_seconds"]+sum(
-                time.monotonic()-v["start"] for j,v in active.values()
-                )>=STAGE_CAP_GPU_H*3600-10:
-            reason="STAGE_GPUH_CEILING"
-        else:reason=None
-        if reason is not None:
-            for job,v in active.values():
-                if reason!="OPERATOR_STOP" and v["proc"].poll() is None:
-                    try:os.killpg(v["proc"].pid,signal.SIGTERM)
-                    except ProcessLookupError:pass
-            if not active:
-                store("XP_A12_G1A_PARTIAL_"+reason)
+                      attempt=job["attempt"],why="worker_exit_"+str(ret)))
+                    emit(run,"CHUNK_NONZERO",stage=stage,index=index,
+                         attempt=job["attempt"],rc=ret,log=str(v["log"]))
+                store("XP_A12_G1A_"+stage.upper()+"_RUNNING")
+            if fatal_replay_failure:
+                reason="HISTORICAL_REPLAY_MISMATCH"
+            elif STOP or (run/"STOP_G1A").exists():
+                reason="OPERATOR_STOP"
+            elif datetime.datetime.now(ZoneInfo("America/Detroit"))>=DEADLINE:
+                reason="STAGE_DEADLINE"
+            elif state["spent_gpu_seconds"]+sum(
+                    time.monotonic()-v["start"] for j,v in active.values()
+                    )>=STAGE_CAP_GPU_H*3600-10:
+                reason="STAGE_GPUH_CEILING"
+            else:reason=None
+            if reason is not None:
+                for job,v in active.values():
+                    if reason!="OPERATOR_STOP" and v["proc"].poll() is None:
+                        try:os.killpg(v["proc"].pid,signal.SIGTERM)
+                        except ProcessLookupError:pass
+                if not active:
+                    store("XP_A12_G1A_PARTIAL_"+reason)
+                    return False
+                time.sleep(POLL_SECONDS)
+                continue
+            occupied={v["gpu"] for job,v in active.values()}
+            while len(active)<4:
+                if state["spent_gpu_seconds"]+sum(
+                     time.monotonic()-v["start"] for job,v in active.values()
+                    )+(len(active)+1)*RESERVE_SECONDS > STAGE_CAP_GPU_H*3600:
+                    break
+                waiting=[j for j in jobs if str(j["index"]) not in complete
+                         and j["index"] not in active
+                         and int(state["attempts"].get(
+                                stage+":"+str(j["index"]),0))<MAX_ATTEMPTS]
+                if not waiting:break
+                job=dict(waiting[0])
+                choices=[c for c in cards if c.index not in occupied
+                         and c.visibility=="known"]
+                gpu,reasons=choose_gpu(choices,REQUEST_MIB,
+                         safety_margin_mib=2048,fraction=.80,clean_only=False)
+                if gpu is None:
+                    if not active:emit(run,"WAIT_GPU_VRAM",why=reasons)
+                    break
+                key=stage+":"+str(job["index"])
+                job["attempt"]=int(state["attempts"].get(key,0))
+                cmd,dest,digest=command(a,job,gpu,run,prep,receipt)
+                gate(job["attempt"]>0 or not dest.exists(),
+                     "NATIVE_FIRST_ATTEMPT_OUTPUT_ALREADY_EXISTS")
+                log=run/"logs"/f"{stage}_{job['index']:03d}_a{job['attempt']}.log"
+                env=os.environ.copy()
+                env.update(CUDA_VISIBLE_DEVICES=str(gpu),PYTHONPATH=str(WT),
+                 PYTHONNOUSERSITE="1",PYTHONDONTWRITEBYTECODE="1",
+                 OMP_NUM_THREADS="2",OPENBLAS_NUM_THREADS="2",
+                 MKL_NUM_THREADS="2",NUMEXPR_NUM_THREADS="2",
+                 TMPDIR=str(ROOT/"tmp"))
+                handle=log.open("x")
+                proc=subprocess.Popen(cmd,stdout=handle,
+                      stderr=subprocess.STDOUT,cwd=str(WT),
+                      env=env,start_new_session=True)
+                active[job["index"]]=(job,dict(proc=proc,
+                   gpu=gpu,start=time.monotonic(),log=log,handle=handle,
+                   manifest_sha=digest,dest=dest,foreign=set(),
+                   samples=0,max_used_mib=0))
+                occupied.add(gpu)
+                state["attempts"][key]=job["attempt"]+1
+                emit(run,"CHUNK_LAUNCHED",stage=stage,index=job["index"],
+                     start=job["start"],count=job["count"],gpu=gpu,pid=proc.pid)
+                store("XP_A12_G1A_"+stage.upper()+"_RUNNING")
+            if not active and len(complete)!=len(jobs) and all(
+                 int(state["attempts"].get(stage+":"+str(j["index"]),0))>=MAX_ATTEMPTS
+                 for j in jobs if str(j["index"]) not in complete):
+                store("XP_A12_G1A_PARTIAL_FAILED_ATTEMPTS")
                 return False
             time.sleep(POLL_SECONDS)
-            continue
-        occupied={v["gpu"] for job,v in active.values()}
-        while len(active)<4:
-            if state["spent_gpu_seconds"]+sum(
-                 time.monotonic()-v["start"] for job,v in active.values()
-                )+(len(active)+1)*RESERVE_SECONDS > STAGE_CAP_GPU_H*3600:
-                break
-            waiting=[j for j in jobs if str(j["index"]) not in complete
-                     and j["index"] not in active
-                     and int(state["attempts"].get(
-                            stage+":"+str(j["index"]),0))<MAX_ATTEMPTS]
-            if not waiting:break
-            job=dict(waiting[0])
-            choices=[c for c in cards if c.index not in occupied
-                     and c.visibility=="known"]
-            gpu,reasons=choose_gpu(choices,REQUEST_MIB,
-                     safety_margin_mib=2048,fraction=.80,clean_only=False)
-            if gpu is None:
-                if not active:emit(run,"WAIT_GPU_VRAM",why=reasons)
-                break
-            key=stage+":"+str(job["index"])
-            job["attempt"]=int(state["attempts"].get(key,0))
-            cmd,dest,digest=command(a,job,gpu,run,prep,receipt)
-            gate((job["attempt"]==0 and not dest.exists()) or
-                 (job["attempt"]>0 and dest.exists()),
-                 "NATIVE_RESUME_OUTPUT_STATE")
-            log=run/"logs"/f"{stage}_{job['index']:03d}_a{job['attempt']}.log"
-            env=os.environ.copy()
-            env.update(CUDA_VISIBLE_DEVICES=str(gpu),PYTHONPATH=str(WT),
-             PYTHONNOUSERSITE="1",PYTHONDONTWRITEBYTECODE="1",
-             OMP_NUM_THREADS="2",OPENBLAS_NUM_THREADS="2",
-             MKL_NUM_THREADS="2",NUMEXPR_NUM_THREADS="2",
-             TMPDIR=str(ROOT/"tmp"))
-            handle=log.open("x")
-            proc=subprocess.Popen(cmd,stdout=handle,
-                  stderr=subprocess.STDOUT,cwd=str(WT),
-                  env=env,start_new_session=True)
-            active[job["index"]]=(job,dict(proc=proc,
-               gpu=gpu,start=time.monotonic(),log=log,handle=handle,
-               manifest_sha=digest,dest=dest,foreign=set(),
-               samples=0,max_used_mib=0))
-            occupied.add(gpu)
-            state["attempts"][key]=job["attempt"]+1
-            emit(run,"CHUNK_LAUNCHED",stage=stage,index=job["index"],
-                 start=job["start"],count=job["count"],gpu=gpu,pid=proc.pid)
-            store("XP_A12_G1A_"+stage.upper()+"_RUNNING")
-        if not active and len(complete)!=len(jobs) and all(
-             int(state["attempts"].get(stage+":"+str(j["index"]),0))>=MAX_ATTEMPTS
-             for j in jobs if str(j["index"]) not in complete):
-            store("XP_A12_G1A_PARTIAL_FAILED_ATTEMPTS")
-            return False
-        time.sleep(POLL_SECONDS)
+    except BaseException:
+        # Never strand owned GPU workers if the controller raises during
+        # inventory collection, native receipt verification, or IO.
+        # Only our process groups are signalled; every occupied GPU
+        # interval is charged, including terminated failed attempts.
+        for job,v in active.values():
+            if v["proc"].poll() is None:
+                try:os.killpg(v["proc"].pid,signal.SIGTERM)
+                except ProcessLookupError:pass
+        for index,(job,v) in list(active.items()):
+            v["proc"].wait()
+            v["handle"].close()
+            elapsed=charge(run,job,v,v["proc"].returncode)
+            state["spent_gpu_seconds"]+=elapsed
+            del active[index]
+        store("STOP_A12_G1A_CONTROLLER_EXCEPTION")
+        raise
     store("XP_A12_G1A_"+stage.upper()+"_PASS")
     return True
 def main(a):
