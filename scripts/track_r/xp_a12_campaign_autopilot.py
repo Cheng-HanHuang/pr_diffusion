@@ -80,7 +80,7 @@ def prepar(a):
 
   q=Path(p)
   gate(q.parent==BASE and q.is_dir() and not q.is_symlink()
-       and q.name.startswith("xp_a12_"+("g2" if stage=="G2" else "g45")+"_prepare_"),
+       and q.name.startswith("xp_a12_"+stage.lower()+"_prepare_"),
        "PREP_PATH_"+stage)
   fname={"G2":"XP_A12_G2_PREP_RECEIPT.json",
          "G3":"XP_A12_G3_PREP_RECEIPT.json",
@@ -110,6 +110,14 @@ def task_set(roots,P):
   prod=[dict(stage="G2",kind="PROD",sig=sig,start=i,count=n)
         for i,n in [(1,7),(9,7)]+[(k,8) for k in range(16,1440,8)]]
   jobs["G2_SIGMA_"+sig]=(smoke,prod)
+ if "G3" in P:
+  p=roots["G3"]/"XP_A12_G3_180_BAGS.json"
+  gate(sha(p)==P["G3"]["manifest_sha256"]
+       and len(jread(p)["rows"])==180,"G3_MANIFEST")
+  jobs["G3"]=([dict(stage="G3",kind="SMOKE",index=i)
+               for i in range(2)],
+              [dict(stage="G3",kind="PROD",index=i)
+               for i in range(2,180)])
  for stage in ("G4","G5"):
   def dm(phase):
    key=f"{stage}_{phase}";v=P["G45"]["stages"][key]
@@ -137,6 +145,19 @@ def make_command(a,run,task,gpu,roots,P,attempt):
     "--physical-gpu",str(gpu),"--dataset","ffhq","--oversample","2.0"]
   if attempt>0 and out.exists():cmd+=["--resume"]
   return cmd,out,rec["sha256"],str(ROOT_FAST_PY)
+ if stage=="G3":
+  mf=jread(roots["G3"]/"XP_A12_G3_180_BAGS.json")
+  row=mf["rows"][task["index"]]
+  dest=run/"roots"/("bag_"+hashlib.sha256(
+      row["uid"].encode()).hexdigest()[:24])
+  env=ROOT/"conda-envs/daps/bin/python"
+  cmd=[str(env),str(Path(__file__).with_name(
+      "xp_a12_g3_pcdaps_gpu.py")),
+       "--expected-head",a.expected_head,
+       "--roots-source-head",P["G3"]["head"],
+       "--run",str(run),"--prep",str(roots["G3"]),
+       "--index",str(task["index"]),"--gpu",str(gpu)]
+  return cmd,dest,P["G3"]["manifest_sha256"],str(env)
  phase="REPLAY" if kind=="REPLAY" else "PROD"
  rec=P["G45"]["stages"][stage+"_"+phase]
  m=jread(rec["manifest"]);row=m["rows"][task["index"]]
@@ -168,6 +189,22 @@ def verified(a,run,task,dest,source_sha,roots,P):
    gate(r["gt_access"] is False,"G2_NO_GT")
   return sha(dest/"R0_5_CHUNK_COMPLETE.json")
  stage=task["stage"];phase=task["kind"]
+ if stage=="G3":
+  mf=jread(roots["G3"]/"XP_A12_G3_180_BAGS.json")
+  row=mf["rows"][task["index"]]
+  receipt=dest/"XP_A12_G3_BAG_COMPLETE.json"
+  d=jread(receipt)
+  gate(d["status"]=="XP_A12_G3_NATIVE_FOUR_PARTICLE_BAG_PASS"
+       and d["uid"]==row["uid"]
+       and d["runner_head"]==a.expected_head
+       and d["manifest_sha256"]==source_sha
+       and d["bag_size"]==4 and len(d["particle_pngs"])==4
+       and d["no_ground_truth_access"] is True
+       and sha(dest/"particles.pt")==d["particles_pt_sha256"]
+       and all(sha(x["path"])==x["sha256"]
+               for x in d["particle_pngs"]),
+       "G3_PC_NATIVE_PARTICLE_BAG")
+  return sha(receipt)
  m=jread(roots["G45"]/f"XP_A12_{stage}_{phase}_TASKS.json")
  row=m["rows"][task["index"]]
  receipt=dest/"XP_T_DAPS4K_ROOT_COMPLETE.json"
@@ -211,6 +248,15 @@ def smoke_projection(run,stage,smoke,P,roots,stage_seconds):
    rc=jread(root/"R0_FAST_ROOT_COMPLETE.json")
    gate(rc["status"]=="R0_FAST_ROOT_PASS","SMOKE_FAST_PASS")
    t=float(rc["native_sample_wall_seconds"])
+  elif stage=="G3":
+   mf=jread(roots["G3"]/"XP_A12_G3_180_BAGS.json")
+   row=mf["rows"][job["index"]]
+   dest=run/"roots"/("bag_"+hashlib.sha256(
+       row["uid"].encode()).hexdigest()[:24])
+   rc=jread(dest/"XP_A12_G3_BAG_COMPLETE.json")
+   gate(rc["status"]=="XP_A12_G3_NATIVE_FOUR_PARTICLE_BAG_PASS",
+        "SMOKE_PC_DAPS_PASS")
+   t=float(rc["native_sampling_wall_seconds"])
   else:
    phase="REPLAY"
    mf=jread(roots["G45"]/f"XP_A12_{stage}_{phase}_TASKS.json")
