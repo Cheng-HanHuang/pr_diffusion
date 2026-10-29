@@ -20,10 +20,10 @@ from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 ROOT_FAST_PY=ROOT/"conda-envs/fast_dips_a15_blackwell/bin/python"
 ROOT_DAPS_PY=ROOT/"conda-envs/daps/bin/python"
 G1A=BASE/"xp_a12_g1a_prod_20261029T180624Z/XP_A12_G1A_FINAL_STATUS.json"
-DEADLINE={"G2":(2026,11,3,12),"G4":(2026,11,4,12),"G5":(2026,11,4,12)}
-CAP={"G2":10.,"G4":30.,"G5":40.}
-N={"G2":2880,"G4":720,"G5":400}
-RESERVE_MIB={"G2":8192,"G4":12288,"G5":12288}
+DEADLINE={"G2":(2026,11,3,12),"G3":(2026,11,3,12),"G4":(2026,11,4,12),"G5":(2026,11,4,12)}
+CAP={"G2":10.,"G3":45.,"G4":30.,"G5":40.}
+N={"G2":2880,"G3":180,"G4":720,"G5":400}
+RESERVE_MIB={"G2":8192,"G3":24576,"G4":12288,"G5":12288}
 A10=55.54578541457511
 CAMPAIGN_CAP=150.
 PROJECT_CAP=400.
@@ -75,16 +75,22 @@ def prepar(a):
  gate(start+CAMPAIGN_CAP-campaign<=PROJECT_CAP and
       campaign<CAMPAIGN_CAP,"PROJECT_CAMPAIGN_CAP")
  P={}; roots={}
- for stage,p in (("G2",a.g2_prep),("G45",a.g45_prep)):
+ for stage,p in (("G2",a.g2_prep),("G45",a.g45_prep))+(
+      (("G3",a.g3_prep),) if a.g3_prep else ()):
+
   q=Path(p)
   gate(q.parent==BASE and q.is_dir() and not q.is_symlink()
        and q.name.startswith("xp_a12_"+("g2" if stage=="G2" else "g45")+"_prepare_"),
        "PREP_PATH_"+stage)
-  fname="XP_A12_G2_PREP_RECEIPT.json" if stage=="G2" else "XP_A12_G45_PREP_RECEIPT.json"
+  fname={"G2":"XP_A12_G2_PREP_RECEIPT.json",
+         "G3":"XP_A12_G3_PREP_RECEIPT.json",
+         "G45":"XP_A12_G45_PREP_RECEIPT.json"}[stage]
   x=jread(q/fname)
   gate(x["head"]==a.expected_head and x["no_GPU"] is True
-       and x["status"]==("XP_A12_G2_INPUTS_FROZEN_CPU_PASS"
-                         if stage=="G2" else "XP_A12_G45_INPUTS_FROZEN_CPU_PASS"),
+       and x["status"]=={
+         "G2":"XP_A12_G2_INPUTS_FROZEN_CPU_PASS",
+         "G3":"XP_A12_G3_CPU_PREP_PASS",
+         "G45":"XP_A12_G45_INPUTS_FROZEN_CPU_PASS"}[stage],
        "FROZEN_PREP_"+stage)
   P[stage]=x;roots[stage]=q
  gate(P["G2"]["n_roots"]==2880 and P["G45"]["n_new"]==1120,"GRID")
@@ -357,7 +363,7 @@ def main(a):
  with (BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock").open("a+") as lk:
   fcntl.flock(lk,fcntl.LOCK_EX|fcntl.LOCK_NB)
   run.mkdir(mode=0o700)
-  for p in ("logs","cost","G2","G4","G5","pycache"):
+  for p in ("logs","cost","G2","G4","G5","roots","pycache"):
    (run/p).mkdir()
   for sig in ("0.02","0.10"):(run/"G2"/("sigma_"+sig)).mkdir()
   for stage in ("G4","G5"):
@@ -371,7 +377,7 @@ def main(a):
     G7_status="NOT_YET_ADMITTED",
     GT_not_read=True,D4_outcomes_not_opened=True)
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
-  for stage in ("G2","G4","G5"):
+  for stage in ("G2","G3","G4","G5"):
    phase_lists=(jobs["G2_SIGMA_0.02"],jobs["G2_SIGMA_0.10"]) if stage=="G2" else (jobs[stage],)
    success=True
    for smoke,production in phase_lists:
@@ -413,6 +419,7 @@ def entry():
  p=argparse.ArgumentParser()
  for x in ("expected-head","ledger","g2-prep","g45-prep","run"):
   p.add_argument("--"+x,required=True)
+ p.add_argument("--g3-prep",default=None)
  try:main(p.parse_args())
  except Exception as e:
   traceback.print_exc();print("ACTION NEEDED: A12_CAMPAIGN_AUTOPILOT",e,flush=True)
