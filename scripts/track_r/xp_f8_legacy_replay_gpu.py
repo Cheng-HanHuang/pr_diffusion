@@ -164,8 +164,10 @@ def check_cfg(cmd,row):
     fail(p.returncode==0,"HYDRA_CONFIG_RESOLVE "+p.stderr[-600:])
     cfg=yaml.safe_load(p.stdout)
     fail(isinstance(cfg,dict),"HYDRA_CONFIG_NOT_MAPPING")
+    save_dir=next(x.split("=",1)[1] for x in cmd
+                  if x.startswith("save_dir="))
     fail(cfg["data"]["name"]=="image"
-         and cfg["data"]["root"]==str(Path(cmd[cmd.index(next(x for x in cmd if x.startswith("save_dir=")))].split("=",1)[1])/"synthetic_input")
+         and cfg["data"]["root"]==str(Path(save_dir)/"synthetic_input")
          and int(cfg["data"]["resolution"])==256
          and int(cfg["data"]["start_id"])==0
          and int(cfg["data"]["end_id"])==1,
