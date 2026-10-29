@@ -6,12 +6,19 @@ import unittest
 from pathlib import Path
 from prdiffusion.track_r.xp_gpu_telemetry import GPU
 from scripts.track_r.xp_f8_legacy_replay_gpu import (
-    native_command, env, TRACE_SOURCE,MODEL,FROZEN_MANIFEST_SHA,PRECHECK_SHA)
+    native_command, env, TRACE_SOURCE,MODEL,FROZEN_MANIFEST_SHA,PRECHECK_SHA,PREP)
 from scripts.track_r.xp_f8_legacy_replay_supervisor import (
     foreign_track_r_pid,REQUIRED_MIB,MARGIN_MIB,frozen_preflight)
 from scripts.track_r.xp_f8_legacy_replay_gpu import check_cfg,do_gpu
 
 class TestF8LegacyReplayAdapter(unittest.TestCase):
+    def test_corrected_frozen_dev80_manifest_pins(self):
+        self.assertEqual(FROZEN_MANIFEST_SHA,
+          "0929a94537c30faa893346a000c6cca5b51d5f45b48fbc2dfb0f6e64fa2537b9")
+        self.assertEqual(PRECHECK_SHA,
+          "81a0fd43d75521988b4a02d1c148ed99a48c6976cccb1c64899f5c215f97b4f1")
+        self.assertEqual(PREP.name,
+          "xp_f8_legacy_preflight_dev80seedfix_20261029T064359Z")
     def test_native_exact_400_by_five(self):
         row=dict(native_seed=22020,measurement_path=
                  "/egr/research-pac/huang248/outputs/mock_measurement.pt")
