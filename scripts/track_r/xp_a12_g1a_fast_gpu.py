@@ -32,6 +32,14 @@ CANARY_TASK_PATH=(BASE/"r0_5_canary_20261023T004927Z"/
                   "prepare"/"R0_5_GT_FREE_ROOTS.json")
 CANARY_TASK_SHA="2291aa793b612c973ae76ab3d36b1f20263cd747f3b23cf593e51517a26c3bfe"
 CANARY_HEAD="c3170587e58e9610c97c6f4ae48964eab2db1b46"
+# G1a inputs were frozen on this pre-controller commit. The native
+# generator was updated later; preserve the ORIGINAL manifest bytes.
+A12_G1A_FROZEN_PRODUCER="8b7f25707885fb00ddf1cb94f5b658eefd4b35ba"
+A12_G1A_FROZEN_PREP=BASE/"xp_a12_g1a_prepare_20261029T170316Z"
+A12_G1A_FROZEN_SHAS={
+  "A12_G1A_HISTORICAL_REPLAY2":"2ad7a8de865814d3ea21e51cc2b8b60dc5054324768048478006f71c434fde43",
+  "A12_G1A_FAST_IMAGENET_D4":"acb38367dcda4e1bd657e03b5f365be65cad725413b4965c6e42ab86d241cfd0",
+}
 
 
 def sha(path):
@@ -131,7 +139,20 @@ def preflight(a):
     producer=a.roots_source_head or a.expected_head
     rows=frozen_roots(manifest,producer)
     if producer!=a.expected_head:
-        if (manifest.get("stage")=="D1_P2" and a.dataset=="imagenet"):
+        if manifest.get("stage") in A12_G1A_FROZEN_SHAS:
+            # G1a's two replay and 1600 prospective roots were frozen
+            # *before* this controller's commits. Authenticate the exact
+            # producer and unchanged file bytes, not just a stage label.
+            if (producer!=A12_G1A_FROZEN_PRODUCER or
+                roots.parent!=A12_G1A_FROZEN_PREP or
+                a.roots_sha!=A12_G1A_FROZEN_SHAS[manifest["stage"]] or
+                a.dataset!="imagenet" or
+                len(rows)!=(2 if manifest["stage"]=="A12_G1A_HISTORICAL_REPLAY2"
+                             else 1600) or
+                manifest.get("outcome_embargo") is not True or
+                manifest.get("gt_paths_supplied") is not False):
+                raise RuntimeError("STOP_A12_G1A_PRECONTROLLER_SOURCE_DRIFT")
+        elif (manifest.get("stage")=="D1_P2" and a.dataset=="imagenet"):
             from scripts.track_r.xp_a6_d1p2_contract import validate
             validate(roots,a.roots_sha,manifest,rows,
                      producer,a.start,a.count)
