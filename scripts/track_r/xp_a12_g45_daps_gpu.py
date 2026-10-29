@@ -12,7 +12,7 @@ import argparse,hashlib,json,os,subprocess,sys,traceback
 from pathlib import Path
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 from scripts.track_r.xp_t_daps4k_prepare_cpu import (
- DAPS4K,DAPS_HEAD,MODEL_SHA,IMAGENET_MODEL_SHA,NATIVE,verify_clean_sparse,
+ DAPS4K,DAPS_HEAD,MODEL_SHA,IMAGENET_MODEL_SHA,DAPS as NATIVE,verify_clean_sparse,
  PY_DAPS)
 from scripts.track_r.xp_a12_g45_prepare_cpu import sha,seed
 from scripts.track_r import xp_t_daps4k_worker_gpu as native
