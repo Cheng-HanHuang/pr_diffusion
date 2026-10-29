@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 
 from scripts.track_r.xp_f8_legacy_preflight_cpu import (
     A10_CAP_H,A10_DEADLINE,DAPS_HEAD,MODEL_SHA,
-    PATCHED_SAMPLER_BLOB,COHORTS)
+    PATCHED_SAMPLER_BLOB,COHORTS,CAT,BASE)
 from prdiffusion.b24_protocol import seed_row
 
 class TestF8LegacyPreflight(unittest.TestCase):
@@ -17,6 +17,10 @@ class TestF8LegacyPreflight(unittest.TestCase):
         self.assertEqual(MODEL_SHA,
             "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa")
         self.assertEqual(COHORTS,("S1_b22","S2_b24_dev80"))
+    def test_r07_catalog_from_prepare_and_not_analysis(self):
+        self.assertEqual(CAT,BASE/
+            "r0_7_cpu_20261023T080434Z/prepare/R0_7_OFFLINE_GT_CATALOG.json")
+
     def test_legacy_seed_domain(self):
         ids=("00113","00114")
         for iid in ids:
