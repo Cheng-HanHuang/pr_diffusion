@@ -31,8 +31,15 @@ class TestB16Prospective(unittest.TestCase):
     def test_e1_exact_and_pl(self):
         r=[dict(run=i,rho=float(i),chosen_good=int(i==3),
                 label="G" if i==3 else "I") for i in range(16)]
-        self.assertAlmostEqual(c.e1_exact(r,16),1.0)
+        # E1 selects the minimum residual, not a GOOD run anywhere
+        # among the K candidates. Here run 0 has lowest rho but is bad;
+        # run 3 is GOOD and has a higher rho. Thus E1@16 MUST fail
+        # despite the O_raw@16 oracle succeeding.
+        self.assertAlmostEqual(c.e1_exact(r,16),0.0)
         self.assertAlmostEqual(c.e1_exact(r,1),1/16)
+        r_for_oracle=[dict(z,good_raw=(z["label"]=="G"),
+                           good_orbit=(z["label"]=="G")) for z in r]
+        self.assertAlmostEqual(c.exact_panel(r_for_oracle,16)["O_raw"],1.0)
         self.assertAlmostEqual(c.conditional_pl(r,16,.95,.045),1.)
         self.assertAlmostEqual(c.conditional_pl(
           [dict(label="I") for _ in range(16)],16,1,1),0.)
