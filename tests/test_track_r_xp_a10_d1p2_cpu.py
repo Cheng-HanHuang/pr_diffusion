@@ -1,11 +1,23 @@
 """Synthetic zero-GPU A10 D1-P2 comparison tests."""
+import ast
+import inspect
 import math
 import unittest
 from scripts.track_r.xp_a10_d1p2_compare_cpu import (
-    conditional_pl_given_labels,V2_SHA,E1_SHA,PLANNER,K)
+    conditional_pl_given_labels,V2_SHA,E1_SHA,PLANNER,K,main)
 from scripts.track_r.xp_a7_postfreeze_kernel_cpu import exact_panel
 
 class TestD1P2FrozenComparison(unittest.TestCase):
+    def test_d1_main_never_overwrites_cli_argument(self):
+        # Regression: phase-1 count was accidentally assigned to 'a',
+        # breaking publication after 100/100 expensive CPU CLIP evaluations.
+        function_ast=ast.parse(inspect.getsource(main))
+        collisions=[n for n in ast.walk(function_ast)
+                    if isinstance(n,ast.Name) and n.id=="a"
+                    and isinstance(n.ctx,(ast.Store,ast.Del))]
+        self.assertEqual(collisions,[],
+                         "D1 CLI argument must remain available for final receipt")
+
     def test_registered_sha_and_panel(self):
         self.assertEqual(K,(8,12,16))
         self.assertEqual(len(V2_SHA),64)
