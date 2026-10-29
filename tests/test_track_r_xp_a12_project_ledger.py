@@ -40,6 +40,10 @@ class TestA12Ledger(unittest.TestCase):
         self.assertIn('charged_gpu_h_upper_bound',source)
         self.assertIn('PIN_STATE',source)
         self.assertIn('PIN_EVENTS',source)
+        # LOCK_EX on Linux needs a write-capable descriptor; opening
+        # in 'r' caused EBADF before any GPU admission.
+        self.assertIn('lockp.open("a+")',source)
+        self.assertNotIn('lockp.open("r")',source)
     def test_fail_closed(self):
         code=inspect.getsource(m.main)
         self.assertLess(code.index("time_sources()"),
