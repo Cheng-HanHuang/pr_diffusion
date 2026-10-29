@@ -457,6 +457,13 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
 def main(a):
  wt,roots,P,ledger,g1a,project0,campaign0=prepar(a)
  jobs=task_set(roots,P)
+ if a.preflight_only:
+  print("XP_A13_G2G5_PREPARE_AND_DUAL_LEDGER_PREFLIGHT_PASS",flush=True)
+  print("A13_PRIOR_PROJECT_GPU_H",project0,flush=True)
+  print("A13_PRIOR_A12_GPU_H",campaign0,flush=True)
+  print("A13_READY_STAGES",sorted(jobs),flush=True)
+  print("G3_MISSING_PRODUCER_SKIP",bool("G3" not in jobs),flush=True)
+  return
  run=Path(a.run)
  gate(run.parent==BASE and run.name.startswith("xp_a12_campaign_prod_")
       and not run.exists(),"NEW_CAMPAIGN_RUN")
@@ -550,7 +557,7 @@ def entry():
  for x in ("expected-head","ledger","g1b-final","g2-prep","g45-prep","run"):
   p.add_argument("--"+x,required=True)
  p.add_argument("--g3-prep",default=None)
-
+ p.add_argument("--preflight-only",action="store_true")
  try:main(p.parse_args())
  except Exception as e:
   traceback.print_exc();print("ACTION NEEDED: A12_CAMPAIGN_AUTOPILOT",e,flush=True)
