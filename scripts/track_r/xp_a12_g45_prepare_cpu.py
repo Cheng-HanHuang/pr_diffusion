@@ -14,7 +14,7 @@ from collections import defaultdict
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 from scripts.track_r.xp_t_daps4k_prepare_cpu import (
  DAPS4K,DAPS_HEAD,MODEL_SHA,IMAGENET_MODEL_SHA,
- NATIVE,verify_clean_sparse)
+ DAPS as NATIVE,verify_clean_sparse)
 from scripts.track_r.xp_t_imagenet_prepare_cpu import seed as img_seed
 A6=BASE/"xp_a6_20261027T165112Z"
 NIGHT=BASE/"xp_overnight_20261027T045215Z"
