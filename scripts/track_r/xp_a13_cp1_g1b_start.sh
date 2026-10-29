@@ -54,6 +54,8 @@ LOGB="$BASE/XP_A13_B16_PROTOCOL_$STAMP.log"
 test ! -e "$LOGB"
 tmux new-session -d -s "$SESSIONB" \
  "cd '$WT'; env CUDA_VISIBLE_DEVICES='' PYTHONPATH='$WT' PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=2 MKL_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 NUMEXPR_NUM_THREADS=2 '$PY' scripts/track_r/xp_a13_b16_protocol_cpu.py --expected-head '$HEAD' --out '$B16' > '$LOGB' 2>&1"
+printf '%s\n' "$RUN" > "$BASE/XP_A13_G1B_LATEST_RUN.txt"
+printf '%s\n' "$B16" > "$BASE/XP_A13_B16_PROTOCOL_LATEST_RUN.txt"
 echo "A13_G1B_SESSION=$SESSION"
 echo "A13_G1B_RUN=$RUN"
 echo "A13_G1B_LOG=$LOG"
