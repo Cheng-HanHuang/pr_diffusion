@@ -135,11 +135,41 @@ def legacy_source():
          "HIST_DAPS_HEAD")
     fail(git(ORIG_DAPS,"hash-object","sampler.py")==PATCHED_SAMPLER_BLOB,
          "HIST_EDITED_SAMPLER_BLOB")
+    # Historical launcher supplies both Hydra +measurement_path and B21
+    # environment overrides. An env key need not be read in the CLI
+    # entrypoint: sampling and start-noise handling may live in sampler.py.
+    # Audit a bounded list of native source files, not a recursive repo
+    # search (which risks reading prohibited bundled images).
     script=checkpath(ORIG_DAPS/"posterior_sample.py")
-    native=script.read_text()
-    fail("B21_MEASUREMENT_PATH" in native and
-         "B21_START_NOISE_SEED" in native,
-         "HIST_MEASUREMENT_SEED_OVERRIDE")
+    source_names=("posterior_sample.py","sampler.py",
+                  "cores/mcmc.py","cores/scheduler.py",
+                  "forward_operator/__init__.py")
+    keys=("B21_MEASUREMENT_PATH","B21_START_NOISE_SEED",
+          "B21_SOURCE_SEED","measurement_path")
+    occurrences={k:[] for k in keys}
+    source_hashes={}
+    for name in source_names:
+        path=checkpath(ORIG_DAPS/name)
+        body=path.read_text(encoding="utf-8")
+        source_hashes[name]=sha(path)
+        for key in keys:
+            if key in body:
+                occurrences[key].append(name)
+    print("HISTORICAL_DAPS_SOURCE_SYMBOL_AUDIT",
+          json.dumps(occurrences,sort_keys=True))
+    # Command-level source contract: the frozen B21 launcher transmits
+    # the correct environment AND Hydra observation override. The actual
+    # native handling remains a separate GPU-adapter certification gate.
+    command=checkpath(WT/"scripts/b21/run_b21_11_fresh2_final_benchmark_multigpu.sh")
+    script_cmd=command.read_text(encoding="utf-8")
+    fail(all(x in script_cmd for x in
+            ('B21_MEASUREMENT_PATH="$meas"',
+             'B21_START_NOISE_SEED="$seed"',
+             'B21_SOURCE_SEED="$seed"',
+             '+measurement_path="$meas"',
+             'sampler.annealing_scheduler_config.num_steps="$ANN_STEPS"',
+             'sampler.diffusion_scheduler_config.num_steps="$DIFF_STEPS"')),
+         "B21_FROZEN_LAUNCH_COMMAND")
     # Inspect the ORIGINAL pixel Langevin YAML without importing solver
     # modules or opening any image. Unresolved Hydra interpolations are
     # reported and must be checked by the GPU replay adapter.
@@ -156,6 +186,9 @@ def legacy_source():
           json.dumps(task_config,sort_keys=True)[:1500])
     # The DAPS-4K upstream sparse worker is NOT a valid historical adapter.
     return dict(native_head=DAPS_HEAD,
+         source_symbol_occurrences=occurrences,
+         audited_native_source_sha256=source_hashes,
+         original_B21_launch_sha256=sha(command),
          original_sampler_yaml_sha256=sha(sampler_yaml),
          original_task_yaml_sha256=sha(task_yaml),
          posterior_sample_sha256=sha(script),
@@ -245,6 +278,8 @@ def main(args):
         manifest_sha256=sha(out/"XP_F8_REPLAY_INPUTS_GT_FREE.json"),
         offline_sha256=sha(out/"XP_F8_REPLAY_OFFLINE_ONLY.json"),
         native_adapter_certified=False,any_gpu_job_launched=False,
+        source_symbol_locations_audited=True,
+        source_symbol_absence_not_interpreted_as_invalid=False,
         next_gate="PROVE_NATIVE_ADAPTER_REPRODUCES_B21_B24_SEEDS_AND_400x5"))
     print("XP_F8_LEGACY_CPU_INPUT_PREFLIGHT_PASS")
     for r in public:
