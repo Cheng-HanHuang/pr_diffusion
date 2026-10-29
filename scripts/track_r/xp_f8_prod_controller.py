@@ -188,6 +188,19 @@ def run(a,root,prep,tasks,base_seconds):
         while len(done)<920:
             cards=collect(own_roots=[v["proc"].pid for v in active.values()])
             pid_telemetry(root,cards,active,state)
+            # A10.1: a newly arriving foreign job can push a device
+            # above 80% after admission. Terminate only our process
+            # group, never a foreign PID, and account the failed attempt.
+            for i,v in active.items():
+                card=next((c for c in cards if c.index==v["gpu"]),None)
+                if (card is not None and card.total_mib>0
+                    and card.used_mib > .80*card.total_mib
+                    and v["proc"].poll() is None):
+                    event(root,"A10_80PCT_VRAM_RUNTIME_STOP",
+                          root_index=i,gpu=v["gpu"],
+                          used_mib=card.used_mib,total_mib=card.total_mib)
+                    try:os.killpg(v["proc"].pid,signal.SIGTERM)
+                    except ProcessLookupError:pass
             for i,v in list(active.items()):
                 ret=v["proc"].poll()
                 if ret is None:continue
