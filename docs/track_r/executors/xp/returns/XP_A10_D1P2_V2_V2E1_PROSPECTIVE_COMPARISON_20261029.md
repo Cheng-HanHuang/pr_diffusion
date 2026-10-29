@@ -10,7 +10,7 @@
 - On PAC: `/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a10_d1p2_fixed_20261029T044818Z/`.
 - Comparison JSON SHA-256: `e2c4d4b4993bf8f42a5e87a9978090823ea0aad4c28698ca40a626e9e68ec1e5`. Source of all figures in this return is the executor's validated console extract; full JSON comparison must be kept intact for subsequent paper table.
 
-## Observed Good@20 panel performance (fraction of images with at least one GOOD outcome under each policy)
+## Observed Good@20 panel performance (probability that the policy selects a GOOD reconstruction)
 
 | K | E0 | E1_CLIP (G1) | E1_CLIP_G2 | O_raw | O_orbit |
 |---:|---:|---:|---:|---:|---:|
@@ -18,7 +18,7 @@
 | 12 | 0.47270 | 0.62147 | 0.60847 | 0.66781 | 0.73204 |
 | 16 | 0.50000 | 0.65000 | 0.63000 | 0.70000 | 0.75000 |
 
-Rates for K<16 are exact-subset expected values, **not** direct independent cohort observations or per-root confidence intervals. E1_CLIP/G2 evaluates frozen orientation decisions; O_raw and O_orbit are GT-based oracle ceilings.
+Rates for K<16 are exact-subset expected probabilities averaged over 100 images; K=16 is the full 16-run panel. These are **policy-selected GOOD rates**, not probabilities that the candidate bag contains any GOOD image, and not per-root confidence intervals. E1_CLIP/G2 evaluates frozen orientation decisions; O_raw and O_orbit are GT-based oracle ceilings.
 
 ## Prediction coverage by frozen model variant
 
