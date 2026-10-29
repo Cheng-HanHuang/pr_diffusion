@@ -110,6 +110,7 @@ def run(a,root,used,replayed):
             pending=indices.copy()
             failed=[]
             done=[]
+            elapsed_all_children=0.
             tick=0
             while pending or active:
                 fail(datetime.datetime.now(ZoneInfo("America/Detroit"))<
@@ -118,12 +119,13 @@ def run(a,root,used,replayed):
                 sample(cards,feed,active)
                 # Count completed plus conservatively *all* in-flight elapsed.
                 active_s=sum(time.monotonic()-v["start"] for v in active.values())
-                total=used+replayed+(sum(v["elapsed"] for v in done)+active_s)/3600
+                total=used+replayed+(elapsed_all_children+active_s)/3600
                 fail(total<70,"A10_SHARED_70_GPU_HARD_CAP")
                 for idx,v in list(active.items()):
                     status=v["proc"].poll()
                     if status is None:continue
                     elapsed=time.monotonic()-v["start"]
+                    elapsed_all_children+=elapsed
                     v["log"].close()
                     active.pop(idx)
                     if status!=0:
@@ -191,7 +193,8 @@ def run(a,root,used,replayed):
                failed=failed,receipt_sha256={str(x["index"]):x["receipt_sha256"] for x in done},
                n_telemetry_samples=sum(1 for _ in telemetry.open()),
                shared_gpu_h_before_wave=used+replayed,
-               incremental_gpu_h=sum(x["elapsed"] for x in done)/3600,
+               incremental_gpu_h=elapsed_all_children/3600,
+               count_failed_elapsed_towards_budget=True,
                native_400x5=True,clean_timing_claim=False,
                foreign_pids_are_recorded=True,gt_opened=False,
                source_native_checkout_modified=False)
