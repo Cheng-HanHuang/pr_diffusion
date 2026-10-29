@@ -374,6 +374,16 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
   save("RUN_"+stage)
   while len(state["done"])<len(tasks):
    cards=collect(own_roots=[v["proc"].pid for j,v in active.values()])
+   # A10.1 contract: stop only our own worker when observed total
+   # device VRAM crosses 80%; do not touch foreign co-tenants.
+   for _,v in active.values():
+    card=next((c for c in cards if c.index==v["gpu"]),None)
+    if card and v["proc"].poll() is None and
+       card.used_mib>0.80*card.total_mib:
+     emit(run,"VRAM80_OWN_WORKER_STOP",gpu=v["gpu"],
+          pid=v["proc"].pid,used_mib=card.used_mib)
+     try:os.killpg(v["proc"].pid,signal.SIGTERM)
+     except ProcessLookupError:pass
    settle()
    remaining=[(idx,j) for idx,j in enumerate(tasks)
               if str(idx) not in state["done"] and idx not in active]
@@ -501,9 +511,14 @@ def main(a):
            completed=len(done),projection=estimate)
     if not success:break
    if not success:
-    emit(run,"STAGE_PARTIAL_STOP_NO_FURTHER_STAGE_ADMISSION",stage=stage)
-    state["status"]="PARTIAL_STOP_"+stage
-    break
+    emit(run,"STAGE_PARTIAL_AT_CEILING_CONTINUE_PRIORITY_QUEUE",stage=stage)
+    write(run/f"XP_A13_{stage}_PARTIAL_STATUS.json",dict(
+       status="XP_A13_STAGE_PARTIAL_CONTINUE",
+       stage=stage,charged_gpu_h=state["stage_seconds"][stage]/3600,
+       stage_ceiling_gpu_h=CAP[stage],
+       source_head=a.expected_head,failed_attempts_charged=True,
+       no_ground_truth_loaded=True))
+    continue
    completed_roots=(100 if stage=="G3" and
                   state["G3_status"]=="COHORT_A_REDUCTION_AUTHORIZED_BY_A12"
                   else N[stage])
@@ -520,8 +535,7 @@ def main(a):
      stage_cap_gpu_h=CAP[stage],head=a.expected_head,
      outcomes_GT_not_read=True))
   state["G1b_status"]="BILLED_BY_PRIOR_A13_G1B_RECEIPT"
-  if not state.get("status","").startswith("PARTIAL_STOP_"):
-   state["status"]="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
+  state["status"]="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
   state["project_charged_gpu_h"]=project0+sum(state["stage_seconds"].values())/3600
   state["A12_charged_gpu_h"]=campaign0+sum(state["stage_seconds"].values())/3600
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
