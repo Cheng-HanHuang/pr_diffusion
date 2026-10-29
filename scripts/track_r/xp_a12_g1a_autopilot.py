@@ -17,8 +17,9 @@ from PIL import Image,ImageChops
 from scripts.track_r.xp_a12_g1a_prepare_cpu import (
   WT,ROOT,BASE,HIST_SHA,HIST_HEAD,FAST_HEAD,gate)
 from scripts.track_r.xp_a6_supervisor import output_dir as hist_output_dir
-from scripts.track_r.xp_fast_gpu import (
-  root_folder,validate_complete,sha)
+from scripts.track_r.xp_a12_g1a_fast_gpu import (
+  root_folder,validate_complete,sha,
+  A12_G1A_FROZEN_PRODUCER,A12_G1A_FROZEN_SHAS)
 from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 
 FAST_PY=ROOT/"conda-envs/fast_dips_a15_blackwell/bin/python"
@@ -68,17 +69,20 @@ def preflight(a):
          and prep.is_dir(),"PREP_NAMESPACE")
     receipt=read(prep/"XP_A12_G1A_PREP_RECEIPT.json")
     gate(receipt["status"]=="XP_A12_G1A_GT_FREE_PREP_PASS" and
-         receipt["head"]==a.expected_head and
+         receipt["head"]==A12_G1A_FROZEN_PRODUCER and
          receipt["n_new"]==1600 and receipt["n_replay"]==2,
          "FROZEN_PREP_RECEIPT")
     file1=prep/"XP_A12_G1A_REPLAY2_TASKS.json"
     file2=prep/"XP_A12_G1A_1600_TASKS.json"
-    gate(sha(file1)==receipt["replay_manifest_sha256"] and
-         sha(file2)==receipt["production_manifest_sha256"],
+    gate(sha(file1)==receipt["replay_manifest_sha256"]==
+             A12_G1A_FROZEN_SHAS["A12_G1A_HISTORICAL_REPLAY2"] and
+         sha(file2)==receipt["production_manifest_sha256"]==
+             A12_G1A_FROZEN_SHAS["A12_G1A_FAST_IMAGENET_D4"],
          "MANIFEST_DIGEST")
     re=read(file1);mf=read(file2)
     gate(len(re["rows"])==2 and len(mf["rows"])==1600 and
-         re["head"]==a.expected_head and mf["head"]==a.expected_head and
+         re["head"]==A12_G1A_FROZEN_PRODUCER and
+         mf["head"]==A12_G1A_FROZEN_PRODUCER and
          re["gt_paths_supplied"] is False and
          mf["gt_paths_supplied"] is False and
          mf["outcome_embargo"] is True,"MANIFEST_CONTRACT")
@@ -155,7 +159,8 @@ def command(a,job,gpu,run,prep,receipt):
           "--roots",str(mfile),"--roots-sha",digest,
           "--out",str(dest),"--start",str(job["start"]),
           "--count",str(job["count"]),"--physical-gpu",str(gpu),
-          "--dataset","imagenet","--oversample","2.0"]
+          "--dataset","imagenet","--oversample","2.0",
+          "--roots-source-head",A12_G1A_FROZEN_PRODUCER]
     # Resume only if a previous attempt created the native chunk.
     # A failed preflight leaves no chunk and the next charged attempt
     # must use a fresh --out rather than an invalid --resume.
@@ -177,25 +182,25 @@ def charge(root,job,v,rc):
                  max_used_mib=v["max_used_mib"],n_samples=v["samples"],
                  log=str(v["log"]),utc=now()))
     return elapsed
-def verify(root,prep,receipt,job,dest,digest,refs):
+def verify(root,prep,receipt,job,dest,digest,refs,current_head):
     rows=read(prep/("XP_A12_G1A_REPLAY2_TASKS.json"
                     if job["stage"]=="replay"
                     else "XP_A12_G1A_1600_TASKS.json"))["rows"]
     meta=read(dest/"R0_5_CHUNK_META.json")
     completed=read(dest/"R0_5_CHUNK_COMPLETE.json")
-    gate(meta["head"]==receipt["head"] and
+    gate(meta["head"]==current_head and
          meta["root_sha256"]==digest and
          meta["start"]==job["start"] and
          meta["count"]==job["count"] and
          meta["uids"]==[x["uid"] for x in rows[job["start"]:job["start"]+job["count"]]]
          and completed["status"]=="R0_5_CHUNK_PASS"
-         and completed["head"]==receipt["head"]
+         and completed["head"]==current_head
          and completed["new"]==job["count"] and
          completed["meta_sha256"]==sha(dest/"R0_5_CHUNK_META.json"),
          "NATIVE_FAST_CHUNK_SCHEMA")
     for k,r in enumerate(rows[job["start"]:job["start"]+job["count"]]):
         p=root_folder(dest,r)
-        rec=validate_complete(p,r,receipt["head"],digest)
+        rec=validate_complete(p,r,current_head,digest)
         gate(rec["gt_access"] is False
              and rec["dataset"]=="imagenet"
              and rec["method"]=="UNMODIFIED_NATIVE_FAST_T150_ADMM2_S5",
@@ -250,7 +255,7 @@ def stage_loop(a,run,prep,receipt,refs,stage,state):
                 if ret==0:
                     try:
                         digest=verify(run,prep,receipt,job,v["dest"],
-                                      v["manifest_sha"],refs)
+                                      v["manifest_sha"],refs,a.expected_head)
                         complete[str(index)]=digest
                         emit(run,"CHUNK_VERIFIED",stage=stage,
                              index=index,count=job["count"],digest=digest)
