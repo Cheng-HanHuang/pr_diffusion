@@ -30,6 +30,18 @@ def main(a):
  gate(prep.parent==BASE and prep.name.startswith("xp_a12_g6_prepare_")
       and run.parent==BASE and run.name.startswith("xp_a12_g6_prod_")
       and not run.exists(),"OUTPUT")
+ prior=Path(a.prior_campaign)
+ gate(prior.name=="XP_A12_CAMPAIGN_STATE.json" and
+      prior.parent.parent==BASE and
+      prior.parent.name.startswith("xp_a12_campaign_prod_") and
+      prior.is_file() and not prior.is_symlink(),"A12_PRIOR_CAMPAIGN")
+ prior_data=json.loads(prior.read_text())
+ gate(prior_data["status"]==
+      "A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
+      and prior_data.get("active")==[]
+      and prior_data["A12_charged_gpu_h"]+1<=150
+      and prior_data["project_charged_gpu_h"]+1<=400,
+      "G6_SHARED_A12_AND_PROJECT_HEADROOM")
  rec=json.loads((prep/"XP_A12_G6_PREP_RECEIPT.json").read_text())
  gate(rec["status"]=="XP_A12_G6_CONDITIONAL_CLEAN_TIMING_PREP_PASS"
       and rec["head"]==a.expected_head,"PREP")
@@ -37,7 +49,7 @@ def main(a):
  d=prep/"XP_A12_G6_DAPS_FFHQ_TASKS.json"
  gate(sha(f)==rec["fast_manifest_sha256"] and
       sha(d)==rec["daps_manifest_sha256"],"SHA")
- with (BASE/"XP_A12_G6_CONTROLLER.lock").open("a+") as lock:
+ with (BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock").open("a+") as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   run.mkdir(mode=0o700)
   for sub in ("gpu","fast","logs","pycache"):(run/sub).mkdir()
@@ -124,12 +136,16 @@ def main(a):
        wall_gpu_h=total_s/3600,cap_gpu_h=1.,
        clean_timing_valid=not dirty and len(cost)==10,
        source_head=a.expected_head,costs=cost,
+       prior_campaign_sha256=sha(a.prior_campaign),
+       A12_total_charged_gpu_h=prior_data["A12_charged_gpu_h"]+total_s/3600,
+       project_total_charged_gpu_h=prior_data["project_charged_gpu_h"]+total_s/3600,
        no_ground_truth_access=True)
   write(run/"XP_A12_G6_FINAL_STATUS.json",result)
   print("A12_G6_TERMINAL",json.dumps(result,sort_keys=True),flush=True)
 def entry():
  p=argparse.ArgumentParser()
- for x in ("expected-head","prep","run"):p.add_argument("--"+x,required=True)
+ for x in ("expected-head","prep","run","prior-campaign"):
+  p.add_argument("--"+x,required=True)
  try:main(p.parse_args())
  except Exception as e:
   traceback.print_exc();print("ACTION NEEDED: A12_G6_CLEAN",e,flush=True)
