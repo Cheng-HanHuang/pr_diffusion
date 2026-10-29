@@ -291,7 +291,52 @@
 > 5. **Optional theory forecast `v3P`.** The predicted success and mean runs of the M = 2 rule under the registered class models: v2/v2 E1 for D1-P2, v3 for B16 and F8. Register by **Nov 1, 12:00 ET**. The planner runs production unchanged; if it runs after it has seen protocol outputs, the registry says so. `v3P` is reported beside the protocol results and never changes them.
 > 6. **Data cut.** Protocol results for D1-P2, B16 and F8 are Tier B (**Nov 6**). E′ and D2/D3 are Tier C.
 
-**Status:** FROZEN v1.1 with amendments A1–A11 (planner, 2026-10-29).
+> **Amendment A12 (planner, 2026-10-29 12:45 ET): GPU campaign for the protocol paper.** Written after F8 completed (920/920; A10 total 55.55/70 GPU-h) and before any outcome of the stages below exists. None of them has been generated.
+> 1. **Budget and accounting (Cheng, 2026-10-29 12:28).**
+>    - **The project cap of 400 GPU-h is unchanged and not binding.** About 123 GPU-h is spent:
+>      - XP-T and replays, about 1.6;
+>      - A16, 2.6;
+>      - the Oct 27 night run, 33.7;
+>      - the A6 main pass, 28.9;
+>      - A10, 55.5.
+>
+>      The executor publishes the authoritative cumulative ledger in the first A12 receipt.
+>    - **A10's 70 GPU-h sub-cap and its unspent 14.45 GPU-h are replaced** by one A12 campaign cap of **150 GPU-h**.
+>    - **Accounting is unchanged:** wall-hours per occupied GPU. Co-tenancy roughly doubles the cost per run (SITCOM 32 s clean vs 63 s in B16; DAPS 400 × 5 about 33 s clean vs 66 s in F8). Each stage ceiling below is therefore the clean XP-T time per run × 2 × 1.25.
+>    - **Projection gate.** A 2-root smoke projects every stage's cost. If the projection exceeds the ceiling, the stage's reduction rule applies. A stage stops at its ceiling and reports a partial result; it never overruns.
+> 2. **Authorized stages, in priority order.** Co-tenancy follows A10.1. Seeds follow each family's historical rule (§1); for XP-G the rule is `XP|FAST|ffhq_s<σ>|<uid>|<r>`.
+>
+>    | # | Stage | Content | Runs | Ceiling (GPU-h) | Gate / reduction | Done by (ET) |
+>    |---|---|---|---|---|---|---|
+>    | G1a | XP-D4a | FAST ImageNet, run indices 16–31 (n = 32) | 1,600 | 25 | 2-root replay of D1 runs; reduction: none | Nov 3, 12:00 |
+>    | G2 | XP-G | FAST FFHQ, σ ∈ {0.02, 0.10}, n = 8 per σ, 180 ids (§1 paired-noise measurements) | 2,880 | 10 | smoke per σ | Nov 3, 12:00 |
+>    | G3 | XP-I | PC-DAPS @ `59b2f046`, its own FFHQ phase-retrieval command, 1 run of 4 particles on the 180 ids; save every particle and its own estimate | 180 (720 particles) | 45 | **Conditional on the code being present.** If absent, the executor writes the clone command for Cheng. 2-id smoke; if the projection > 45, cohort A only | Nov 3, 12:00 |
+>    | G4 | XP-E′8 | DAPS-4K FFHQ, run indices 4–7 on the 180 ids | 720 | 30 | 2-root replay of E′ | Nov 4, 12:00 |
+>    | G5 | XP-D2-8 | DAPS-4K ImageNet, run indices 4–7 on the 100 images | 400 | 40 | 2-root replay of D2 | Nov 4, 12:00 |
+>    | G1b | XP-D4b | FAST ImageNet, run indices 32–63 (n = 64) | 3,200 | 40 | only after G1a–G5 have launched, and if the campaign projection fits; otherwise ImageNet stays at n = 32 | Nov 4, 12:00 |
+>    | G6 | XP-T clean | batch-1 timing (3 ids × 3 runs) for DAPS 400 × 5 FFHQ and FAST ImageNet, if not yet measured | 18 | 1 | clean GPUs only | when a clean GPU appears |
+>    | G7 | XP-C GPU, XP-C2 | prior and UnivFD orientation tests and the equivariance-defect profile on GT images (supplement) | — | 4 | — | Nov 15 |
+>
+>    **Not authorized:** XP-B32, XP-K, XP-H, XP-G2, XP-J, XP-I2. They are revisited at the Nov 8 go/no-go only if the decision is CVPR.
+> 3. **Seal.** XP-D4 outcomes (run index ≥ 16) stay sealed until one of these, whichever comes first:
+>    - a theory forecast `v4` is registered: ImageNet FAST, fitted on runs 0–15, K ≤ 64, the v2 estimands and variants;
+>    - the theory executor declines `v4`;
+>    - **Nov 2, 12:00 ET**.
+>
+>    The other stages carry no forecast and are scored on completion.
+> 4. **Protocol v1 on the new panels.** These hypotheses are frozen now, before generation; the protocol and its code are unchanged (`c598176`).
+>    - **XP-D4, at n = 32 and n = 64** (τ 0.0500829, G1): H1 (gain ≥ −0.01), H3 (FLAG_C precision ≥ 0.5 if the expected count is ≥ 2), H4 (≥ +0.05).
+>    - **XP-E′8** (n = 8, `self_mad3`, face scorer) and **XP-D2-8** (n = 8, `self_mad3`, G1): H1.
+>    - **XP-G, H-G1.** At each σ, the scaled threshold 0.0500829 · σ/0.05 lies within 1% of the GT-labeled τ_σ (the 95th percentile of GOOD ρ over runs 0–3, §1).
+>    - **XP-G, H-G2.** At each σ, the protocol with the scaled threshold (M = 2, N_MAX = 8, E0) satisfies H1.
+>    - **XP-I (descriptive, no hypothesis).** At matched denoiser evaluations per image, compare:
+>      - PC-DAPS's own estimate, and E0/E1 over its four particles;
+>      - DAPS 400 × 5 under the protocol, with N_MAX chosen so that its mean NFE equals PC-DAPS's.
+>
+>      Report the GOOD share, the mean PSNR and the share of orbit errors.
+> 5. **Priority against CPU work.** The held-out CPU analyses (D1-P2, B16 and F8 under v1/v3 and the protocol) come first; GPU stages run beside them on idle GPUs.
+
+**Status:** FROZEN v1.1 with amendments A1–A12 (planner, 2026-10-29).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

@@ -1,6 +1,31 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
 
-> **Ninth update, 2026-10-29, 03:55 ET** (the newest; read it first).
+> **Tenth update, 2026-10-29, 12:45 ET** (the newest; read it first).
+> - **F8 complete** (920/920; A10 total 55.55/70 GPU-h). B16 scoring is under way after an admission fix. No held-out protocol result yet.
+> - **Theory round 7 accepted.**
+>   - **Proposition 1:** exact compute, flag and success laws of the stop-at-2 rule. The paper now has it in Sec. 4.
+>   - **Exact finite-panel evaluation.** It matches the frozen evaluator within 3e-4 on all dev panels, which certifies the evaluator independently.
+>   - **A counterexample:** no universal "stopping beats fixed K" theorem. The paper's mechanism claim is narrowed to "gains when consistency predicts correctness".
+>   - **v3P declined,** for a sound reason.
+> - **GPU (A12, Cheng's question).** The 400 GPU-h project cap is not binding (about 123 used), so it is not raised. A10's 70 GPU-h sub-cap is replaced by one **150 GPU-h campaign** authorized at once. Ceilings assume co-tenancy at 2× clean time (measured: SITCOM 32 → 63 s, DAPS about 33 → 66 s per run).
+>   - **Stages, in order:**
+>     1. FAST ImageNet to 32 runs (then 64);
+>     2. FAST at σ ∈ {0.02, 0.10};
+>     3. PC-DAPS on the 180 FFHQ ids (if the code is present);
+>     4. DAPS-4K to 8 runs on FFHQ and ImageNet;
+>     5. clean timing;
+>     6. XP-C (supplement).
+>   - **Not authorized:** B32, XP-K, XP-H, XP-G2, XP-J, XP-I2.
+>   - **Frozen before generation:** protocol hypotheses for the new panels and a seal on ImageNet K > 16 for an optional theory `v4`, a third prospective test aimed at coverage.
+> - **Why these stages.** Each answers a question a reviewer of a protocol paper will ask:
+>   - Does it hold at a larger budget on the dataset where coverage bites? (D4)
+>   - Does the calibration transfer across noise levels? (XP-G)
+>   - How does it compare with PC-DAPS, the concurrent particle method? (XP-I)
+>   - What does the published DAPS-4K configuration deliver without ground truth at more than four runs? (E′8, D2-8)
+>
+>   B32 adds runs in the regime where stopping is predicted not to help, so it waits.
+>
+> **Ninth update, 2026-10-29, 03:55 ET.**
 > - **Direction decided: (a)** (Cheng, 03:36). The paper is rebuilt around:
 >   - a **ground-truth-free best-of-K protocol**: sequential stopping at M = 2 consistent runs, residual pick, zero-shot orientation test, FLAG_C/FLAG_O;
 >   - the finding that **GT-free selection is predictable, while unsolved images are not**.

@@ -29,17 +29,30 @@ By \cref{sec:setup}, the choice within an orbit must come from the prior, and an
 On FFHQ, a zero-shot CLIP test with fixed upright and upside-down face prompts fixes all $58$ global orbit errors among $1{,}960$ runs and flips none of the $1{,}171$ \good runs\claim{C-A2}.
 On ImageNet the generic prompts ``a photo.'' and ``an upside-down photo.'' repair $57$ of $67$ global orbit errors of FAST-DIPS and flip $5$ of $100$ \good runs\claim{C-A11}, and the margin of the test is informative: among the development outputs, those outside the least confident $30\%$ are \good in $65.3\%$ of cases, against $50.7\%$ for all outputs without $\textsc{flag}_C$\claim{C-G4}.
 
-\paragraph{Why stopping helps, and where.}
-Fixed best-of-$K$ spends $K$ runs on every image.
-The stopping rule spends $M$ runs on an image whose runs are usually consistent, more on one whose runs rarely are, and $N_{\max}$ on one whose runs never are, which it then flags.
-Its value depends on how well consistency predicts correctness.
-If an image's failed runs are \incons, $M$ consistent runs are $M$ candidates for a correct one; if they are \cons, the rule stops on wrong candidates as readily as a small fixed $K$ would.
-On the same $80$ images of cohort~B with four runs each, stopping gains $4.9$ points over fixed best-of-$K$ at equal mean runs for DAPS, whose failed runs on these images are $12\%$ \cons, and $-0.1$ points for SITCOM, whose failed runs are $60\%$ \cons\claim{C-G2}.
+\paragraph{What stopping buys, and when.}
+Fixed best-of-$K$ spends $K$ runs on every image; the stopping rule spends few runs on an image whose runs are usually consistent and $N_{\max}$ on one whose runs never are, which it then flags.
+\begin{proposition}[stopping at two consistent runs]
+\label{prop:stop}
+Fix an image whose runs pass $\rho\le\tau_S$ independently with probability $s$, let $r=1-s$, and let $H_j^+$ ($H_N^-$) be the probability that residual selection and the orientation test return a \good image from $j$ passing ($N$ non-passing) runs.
+With $M=2$ and budget $N_{\max}=N$,
+\begin{align*}
+\E T&=\bigl(2-Nr^{N-1}+(N-2)r^N\bigr)/s,\\
+\Prob(\textsc{flag}_C)&=r^N,\\
+\Prob(\mathrm{success})&=(1-r^N-Nsr^{N-1})\,H_2^+\\
+&\quad+Nsr^{N-1}H_1^+ + r^NH_N^-.
+\end{align*}
+\end{proposition}
+The proof rests on one fact: the first two passing runs are independent draws from the passing law, whenever they arrive (supplement)\claim{C-T12}.
+The consistency rate $s$ thus decides how many runs are spent, and $H^+$, how often a consistent run is correct, decides what they buy.
+Heterogeneity of $s$ across images does not by itself make stopping better than a fixed $K$ at equal mean compute; the supplement gives a counterexample.
+Stopping gains when consistency predicts correctness: when an image's failed runs are \incons rather than \cons.
+On the same $80$ images of cohort~B with four runs each, it gains $4.9$ points over fixed best-of-$K$ at equal mean runs for DAPS, whose failed runs on these images are $12\%$ \cons, and $-0.1$ points for SITCOM, whose failed runs are $60\%$ \cons\claim{C-G2}.
 
 \paragraph{Development results.}
-Runs of an image are exchangeable in our data\claim{C-F4}, so random orders of an image's runs simulate sequential sampling; baselines are the exact all-subset estimators of \cref{sec:selection}.
+Runs of an image are exchangeable in our data\claim{C-F4}, so random orders of an image's runs simulate sequential sampling.
+On a panel of $n$ runs of which $L\ge M$ pass, the stopping time averages $M(n+1)/(L+1)$ over orders, and the first $M$ passing runs form a uniform $M$-subset of the $L$, so the protocol's value has the same exact subset form as the baselines of \cref{sec:selection}; it agrees with our simulated evaluation to within $3\times10^{-4}$\claim{C-T13}.
 For FAST-DIPS on FFHQ with $64$ runs per image (\cref{fig:teaser}b), the protocol with $N_{\max}=64$ returns a \good image for $91.3\%$ of the $180$ images at $8.4$ runs per image, against $89.1\%$ for fixed best-of-$K$ at the same mean number of runs and $91.2\%$ for best-of-$16$\claim{C-G1}.
-It beats fixed best-of-$K$ at all $12$ operating points we tried ($M=1,\dots,4$, $\tau_S$ scaled by $0.997$, $1$ and $1.003$), by $0.8$ to $4.7$ points, and stays close to the fixed-$K$ ground-truth orbit oracle at equal mean compute, because it moves runs from easy images to hard ones.
+It beats fixed best-of-$K$ at all $12$ operating points we tried ($M=1,\dots,4$, $\tau_S$ scaled by $0.997$, $1$ and $1.003$), by $0.8$ to $4.7$ points, and stays close to the fixed-$K$ ground-truth orbit oracle at equal mean compute.
 $\textsc{flag}_C$ is raised for $8$ images, $6$ of the $7$ that FAST-DIPS never solves; the seventh yields \cons runs\claim{C-G1}\claim{C-F5}.
 These numbers are in-sample: we designed the protocol on these runs.
 

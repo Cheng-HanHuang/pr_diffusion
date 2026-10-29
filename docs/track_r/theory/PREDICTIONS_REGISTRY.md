@@ -25,7 +25,8 @@
 |---|---|---|---|---|---|---|
 | protocol v1 | `claude/prdiff-track-r-planner-20261021` | `c598176c2a3ede944cb7296323d9e6aab2989dd3` | `docs/track_r/protocol/GTFREE_PROTOCOL_v1.md` (spec); `docs/track_r/protocol/gtfree_protocol.py` (code) | spec `7e9a5fd8b817a97351d07ae371b947688c8430cd5b9268fc99b954a493223919`; code `d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658` | 2026-10-29T07:49:32Z (pushed the same minute) | GT-free best-of-K: stop at M = 2 consistent runs, residual pick, zero-shot orientation test, FLAG_C/FLAG_O. Frozen per-solver τ (FAST τ transferred FFHQ → ImageNet). Held-out D1-P2, B16 and F8 with hypotheses H1–H4. Dev data: FAST FFHQ 64, A8b prefixes, D1 phase 1. At freeze, the planner had seen D1-P2 aggregates only, and no B16, F8, E′ or D2/D3 per-image data. **FROZEN** |
 
-**Embargo status (updated 2026-10-29 02:45 ET, prereg A8–A10):**
+**Embargo status (updated 2026-10-29 12:45 ET, prereg A8–A12):**
+- **XP-D4 (FAST ImageNet, run index ≥ 16): SEALED** until `v4` is registered or declined, or Nov 2, 12:00 ET (A12.3). Generation may finish earlier; scoring waits.
 - FFHQ K > 4 outcomes (XP-A, XP-B, XP-F; B22 DAPS K > 2): lifted by the registration of v1 (planner `19945af`) for the XP analysis; results go to `xp/returns/`. v1 is not refitted.
   - **XP-B16 and XP-F8: LIFTED** by the registration of v3 in this commit (A9.4). Compare them with v1 (primary) and v3 (second forecast) under each file's frozen rule.
 - **ImageNet FAST outcomes with run index ≥ 4 (XP-D1 phase 2): LIFTED** by the registration of `v2 E1` (planner `7d1882c`, A8.2(a)). Compare them with v2 and v2 E1.

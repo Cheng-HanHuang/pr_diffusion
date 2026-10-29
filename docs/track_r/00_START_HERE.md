@@ -14,6 +14,10 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-29, 12:45 (planner): GPU campaign A12 and theory round 7.**
+  - **F8 complete** (920/920). Theory round 7 accepted: Proposition 1 is now in Sec. 4, the exact evaluator matches the frozen one within 3e-4, and a counterexample narrows the mechanism claim.
+  - **Prereg A12:** a 150 GPU-h campaign inside the unchanged 400 cap. Stages: FAST ImageNet to 32/64 (sealed for an optional theory v4), XP-G, PC-DAPS (conditional), DAPS-4K to 8 runs (FFHQ and ImageNet), clean timing, XP-C.
+  - **Notes, round 8:** [`executors/xp/08_PLANNER_NOTES_20261029_PM.md`](executors/xp/08_PLANNER_NOTES_20261029_PM.md) and [`executors/theory/08_PLANNER_GUIDANCE_20261029_PM.md`](executors/theory/08_PLANNER_GUIDANCE_20261029_PM.md).
 - **2026-10-29, 03:55 (planner): direction (a) and protocol v1.**
   - **Cheng chose (a):** the paper is a GT-free best-of-K protocol, plus "selection is predictable, coverage is not". Symmetry theorems go to the supplement (prereg **A11**).
   - **Protocol v1 frozen** at `c598176`: [`protocol/GTFREE_PROTOCOL_v1.md`](protocol/GTFREE_PROTOCOL_v1.md), with code and dev results. Registered in the predictions registry under "Frozen protocols". Held-out panels: D1-P2, B16, F8 (H1–H4).
