@@ -10,7 +10,8 @@ import argparse,json,math,os,sys,traceback
 from pathlib import Path
 import torch
 from scripts.track_r.xp_f8_legacy_replay_gpu import (
-    BASE,PREP,sha,read_json,fail,git,WT,FROZEN_MANIFEST_SHA)
+    BASE,PREP,sha,read_json,fail,git,FROZEN_MANIFEST_SHA)
+from scripts.track_r.xp_f8_legacy_preflight_cpu import WT
 from scripts.track_r.r0_2_g0_cpu import (
     gt_source,candidate_source,read_tensor)
 from prdiffusion.track_r.physics import (
