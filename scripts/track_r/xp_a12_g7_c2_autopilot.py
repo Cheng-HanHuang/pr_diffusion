@@ -58,7 +58,7 @@ def main(a):
  campaign0=float(state["A12_charged_gpu_h"])
  if a.g6_final:
   prior6=Path(a.g6_final)
-  gate(prior6.name=="XP_A12_G6_FINAL_STATUS.json" and
+  gate(prior6.name=="XP_A13_G6_FINAL_STATUS.json" and
        prior6.parent.parent==BASE and
        prior6.parent.name.startswith("xp_a12_g6_prod_") and
        prior6.is_file() and not prior6.is_symlink(),"G6_PRIOR_PATH")
