@@ -74,6 +74,22 @@ def frozen_preflight(a,indices):
              "XP_F8_LEGACY_NATIVE_HYDRA_PREFLIGHT_PASS" in p.stdout,
              f"HYDRA_PREFLIGHT_INDEX_{i}: "+p.stdout[-350:]+p.stderr[-350:])
         print(p.stdout.strip(),flush=True)
+def foreign_track_r_pid(card,owned=()):
+    """Don't place a second Track R worker on a known occupied GPU."""
+    known=set(int(x) for x in owned)
+    tagged=[]
+    for pid in card.process_pids:
+        if pid in known:continue
+        try:
+            cmd=(Path("/proc")/str(pid)/"cmdline").read_bytes().lower()
+        except (OSError,PermissionError):
+            continue
+        if any(tag in cmd for tag in
+               (b"prdiff",b"track_r",b"xp_f8",b"xp_a",b"xp_t",
+                b"legacy_daps400x5",b"daps4k")):
+            tagged.append(pid)
+    return tagged
+
 def sample(cards,log,active):
     doc=dict(utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
              gpu_inventory=[dataclasses.asdict(c) for c in cards],
@@ -132,8 +148,10 @@ def run(a,root,used,replayed):
                 if not failed:
                     occupied={v["gpu"] for v in active.values()}
                     while pending and len(active)<4:
+                        owned_pids=[v["proc"].pid for v in active.values()]
                         available=[c for c in cards
-                            if c.index not in occupied and c.visibility=="known"]
+                            if c.index not in occupied and c.visibility=="known"
+                            and not foreign_track_r_pid(c,owned_pids)]
                         gpu,reasons=choose_gpu(
                             available,REQUIRED_MIB,
                             safety_margin_mib=MARGIN_MIB,fraction=.80,
