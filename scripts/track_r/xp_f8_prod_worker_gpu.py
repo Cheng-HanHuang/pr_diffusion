@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 from PIL import Image
 from scripts.track_r.xp_f8_legacy_preflight_cpu import (
  ROOT,BASE,WT,ORIG_DAPS,DAPS_HEAD,MODEL,MODEL_SHA,A10_DEADLINE,
- git,sha,read_json,fail)
+ git,sha,read_json,fail,PATCHED_SAMPLER_BLOB)
 from scripts.track_r.xp_f8_legacy_replay_gpu import (
  DAPS_PY,TRACE_SOURCE,native_command,env,check_cfg)
 def load(a):
@@ -41,6 +41,7 @@ def load(a):
     fail(sha(r["measurement_path"])==r["measurement_sha256"],
          "MEASUREMENT_SHA")
     fail(git(ORIG_DAPS,"rev-parse","HEAD")==DAPS_HEAD
+         and git(ORIG_DAPS,"hash-object","sampler.py")==PATCHED_SAMPLER_BLOB
          and sha(MODEL)==MODEL_SHA,"NATIVE_CODE_OR_CHECKPOINT")
     fail(datetime.datetime.now(ZoneInfo("America/Detroit"))<A10_DEADLINE,
          "A10_DEADLINE")
