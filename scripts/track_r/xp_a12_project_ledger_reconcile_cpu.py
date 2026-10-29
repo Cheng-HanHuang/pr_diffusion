@@ -25,7 +25,7 @@ MAIN=[
  ("XP_A6","xp_a6_20261027T165112Z/XP_A6_CONTROLLER_STATE.json","gpu_hours",1),
  ("A10_B16_REPLAY_F8","xp_f8_prod_20261029T071352Z/XP_F8_PROD_LAST_STATUS.json","A10_total_gpu_h",1),
  ("A10_FAILED_B16_GATE_1","xp_a10_b16_gate_20261028T104128Z/B16_GATE_STATE.json","spent_gpu_seconds",3600),
- ("A10_FAILED_B16_GATE_2","xp_a10_b16_gate_20261028T104836Z/B16_GATE_STATE.json","spent_gpu_seconds",3600),
+ ("A10_FAILED_B16_GATE_2","XP_A12_LEGACY_B16_GATE_104836_CONSERVATIVE_CHARGE.json","charged_gpu_h_upper_bound",1),
 ]
 OPTIONAL=[
  ("XP_FAST_REPLAY","xp_fast_replay_20261026T203415Z/XP_FAST_REPLAY_TIMING.json","gpu_hours",1)
@@ -65,31 +65,34 @@ def one(stage,relative,key,scale):
          "NONFINITE_GPU_TIME_"+stage)
     gpu_h=float(value)/scale
     status=doc.get("status",doc.get("state"))
-    # Historical 104836 gate can retain RUNNING after its controller's
-    # final save() when a post-child check raises and active == [].
-    # Its charged seconds are only admissible with an empty active list
-    # AND an unlocked, exclusively obtainable controller lock. This
-    # proves no controller remains to accrue another GPU interval.
-    # Any other nonterminal state remains a hard STOP.
-    if status in ("RUNNING","STARTED","IN_PROGRESS"):
-        gate(stage=="A10_FAILED_B16_GATE_2" and
-             doc.get("active")==[],
-             "NONTERMINAL_SOURCE_"+stage+"_STATUS_"+str(status))
-        lock=path.parent/"B16_GATE_CONTROLLER.lock"
-        gate(lock.is_file(),"HIST_CONTROLLER_LOCK_MISSING")
-        with lock.open("a+") as handle:
-            try:
-                fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
-            except BlockingIOError:
-                gate(False,"HIST_CONTROLLER_STILL_OWNED")
-            else:
-                fcntl.flock(handle,fcntl.LOCK_UN)
+    # An incomplete RUNNING snapshot is never a terminal cost.
+    # The correction for this particular stale worker deliberately
+    # upper-bills ALL time from its launch to a contemporaneous
+    # confirmed-dead PID audit, rather than claiming exact death time.
+    gate(status not in ("RUNNING","STARTED","IN_PROGRESS"),
+         "NONTERMINAL_SOURCE_"+stage+"_STATUS_"+str(status))
+    if stage=="A10_FAILED_B16_GATE_2":
+        gate(doc.get("status")==
+             "XP_A12_LEGACY_GATE_CONSERVATIVE_UPPER_BOUND_PASS" and
+             doc.get("billing_is_upper_bound") is True and
+             doc.get("exact_gpu_time_known") is False and
+             doc.get("project_cap_safety_eligible") is True and
+             doc.get("original_state_sha256")==
+               "2d8cf00361688852aae2216115adc9491203970dffbac8a2565ba2facc975527" and
+             doc.get("original_events_sha256")==
+               "1da54503b4b94f65103e98e943cd02ee796015033368fdd2227ae1d2567a7ad0" and
+             0<doc.get("actual_gpu_h_lower_bound",-1)<=gpu_h and
+             doc.get("charged_gpu_h_upper_bound")==gpu_h and
+             doc.get("uncertain_worker_pid")==1057433,
+             "CONSERVATIVE_HISTORICAL_GATE_ACCOUNTING")
     return dict(stage=stage,gpu_h=gpu_h,
        source_receipt_path=str(path),source_receipt_sha256=sha(path),
        source_field=key,source_value=value,
        original_status=status,
-       source_mode=("controller_exited_active_empty_lock_released"
-                    if status in ("RUNNING","STARTED","IN_PROGRESS")
+       exact_gpu_time_known=(stage!="A10_FAILED_B16_GATE_2"),
+       billed_upper_bound=(stage=="A10_FAILED_B16_GATE_2"),
+       source_mode=("conservative_occupied_time_upper_bound_PID_dead_audit"
+                    if stage=="A10_FAILED_B16_GATE_2"
                     else "one_final_per_disjoint_stage"))
 def time_sources():
     stages=[one(*item) for item in MAIN]
@@ -170,8 +173,12 @@ def main(a):
          project_total+A12_CAP<=PROJECT_CAP,"PROJECT_CAP_HEADROOM")
     document=dict(status="XP_A12_CUMULATIVE_PROJECT_LEDGER_VERIFIED",
       has_every_stage_since_XP0=True,
-      source_completeness="XP0-to-A10 with isolated A10 failed gates",
-      verification="SHA256 per source; no overlapping B16 stage snapshots or F8 child receipts",
+      source_completeness="XP0-to-A10 including explicitly upper-billed nonterminal failed gate",
+      verification="SHA256 per source; one uncertain worker charged conservatively until PID-dead audit; no overlapping B16 stage snapshots or F8 child receipts",
+      gpu_hour_total_type="CONSERVATIVE_PROJECT_CAP_BILLING_UPPER_BOUND_NOT_EXACT_MEASURED_TOTAL",
+      nonexact_stages=[x["stage"] for x in stages
+                       if x.get("billed_upper_bound")],
+      project_reported_total_is_conservative_upper_bound=True,
       project_cap_gpu_h=PROJECT_CAP,
       A12_campaign_base_gpu_h=A10_EXPECTED,
       A12_campaign_ceiling_gpu_h=A12_CAP,
