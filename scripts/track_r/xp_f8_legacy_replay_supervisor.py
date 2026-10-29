@@ -58,9 +58,30 @@ def ensure_wave(a):
              "WAVE1_OFFLINE_NOT_PASSED")
         fail(not (root/"XP_F8_LEGACY_REPLAY_WAVE2.json").exists(),
              "WAVE2_ALREADY_DONE")
-    existing=root.glob("replay_*/XP_F8_LEGACY_REPLAY_NATIVE_ROOT.json")
-    replay_gpu_h=sum(read_json(p)["native_wall_seconds"] for p in existing)/3600
+    # Campaign-global immutable GPU-hour ledger, including FAILED waves.
+    # A new replay directory must not reset the spent budget. Historical
+    # B16 accounting already includes its gate and new-root workers.
+    # Each replay controller writes one non-overlapping final wave receipt.
+    replay_gpu_h=0.
+    counted=[]
+    for item in sorted(BASE.glob(
+          "xp_f8_legacy_replay_*/XP_F8_LEGACY_REPLAY_WAVE[12].json")):
+        doc=read_json(item)
+        hours=doc.get("incremental_gpu_h")
+        fail(doc.get("wave") in (1,2)
+             and doc.get("native_400x5") is True
+             and isinstance(hours,(float,int))
+             and 0<=float(hours)<70,
+             "INVALID_PRIOR_REPLAY_ACCOUNTING_"+item.name)
+        replay_gpu_h+=float(hours)
+        counted.append(dict(path=str(item),gpu_hours=float(hours)))
     fail(gpu_h+replay_gpu_h<70,"A10_SHARED_REPLAY_BUDGET")
+    print("SHARED_A10_GPUH_LEDGER",json.dumps(dict(
+         B16_gpu_h=round(gpu_h,6),
+         prior_DAPS_replay_gpu_h=round(replay_gpu_h,6),
+         total_gpu_h=round(gpu_h+replay_gpu_h,6),
+         remaining_gpu_h=round(70-gpu_h-replay_gpu_h,6),
+         replay_receipts=counted),sort_keys=True),flush=True)
     return root,gpu_h,replay_gpu_h
 def frozen_preflight(a,indices):
     # One full native Hydra import per wave, using a representative B22
