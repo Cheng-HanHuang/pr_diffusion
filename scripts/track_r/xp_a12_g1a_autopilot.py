@@ -215,6 +215,7 @@ def stage_loop(a,run,prep,receipt,refs,stage,state):
     jobs=workers() if stage=="replay" else production()
     complete=state["done_"+stage]
     active={}
+    fatal_replay_failure=False
     def store(status):
         state["status"]=status
         state["active"]=[dict(stage=job["stage"],index=job["index"],
@@ -255,15 +256,22 @@ def stage_loop(a,run,prep,receipt,refs,stage,state):
                     state["failures"].append(dict(stage=stage,index=index,
                          attempt=job["attempt"],why=str(exc)))
                     if stage=="replay":
-                        store("STOP_A12_HISTORICAL_REPLAY_MISMATCH")
-                        raise
+                        # Stop only our remaining replay worker; account
+                        # its elapsed GPU-hours before returning a STOP.
+                        fatal_replay_failure=True
+                        for other_job,other_v in active.values():
+                            if other_v["proc"].poll() is None:
+                                try:os.killpg(other_v["proc"].pid,signal.SIGTERM)
+                                except ProcessLookupError:pass
             else:
                 state["failures"].append(dict(stage=stage,index=index,
                   attempt=job["attempt"],why="worker_exit_"+str(ret)))
                 emit(run,"CHUNK_NONZERO",stage=stage,index=index,
                      attempt=job["attempt"],rc=ret,log=str(v["log"]))
             store("XP_A12_G1A_"+stage.upper()+"_RUNNING")
-        if STOP or (run/"STOP_G1A").exists():
+        if fatal_replay_failure:
+            reason="HISTORICAL_REPLAY_MISMATCH"
+        elif STOP or (run/"STOP_G1A").exists():
             reason="OPERATOR_STOP"
         elif datetime.datetime.now(ZoneInfo("America/Detroit"))>=DEADLINE:
             reason="STAGE_DEADLINE"
