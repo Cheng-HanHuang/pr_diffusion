@@ -21,7 +21,7 @@ from scripts.track_r.xp_t_daps4k_prepare_cpu import (
     verify_clean_sparse as verify_native_daps)
 def check(a):
  run=Path(a.run)
- gate(run.parent==BASE and run.name.startswith("xp_a12_g3_prod_")
+ gate(run.parent==BASE and run.name.startswith(("xp_a12_g3_prod_","xp_a12_campaign_prod_"))
       and run.is_dir() and not run.is_symlink(),"RUN_ROOT")
  wt=Path(__file__).resolve().parents[2]
  git=lambda *q:subprocess.check_output(["git","-C",str(wt),*q],
