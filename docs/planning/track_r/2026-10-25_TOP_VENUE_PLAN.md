@@ -1,6 +1,6 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
 
-> **Eleventh update, 2026-10-29, 16:15 ET** (the newest; read it first).
+> **Eleventh update, 2026-10-29, 16:05 ET** (the newest; read it first).
 > - **First held-out protocol results.** (1) ImageNet FAST, D1-P2: reproduced bit-identically by the planner. (2) SITCOM, B16: planner run; the executor's commit is pending.
 >   - **H1 holds on both:** +0.3 and −0.4 points at equal compute.
 >   - **H4 holds:** +12.9 points.
@@ -9,7 +9,7 @@
 >   - **H2** (DAPS gains ≥ 2 points and more than the others) is the remaining test that decides whether the protocol has a regime where it beats fixed K out of sample. F8 is generated; CP1 scores it.
 > - **Third prospective test (SITCOM B16): the race forecast holds at all 18 selection points; S2 covers 2.** E1 at K = 16 reaches 91.1% against the 92.2% orbit oracle. Across ImageNet and SITCOM: race 24/24 selection points, S2 2/24. The FAST-informed v3 did worse than v1 (17/36 vs 31/36).
 >   - **Reading.** "Selection is predictable" is now the paper's strongest claim; the protocol's compute claim is weaker out of sample than in development.
-> - **v4** (16-run ImageNet forecast for XP-D4) is in production. The planner QA found the tail variant would take more than 6 h and committed a cache to the theory branch that is bit-identical by test (`629b1fc`). Registration follows.
+> - **v4 registered** (theory `149331c`, SHA `b0ff25bc…`, frozen 20:02:30Z). The planner QA found the tail variant would take more than 6 h, and committed a cache to the theory branch that is bit-identical by test (`629b1fc`). Race forecast at K = 32: E1 0.638, O_orbit 0.840. **XP-D4 is unsealed;** it is scored at CP2.
 > - **Prereg A13: autopilot charter** (Cheng). The executor runs the whole A12 queue G1a→G7 without gaps, then a pre-authorized tail (XP-K, then XP-I2; cap 60 GPU-h). It decides infrastructure matters itself, unseals XP-D4 from the registry by itself, and returns only at four checkpoints (CP1–CP3 by Nov 5, CP4 by Nov 15) or on five stop conditions. B32, XP-H, XP-G2 and XP-J are cancelled for this paper. A12 accounting is corrected: A10's 55.55 GPU-h is not charged to A12's 150.
 > - **Publication image.** The paper's spine is now: GT-free selection is near the oracle and predictable (three prospective tests); unsolved images are the limit; a protocol that is never worse than fixed K and is better only where consistency predicts correctness (pending DAPS). That is honest and coherent, but the method contribution is modest. If H2 fails, the protocol becomes a reporting recommendation rather than a method claim, and the venue odds shift toward TMLR/SPL.
 >

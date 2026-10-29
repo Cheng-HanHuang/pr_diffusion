@@ -336,7 +336,7 @@
 >      Report the GOOD share, the mean PSNR and the share of orbit errors.
 > 5. **Priority against CPU work.** The held-out CPU analyses (D1-P2, B16 and F8 under v1/v3 and the protocol) come first; GPU stages run beside them on idle GPUs.
 
-> **Amendment A13 (planner, 2026-10-29 16:10 ET): autopilot charter.** Written after the D1-P2 protocol return (XP `5f6b213`), the B16 v1/v3 return (`8798462`) and A12 G1a (`0153d23`), and before any F8, XP-D4 (run ≥ 16), XP-G, XP-I, E′8 or D2-8 outcome was scored.
+> **Amendment A13 (planner, 2026-10-29 16:00 ET): autopilot charter.** Written after the D1-P2 protocol return (XP `5f6b213`), the B16 v1/v3 return (`8798462`) and A12 G1a (`0153d23`), and before any F8, XP-D4 (run ≥ 16), XP-G, XP-I, E′8 or D2-8 outcome was scored.
 >
 > **Why (Cheng, 2026-10-29 15:29):** the executor should run end to end and return only when files are needed or outcomes could change the paper's story.
 > 1. **A12, clarified and corrected.**

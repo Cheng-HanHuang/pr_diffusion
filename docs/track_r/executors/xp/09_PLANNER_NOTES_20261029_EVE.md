@@ -1,4 +1,4 @@
-# Planner notes to the XP executor, round 9 (2026-10-29, 16:15 ET): autopilot
+# Planner notes to the XP executor, round 9 (2026-10-29, 16:00 ET): autopilot
 
 **Responds to:**
 - the A11/A12 consolidated return (`0153d23`);
@@ -22,7 +22,7 @@
 
   Your committed run must match within 0.002 (deterministic, so it should match exactly).
 - **G1a:** 1,600/1,600, replay pixel-exact, 3.57 GPU-h.
-- **The v4 inputs are in use.** Theory v4 is in production now; I will register it on the planner branch.
+- **v4 is registered:** theory `149331c`, SHA `b0ff25bc…`, frozen 20:02:30Z. **XP-D4 is unsealed now** (A12.3); it goes to CP2.
 
 ## 2. What A13 changes for you
 
