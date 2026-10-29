@@ -1,0 +1,32 @@
+% Theory-owned SUGGESTED main-text insertion ONLY; not merged into paper Sec. 4.
+% Frozen GT-free protocol c598176; M=2; all statements conditional on image.
+\begin{proposition}[Truncated consistency stopping]
+\label{prop:gtfree-stop}
+Let independent runs pass the frozen threshold with probability $s$, and
+stop at the second passing run or after $N$ runs. Set $r=1-s$.
+Then the expected compute and consistency-failure flag probability are
+\begin{equation}
+\label{eq:protocol-stop-compute}
+\mathbb E T=\frac{2-Nr^{N-1}+(N-2)r^N}{s},\qquad
+\Pr(\textsc{flag}_C)=r^N,
+\end{equation}
+where $\mathbb ET=N$ at $s=0$. Let $H_j^+$ be the probability that
+residual-minimum selection followed by the frozen orientation test
+succeeds among $j$ runs conditioned on passing, and let $H_N^-$
+be the analogous probability among $N$ nonpassing runs.
+Then the protocol's success probability is
+\begin{equation}
+\label{eq:protocol-stop-success}
+\Pr(\mathrm{success})=
+(1-r^N-Nsr^{N-1})H_2^++Nsr^{N-1}H_1^++r^NH_N^-.
+\end{equation}
+\end{proposition}
+The terms depend on whether threshold consistency separates correct
+from wrong candidates; no ordering advantage follows from $s$ alone.
+The first $M$ passing reconstructions are iid under the conditional
+passing law, independently of their waiting times. A fixed-$k$ method
+instead sees a binomially varying number of passing candidates. Hence
+adaptive stopping can save runs on high-$s$ images, but can also lose
+when it exhausts its budget on low-$s$, unsolvable images. The
+supplement gives an exact equal-budget comparison and a counterexample;
+there is no universal domination theorem.

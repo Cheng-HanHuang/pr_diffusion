@@ -1,0 +1,166 @@
+% Theory-owned Supplement S1 DRAFT; no merge into paper files before planner approval.
+\section{Theory of the frozen GT-free stopping protocol}
+\label{sec:suppl-protocol-theory}
+
+\paragraph{Marked candidate law.}
+Condition on an image, its measurement, and the solver. Each independent
+candidate has a class $J\in\{G,O_g,O_p,C,I\}$, residual
+$R=\|\mathcal A(\hat x)-y\|/\sqrt m$, threshold-pass indicator
+$V={\bf1}\{R\le\tau_S\}$, and an orientation-corrected success mark $A$.
+With per-class probabilities $\theta_j$ and threshold-pass rates
+$v_j=\Pr(V=1\mid J=j)$,
+\[
+ s=\Pr(V=1)=\sum_j\theta_jv_j,\qquad r=1-s.
+\]
+Crucially, $v_G\simeq0.95$ when $\tau_S$ is the empirical $95$th
+percentile of GOOD residuals on a matched calibration distribution.
+Transferred thresholds (ImageNet FAST) need not have the same class-pass
+rates. The relative class race weights fitted from unconditional
+residual ranks do not themselves determine $v_j$.
+
+\paragraph{Exact waiting-time law.}
+Let $T_M$ be the index of the $M$th passing candidate and
+$T=\min(T_M,N)$, with $N=N_{\max}$. For $M\le t<N$,
+\[
+ \Pr(T=t)=\binom{t-1}{M-1}s^M r^{t-M},\quad
+ \Pr(T=N)=\Pr\{\operatorname{Bin}(N-1,s)<M\}.
+\]
+By the tail-sum formula,
+\begin{equation}\label{eq:stop-general}
+ \mathbb E T=\sum_{t=0}^{N-1}\sum_{j=0}^{\min(t,M-1)}
+ \binom tj s^j r^{t-j},\quad
+ \Pr(\textsc{flag}_C)=r^N.
+\end{equation}
+For $M=2$ this is exactly
+\begin{equation}\label{eq:stop-M2}
+ \mathbb ET=\begin{cases}
+ [2-Nr^{N-1}+(N-2)r^N]/s,&s>0,\\
+ N,&s=0.
+ \end{cases}
+\end{equation}
+The event $\textsc{flag}_C$ means $\operatorname{Bin}(N,s)=0$;
+it is \emph{not} the event $\operatorname{Bin}(N,s)<M$.
+
+\paragraph{Success after stopping.}
+Write $H_j^+$ for the probability that the residual minimum of $j$
+independent candidates conditional on passing is successful after the
+frozen orientation step; define $H_j^-$ similarly for nonpassing
+candidates. A passing residual is no larger than any nonpassing one.
+The ordered sequence of the first $M$ passing marks is iid under the
+conditional passing law and independent of the waiting time, so
+\begin{equation}\label{eq:stop-success-general}
+ S_{M,N}=\Pr\{\operatorname{Bin}(N,s)\ge M\}H_M^+
+ +\sum_{j=1}^{M-1}\binom Nj s^j r^{N-j}H_j^+ +r^N H_N^-.
+\end{equation}
+The deployed $M=2$ policy consequently has
+\begin{equation}\label{eq:stop-success-M2}
+ S_{2,N}=(1-r^N-Nsr^{N-1})H_2^+
+             +Nsr^{N-1}H_1^++r^NH_N^-.
+\end{equation}
+The nonpassing term need not vanish: an approximately $5\%$ tail of
+GOOD candidates may be rejected by the frozen threshold. For fixed
+best-of-$k$, by contrast,
+\begin{equation}\label{eq:fixed-success-M2}
+ F(k)=\sum_{j=1}^k\binom kj s^j r^{k-j}H_j^++r^kH_k^-.
+\end{equation}
+The frozen protocol interpolates $F(k)$ \emph{linearly} between adjacent
+integers at $\bar K=\mathbb E_{\mathrm{images}}\mathbb E T_i$;
+replacing that interpolation by $F(\bar K)$ from an exponentiated
+formula would change the preregistered comparator.
+
+For the class-based model with densities $f_j(t)$ of physical residual
+and conditional orientation success $a_j(t)$, the passing-race success
+term is the exact competing-risk integral
+\begin{equation}\label{eq:conditional-pass-race}
+ H_m^+=\frac{m}{s^m}\sum_j\int_0^{\tau_S}
+ a_j(t)\theta_j f_j(t)
+ \Bigl(\sum_{\ell}\theta_\ell
+ [F_\ell(\tau_S)-F_\ell(t)]\Bigr)^{m-1}\,dt.
+\end{equation}
+For zero passing candidates, $H_n^-$ has the same formula with
+integration from $\tau_S$ to $\infty$ and survival probability
+$\sum_\ell\theta_\ell[1-F_\ell(t)]$, normalized by $r^n$.
+Equation~\eqref{eq:conditional-pass-race} is exact under continuous
+residuals; using a conditional exponential race with rates $w_j^+$
+instead is an \emph{additional} surrogate assumption. The previously
+frozen class-race weights $w_j$ were fitted to unconditional ranks
+and do not identify the truncated residual law or the class-pass rates.
+
+\paragraph{FLAG_C as a diagnostic.}
+Let $q=\Pr(J\in\{G,O_g,O_p\})$ and
+$t=\Pr(V=0,J\notin\{G,O_g,O_p\})$.
+Using the full independent $N$-candidate panel to define the event
+that no orbit-GOOD reconstruction exists,
+\[
+ \Pr(\textsc{flag}_C,\text{unsolved})=t^N,\qquad
+ \Pr(\text{unsolved})=(1-q)^N.
+\]
+Hence the within-image precision and recall of this diagnostic are
+$(t/r)^N$ and $(t/(1-q))^N$, respectively, when denominators are
+positive. Heterogeneous-image precision is a ratio of expected counts,
+not the mean of per-image precisions. These population calculations
+are not certificates of individual reconstruction failure.
+
+\paragraph{Equal-budget comparison: sufficient condition and limitation.}
+Stochastic coupling shows that $\mathbb ET(s)$ is nonincreasing in
+$s$. Therefore $\operatorname{Cov}(s,\mathbb ET(s))\le0$ in a
+heterogeneous image population: the rule allocates more attempts to
+images that pass the threshold less frequently. This redistribution
+\emph{does not guarantee} a success advantage, since those images may
+be unsolvable or the residual race may improve after more than $M$
+passing candidates. If a nonpassing candidate can never be GOOD,
+set $H_{\min,i}=\min_{1\le j\le M}H_{i,j}^+$ and
+$H_{\max,i}=\max_{1\le j\le\lceil\bar K\rceil}H_{i,j}^+$.
+Then a conservative sufficient condition for stopping to beat fixed
+best-of-$K$ at the same $\bar K$ is
+\begin{equation}\label{eq:stop-sufficient}
+ \sum_i H_{\min,i}(1-r_i^N)\ge
+ \sum_i H_{\max,i}\Bigl[1-(1-a)r_i^k-a r_i^{k+1}\Bigr],
+\end{equation}
+where $k=\lfloor\bar K\rfloor$, $a=\bar K-k$.
+Indeed the left side is a lower bound on protocol success by
+\eqref{eq:stop-success-general}, and the right side is an upper bound
+on the linearly interpolated fixed-policy success by
+\eqref{eq:fixed-success-M2}.
+
+Heterogeneity alone cannot imply domination. Take two equally likely
+image types, $N=16,M=2$: the first has $s=.02$ but every passing
+candidate is a wrong C; the second has $s=.90$ with half its passing
+candidates GOOD and half wrong C. In the second image's within-pass
+Plackett--Luce race take $(w_G,w_C)=(1,.1)$; all other candidates are
+nonpassing and wrong. Exact evaluation gives
+$\mathbb ET=(15.8031,2.2222)$, so $\bar K=9.01267$, but mean protocol
+success is $0.35227$ versus fixed-interpolated success $0.44263$.
+The rule thus loses by $9.04$ percentage points despite strongly
+heterogeneous pass rates. The claim in the main text must therefore
+be conditional: stopping helps \emph{when consistency is informative
+and marginal extra attempts on low-$s$ images remain useful}.
+
+\paragraph{Dependence on CONSISTENT failures.}
+In a reduced G/C/I model set
+$\Pr(G)=p$, $\Pr(C)=(1-p)\alpha$,
+$\Pr(I)=(1-p)(1-\alpha)$. Assume every G and C passes and every I
+fails, so the share of failed candidates that are CONSISTENT is
+$\alpha=c/(c+u)$. Then
+$s=p+c=1-u$, and the GOOD fraction among passing candidates is
+$\gamma=p/(p+c)$. Under exchangeable residual ranks within the
+passing group, $H_j^+=\gamma$ for all $j\ge1$ and $H_j^-=0$.
+Thus
+\begin{equation}\label{eq:protocol-consistent-share}
+ S_{2,N}=\gamma(1-u^N),\qquad
+ F(k)=\gamma(1-u^k),\qquad
+ \mathrm{Gain}(\alpha)=\gamma\bigl[(1-a)u^k+a u^{k+1}-u^N\bigr],
+\end{equation}
+with $k=\lfloor\bar K(\alpha)\rfloor$, $a=\bar K(\alpha)-k$,
+and $\bar K(\alpha)$ from~\eqref{eq:stop-M2}.
+This nonnegative gain tends to zero as $\alpha\uparrow1$, since
+$s\uparrow1$, $\bar K\downarrow M$, and both policies use exactly
+$M$ passes in the limit. The same zero-limit holds with a general
+within-pass class race, although its intermediate gain need not be
+nonnegative. With the actual $v_G\simeq.95$ rather than 1,
+$\alpha\uparrow1$ \emph{alone} does not force $s\uparrow1$;
+the limit statement requires the simplified all-G-pass model or an
+explicit $s\to1$ hypothesis.
+
+% Synthetic regression: scripts/track_r/theory/test_stop_at_m_theory.py
+% Not a forecast for D1-P2/B16/F8 and not a claim of a universal gain theorem.

@@ -1,0 +1,140 @@
+% Theory-owned Supplement S3 DRAFT; does NOT overwrite paper/5_selection.tex.
+% Read together with S1 stop-time theory and registered v1/v2/v2-E1/v3 files.
+\section{Residual selection, finite-panel estimators, and generation non-identifiability}
+\label{sec:suppl-selection}
+
+\paragraph{Class-conditional rank race.}
+For one fixed image and solver, let $J\in\{G,O_g,O_p,C,I\}$
+label a candidate with probabilities
+$\theta=(p,o_g,o_p,c,u)$, and define $q=p+o_g+o_p$ and $s=q+c$.
+The exchangeable-ranks reference assumes that, among candidates not
+labeled I, residual rank does not favor a class. The observed first
+2--4 runs contradict that calibration assumption: in the authorized
+three-family A8 sample (1,960 reconstructions), GOOD outranks C in
+200/205 paired within-image comparisons; for the 100 mixed-passing
+image--solver records E0 selects GOOD 92 times, against 51.92 expected
+under the exchangeable reference. The pair comparisons are dependent
+and must not be treated as independent Binomial trials.
+
+A conditional exponential-race \emph{surrogate for rank}, not a
+physical-unit likelihood of the Fourier residual, assigns
+$T\mid J=j\sim\operatorname{Exp}(w_j)$, independently across
+runs, with $w_G=1$ and usually $w_I=0$. For a positive-rate class $j$,
+\begin{equation}\label{eq:suppl-race-integral}
+ W_j(K)=K\theta_j\int_0^\infty w_j e^{-w_jt}
+ \Bigl(\sum_{\ell}\theta_\ell e^{-w_\ell t}\Bigr)^{K-1}dt.
+\end{equation}
+Conditioning on fixed class counts $N_j$ gives the competing-risks
+identity
+\[
+ \Pr(\operatorname*{argmin}T\text{ has class }j\mid N)
+ =\frac{N_jw_j}{\sum_{\ell}N_\ell w_\ell}
+\]
+whenever the denominator is positive. If the denominator is zero, a
+predeclared tie convention is required. Passing to $K\to\infty$ at
+fixed $\theta$ yields the selection ceiling
+\[
+ \lim_{K\to\infty}W_G(K)=
+ \frac{p w_G}{p w_G+o_gw_O+o_pw_P+cw_C},
+\]
+provided the denominator is positive, instead of the reference
+$p/s$. No generic monotonicity theorem applies to the oracle-minus-
+selector gap under this race. Already with $p_G=p_{\rm bad}=1/2$ and
+$(w_G,w_{\rm bad})=(1,.03)$, the gap obeys
+$D_6=0.0386195271>D_7=0.0385396532$ and approaches
+$D_\infty=0.0291262136$. The ordinary exponential race identity
+and its asymptotics are classical; the solver-specific calibration
+and prospective test constitute the present analysis.
+
+\paragraph{Exact finite-panel and fixed-prefix estimands.}
+Let the completed panel have $n$ runs in increasing physical-residual
+rank order, with rank $r=1$ best. Uniformly choosing a $K$-subset
+selects the candidate at rank $r$ with weight
+\begin{equation}\label{eq:suppl-subset-weight}
+ \omega_r(n,K)=\frac{\binom{n-r}{K-1}}{\binom nK}.
+\end{equation}
+The $K$-subset policy success is its exact weighted sum over the
+candidate's actual GOOD label or orientation-corrected success
+indicator. For an oracle that accepts $g$ candidates among the $n$,
+\begin{equation}\label{eq:suppl-oracle-subset}
+ \widehat O(K)=1-\frac{\binom{n-g}{K}}{\binom nK}.
+\end{equation}
+These are complete U-statistics, not independent fresh-$K$ trials.
+The preregistered FFHQ/ImageNet forecasts hold original run indices
+0--1 or 0--3 fixed and simulate *only* the remainder of the panel,
+then evaluate the same finite-pool estimand. The additional optional
+protocol theory must likewise condition on the original residual
+threshold indicators and orientation decisions rather than assume
+fresh unconditional negative-binomial panels.
+
+\paragraph{Four-run count data do not identify a 64-run oracle.}
+Let $p\in[0,1]$ be a latent per-image probability of returning raw GOOD,
+and let its population mixing law be $\mu$. Four independent runs
+produce $J\mid p\sim\operatorname{Bin}(4,p)$, so
+\begin{equation}\label{eq:suppl-four-moments}
+ \Pr(J=j)=\binom4j\int p^j(1-p)^{4-j}\mu(dp).
+\end{equation}
+These five probabilities determine only moments through degree four.
+The following two measures are indistinguishable by *all* such
+four-run count probabilities:
+\[
+ \mu_A=\operatorname{Uniform}[0,1],\qquad
+ \mu_B=\frac19\delta_0+
+ \frac{16+\sqrt6}{36}\delta_{(6-\sqrt6)/10}+
+ \frac{16-\sqrt6}{36}\delta_{(6+\sqrt6)/10}.
+\]
+The classical three-node left-endpoint Gauss--Radau quadrature formula
+makes the first four moments agree exactly. Yet the population oracle
+$O_K=\int[1-(1-p)^K]\mu(dp)$ differs by
+$O^A_{64}-O^B_{64}=0.095726\ldots$ and the limiting ceilings
+differ by $1/9$. This is an *identification counterexample*, not a
+model fitted to the FFHQ cohort or a proof that particular real
+images have $p=0$.
+
+\paragraph{Data-specific continuum outer bounds.}
+An exploratory post-FAST64 calculation used only the historical A8
+four-run count histograms for FAST to constrain the **population**
+$O_{64}$. For each of the five count categories, take a marginal
+99\% two-sided Clopper--Pearson confidence interval
+$[L_j,U_j]$; Bonferroni yields simultaneous coverage at least 95\%
+under iid image sampling. Search all probability measures $\mu$ with
+\[
+ L_j\le\int\binom4j p^j(1-p)^{4-j}\mu(dp)\le U_j
+ \quad (j=0,\dots,4),\qquad \int\mu(dp)=1.
+\]
+With a grid of spacing $h=10^{-4}$, expand the count constraints by
+$2h$ using the derivative bound $\|B_{4,j}'\|_\infty\le4$, and
+expand the resulting minimum/maximum target by $32h$ using
+$\|(1-(1-p)^{64})'\|_\infty\le64$. This gives conservative
+\emph{continuum} outer enclosures, up to numerical solver tolerance,
+\[
+ O_{64}^{\mathrm{population}}\in
+ \begin{cases}
+ [0.8696,1],&\text{FFHQ cohort A (100 images)},\\
+ [0.6113,1],&\text{FFHQ enriched cohort B (80 images)}.
+ \end{cases}
+\]
+This bound is \emph{not} a confidence interval for the frozen
+fixed-image conditional-prefix statistic. The nominal frequentist
+coverage requires iid image sampling within the cohort; enrichment
+of cohort B requires an additional assumption, otherwise its
+interval is descriptive sensitivity. The LP was designed after
+seeing the FAST64 miss, notwithstanding its use of historical
+four-run counts only: it is not a preregistered prediction.
+
+\paragraph{Interpretation of the two prospective tests.}
+On FAST FFHQ, the preregistered E0 rank-race interval covered 6/21
+primary-panel points against 15/21 for the exchangeable-ranks
+reference, while both models overforecast the oracles. This is an
+\emph{unconditional generation failure}, not independent evidence
+in favor of exchangeable ranks: exploratory conditioning on the
+observed class composition gives pooled K=64 race E0 0.9526 vs
+0.9389 observed, while exchangeable ranks give 0.8773.
+On ImageNet D1, the separately preregistered orientation-corrected
+E1 addendum covered 6/6 checks for the race variants and 0/6 for
+S2. At K=16, E1 was 0.650 vs race 0.603 [0.520,0.682], but the
+orbit oracle was only 0.750 vs 0.859 forecast (outside its
+predictive interval). These are different decompositions and
+should be reported jointly: prediction of the deployed E1 output
+does not validate all of its generative components. Neither held-out
+experiment justifies retrospective refitting of its registered model.
