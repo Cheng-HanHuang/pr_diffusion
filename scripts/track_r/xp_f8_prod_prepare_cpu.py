@@ -142,6 +142,23 @@ def manifest_rows(meas):
                    measurement_sha256=m["measurement_sha256"],
                    uid="XP_F8_DAPS_"+cohort+"_"+iid+"_r"+str(rep),
                    annealing_steps=400,diffusion_steps=5))
+    # Schedule image-complete blocks in a pre-outcome deterministic
+    # SHA order, rather than doing all 600 B22 first. If A10's shared cap
+    # stops F8 early, both cohorts receive broad, unbiased ID coverage
+    # and each completed image has its FULL planned n=8 extension.
+    blocks=defaultdict(list)
+    for item in tasks:
+        blocks[(item["cohort"],item["image_id"])].append(item)
+    order=sorted(blocks,key=lambda k:hashlib.sha256(
+        ("XP_F8_SCHEDULE_IMAGE_BLOCK_V1|"+k[0]+"|"+k[1]).encode()
+    ).hexdigest())
+    tasks=[dict(item,index=i) for i,item in enumerate(
+           row for key in order for row in sorted(
+               blocks[key],key=lambda x:x["rep"]))]
+    fail(len(order)==180 and
+         all(len(blocks[key])==(6 if key[0]=="S1_b22" else 4)
+             for key in order),
+         "F8_SCHEDULE_BLOCK_COUNTS")
     fail(len(tasks)==920 and
          sum(t["cohort"]=="S1_b22" for t in tasks)==600 and
          sum(t["cohort"]=="S2_b24_dev80" for t in tasks)==320 and
@@ -174,6 +191,7 @@ def main():
     write_x(manifest,dict(schema="prdiff.track_r.xp_f8.native_prod.v1",
       status="XP_F8_PROD_MANIFEST_GT_FREE_FROZEN",head=args.expected_head,
       n_images=180,n_b22=600,n_dev80=320,n_total=920,
+      scheduling_rule="SHA256_XP_F8_SCHEDULE_IMAGE_BLOCK_V1_outcome_independent",
       no_GT_loaded=True,no_new_outcome_opened=True,
       no_historical_candidates_supplied_to_worker=True,
       historical_native_daps_head=DAPS_HEAD,
