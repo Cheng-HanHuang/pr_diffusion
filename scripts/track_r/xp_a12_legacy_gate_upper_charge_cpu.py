@@ -57,7 +57,10 @@ def main():
     gate(mtime>launch and mtime>=datetime.datetime.fromtimestamp(
          statep.stat().st_mtime,datetime.timezone.utc),"EVENT_LOG_CHRONOLOGY")
     gate(lockp.is_file(),"CONTROLLER_LOCK_MISSING")
-    with lockp.open("r") as h:
+    # Linux requires an fd open for writing to acquire LOCK_EX.
+    # a+ opens the EXISTING lockfile read/write without truncating or
+    # rewriting its historical contents. Never lock via read-only fd.
+    with lockp.open("a+") as h:
         try:
             fcntl.flock(h,fcntl.LOCK_EX|fcntl.LOCK_NB)
         except BlockingIOError:
