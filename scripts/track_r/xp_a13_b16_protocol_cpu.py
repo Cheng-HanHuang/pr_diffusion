@@ -7,7 +7,7 @@ their pre-registered SITCOM rho thresholds differ. Pooled result is
 before B16 outcomes; reproduction tolerance is 0.002.
 """
 from __future__ import annotations
-import argparse,hashlib,json,math,os,subprocess,sys,traceback
+import argparse,csv,hashlib,json,math,os,subprocess,sys,traceback
 from pathlib import Path
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 STRINGS=BASE/"xp_b16_v1_v3_score_20261029T160718Z/XP_B16_16RUN_STRINGS.csv"
@@ -46,6 +46,26 @@ def main(a):
  gate(out.parent==BASE and out.name.startswith("xp_a13_b16_protocol_")
       and not out.exists() and not out.is_symlink(),"FRESH_OUTPUT")
  out.mkdir(mode=0o700)
+ # The frozen protocol indexes CLIP rows by (image_id,run), not cohort.
+ # Filter each cohort's CLIP file BEFORE calling the frozen script so
+ # overlapping B22/DEV80 IDs cannot cross-contaminate selections.
+ clip_by_cohort={}
+ with CLIP.open(newline="") as f:
+  reader=csv.DictReader(f)
+  columns=reader.fieldnames
+  rows=list(reader)
+ gate(len(rows)==2880 and columns is not None and
+      set(x["cohort"] for x in rows)==set(COHORTS),"FULL_CLIP_GRID")
+ for cohort,(n,_) in COHORTS.items():
+  selected=[r for r in rows if r["cohort"]==cohort]
+  gate(len(selected)==n*16 and len({
+       (r["image_id"],int(r["run"])) for r in selected})==n*16,
+       "COHORT_CLIP_UNIQUE_"+cohort)
+  cut=out/("B16_FROZEN_CLIP_"+cohort+".csv")
+  with cut.open("x",newline="") as f:
+   writer=csv.DictWriter(f,fieldnames=columns)
+   writer.writeheader();writer.writerows(selected)
+  clip_by_cohort[cohort]=cut
  script=out/"gtfree_protocol_v1_original.py"
  with script.open("xb") as f:f.write(code)
  gate(sha(script)==SOURCE_SHA["protocol"],"FROZEN_SCRIPT_ROUNDTRIP")
@@ -63,7 +83,7 @@ def main(a):
         "--strings",str(STRINGS),"--cohort",cohort,
         "--m","2","--nmax","16","--R","4000",
         "--seed","20261029","--out",str(path)]
-   if clip:cmd+=["--clip",str(CLIP),
+   if clip:cmd+=["--clip",str(clip_by_cohort[cohort]),
          "--clip-good-col","f_chosen_good",
          "--clip-margin-col","f_margin"]
    if adaptive:cmd+=["--tau-rule","self_mad3"]
@@ -82,8 +102,8 @@ def main(a):
         and z["inputs"]["strings_sha256"]==SOURCE_SHA["strings"],
         "B16_PER_COHORT_PROTOCOL_"+name+"_"+cohort)
    if not adaptive:gate(abs(z["tau"]-tau)<1e-10,"FIXED_TAU")
-   if clip:gate(z["inputs"]["clip_sha256"]==SOURCE_SHA["clip"],
-                "CLIP_SHA")
+   if clip:gate(z["inputs"]["clip_sha256"]==sha(clip_by_cohort[cohort]),
+                "CLIP_COHORT_SHA")
    results[cohort]=z
   weighted={}
   common=set(results["B22"])&set(results["DEV80"])
@@ -96,8 +116,9 @@ def main(a):
   pooled=dict(status="XP_A13_B16_PROTOCOL_V1_POOLED_BY_IMAGES",
     variant=name,source_expected_head=a.expected_head,
     n_images=180,cohorts={c:dict(n=COHORTS[c][0],
-      tau=results[c]["tau"],out_sha256=sha(
-             out/f"B16_{name}_{c}.json")) for c in COHORTS},
+      tau=results[c]["tau"],
+      clip_cohort_sha256=sha(clip_by_cohort[c]) if clip else None,
+      out_sha256=sha(out/f"B16_{name}_{c}.json")) for c in COHORTS},
     weighted=weighted,
     frozen_code_sha256=SOURCE_SHA["protocol"],
     string_sha256=SOURCE_SHA["strings"],
