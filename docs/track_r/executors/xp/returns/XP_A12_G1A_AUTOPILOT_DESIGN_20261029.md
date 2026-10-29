@@ -28,3 +28,11 @@ After CPU tests, the launcher starts an isolated controller in tmux. The control
 **Caution:** G1a autopilot implementation committed, but its end-to-end launch is untested on PAC until the tests, inventory and ledger gate are completed.
 
 **Independent work:** D1-P2 first held-out protocol v1 succeeded: H1 PASS, H3 FAIL, H4 PASS; result JSON primary SHA256 `8dc1f5bad10e041b253addfee2a74868bc280c30822c4d289b427ba8480e11d3`. Its strings and per-candidate G1/G2 margins should be published to `xp/returns` and `theory_inputs` immediately for theory-v4 fitting.
+
+## Oct 29 PM: A10 failed B16 gate 104836 conservative repair
+
+Original B16 gate `xp_a10_b16_gate_20261028T104836Z` persisted a RUNNING state with one active PID (1057433) even though the lock is released, that PID no longer exists, and its native worker log subsequently records all four roots PASS. Recorded finished-worker time is 100.83540434669703 sec; exact process-exit time for PID 1057433 is unavailable. Original SHA256 state `2d8cf00361688852aae2216115adc9491203970dffbac8a2565ba2facc975527`; events `1da54503b4b94f65103e98e943cd02ee796015033368fdd2227ae1d2567a7ad0`.
+
+The CPU-only `xp_a12_legacy_gate_upper_charge_cpu.py` creates a **non-exact, conservative budget upper-bound**: it bills the recorded 100.835 seconds **plus the entire time from PID 1057433's recorded launch to a new PID-absent audit**. Exact actual use is known only to lie between the log's final PASS mtime and that audit. Its charge may exceed actual use by many hours. This is intentionally safe for the 400-GPU-hour project cap, **not suitable for reporting exact GPU utilization or runtime in the paper**. The reconciler requires this signed-off source receipt and declares the project total to be a `CONSERVATIVE_PROJECT_CAP_BILLING_UPPER_BOUND_NOT_EXACT_MEASURED_TOTAL`. Never change or rewrite the original B16 state.
+
+Before launching G1a run the full CPU suite and then the correction and `xp_a12_project_ledger_reconcile_cpu.py`. Any missing source or cross-check stops before GPU admission.
