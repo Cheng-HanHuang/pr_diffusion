@@ -273,10 +273,14 @@ def smoke_projection(run,stage,smoke,P,roots,stage_seconds):
  # stage_seconds already includes the two sampled workers, including
  # their model-load overhead. Do not count those roots twice.
  projected=stage_seconds+1.25*max(times)*remaining
+ reduced=False
+ if stage=="G3" and projected/3600>CAP[stage]:
+  projected=stage_seconds+1.25*max(times)*(100-2)
+  reduced=True
  gate(projected/3600<=CAP[stage],
       "STAGE_SMOKE_PROJECTS_OVER_CEILING_"+stage)
  return dict(smoke_native_seconds=times,projected_gpu_h=projected/3600,
-    comparison_ceiling_gpu_h=CAP[stage],
+    comparison_ceiling_gpu_h=CAP[stage],cohort_A_only=reduced,
     upper_estimate_multiplier=1.25,projection_pass=True)
 
 def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
@@ -424,6 +428,16 @@ def main(a):
     GT_not_read=True,D4_outcomes_not_opened=True)
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
   for stage in ("G2","G3","G4","G5"):
+   if stage=="G3" and "G3" not in jobs:
+    state["G3_status"]="CONDITIONAL_SOURCE_ABSENT_NOT_LAUNCHED"
+    emit(run,"G3_CODE_ABSENT_SKIP_PER_A12")
+    write(run/"XP_A12_G3_CODE_ABSENT_SKIP.json",dict(
+      status="XP_A12_G3_CONDITIONAL_CODE_ABSENT_NO_GPU",
+      reason="PCDAPS_NATIVE_SOURCE_NOT_CERTIFIED_OR_NOT_PREPARED",
+      do_not_claim_180_bags=True,
+      source="https://github.com/voilalab/PC-DAPS",
+      pinned_head="59b2f046"))
+    continue
    phase_lists=(jobs["G2_SIGMA_0.02"],jobs["G2_SIGMA_0.10"]) if stage=="G2" else (jobs[stage],)
    success=True
    for smoke,production in phase_lists:
@@ -439,6 +453,9 @@ def main(a):
       done=state["done"]
       estimate=smoke_projection(run,stage,smoke,P,roots,
              state["stage_seconds"][stage])
+      if stage=="G3" and estimate.get("cohort_A_only"):
+       production=[x for x in production if x["index"]<100]
+       state["G3_status"]="COHORT_A_REDUCTION_AUTHORIZED_BY_A12"
       emit(run,"STAGE_SMOKE_OR_REPLAY_PASS",stage=stage,
            completed=len(done),projection=estimate)
     if not success:break
