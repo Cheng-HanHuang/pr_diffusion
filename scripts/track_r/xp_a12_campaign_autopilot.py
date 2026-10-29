@@ -217,8 +217,10 @@ def smoke_projection(run,stage,smoke,P,roots,stage_seconds):
   gate(math.isfinite(t) and 0<t<1800,"SMOKE_TIMING_FINITE")
   times.append(t)
  gate(len(times)==2,"TWO_ROOT_TIMING_GATE")
- remaining=N[stage]-2
- projected=stage_seconds+sum(times)+1.25*max(times)*remaining
+ remaining=(1440 if stage=="G2" else N[stage])-2
+ # stage_seconds already includes the two sampled workers, including
+ # their model-load overhead. Do not count those roots twice.
+ projected=stage_seconds+1.25*max(times)*remaining
  gate(projected/3600<=CAP[stage],
       "STAGE_SMOKE_PROJECTS_OVER_CEILING_"+stage)
  return dict(smoke_native_seconds=times,projected_gpu_h=projected/3600,
