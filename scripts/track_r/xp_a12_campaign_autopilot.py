@@ -20,10 +20,10 @@ from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 ROOT_FAST_PY=ROOT/"conda-envs/fast_dips_a15_blackwell/bin/python"
 ROOT_DAPS_PY=ROOT/"conda-envs/daps/bin/python"
 G1A=BASE/"xp_a12_g1a_prod_20261029T180624Z/XP_A12_G1A_FINAL_STATUS.json"
-DEADLINE={"G2":(2026,11,3,12),"G3":(2026,11,3,12),"G4":(2026,11,4,12),"G5":(2026,11,4,12)}
-CAP={"G2":10.,"G3":45.,"G4":30.,"G5":40.}
-N={"G2":2880,"G3":180,"G4":720,"G5":400}
-RESERVE_MIB={"G2":8192,"G3":24576,"G4":12288,"G5":12288}
+DEADLINE={"G2":(2026,11,3,12),"G3":(2026,11,3,12),"G4":(2026,11,4,12),"G5":(2026,11,4,12),"G1b":(2026,11,4,12)}
+CAP={"G2":10.,"G3":45.,"G4":30.,"G5":40.,"G1b":40.}
+N={"G2":2880,"G3":180,"G4":720,"G5":400,"G1b":3200}
+RESERVE_MIB={"G2":8192,"G3":24576,"G4":12288,"G5":12288,"G1b":8192}
 A10=55.54578541457511
 CAMPAIGN_CAP=150.
 PROJECT_CAP=400.
@@ -76,7 +76,8 @@ def prepar(a):
       campaign<CAMPAIGN_CAP,"PROJECT_CAMPAIGN_CAP")
  P={}; roots={}
  for stage,p in (("G2",a.g2_prep),("G45",a.g45_prep))+(
-      (("G3",a.g3_prep),) if a.g3_prep else ()):
+      (("G3",a.g3_prep),) if a.g3_prep else ())+(
+      (("G1b",a.g1b_prep),) if a.g1b_prep else ()):
 
   q=Path(p)
   gate(q.parent==BASE and q.is_dir() and not q.is_symlink()
@@ -84,13 +85,15 @@ def prepar(a):
        "PREP_PATH_"+stage)
   fname={"G2":"XP_A12_G2_PREP_RECEIPT.json",
          "G3":"XP_A12_G3_PREP_RECEIPT.json",
-         "G45":"XP_A12_G45_PREP_RECEIPT.json"}[stage]
+         "G45":"XP_A12_G45_PREP_RECEIPT.json",
+         "G1b":"XP_A12_G1B_PREP_RECEIPT.json"}[stage]
   x=jread(q/fname)
   gate(x["head"]==a.expected_head and x["no_GPU"] is True
        and x["status"]=={
          "G2":"XP_A12_G2_INPUTS_FROZEN_CPU_PASS",
          "G3":"XP_A12_G3_CPU_PREP_PASS",
-         "G45":"XP_A12_G45_INPUTS_FROZEN_CPU_PASS"}[stage],
+         "G45":"XP_A12_G45_INPUTS_FROZEN_CPU_PASS",
+         "G1b":"XP_A12_G1B_CONDITIONAL_PREPARED_CPU_PASS"}[stage],
        "FROZEN_PREP_"+stage)
   P[stage]=x;roots[stage]=q
  gate(P["G2"]["n_roots"]==2880 and P["G45"]["n_new"]==1120,"GRID")
@@ -110,6 +113,12 @@ def task_set(roots,P):
   prod=[dict(stage="G2",kind="PROD",sig=sig,start=i,count=n)
         for i,n in [(1,7),(9,7)]+[(k,8) for k in range(16,1440,8)]]
   jobs["G2_SIGMA_"+sig]=(smoke,prod)
+ if "G1b" in P:
+  m=roots["G1b"]/"XP_A12_G1B_3200_TASKS.json"
+  gate(sha(m)==P["G1b"]["manifest_sha256"]
+       and len(jread(m)["rows"])==3200,"G1B_FROZEN_3200")
+  jobs["G1b"]=([],[dict(stage="G1b",kind="PROD",
+       start=i,count=32) for i in range(0,3200,32)])
  if "G3" in P:
   p=roots["G3"]/"XP_A12_G3_180_BAGS.json"
   gate(sha(p)==P["G3"]["manifest_sha256"]
@@ -134,6 +143,18 @@ def task_set(roots,P):
  return jobs
 def make_command(a,run,task,gpu,roots,P,attempt):
  stage=task["stage"];kind=task["kind"]
+ if stage=="G1b":
+  rec=P["G1b"]
+  manifest=roots["G1b"]/"XP_A12_G1B_3200_TASKS.json"
+  out=run/"G1b"/f"chunk_{task['start']:05d}_{task['count']:03d}"
+  cmd=[str(ROOT_FAST_PY),str(Path(__file__).with_name("xp_a12_campaign_fast_gpu.py")),
+    "--expected-head",a.expected_head,"--roots",str(manifest),
+    "--roots-sha",rec["manifest_sha256"],
+    "--roots-source-head",rec["head"],"--out",str(out),
+    "--start",str(task["start"]),"--count",str(task["count"]),
+    "--physical-gpu",str(gpu),"--dataset","imagenet",
+    "--oversample","2.0"]
+  return cmd,out,rec["manifest_sha256"],str(ROOT_FAST_PY)
  if stage=="G2":
   sig=task["sig"];rec=P["G2"]["per_sigma"][sig]
   out=run/"G2"/("sigma_"+sig)/f"chunk_{task['start']:05d}_{task['count']:03d}"
@@ -172,9 +193,10 @@ def make_command(a,run,task,gpu,roots,P,attempt):
    "--index",str(task["index"]),"--gpu",str(gpu)]
  return cmd,dest,rec["sha256"],str(ROOT_DAPS_PY)
 def verified(a,run,task,dest,source_sha,roots,P):
- if task["stage"]=="G2":
-  rec=P["G2"]["per_sigma"][task["sig"]]
-  mf=jread(rec["path"])
+ if task["stage"] in ("G2","G1b"):
+  rec=P["G2"]["per_sigma"][task["sig"]] if task["stage"]=="G2" else P["G1b"]
+  mf=jread(rec["path"]) if task["stage"]=="G2" else jread(
+       roots["G1b"]/"XP_A12_G1B_3200_TASKS.json")
   chunk=jread(dest/"R0_5_CHUNK_COMPLETE.json")
   gate(chunk["status"]=="R0_5_CHUNK_PASS"
        and chunk["head"]==a.expected_head
@@ -182,11 +204,11 @@ def verified(a,run,task,dest,source_sha,roots,P):
        and chunk["start"]==task["start"]
        and chunk["count"]==task["count"]
        and chunk["meta_sha256"]==sha(dest/"R0_5_CHUNK_META.json"),
-       "G2_NATIVE_CHUNK")
+       "FAST_NATIVE_CHUNK")
   for row in mf["rows"][task["start"]:task["start"]+task["count"]]:
    r=validate_complete(root_folder(dest,row),row,
          a.expected_head,source_sha)
-   gate(r["gt_access"] is False,"G2_NO_GT")
+   gate(r["gt_access"] is False,"A12_FAST_NO_GT")
   return sha(dest/"R0_5_CHUNK_COMPLETE.json")
  stage=task["stage"];phase=task["kind"]
  if stage=="G3":
@@ -413,7 +435,7 @@ def main(a):
  with (BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock").open("a+") as lk:
   fcntl.flock(lk,fcntl.LOCK_EX|fcntl.LOCK_NB)
   run.mkdir(mode=0o700)
-  for p in ("logs","cost","G2","G4","G5","roots","pycache"):
+  for p in ("logs","cost","G2","G4","G5","G1b","roots","pycache"):
    (run/p).mkdir()
   for sig in ("0.02","0.10"):(run/"G2"/("sigma_"+sig)).mkdir()
   for stage in ("G4","G5"):
@@ -468,6 +490,30 @@ def main(a):
      charged_gpu_h=state["stage_seconds"][stage]/3600,
      stage_cap_gpu_h=CAP[stage],head=a.expected_head,
      outcomes_GT_not_read=True))
+  # G1b may start only after all A12 G1a-G5 stages have LAUNCHED,
+  # including optional G3; no authority to silently skip G3.
+  # The projected G1b charge is based on G1a's measured 1600 roots,
+  # with a conservative 1.25 multiplier for 3200.
+  if ("G1b" in jobs and all(
+       state["stage_seconds"][stage]>0 for stage in ("G2","G3","G4","G5"))):
+   forecast=1.25*g1a["stage_gpu_h"]*2
+   used=sum(state["stage_seconds"].values())/3600
+   if (campaign0+used+forecast<=CAMPAIGN_CAP and
+       project0+used+forecast<=PROJECT_CAP):
+    state["G1b_status"]="ADMITTED_CONDITIONALLY_AFTER_ALL_STAGE_LAUNCHES"
+    state["done"]={}
+    success=run_queue(a,run,"G1b",jobs["G1b"][1],
+              roots,P,state,project0,campaign0)
+    if success:
+     write(run/"XP_A12_G1b_FINAL_STATUS.json",dict(
+       status="XP_A12_G1B_3200_GENERATION_COMPLETE_SEALED",
+       n_roots=3200,head=a.expected_head,
+       charged_gpu_h=state["stage_seconds"]["G1b"]/3600,
+       prereg_v4_outcomes_still_sealed=True))
+     state["G1b_status"]="3200_SEALED_COMPLETE"
+   else:state["G1b_status"]="PARTIAL_AT_AUTHORIZED_CEILING"
+  else:
+   state["G1b_status"]="NOT_ADMITTED_CONDITIONAL_DEPENDENCY_OR_BUDGET"
   state["status"]="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
   state["project_charged_gpu_h"]=project0+sum(state["stage_seconds"].values())/3600
   state["A12_charged_gpu_h"]=campaign0+sum(state["stage_seconds"].values())/3600
@@ -483,6 +529,7 @@ def entry():
  for x in ("expected-head","ledger","g2-prep","g45-prep","run"):
   p.add_argument("--"+x,required=True)
  p.add_argument("--g3-prep",default=None)
+ p.add_argument("--g1b-prep",default=None)
  try:main(p.parse_args())
  except Exception as e:
   traceback.print_exc();print("ACTION NEEDED: A12_CAMPAIGN_AUTOPILOT",e,flush=True)
