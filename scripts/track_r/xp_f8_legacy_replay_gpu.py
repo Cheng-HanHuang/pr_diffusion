@@ -74,6 +74,16 @@ def load_inputs(a):
          and git(ORIG_DAPS,"hash-object","sampler.py")==
              PATCHED_SAMPLER_BLOB,
          "NATIVE_SOURCE_DRIFT")
+    # Verify the original FFHQ model is either the same canonical file,
+    # or overridden by the verified, absolute canonical checkpoint.
+    # The overridden path is checked again in the resolved Hydra config.
+    import yaml
+    model_yaml=yaml.safe_load(
+         (ORIG_DAPS/"configs/model/ffhq256ddpm.yaml").read_text())
+    fail(model_yaml["model_config"]["num_channels"]==128
+         and model_yaml["model_config"]["num_res_blocks"]==1
+         and model_yaml["model_config"]["attention_resolutions"]==16,
+         "HIST_MODEL_ARCH")
     proof=m["model_source"]
     for relative,digest in proof["audited_native_source_sha256"].items():
         fail(sha(ORIG_DAPS/relative)==digest,
@@ -105,6 +115,7 @@ def native_command(row,dest):
         "batch_size=1","gpu=0","seed="+str(seed),
         "num_runs=1","name=legacy_daps400x5",
         "save_dir="+str(dest),"wandb=false","eval_fid=false",
+        "hydra.run.dir="+str(dest/"hydra"),
         "model.model_config.model_path="+str(MODEL),
         "sampler.annealing_scheduler_config.num_steps=400",
         "sampler.diffusion_scheduler_config.num_steps=5",
