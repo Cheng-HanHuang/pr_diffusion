@@ -224,7 +224,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
    if rc!=0:
     raise RuntimeError("STOP_A12_NATIVE_RC_"+name+"_"+str(rc))
    digest=verified(a,run,job,v["dest"],v["root_sha"],roots,P)
-   state["done"][idx]=digest
+   state["done"][str(idx)]=digest
    emit(run,"ROOT_VERIFIED",job=job,digest=digest)
    save("RUN_"+stage)
  def loop():
@@ -336,11 +336,8 @@ def main(a):
       # import wall; if even the best-case projected stage exceeds cap,
       # refuse production rather than modifying prereg runtime limits.
       done=state["done"]
-      duration=sum(jread(next((run/"logs").glob(
-         f"{stage}_{j['kind']}_{i}.log"),Path("/dev/null"))) .get("none",0)
-          for i,j in [] ) if False else 0
       emit(run,"STAGE_SMOKE_OR_REPLAY_PASS",stage=stage,
-           completed=len(done),projected_note="A12 native time audit required")
+           completed=len(done),projected_note="native time audit follows")
     if not success:break
    if not success:break
    emit(run,"STAGE_GENERATION_COMPLETE",stage=stage,
