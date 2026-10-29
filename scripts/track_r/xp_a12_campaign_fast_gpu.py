@@ -142,7 +142,8 @@ def preflight(a):
     if producer!=a.expected_head:
         if manifest.get("stage") in (
                 "A12_G2_SIGMA_0.02","A12_G2_SIGMA_0.10",
-                "A12_G1B_FAST_IMAGENET_D4"):
+                "A12_G1B_FAST_IMAGENET_D4",
+                "A12_G6_FAST_IN_CLEAN"):
             # A12 stage producer is independently frozen by its CPU
             # preparation receipt; generation code may be upgraded
             # without mutating the earlier scientific input manifest.
@@ -150,6 +151,8 @@ def preflight(a):
             expected_prep=(
                 "XP_A12_G2_PREP_RECEIPT.json"
                 if manifest["stage"].startswith("A12_G2_") else
+                "XP_A12_G6_PREP_RECEIPT.json"
+                if manifest["stage"]=="A12_G6_FAST_IN_CLEAN" else
                 "XP_A12_G1B_PREP_RECEIPT.json")
             doc=json.loads(source(prep/expected_prep).read_text())
             if manifest["stage"].startswith("A12_G2_"):
@@ -163,6 +166,13 @@ def preflight(a):
                        len(rows)==1440 and
                        item.get("path")==str(roots) and
                        item.get("sha256")==a.roots_sha)
+            elif manifest["stage"]=="A12_G6_FAST_IN_CLEAN":
+                valid=(prep.name.startswith("xp_a12_g6_prepare_") and
+                       doc.get("status")==
+                        "XP_A12_G6_CONDITIONAL_CLEAN_TIMING_PREP_PASS" and
+                       doc.get("fast_manifest_sha256")==a.roots_sha and
+                       len(rows)==9 and manifest.get("dataset")=="imagenet"
+                       and doc.get("clean_GPUs_ONLY") is True)
             else:
                 valid=(prep.name.startswith("xp_a12_g1b_prepare_") and
                        doc.get("status")=="XP_A12_G1B_CONDITIONAL_PREPARED_CPU_PASS" and
