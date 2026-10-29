@@ -481,12 +481,22 @@ def main(a):
       emit(run,"STAGE_SMOKE_OR_REPLAY_PASS",stage=stage,
            completed=len(done),projection=estimate)
     if not success:break
-   if not success:break
+   if not success:
+    emit(run,"STAGE_PARTIAL_STOP_NO_FURTHER_STAGE_ADMISSION",stage=stage)
+    state["status"]="PARTIAL_STOP_"+stage
+    break
+   completed_roots=(100 if stage=="G3" and
+                  state["G3_status"]=="COHORT_A_REDUCTION_AUTHORIZED_BY_A12"
+                  else N[stage])
    emit(run,"STAGE_GENERATION_COMPLETE",stage=stage,
-        n_roots=N[stage],gpu_h=state["stage_seconds"][stage]/3600)
+        n_roots=completed_roots,gpu_h=state["stage_seconds"][stage]/3600)
    write(run/f"XP_A12_{stage}_FINAL_STATUS.json",dict(
-     status=f"XP_A12_{stage}_GENERATION_COMPLETE",
-     n_roots=N[stage],failed_attempts=0,
+     status=(f"XP_A12_{stage}_COHORT_A_REDUCTION_COMPLETE"
+             if completed_roots!=N[stage] else
+             f"XP_A12_{stage}_GENERATION_COMPLETE"),
+     n_roots=completed_roots,requested_roots=N[stage],
+     reduction_authorized_by_A12=(completed_roots!=N[stage]),
+     failed_attempts=0,
      charged_gpu_h=state["stage_seconds"][stage]/3600,
      stage_cap_gpu_h=CAP[stage],head=a.expected_head,
      outcomes_GT_not_read=True))
@@ -494,7 +504,9 @@ def main(a):
   # including optional G3; no authority to silently skip G3.
   # The projected G1b charge is based on G1a's measured 1600 roots,
   # with a conservative 1.25 multiplier for 3200.
-  if ("G1b" in jobs and all(
+  if (state.get("status","").startswith("PARTIAL_STOP_")):
+   state["G1b_status"]="BLOCKED_BY_PRIOR_STAGE_PARTIAL_STOP"
+  elif ("G1b" in jobs and all(
        state["stage_seconds"][stage]>0 for stage in ("G2","G3","G4","G5"))):
    forecast=1.25*g1a["stage_gpu_h"]*2
    used=sum(state["stage_seconds"].values())/3600
@@ -514,7 +526,8 @@ def main(a):
    else:state["G1b_status"]="PARTIAL_AT_AUTHORIZED_CEILING"
   else:
    state["G1b_status"]="NOT_ADMITTED_CONDITIONAL_DEPENDENCY_OR_BUDGET"
-  state["status"]="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
+  if not state.get("status","").startswith("PARTIAL_STOP_"):
+   state["status"]="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
   state["project_charged_gpu_h"]=project0+sum(state["stage_seconds"].values())/3600
   state["A12_charged_gpu_h"]=campaign0+sum(state["stage_seconds"].values())/3600
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
