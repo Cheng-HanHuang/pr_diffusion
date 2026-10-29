@@ -66,9 +66,15 @@ from pathlib import Path
 p=Path(sys.argv[1])/"XP_B16_PIPELINE_INPUT.json"
 v=json.loads(p.read_text())
 assert v["run"]==sys.argv[1]
-assert v["head"]==sys.argv[2]
+# This pipeline input was frozen at the original 4b37796 launch.
+# A CPU code fix is a NEW pinned executor checkout, not a mutation
+# of the original campaign input. Do not falsely demand that the
+# already-frozen historical pipeline record claim the new HEAD.
+assert v["head"]=="4b37796307977ab234934ca67d050a71da2b0a46"
 assert v["admission"]==sys.argv[3]
-print("B16_PINNED_PIPELINE_INPUT_PASS",flush=True)
+assert v["gpu_requested"] is False
+print("B16_PINNED_PIPELINE_INPUT_PASS",
+      "original_head",v["head"],"current_head",sys.argv[2],flush=True)
 PY
   SCORE="$("$PY" - "$RUN" <<'PY'
 import json,sys
