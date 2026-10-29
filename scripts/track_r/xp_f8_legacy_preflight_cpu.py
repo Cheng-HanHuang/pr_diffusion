@@ -140,8 +140,24 @@ def legacy_source():
     fail("B21_MEASUREMENT_PATH" in native and
          "B21_START_NOISE_SEED" in native,
          "HIST_MEASUREMENT_SEED_OVERRIDE")
+    # Inspect the ORIGINAL pixel Langevin YAML without importing solver
+    # modules or opening any image. Unresolved Hydra interpolations are
+    # reported and must be checked by the GPU replay adapter.
+    import yaml
+    sampler_yaml=checkpath(ORIG_DAPS/"configs/sampler/edm_daps.yaml")
+    task_yaml=checkpath(ORIG_DAPS/"configs/task/phase_retrieval.yaml")
+    sampler_config=yaml.safe_load(sampler_yaml.read_text())
+    task_config=yaml.safe_load(task_yaml.read_text())
+    fail(isinstance(sampler_config,dict) and
+         isinstance(task_config,dict),"NATIVE_YAML_PARSE")
+    print("ORIGINAL_DAPS_SAMPLER_YAML",
+          json.dumps(sampler_config,sort_keys=True)[:3000])
+    print("ORIGINAL_DAPS_TASK_YAML",
+          json.dumps(task_config,sort_keys=True)[:1500])
     # The DAPS-4K upstream sparse worker is NOT a valid historical adapter.
     return dict(native_head=DAPS_HEAD,
+         original_sampler_yaml_sha256=sha(sampler_yaml),
+         original_task_yaml_sha256=sha(task_yaml),
          posterior_sample_sha256=sha(script),
          patched_sampler_sha256=sha(ORIG_DAPS/"sampler.py"),
          checkpoint_sha256=MODEL_SHA,
