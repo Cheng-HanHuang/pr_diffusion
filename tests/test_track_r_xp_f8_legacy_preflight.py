@@ -6,8 +6,9 @@ from zoneinfo import ZoneInfo
 
 from scripts.track_r.xp_f8_legacy_preflight_cpu import (
     A10_CAP_H,A10_DEADLINE,DAPS_HEAD,MODEL_SHA,
-    PATCHED_SAMPLER_BLOB,COHORTS,CAT,BASE)
-from prdiffusion.b24_protocol import seed_row
+    PATCHED_SAMPLER_BLOB,COHORTS,CAT,BASE,
+    DEV80_RUN,DEV80_MANIFEST,DEV80_SEED_DOMAIN,SCREEN_SHA)
+import hashlib
 
 class TestF8LegacyPreflight(unittest.TestCase):
     def test_legacy_400x5_not_published_daps4k(self):
@@ -21,12 +22,17 @@ class TestF8LegacyPreflight(unittest.TestCase):
         self.assertEqual(CAT,BASE/
             "r0_7_cpu_20261023T080434Z/prepare/R0_7_OFFLINE_GT_CATALOG.json")
 
-    def test_legacy_seed_domain(self):
-        ids=("00113","00114")
-        for iid in ids:
-            seeds=[int(x)%(2**32) for x in
-                   seed_row(iid)["solver_seeds"]["DAPS"]]
-            self.assertEqual(len(set(seeds)),4)
+    def test_original_dev80_seed_domain_not_screening(self):
+        self.assertEqual(DEV80_SEED_DOMAIN,"B24_DEV80_DAPS_SOLVER_V1")
+        self.assertEqual(DEV80_MANIFEST,DEV80_RUN/"DEV80_MANIFEST.json")
+        self.assertEqual(SCREEN_SHA,
+          "b516c8154cbbb790d8a3592b86736bb0d4bd47d0833d85ecf3d6a9d710e950ba")
+        for label,iid in (("A","01113"),("C","02763")):
+            seeds=[int(hashlib.sha256("|".join((DEV80_SEED_DOMAIN,
+                SCREEN_SHA,label,iid,str(rep))).encode()).hexdigest()[:16],16)&((1<<63)-1)
+                for rep in range(4)]
+            self.assertEqual(len({s%(2**32) for s in seeds}),4)
+        self.assertNotEqual(DEV80_SEED_DOMAIN,"B24_SOLVER_SEED_V1")
     def test_a10_window_and_shared_cost(self):
         self.assertEqual(A10_CAP_H,70.)
         self.assertEqual(A10_DEADLINE.astimezone(datetime.timezone.utc),
