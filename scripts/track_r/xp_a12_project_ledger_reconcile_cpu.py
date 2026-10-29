@@ -87,7 +87,10 @@ def one(stage,relative,key,scale):
     return dict(stage=stage,gpu_h=gpu_h,
        source_receipt_path=str(path),source_receipt_sha256=sha(path),
        source_field=key,source_value=value,
-       original_status=status,source_mode="one_final_per_disjoint_stage")
+       original_status=status,
+       source_mode=("controller_exited_active_empty_lock_released"
+                    if status in ("RUNNING","STARTED","IN_PROGRESS")
+                    else "one_final_per_disjoint_stage"))
 def time_sources():
     stages=[one(*item) for item in MAIN]
     for task in OPTIONAL:
