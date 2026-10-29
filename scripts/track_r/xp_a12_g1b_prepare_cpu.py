@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""A12 G1b CPU-only prospective FAST ImageNet K64 manifest: runs32..63.
+"""A13 G1b FAST ImageNet K64 manifest: 100 images, runs32..63.
 
-This is a *prepared* conditional stage, not permission to generate.
-Admission requires G1a-G5 launched, the campaign projection fitting
-the remaining 150 GPU-hour cap, and the planner's fixed A12 priority.
-XP-D4 run16+ outcomes stay sealed until prereg v4 embargo release.
+A13 explicitly promotes G1b to immediate stage following G1a.
+Theory v4 was registered at 2026-10-29T20:02:30Z, lifting
+the XP-D4 outcome embargo. This CPU preparation reads no GT/outcomes.
+The native GPU worker still carries no GT input.
 """
 from __future__ import annotations
 import argparse,hashlib,json,os,subprocess,sys,traceback
@@ -69,21 +69,23 @@ def main(a):
       head=a.expected_head,fast_head=FAST_HEAD,
       dataset="imagenet",oversample=2.0,model_sha256=IMAGENET_MODEL_SHA,
       n_roots=3200,n_images=100,gt_paths_supplied=False,
-      outcome_embargo=True,output_scores_sealed=True,
+      outcome_embargo=False,output_scores_sealed=False,
       seed_rule="XP|FAST|imagenet|<basename>|<rep>, first8 SHA256 mod2**31",
       G1a_producer=A12_G1A_FROZEN_PRODUCER,
       G1a_source_sha256=sha(p),rows=rows)
     mf=out/"XP_A12_G1B_3200_TASKS.json";write(mf,manifest)
-    receipt=dict(status="XP_A12_G1B_CONDITIONAL_PREPARED_CPU_PASS",
+    receipt=dict(status="XP_A13_G1B_IMMEDIATE_PREPARED_CPU_PASS",
        head=a.expected_head,manifest_sha256=sha(mf),n_roots=3200,
        no_GPU=True,stage_ceiling_gpu_h=40,
        G1a_complete_sha256=sha(PROD/"XP_A12_G1A_FINAL_STATUS.json"),
-       G2_G3_G4_G5_must_have_launched=True,
+       A13_prereg_priority="G1a_then_G1b_immediately",
        A12_campaign_projection_must_fit=True,
        G1b_not_yet_admitted=True,
+       v4_registered_sha256="b0ff25bc98ef7ba294db3f33c4df4f1f9835951890ebd879afedf807c9d93da3",
+       v4_registered_utc="2026-10-29T20:02:30Z",
        no_GT_read=True,no_D4_outcomes_scored=True)
     write(out/"XP_A12_G1B_PREP_RECEIPT.json",receipt)
-    print("XP_A12_G1B_3200_CONDITIONAL_PREP_PASS",flush=True)
+    print("XP_A13_G1B_3200_IMMEDIATE_PREP_PASS",flush=True)
     print("G1B_MANIFEST_SHA",sha(mf),flush=True)
     print("G1B_PREP_DIR",out,flush=True)
 if __name__=="__main__":
