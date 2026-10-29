@@ -1,0 +1,18 @@
+{
+  "D1_comparison_sha256": "e2c4d4b4993bf8f42a5e87a9978090823ea0aad4c28698ca40a626e9e68ec1e5",
+  "D1_receipt_sha256": "c3ee69139c9d2ba8c9a93d6ce58b8dc2f7df7c6b900288a7061e525b14361324",
+  "P1_CLIP_SHA": "0a2989180b67afa6fc9c6fccdffe7680030f4214d7b672ecd4fe50e5b010cf44",
+  "clip_sha256": "bd50ce51eb3eaccfeb5c23f45a53cc19e350852c8365750fffcaeda6e730db5f",
+  "frozen_labels_tau_good20": 0.050182999856770036,
+  "n_images": 100,
+  "n_rows": 1600,
+  "no_GPU_called": true,
+  "no_new_CLIP_inference": true,
+  "no_new_GT_opened": true,
+  "protocol_sha256": {
+    "docs/track_r/protocol/GTFREE_PROTOCOL_v1.md": "7e9a5fd8b817a97351d07ae371b947688c8430cd5b9268fc99b954a493223919",
+    "docs/track_r/protocol/gtfree_protocol.py": "d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658"
+  },
+  "status": "XP_D1P2_A11_1600_FROZEN_PROTOCOL_INPUTS_PASS",
+  "strings_sha256": "48169156486de4438e715d97a5a3251a728f52e055f135caf14fbcb02fd33e27"
+}
