@@ -45,8 +45,12 @@ fi
 echo '===== CPU READINESS FOR G6/G7 ====='
 "$PY" scripts/track_r/xp_a12_g367_readiness_cpu.py \
  --expected-head "$HEAD" --out "$AUDIT"
-"$PY" scripts/track_r/xp_a12_g6_prepare_cpu.py \
- --expected-head "$HEAD" --out "$G6PREP"
+if "$PY" scripts/track_r/xp_a12_g6_prepare_cpu.py \
+ --expected-head "$HEAD" --out "$G6PREP"; then
+ printf '%s\n' "$G6PREP" > "$BASE/XP_A13_G6_PREP_LATEST.txt"
+else
+ echo 'ACTION NEEDED: G6_OPTIONAL_TIMING_PREP_FAILED__G2_G5_PRIORITY_CONTINUES'
+fi
 echo '===== WAIT FOR G1B TERMINAL RECEIPT, NO GPU OVERLAP ====='
 G1BSESSION=$(basename "$G1BRUN" | sed 's/^xp_a13_g1b_prod_/prdiff_a13_g1b_/')
 while [ ! -f "$G1BRUN/XP_A13_G1B_FINAL_STATUS.json" ]; do
