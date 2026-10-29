@@ -144,8 +144,16 @@ def env(row,gpu=None,trace=None):
 def check_cfg(cmd,row):
     import yaml
     command=cmd+["--cfg","job","--resolve"]
-    p=subprocess.run(command,cwd=str(ORIG_DAPS),env=env(row),
-        capture_output=True,text=True,timeout=90)
+    # Importing the historical DAPS module graph (torch, diffusion,
+    # imageio, Hydra) can be slow under CPU co-tenancy. Config checks
+    # themselves are not performance claims. Preserve the full resolved
+    # YAML gate; raise only after a bounded 300-second startup window.
+    try:
+        p=subprocess.run(command,cwd=str(ORIG_DAPS),env=env(row),
+            capture_output=True,text=True,timeout=300)
+    except subprocess.TimeoutExpired as e:
+        fail(False,"HYDRA_CONFIG_CPU_STARTUP_TIMEOUT_300S "+
+             "row_seed="+str(row["native_seed"]))
     fail(p.returncode==0,"HYDRA_CONFIG_RESOLVE "+p.stderr[-600:])
     cfg=yaml.safe_load(p.stdout)
     fail(isinstance(cfg,dict),"HYDRA_CONFIG_NOT_MAPPING")
