@@ -20,14 +20,16 @@ class TestA12G1a(unittest.TestCase):
         self.assertIn("GT_OR_OUTCOME_LEAK",code)
         self.assertIn("historical_two_root_replay_required_before_GPU_production=True",code)
         self.assertIn("cumulative_project_ledger_required_before_GPU_admission=True",code)
-    def test_gpu_worker_exact_clone_except_worktree(self):
+    def test_native_sampling_is_unchanged_across_producer_check(self):
+        # A12 has one added preflight contract for the earlier frozen
+        # input HEAD, but the execution path remains verbatim FAST.
         root=Path(m.__file__).resolve().parents[2]
         old=(root/"scripts/track_r/xp_fast_gpu.py").read_text()
         new=(root/"scripts/track_r/xp_a12_g1a_fast_gpu.py").read_text()
-        expected=old.replace('WT=ROOT/"pr_diffusion_track_r"',
-            '# A12 runs from a separate version-pinned worktree, never from A6 live WT.\n'
-            'WT=Path(__file__).resolve().parents[2]')
-        self.assertEqual(new,expected)
+        self.assertEqual(old[old.index("def execute(a):"):],
+                         new[new.index("def execute(a):"):])
+        self.assertIn("STOP_A12_G1A_PRECONTROLLER_SOURCE_DRIFT",new)
+        self.assertIn("A12_G1A_FROZEN_PRODUCER",new)
     def test_syntax(self):
         root=Path(m.__file__).resolve().parents[2]
         for file in ("xp_a12_g1a_prepare_cpu.py","xp_a12_g1a_fast_gpu.py"):
