@@ -190,10 +190,30 @@ def main(a):
     check(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
     check(git("rev-parse","HEAD").decode().strip()==a.expected_head
           and not git("status","--porcelain"),"ANALYSIS_WORKTREE")
-    admission=json.loads(safe(Path(a.admission)/"B16_V1_V3_CPU_ADMISSION.json").read_text())
+    # The pinned admission happened at 9c8a353, *before* the scorer
+    # existed. Requiring its historical execution HEAD to equal the
+    # later scoring HEAD would reject the immutable valid receipt. Bind
+    # the original bytes, their original HEAD, v1/v3 hashes and the B16
+    # manifest instead. The current checkout HEAD is independently
+    # verified above and cannot be confused with the admission HEAD.
+    admission_path=safe(Path(a.admission)/"B16_V1_V3_CPU_ADMISSION.json")
+    check(sha(admission_path)==
+          "5067cd4da805696a782cdb01aeffc669c32e0c3b1bd790c7c5fa8dd74d9f8214",
+          "ORIGINAL_ADMISSION_RECEIPT_SHA")
+    admission=json.loads(admission_path.read_text())
     check(admission["status"]=="B16_V1_V3_UNBLIND_ADMISSION_PASS"
-          and admission["expected_head"]==a.expected_head
-          and admission["source"]["n_new_roots"]==2160,"B16_ADMISSION")
+          and admission["expected_head"]==
+              "9c8a353ea72d12dc19ac35e59bbcf18e396e3ba5"
+          and admission["source"]["n_new_roots"]==2160
+          and admission["source"]["manifest_sha256"]==B16_SHA
+          and admission["source"]["complete_receipt_sha256"]==B16_RECEIPT_SHA
+          and admission["registry_commit"]==
+              "356ec2a87f73eea905cb2930909ff3053b93e18b"
+          and admission["scoring_authorized"] is True
+          and admission["no_GT_bytes_read"] is True
+          and admission["no_new_B16_outcome_scored"] is True,
+          "B16_HISTORICAL_ADMISSION")
+    print("B16_PRIOR_ADMISSION_SHA_AND_ORIGINAL_HEAD_PASS",flush=True)
     forecasts=freeze()
     check(forecasts==admission["forecasts"],"FORECAST_DRIFT")
     out=Path(a.out)
