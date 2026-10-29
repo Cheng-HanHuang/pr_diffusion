@@ -18,13 +18,26 @@ class TestF8LegacyReplayAdapter(unittest.TestCase):
         cmd=native_command(row,Path("/tmp/replay_00"))
         self.assertIn("sampler.annealing_scheduler_config.num_steps=400",cmd)
         self.assertIn("sampler.diffusion_scheduler_config.num_steps=5",cmd)
-        self.assertIn("+data={name:empty,shape:[3,256,256],device:cuda}",cmd)
+        self.assertIn(
+            "+data={name:image,root:/tmp/replay_00/synthetic_input,"
+            "resolution:256,start_id:0,end_id:1,device:cuda}",cmd)
+        self.assertFalse(any("name:empty" in arg for arg in cmd))
         self.assertIn("+measurement_path="+row["measurement_path"],cmd)
         self.assertIn("seed=22020",cmd)
         self.assertIn("model.model_config.model_path="+str(MODEL),cmd)
         self.assertTrue(any(x.startswith("hydra.run.dir=/tmp/replay_00/")
                             for x in cmd))
         self.assertFalse(any("gt_path" in x or "test-ffhq" in x for x in cmd))
+    def test_dummy_dataset_is_fully_separate_from_historical_measurement(self):
+        row=dict(native_seed=3492739597,
+                 measurement_path="/egr/research-pac/huang248/outputs/a_measurement.pt")
+        cmd=native_command(row,Path("/tmp/replay_07"))
+        dataset=next(x for x in cmd if x.startswith("+data="))
+        self.assertIn("root:/tmp/replay_07/synthetic_input",dataset)
+        self.assertNotIn(row["measurement_path"],dataset)
+        self.assertIn("+measurement_path="+row["measurement_path"],cmd)
+        self.assertFalse(any("candidate_path" in x or "gt_path" in x
+                             for x in cmd))
     def test_historical_native_env_controls(self):
         row=dict(native_seed=23035,measurement_path="/tmp/example_y.pt")
         e=env(row,gpu=3)
