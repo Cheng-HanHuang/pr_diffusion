@@ -53,6 +53,21 @@ def inputs(a):
  wt=Path(__file__).resolve().parents[2]
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_SUPERVISOR")
  source_pin(wt,a.expected_head)
+ # A13 unseal: authenticate v4 as a forecast frozen BEFORE opening
+ # any run16+ D4 outcomes. No analysis or GT on the GPU lane.
+ registry=subprocess.check_output(["git","-C",str(wt),"show",
+     "988aaed:docs/track_r/theory/PREDICTIONS_REGISTRY.md"],timeout=60)
+ line=next((x for x in registry.decode().splitlines()
+            if x.startswith("| v4 |")),None)
+ gate(line is not None and
+      "149331c319bb8697c1a0f40c04bf0e4016ec3420" in line and
+      V4_SHA in line and "REGISTERED" in line and
+      "2026-10-29T20:02:30Z" in line,"A13_V4_REGISTRY_UNSEAL")
+ blob=subprocess.check_output(["git","-C",str(wt),"show",
+    "149331c319bb8697c1a0f40c04bf0e4016ec3420:docs/track_r/theory/TH1_PREDICTIONS_v4.json"],
+    timeout=60)
+ gate(hashlib.sha256(blob).hexdigest()==V4_SHA,
+      "A13_V4_FROZEN_FORECAST_CONTENT_SHA")
  ledger=read(LEDGER);g1a=read(G1A)
  gate(ledger["status"]=="XP_A12_CUMULATIVE_PROJECT_LEDGER_VERIFIED"
       and ledger["has_every_stage_since_XP0"] is True
