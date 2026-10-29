@@ -1,43 +1,38 @@
-# A12 complete-campaign autopilot — execution specification (2026-10-29)
+# A13 autonomous Track R executor — current campaign contract (2026-10-29)
 
-**Status: design / unlaunched.** The G1a controller is implemented and **its production is complete**. G2–G7 are *not* yet implemented as independently smoke-validated workers and must not be represented as runnable. This file specifies the single-launch control plane and required fail-closed worker adapters. Governing authority is planner A12 (2026-10-29, 12:35 ET) at `65ba723`, `docs/planning/track_r/XP_PREREG_v1_1.md` and `docs/track_r/executors/xp/08_PLANNER_NOTES_20261029_PM.md`.
+**Governing:** prereg A13, planner branch `988aaed`, `docs/track_r/executors/xp/09_PLANNER_NOTES_20261029_EVE.md`. This supersedes the earlier A12-only version of this file. The planner has independently accepted D1-P2, B16 v1/v3, and G1a. Native **G1a** 1,600/1,600 generation is complete. Later stages have **implementations, not yet PAC-certified GPU results**. No claimed results without run receipts.
 
-## Status and caps
+## Campaign caps, scientific release, order
 
-- Project lifetime: 400 occupied GPU-hours. Conservative source-backed ledger before G1a: 153.581581288 GPU-h, SHA256 `3eabf7b978e1341549f72690061d65d2aee1c29046c0749df0e2b821d74a2f8c`. This total contains 31.314365 upper-billed GPU-h for a historical uncertain worker, **not measured actual runtime**.
-- A12 campaign: 150 GPU-h inclusive of A10's 55.54578541457511 and G1a's 3.572931348127313, leaving **90.88128323729758 GPU-h** of campaign authority; overall project conservative remaining **242.84548736419086 GPU-h**.
-- G1a: `xp_a12_g1a_prod_20261029T180624Z`, 1,600/1,600 complete and sealed, replay 2/2 pixel exact, zero failed attempts, controller head `c15651b152198d0bbd014c279499b2c5a25814b3`. Stage cap 25; actual stage use 3.572931348127313.
-- The sum of *future* individual stage ceilings exceeds 90.881 A12 remaining. A scheduler **must enforce BOTH campaign cap and per-stage caps**; the stages are maximum allowable consumption, not guaranteed allocation.
+- Project cap **400 occupied GPU-h**. Conservative project total after G1a **157.154512636 GPU-h**, including a **31.314365 GPU-h upper charge** for an older unresolved B16 process (not measured actual wall time). Historical source-backed ledger SHA256: `3eabf7b978e1341549f72690061d65d2aee1c29046c0749df0e2b821d74a2f8c`.
+- **A12 cap = 150 GPU-h exclusively for G1a–G7.** A10's 55.545785 GPU-h counts against the project cap **but NOT A12**. G1a charged 3.572931 GPU-h; remaining A12 authority **146.427069 GPU-h** as of G1a.
+- Registered theory **v4** at `149331c319bb8697c1a0f40c04bf0e4016ec3420`, JSON SHA256 `b0ff25bc98ef7ba294db3f33c4df4f1f9835951890ebd879afedf807c9d93da3`, recorded **2026-10-29 20:02:30 UTC**. XP-D4 run ≥16 is **unsealed**. The GPU workers remain GT-free; only the authorized CPU analysis may score it.
+- Mandatory no-gap order: **G1b now → G2 → G3 → G4 → G5 → G6 → G7.** G1a is already complete. G7's Nov 15 is a **deadline**, not a delayed start.
+- Stage caps: G1b 40, G2 10, G3 45, G4 30, G5 40, G6 1, G7 4 GPU-h. If one stage hits its cap, **retain complete-image partial panels and continue**; never silently increase the budget or alter a frozen method. Corrected A12 and 400 project caps must be checked before every admission and include occupied partial attempts.
+- After A12 is complete or running and a GPU is available: Tier-C tail with separate **60 GPU-h cap**, in order **T1 XP-K** (A5.4 exactly; 30 stage cap), then **T2 XP-I2** (40 stage cap, only if G3 smoke passed). **Cancelled:** B32, XP-H, XP-G2, XP-J.
 
-## The only authorized queue
+## Implemented entrypoints and remaining validation
 
-| Order | Stage | New GPU outputs | Local cap, GPU-h | Required admission | Target deadline (ET) |
-| --- | --- | ---: | ---: | --- | --- |
-| 1 | G1a XP-D4a | 1,600 FAST IN runs 16–31 | 25 | original D1 2-root replay | **DONE**, outcomes sealed |
-| 2 | G2 XP-G | 2,880 FAST FFHQ, paired-noise σ .02/.10, n8 each | 10 | pre-specified paired y / SHA, 2-root smoke **per σ** | Nov 3 noon |
-| 3 | G3 XP-I | 180 FFHQ bags ×4 PC-DAPS particles | 45 | exact source `59b2f046`, own native PR command, 2-id smoke; code absent ⇒ publish exact clone command, **skip**; projection >45 ⇒ cohort A only | Nov 3 noon |
-| 4 | G4 XP-E′8 | 720 DAPS-4K FFHQ runs 4–7 | 30 | original E′ 2-root replay and same y/seed/checkpoint | Nov 4 noon |
-| 5 | G5 XP-D2-8 | 400 DAPS-4K ImageNet runs 4–7 | 40 | original D2 2-root replay and same y/seed/checkpoint | Nov 4 noon |
-| 6 | G1b XP-D4b | 3,200 FAST IN runs 32–63 | 40 | only after G1a–G5 launched and conservative campaign projection fits; otherwise remain n32 | Nov 4 noon |
-| 7 | G6 XP-T | conditional clean batch-1 timing (18 runs) | 1 | only missing pairs, **clean GPUs only** | opportunistic |
-| 8 | G7 XP-C/C2 | orientation/defect supplemental runs | 4 | exact frozen GT cohort, evaluation-only | Nov 15 |
+- `scripts/track_r/xp_a13_launch_now.sh`: creates a **separate isolated pinned** A13 worktree, launches G1b, B16 protocol, F8 CP1 CPU, and G2–G5 input preparation/queue handoff. This script MUST run against the **same immutable commit** with a clean worktree, no prior A13 worktree, and PAC-visible source models/measurements. It has not been run remotely by this chat.
+- `xp_a12_g1b_prepare_cpu.py`, `xp_a13_g1b_autopilot.py`, `xp_a12_campaign_fast_gpu.py`: 100 images × reps 32–63, exact existing FAST semantics, pinned v4 registry, zero GT in generation, separate shared campaign lock and dual GPU ledger.
+- `xp_a13_after_g1b_prepare.sh`, `xp_a12_g2_prepare_cpu.py`, `xp_a12_campaign_autopilot.py`, `xp_a12_g45_prepare_cpu.py`, `xp_a12_g45_daps_gpu.py`: after G1b terminal receipt, paired-noise G2 (360 frozen y, 2,880 FAST roots, two sigma smoke gates), conditional four-particle PC-DAPS G3, two distinct native DAPS historical replays each for G4 and G5, 80% VRAM and charged per-attempt accounting. If G3 code is missing, request the exact clone from Cheng once in issue #42; do not use bundled FFHQ.
+- `xp_a12_g3_prepare_cpu.py`, `xp_a12_g3_pcdaps_gpu.py`: exact PC-DAPS `59b2f046` 180 four-particle bags; four native particles are retained and reported as a **mean of particle metrics**, never a made-up fifth reconstruction. Conditional on code being present and 2-id smoke passing.
+- `xp_a12_g6_prepare_cpu.py`, `xp_a12_g6_clean_autopilot.py`, `xp_a12_g6_daps_gpu.py`: G6 batch-1 **native F8 DAPS 400×5** FFHQ and FAST ImageNet clean timing, only missing clean pairs, 1 GPU-h stage cap, shared A12/project ledger. Do not substitute DAPS-4K for F8 400×5.
+- `xp_a12_g7_c_clip_cpu.py`, `xp_a12_g7_c2_gpu.py`, `xp_a12_g7_c2_autopilot.py`: frozen diagnostic GT-only CLIP orientations and C2 denoiser equivariance profiling. Other frozen prior/UnivFD orientation arms remain distinct dependencies; G7 is not complete merely because C2 finishes.
+- Tail **T1/T2 automatic controllers** are still implementation/admission work. Their authorization is A13, but implementation must not be presented as a completed smoke or a running GPU process.
 
-**NEVER authorize automatically:** B32, XP-K, XP-H, XP-G2, XP-J, XP-I2.
+## CPU protocol and checkpoints
 
-## Controller contract — target single PAC launch (not yet runnable)
+For every panel: **score → A9 schema strings and per-candidate orientation choices (copy to `theory_inputs/`) → all registered forecast comparisons → frozen protocol v1 from `c598176`, per-cohort tau and image-weighted pooling → prereg hypothesis table → commit `xp/returns/`.**
 
-1. Read-only CPU preflight: verify code/manifest commits, A12 prereg and all source SHAs, immutable generation-only G1a final status, full historical ledger, four GPU visibility and allowed source ids. Reject project or A12 cap violations, overlapping worker processes, failed checksum, or missing stage adapters.
-2. Each stage adapter must publish independently pinned `PREPARED`, `SMOKE_PASS` / `REPLAY_PASS`, `ADMITTED`, per-attempt `COST`, `CHUNK_PASS` and `FINAL` receipts. Failed replay never promotes to production. Replays may use bit-exact comparison, or 0.1 dB raw PSNR AND identical frozen labels under A12/A10.1. Replays and smoke are charged.
-3. Use a single controller-owned PID and lock, atomic durable controller state, no foreign-worker signalling, concurrency ≤4 GPU workers, source-specific memory reservations, GPU memory ≤80%, stop file and SIGTERM drain. Count each attempt from occupied GPU allocation start to child exit, including failures and retries; stop and report partial on deadline or any cap.
-4. Queue next eligible stage whenever a GPU is free but do not bypass required order/dependency. G2 per-σ smoke, G3 conditional code presence and cohort-A reduction, G4/G5 individual replays, and G1b projection eligibility are **different gates** and cannot be inferred from G1a PASS.
-5. Before each admission, compute conservative cumulative **campaign** use including A10, all completed A12 stages, and currently running intervals, plus projected remaining work; check project 400 cap too. No separate per-stage controller may spend the same budget independently.
-6. Distinguish **generation** from **scoring**. XP-D4 run ≥16 outputs and labels/GT stay sealed until theory v4 registered/declined OR November 2, 12:00 ET. Other-stage CPU scoring proceeds only under A12's frozen hypotheses, on a separate CPU lane. Never expose a protected DAPS/FAST/PC-DAPS bundled FFHQ dataset.
-7. Progress, completion and failure receipts go to the shared `xp/returns/` handoff path (via independent publishing worktree), with exact SHA256, stage cost, source/environment pins, cohort coverage, and one ≤20-line planner return per genuinely informative gate. Routine chunk completions should not require conversation turns.
-8. If a required stage adapter is absent or untested, **stop that stage and publish a blocked receipt**, not a fake success. A central dispatcher alone does not make the unimplemented stages safe to launch.
+- **CP1:** B16 protocol plus F8 v1/v3 comparisons and protocol, and project GPU ledger; B16 reference provisional pooled success **0.8186**, mean runs **3.290**, gain **−0.0043**; reproduce within **0.002** before reporting.
+- **CP2:** ImageNet XP-D4 against v2/v4 and protocol at n = 32/64.
+- **CP3:** XP-G paired-noise, E′8, D2-8, PC-DAPS XP-I.
+- **CP4:** Tier C including XP-C/C2, XP-K, XP-I2.
+- Return to planner **only** at CP1–CP4 (each ≤20 lines). CP1–CP3 due **Nov 5, 12:00 ET**; CP4 due Nov 15.
 
-## Immediate scientific priorities alongside GPU work
+## Five A13.4 stop conditions
 
-- D1-P2 first held-out protocol and exact G1/G2 theory-v4 inputs are **already committed**: `5f6b213`.
-- B16 v1/v3 prospective 2880/2880 and theory inputs are **already committed**: `8798462`.
-- Next CPU outputs: B16 two-cohort frozen protocol with N2 face-set orientation and `τ_{B22}=0.0448503`, `τ_{DEV80}=0.0449706`; then F8 v1/v3 and two-cohort protocol with `τ_{B22}=0.0474649`, `τ_{DEV80}=0.0475986`; no retuning.
-- Theory v4 must be given the **unsealed 100×16 D1-P2** files immediately, without the sealed G1a run16–31 outcomes. Register forecast before lifting D4 embargo whenever possible.
+Ask planner/Cheng only if (1) a frozen rule cannot be applied, (2) data-governance conflict, (3) a cap would be exceeded, (4) frozen bytes or receipt mismatch, or (5) Cheng must act (clone, permissions, disk). For an infrastructure-only fault: one documented retry may be authorized without asking, but not after changing the science implementation or frozen settings.
+
+**No code in this branch constitutes PAC runtime verification.** Gate, smoke and terminal receipts govern admissibility and claims.
