@@ -6,7 +6,7 @@ it, with the registered DAPS 400x5 tau for B22 and DEV80 separately.
 H1/H3 tested on F8; H2 is compared to committed B16 and D1 values.
 """
 from __future__ import annotations
-import argparse,hashlib,json,math,os,subprocess,sys,traceback
+import argparse,csv,hashlib,json,math,os,subprocess,sys,traceback
 from pathlib import Path
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 PROTO_SHA="d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658"
@@ -50,6 +50,24 @@ def run(a):
  gate(out.parent==BASE and out.name.startswith("xp_a13_f8_protocol_")
       and not out.exists() and not out.is_symlink(),"OUTPUT")
  out.mkdir(mode=0o700)
+ # Frozen protocol indexes CLIP by (image_id,run), so prevent possible
+ # B22/DEV80 ID aliasing via per-cohort immutable CLIP slice.
+ clip_by_cohort={}
+ with decisions.open(newline="") as f:
+  reader=csv.DictReader(f);columns=reader.fieldnames
+  rows=list(reader)
+ gate(len(rows)==1440 and columns is not None
+      and set(r["cohort"] for r in rows)==set(TAU),"F8_CLIP_1440")
+ for cohort,(n,_) in TAU.items():
+  sliced=[r for r in rows if r["cohort"]==cohort]
+  gate(len(sliced)==n*8 and len({
+        (r["image_id"],int(r["run"])) for r in sliced})==n*8,
+       "F8_COHORT_CLIP_UNIQUE_"+cohort)
+  path=out/("F8_FROZEN_CLIP_"+cohort+".csv")
+  with path.open("x",newline="") as f:
+   writer=csv.DictWriter(f,fieldnames=columns)
+   writer.writeheader();writer.writerows(sliced)
+  clip_by_cohort[cohort]=path
  script=out/"gtfree_protocol_v1_original.py"
  with script.open("xb") as f:f.write(blob)
  gate(sha(script)==PROTO_SHA,"CODE_ROUNDTRIP")
@@ -65,7 +83,7 @@ def run(a):
    cmd=[sys.executable,"-I",str(script),"--strings",str(strings),
       "--cohort",cohort,"--m","2","--nmax","8","--R","4000",
       "--seed","20261029","--out",str(dest)]
-   if clip_used:cmd+=["--clip",str(decisions),
+   if clip_used:cmd+=["--clip",str(clip_by_cohort[cohort]),
       "--clip-good-col","f_chosen_good",
       "--clip-margin-col","f_margin"]
    if adaptive:cmd+=["--tau-rule","self_mad3"]
@@ -82,6 +100,9 @@ def run(a):
         d["inputs"]["strings_sha256"]==sha(strings),
         "F8_PER_COHORT_PROTOCOL")
    if not adaptive:gate(abs(d["tau"]-tau)<1e-10,"TAU_IDENTITY")
+   if clip_used:
+    gate(d["inputs"]["clip_sha256"]==sha(clip_by_cohort[cohort]),
+         "COHORT_CLIP_SHA")
    cohorts[cohort]=d
   common=set.intersection(*(set(q) for q in cohorts.values()))
   weighted={}
@@ -94,6 +115,7 @@ def run(a):
       variant=variant,n_images=180,
       weighted=weighted,
       cohorts={c:dict(n=TAU[c][0],tau=cohorts[c]["tau"],
+               clip_cohort_sha256=(sha(clip_by_cohort[c]) if clip_used else None),
                sha256=sha(out/f"F8_{variant}_{c}.json")) for c in TAU},
       protocol_sha256=PROTO_SHA,
       strings_sha256=sha(strings),clip_sha256=sha(decisions) if clip_used else None)
