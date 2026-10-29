@@ -56,15 +56,16 @@ def main(a):
             for r in subset:
                 p=safe(Path(r["reconstruction_path"]))
                 check(sha(p)==r["reconstruction_sha256"],"RECON_SHA")
-                if r["reconstruction_format"]=="pt":
-                    x=torch.load(p,map_location="cpu",weights_only=True)["reconstruction"].float()
-                    check(tuple(x.shape)==(1,3,256,256) and
-                          bool(torch.isfinite(x).all()),"RECON_TENSOR")
-                    x8=to_rgb8(x)
-                elif r["reconstruction_format"]=="png":
-                    x8=load_png_rgb8(p)
-                else:
-                    raise RuntimeError("STOP_UNKNOWN_IMAGE_FORMAT")
+                # Original R0.7 SITCOM candidates can be tensor or dict
+                # and use different tensor field names. The canonical
+                # R0.7 candidate loader supports both historical and new
+                # B16 reconstructions, validates each source SHA, and
+                # returns identical RGB8 conventions.
+                x8=candidate_tensor(dict(
+                    uid=r["uid"],
+                    candidate_path=str(p),
+                    candidate_format=r["reconstruction_format"],
+                    candidate_sha256=r["reconstruction_sha256"]))
                 arr=x8[0].permute(1,2,0).numpy()
                 upright=Image.fromarray(arr,"RGB")
                 inverted=Image.fromarray(np.rot90(arr,2).copy(),"RGB")
