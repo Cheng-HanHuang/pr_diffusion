@@ -62,6 +62,12 @@ def ensure_wave(a):
     # A new replay directory must not reset the spent budget. Historical
     # B16 accounting already includes its gate and new-root workers.
     # Each replay controller writes one non-overlapping final wave receipt.
+    # Refuse to forget GPU time from a controller that died without a
+    # final wave receipt. A directory with only CPU preflight logs is safe.
+    for old in sorted(BASE.glob("xp_f8_legacy_replay_*")):
+        if (old.is_dir() and any(old.glob("replay_??"))
+            and not (old/"XP_F8_LEGACY_REPLAY_WAVE1.json").is_file()):
+            fail(False,"UNACCOUNTED_PRIOR_REPLAY_WORKERS_"+old.name)
     replay_gpu_h=0.
     counted=[]
     for item in sorted(BASE.glob(
