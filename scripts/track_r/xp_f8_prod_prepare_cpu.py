@@ -14,7 +14,8 @@ from zoneinfo import ZoneInfo
 from scripts.track_r.xp_f8_legacy_preflight_cpu import (
  ROOT,BASE,CAT,B21_MANIFEST,DEV80_MANIFEST,DEV80_RUN,
  DEV80_SEED_DOMAIN,SCREEN_SHA,ORIG_DAPS,DAPS_HEAD,MODEL_SHA,MODEL,
- B16,A10_DEADLINE,read_json,sha,git,fail,dev80_table,WT)
+ B16,A10_DEADLINE,read_json,sha,git,fail,dev80_table,WT,
+ PATCHED_SAMPLER_BLOB)
 
 GATE=BASE/"xp_f8_legacy_replay_20261029T065122Z"
 GATE_SHA={
@@ -29,7 +30,9 @@ def write_x(path,obj):
         json.dump(obj,f,indent=2,sort_keys=True,allow_nan=False)
         f.write("\n")
 def source_gate():
-    fail(git(ORIG_DAPS,"rev-parse","HEAD")==DAPS_HEAD,"DAPS_HEAD_DRIFT")
+    fail(git(ORIG_DAPS,"rev-parse","HEAD")==DAPS_HEAD and
+         git(ORIG_DAPS,"hash-object","sampler.py")==PATCHED_SAMPLER_BLOB,
+         "DAPS_HEAD_OR_PATCHED_SAMPLER_DRIFT")
     fail(sha(MODEL)==MODEL_SHA,"MODEL_SHA_DRIFT")
     for name,digest in GATE_SHA.items():
         p=GATE/name
