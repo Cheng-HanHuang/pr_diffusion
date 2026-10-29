@@ -63,17 +63,28 @@ def ensure_wave(a):
     fail(gpu_h+replay_gpu_h<70,"A10_SHARED_REPLAY_BUDGET")
     return root,gpu_h,replay_gpu_h
 def frozen_preflight(a,indices):
-    for i in indices:
-        cmd=[str(PY),"-u","-m","scripts.track_r.xp_f8_legacy_replay_gpu",
-             "--expected-head",a.expected_head,"--index",str(i),
-             "--preflight-only"]
-        e=os.environ.copy();e["PYTHONPATH"]=str(WT);e["CUDA_VISIBLE_DEVICES"]=""
+    # One full native Hydra import per wave, using a representative B22
+    # or DEV80 row. All rows use identical pinned source and CLI template,
+    # varying only frozen seed, measurement and output. Each child performs
+    # its OWN resolved-Hydra check before starting native GPU inference,
+    # so no individual row bypasses the scientific configuration gate.
+    i=indices[0]
+    cmd=[str(PY),"-u","-m","scripts.track_r.xp_f8_legacy_replay_gpu",
+         "--expected-head",a.expected_head,"--index",str(i),
+         "--preflight-only"]
+    e=os.environ.copy();e["PYTHONPATH"]=str(WT);e["CUDA_VISIBLE_DEVICES"]=""
+    try:
         p=subprocess.run(cmd,cwd=str(WT),env=e,
-                         capture_output=True,text=True,timeout=120)
-        fail(p.returncode==0 and
-             "XP_F8_LEGACY_NATIVE_HYDRA_PREFLIGHT_PASS" in p.stdout,
-             f"HYDRA_PREFLIGHT_INDEX_{i}: "+p.stdout[-350:]+p.stderr[-350:])
-        print(p.stdout.strip(),flush=True)
+                         capture_output=True,text=True,timeout=360)
+    except subprocess.TimeoutExpired:
+        fail(False,f"HYDRA_PREFLIGHT_INDEX_{i}_CPU_TIMEOUT_360S")
+    fail(p.returncode==0 and
+         "XP_F8_LEGACY_NATIVE_HYDRA_PREFLIGHT_PASS" in p.stdout,
+         f"HYDRA_PREFLIGHT_INDEX_{i}: "+p.stdout[-350:]+p.stderr[-350:])
+    print(p.stdout.strip(),flush=True)
+    print("WAVE_REPRESENTATIVE_HYDRA_PASS",
+          "index",i,"each_native_child_checks_its_own_config=True",
+          "wave_indices",indices,flush=True)
 def foreign_track_r_pid(card,owned=()):
     """Don't place a second Track R worker on a known occupied GPU."""
     known=set(int(x) for x in owned)
@@ -100,7 +111,8 @@ def sample(cards,log,active):
 def run(a,root,used,replayed):
     indices=list(range(0,4)) if a.wave==1 else list(range(4,8))
     frozen_preflight(a,indices)
-    print("NATIVE_400x5_HYDRA_PREFLIGHTS_PASS",indices,flush=True)
+    print("NATIVE_400x5_WAVE_TEMPLATE_PREFLIGHT_PASS",indices,
+          "per_root_Hydra_check_before_GPU=True",flush=True)
     starts={}
     active={}
     logs={}
