@@ -15,7 +15,7 @@ import argparse,csv,datetime,hashlib,json,os,subprocess,sys,traceback
 from collections import defaultdict
 from pathlib import Path
 from zoneinfo import ZoneInfo
-from prdiffusion.b24_protocol import seed_row
+from scripts.b24.freeze_b24_method_roles import SCREEN_MANIFEST_SHA as SCREEN_SHA
 
 ROOT=Path("/egr/research-pac/huang248")
 BASE=ROOT/"outputs/pr_diffusion/track_r"
@@ -26,6 +26,9 @@ SCORES=R07/"R0_7_SCORED_GT_ROWS.jsonl"
 R07_RECEIPT=R07/"R0_7_COMPLETE_RECEIPT.json"
 B21=ROOT/"outputs/pr_diffusion/b21_solver/B21_11_fresh2_final_val100_meas5401"
 B21_MANIFEST=B21/"manifest.tsv"
+DEV80_RUN=ROOT/"outputs/pr_diffusion/b24/B24_3_dev80_overnight_20260913T082146Z"
+DEV80_MANIFEST=DEV80_RUN/"DEV80_MANIFEST.json"
+DEV80_SEED_DOMAIN="B24_DEV80_DAPS_SOLVER_V1"
 ORIG_DAPS=ROOT/"pr_diffusion_b19_solver/external/daps"
 LEGACY_CONFIG=WT/"configs/b23/fresh1_frozen.yaml"
 MODEL=ROOT/"models/ffhq_10m.pt"
@@ -122,6 +125,28 @@ def b21_table():
              "B21_FRESH2_SEEDS")
         d[iid]=r
     return d
+def dev80_table():
+    doc=read_json(DEV80_MANIFEST)
+    fail(doc.get("status")=="FROZEN_BEFORE_EXECUTION" and
+         doc.get("image_count")==80 and len(doc.get("tasks",[]))==80 and
+         doc.get("baseline_seed_domains",{}).get("DAPS")==DEV80_SEED_DOMAIN,
+         "DEV80_ORIGINAL_MANIFEST_SCHEMA")
+    from hashlib import sha256 as digest
+    result={}
+    for task in doc["tasks"]:
+        iid=str(task["image_id"]).zfill(5)
+        fail(iid not in result,"DEV80_DUPLICATE_IMAGE")
+        label=task["class_label"]
+        seeds=[int(x) for x in task["daps_solver_seeds"]]
+        fail(len(seeds)==4 and label in "ABCD",
+             "DEV80_DAPS_SEED_COUNT")
+        for rep,seed in enumerate(seeds):
+            material="|".join((DEV80_SEED_DOMAIN,SCREEN_SHA,label,iid,str(rep)))
+            expected=int(digest(material.encode()).hexdigest()[:16],16)&((1<<63)-1)
+            fail(seed==expected,"DEV80_SEED_DOMAIN_DRIFT")
+        result[iid]=task
+    return result
+
 def legacy_source():
     config=read_json(LEGACY_CONFIG)
     fail(config["scheduler"]["annealing_steps"]==400 and
@@ -229,6 +254,7 @@ def main(args):
     gate=admission()
     rows=historical_rows()
     b21=b21_table()
+    dev80=dev80_table()
     public=[];offline=[]
     for r,s in rows:
         cohort=r["source"];iid=str(r["image_id"]);rep=int(r["run_index"])
@@ -238,11 +264,29 @@ def main(args):
             seed=int(m["seed1"] if rep==0 else m["seed2"])
             rule="B21_11_seed1_22000_plus_rowid_or_seed2_23000_plus_rowid"
         else:
-            values=seed_row(iid)["solver_seeds"]["DAPS"]
+            fail(iid in dev80,"DEV80_IMAGE_MISSING_IN_ORIGINAL_MANIFEST")
+            task=dev80[iid]
+            values=task["daps_solver_seeds"]
             fail(len({int(t)%(2**32) for t in values})==4,
                  "DEV80_NATIVE_SEED_COLLISION")
             seed=int(values[rep])%(2**32)
-            rule="B24_SOLVER_SEED_V1_native_mod2pow32"
+            rule="B24_DEV80_DAPS_SOLVER_V1_native_mod2pow32"
+            # The historical terminal itself carries the original B24
+            # canonical/native seeds. Check that the accepted candidate
+            # and the frozen DEV80 task point to the same native run.
+            cand=checkpath(r["candidate_path"])
+            taskroot=next((p.parent for p in cand.parents if p.name=="baseline"),None)
+            fail(taskroot is not None and DEV80_RUN in taskroot.parents,
+                 "DEV80_CANDIDATE_OUTSIDE_FROZEN_RUN")
+            group=read_json(taskroot/"baseline/DAPS_GROUP.json")
+            rr=[q for q in group.get("candidate_rows",[])
+                if int(q.get("rep",-1))==rep]
+            fail(len(rr)==1,"DEV80_ORIGINAL_GROUP_REP")
+            original=rr[0]
+            fail(int(original["canonical_seed"])==int(values[rep])
+                 and int(original["native_seed"])==seed
+                 and Path(original["terminal_path"]).resolve()==cand.resolve(),
+                 "DEV80_NATIVE_SEED_OR_TERMINAL_SOURCE_MISMATCH")
         public.append(dict(uid=r["uid"],source=cohort,family="DAPS",
             image_id=iid,rep=rep,native_seed=seed,seed_rule=rule,
             measurement_path=r["measurement_path"],
@@ -265,6 +309,8 @@ def main(args):
     out.mkdir(parents=False,exist_ok=False)
     write_x(out/"XP_F8_REPLAY_INPUTS_GT_FREE.json",dict(
         status="XP_F8_LEGACY_INPUTS_FROZEN_CPU_PASS",
+        frozen_dev80_manifest_sha256=sha(DEV80_MANIFEST),
+        frozen_dev80_seed_domain=DEV80_SEED_DOMAIN,
         n_replay=8,n_b22=4,n_dev80=4,
         model_source=native,accounting=gate,
         no_gt_paths_supplied=True,no_historical_candidates_supplied=True,
@@ -275,6 +321,9 @@ def main(args):
         no_gpu_data_passed=True,rows=offline))
     write_x(out/"XP_F8_PRECHECK_RECEIPT.json",dict(
         status="XP_F8_REPLAY_INPUT_LINEAGE_PREFLIGHT_PASS",
+        corrected_dev80_seed_provenance=True,
+        legacy_replay_selection_unchanged=True,
+        prior_replay_disposition="DEV80 3 of 4 fails due to old wrong seed domain",
         source_head=args.expected_head,
         native_provenance=native,accounting=gate,
         manifest_sha256=sha(out/"XP_F8_REPLAY_INPUTS_GT_FREE.json"),
