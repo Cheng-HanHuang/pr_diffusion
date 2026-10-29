@@ -324,8 +324,10 @@ def main(a):
     # Image-paired composition rates, not independent-root p-values.
     class_diff=[]
     for label in "GOPCI":
-        a=sum(r["label"]==label for items in panel_data.values() for r in items[:4])
-        b=sum(r["label"]==label for items in panel_data.values() for r in items[4:])
+        phase1_count=sum(r["label"]==label
+                         for items in panel_data.values() for r in items[:4])
+        phase2_count=sum(r["label"]==label
+                         for items in panel_data.values() for r in items[4:])
         per=[sum(r["label"]==label for r in items[4:])/12-
              sum(r["label"]==label for r in items[:4])/4
              for items in panel_data.values()]
@@ -334,8 +336,10 @@ def main(a):
         flips=8192
         hits=sum(abs(sum(v*(1 if rng.getrandbits(1) else -1) for v in per)/len(per))
                  >=abs(obs)-1e-15 for _ in range(flips))
-        class_diff.append(dict(label=label,p1_count=a,p2_count=b,
-          p1_rate=a/400,p2_rate=b/1200,rate_difference=obs,
+        class_diff.append(dict(label=label,
+          p1_count=phase1_count,p2_count=phase2_count,
+          p1_rate=phase1_count/400,p2_rate=phase2_count/1200,
+          rate_difference=obs,
           paired_image_signflip_p=(hits+1)/(flips+1)))
     conditional=[]
     weights={
