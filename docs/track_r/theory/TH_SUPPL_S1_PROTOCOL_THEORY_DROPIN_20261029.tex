@@ -207,5 +207,26 @@ $\alpha\uparrow1$ \emph{alone} does not force $s\uparrow1$;
 the limit statement requires the simplified all-G-pass model or an
 explicit $s\to1$ hypothesis.
 
+\paragraph{Reading Proposition~1 against held-out protocol results (post-outcome).}
+The identities of Proposition~1 determine compute and the
+zero-consistency flag from the pass probability $s$, but \emph{do
+not} imply that early stopping beats equal-compute fixed-$K$:
+the accuracy comparison also depends on the passing-group winner
+qualities $H_j^+$. In the separately released ImageNet D1-P2 test,
+stop-at-two achieved $0.514$ at $3.36$ mean runs, compared with
+$0.511$ for the linearly interpolated fixed-$K$ comparator
+(+$0.3$ percentage points); its three \textsc{flag}$_C$ images
+included only one actually unsolved image, emphasizing that the
+flag is not a failure certificate. In SITCOM B16, stopping achieved
+$0.819$ at $3.29$ runs versus $0.823$ for fixed-$K$ at equal mean
+runs ($-0.4$ points), even though the independently registered
+rank-race forecast covered all $18/18$ E0/E1 selection points.
+These held-out results are consistent with a high CONSISTENT
+share making the pass event less discriminative of correctness
+and with $H_j^+$ already near the fixed-$K$ selection quality,
+so additional adaptive attempts convey little benefit. This
+is an \emph{interpretation after evaluation}, not a fit of
+$H_j^+$, a causal demonstration, or a new prospective prediction.
+
 % Synthetic regression: scripts/track_r/theory/test_stop_at_m_theory.py
 % Not a forecast for D1-P2/B16/F8 and not a claim of a universal gain theorem.
