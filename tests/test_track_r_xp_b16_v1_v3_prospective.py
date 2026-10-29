@@ -16,6 +16,18 @@ class TestB16Prospective(unittest.TestCase):
         self.assertEqual(s.label(24.,25.1,"101",.2,.04),"O_p")
         self.assertEqual(s.label(24.,24.4,"000",.04,.04),"C")
         self.assertEqual(s.label(24.,24.4,"000",.0401,.04),"I")
+    def test_historical_admission_head_not_scoring_head(self):
+        # Admission was frozen by the earlier analysis commit. Never
+        # require it to claim the newer scoring commit; match its exact
+        # SHA and its known earlier HEAD, then verify the current HEAD
+        # separately.
+        import inspect
+        code=inspect.getsource(s.main)
+        self.assertIn("5067cd4da805696a782cdb01aeffc669c32e0c3b1bd790c7c5fa8dd74d9f8214",code)
+        self.assertIn("9c8a353ea72d12dc19ac35e59bbcf18e396e3ba5",code)
+        self.assertIn("B16_PRIOR_ADMISSION_SHA_AND_ORIGINAL_HEAD_PASS",code)
+        self.assertNotIn('admission["expected_head"]==a.expected_head',code)
+        self.assertIn('git("rev-parse","HEAD")',code)
     def test_e1_exact_and_pl(self):
         r=[dict(run=i,rho=float(i),chosen_good=int(i==3),
                 label="G" if i==3 else "I") for i in range(16)]
