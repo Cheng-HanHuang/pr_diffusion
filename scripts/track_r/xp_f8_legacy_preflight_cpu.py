@@ -241,7 +241,25 @@ def admission():
          "CAMPAIGN_GPUH")
     fail(datetime.datetime.now(ZoneInfo("America/Detroit"))<A10_DEADLINE,
          "A10_DEADLINE_ELAPSED")
-    return dict(used_gpu_h=used,remaining_gpu_h=A10_CAP_H-used,
+    # Include historical replay attempts even when they failed. The old
+    # B16 state is immutable and does not include these GPU-hours.
+    spent_replay=0.
+    receipts=[]
+    for path in sorted(BASE.glob(
+        "xp_f8_legacy_replay_*/XP_F8_LEGACY_REPLAY_WAVE[12].json")):
+        v=read_json(path)
+        hours=v.get("incremental_gpu_h")
+        fail(v.get("wave") in (1,2)
+             and isinstance(hours,(int,float))
+             and 0<=float(hours)<70,
+             "PRIOR_REPLAY_GPU_H_LEDGER")
+        spent_replay+=float(hours)
+        receipts.append(dict(path=str(path),gpu_h=float(hours)))
+    fail(used+spent_replay<A10_CAP_H,"REPLAY_SHARED_BUDGET_EXHAUSTED")
+    return dict(used_gpu_h=used+spent_replay,
+                b16_gpu_h=used,prior_replay_gpu_h=spent_replay,
+                prior_replay_receipts=receipts,
+                remaining_gpu_h=A10_CAP_H-used-spent_replay,
                 deadline_et=A10_DEADLINE.isoformat(),
                 b16_complete_receipt_sha256=sha(
                     B16/"XP_A11_B16_PROD_COMPLETE.json"))
@@ -323,7 +341,7 @@ def main(args):
         status="XP_F8_REPLAY_INPUT_LINEAGE_PREFLIGHT_PASS",
         corrected_dev80_seed_provenance=True,
         legacy_replay_selection_unchanged=True,
-        prior_replay_disposition="DEV80 3 of 4 fails due to old wrong seed domain",
+        prior_replay_disposition="previous DEV80 roots used incorrect screening seed domain; historical agreement still to be retested",
         source_head=args.expected_head,
         native_provenance=native,accounting=gate,
         manifest_sha256=sha(out/"XP_F8_REPLAY_INPUTS_GT_FREE.json"),
