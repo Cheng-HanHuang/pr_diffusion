@@ -23,11 +23,23 @@ class TestA12Ledger(unittest.TestCase):
         self.assertIn("B16_PRODUCTION_STATE.json",check)
         self.assertIn("XP_F8_CONTROLLER_STATE.json",check)
         self.assertIn("A10_HISTORICAL_DAPS_WAVE_RECONCILIATION",check)
-    def test_nonterminal_guard(self):
+    def test_nonterminal_legacy_gate_upper_billing(self):
         code=inspect.getsource(m.one)
-        self.assertIn('doc.get("active")==[]',code)
-        self.assertIn("LOCK_EX|fcntl.LOCK_NB",code)
         self.assertIn("NONTERMINAL_SOURCE_",code)
+        self.assertIn("CONSERVATIVE_HISTORICAL_GATE_ACCOUNTING",code)
+        self.assertIn("billing_is_upper_bound",code)
+        self.assertIn("exact_gpu_time_known",code)
+        task=next(x for x in m.MAIN if x[0]=="A10_FAILED_B16_GATE_2")
+        self.assertEqual(task[1],"XP_A12_LEGACY_B16_GATE_104836_CONSERVATIVE_CHARGE.json")
+        self.assertEqual(task[2],"charged_gpu_h_upper_bound")
+    def test_upper_bound_source_is_nonexact(self):
+        from scripts.track_r import xp_a12_legacy_gate_upper_charge_cpu as u
+        source=inspect.getsource(u.main)
+        self.assertIn('uncertain_worker_confirmed_absent_utc',source)
+        self.assertIn('exact_gpu_time_known=False',source)
+        self.assertIn('charged_gpu_h_upper_bound',source)
+        self.assertIn('PIN_STATE',source)
+        self.assertIn('PIN_EVENTS',source)
     def test_fail_closed(self):
         code=inspect.getsource(m.main)
         self.assertLess(code.index("time_sources()"),
