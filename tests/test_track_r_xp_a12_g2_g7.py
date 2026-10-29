@@ -26,7 +26,11 @@ STAGE_SCRIPTS=(
  "xp_a12_g6_prepare_cpu.py",
  "xp_a12_g6_daps_gpu.py",
  "xp_a12_g6_clean_autopilot.py",
- "xp_a12_g7_c2_autopilot.py")
+ "xp_a12_g7_c2_autopilot.py",
+ "xp_a13_f8_score_cpu.py",
+ "xp_a13_f8_faceclip_cpu.py",
+ "xp_a13_f8_v1_v3_compare_cpu.py",
+ "xp_a13_f8_protocol_cpu.py")
 class A12Stages(unittest.TestCase):
  def test_all_sources_parse(self):
   for name in STAGE_SCRIPTS:
@@ -106,5 +110,21 @@ class A12Stages(unittest.TestCase):
   self.assertIn("0.0448503",b16)
   self.assertIn("0.0449706",b16)
   self.assertIn("abs(weighted[k]-ref)<0.002",b16)
+ def test_A13_CP1_F8_contracts(self):
+  scorer=(ROOT/"scripts/track_r/xp_a13_f8_score_cpu.py").read_text()
+  self.assertIn("n_historical=520,n_new=920",scorer)
+  self.assertIn("load_png_rgb8",scorer)
+  self.assertIn("rho_signed(from_rgb8(x8),y)",scorer)
+  self.assertIn("XP_F8_NEW_ROOT_COMPLETE.json",scorer)
+  clip=(ROOT/"scripts/track_r/xp_a13_f8_faceclip_cpu.py").read_text()
+  self.assertIn("PROMPTS_UP,PROMPTS_INV",clip)
+  self.assertIn("CLIP_SHA",clip)
+  forecast=(ROOT/"scripts/track_r/xp_a13_f8_v1_v3_compare_cpu.py").read_text()
+  self.assertIn('len(prediction)==112',forecast)
+  self.assertIn('FREEZES',forecast)
+  protocol=(ROOT/"scripts/track_r/xp_a13_f8_protocol_cpu.py").read_text()
+  self.assertIn('c598176:docs/track_r/protocol/gtfree_protocol.py',protocol)
+  self.assertIn('D1_GAIN=0.0033265974759615347',protocol)
+  self.assertIn('H2=bool(h2)',protocol)
 if __name__=="__main__":
  unittest.main()
