@@ -196,7 +196,8 @@ def run(a,root,prep,tasks,base_seconds):
                 cost=write_cost(root,i,v,ret,elapsed)
                 state["spent_gpu_seconds"]+=elapsed
                 active.pop(i)
-                state["active"]=[]
+                # Keep the other still-running PIDs in state; store()
+                # reconstructs the active list from the live controller.
                 if ret==0:
                     try:
                         sh=verify_root(root,prep,tasks["rows"][i],i,v["attempt"])
