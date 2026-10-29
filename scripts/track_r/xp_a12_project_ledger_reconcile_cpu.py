@@ -65,6 +65,11 @@ def one(stage,relative,key,scale):
          "NONFINITE_GPU_TIME_"+stage)
     gpu_h=float(value)/scale
     status=doc.get("status",doc.get("state"))
+    # An intermediate RUNNING state gives only a lower bound on charged
+    # GPU time. In particular the second A10 failed SITCOM gate snapshot
+    # is RUNNING (100.835 sec): do not claim it as a terminal exact cost.
+    gate(status not in ("RUNNING","STARTED","IN_PROGRESS"),
+         "NONTERMINAL_SOURCE_"+stage+"_STATUS_"+str(status))
     return dict(stage=stage,gpu_h=gpu_h,
        source_receipt_path=str(path),source_receipt_sha256=sha(path),
        source_field=key,source_value=value,
