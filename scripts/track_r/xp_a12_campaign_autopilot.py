@@ -378,8 +378,8 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
    # device VRAM crosses 80%; do not touch foreign co-tenants.
    for _,v in active.values():
     card=next((c for c in cards if c.index==v["gpu"]),None)
-    if card and v["proc"].poll() is None and
-       card.used_mib>0.80*card.total_mib:
+    if (card is not None and v["proc"].poll() is None and
+        card.used_mib>0.80*card.total_mib):
      emit(run,"VRAM80_OWN_WORKER_STOP",gpu=v["gpu"],
           pid=v["proc"].pid,used_mib=card.used_mib)
      try:os.killpg(v["proc"].pid,signal.SIGTERM)
