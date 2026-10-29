@@ -19,9 +19,9 @@ from scripts.track_r.xp_f8_legacy_preflight_cpu import (
     PATCHED_SAMPLER_BLOB)
 
 DAPS_PY=ROOT/"conda-envs/daps/bin/python"
-FROZEN_MANIFEST_SHA="f077dd896759d2e3eeaa879394680a0fcef5b816559ee84db46a06a199af2be5"
-PRECHECK_SHA="c19c632a831c47926301814f2abfa05675c4f46cf104449e34ba98bc78287237"
-PREP=BASE/"xp_f8_legacy_preflight_20261029T052005Z"
+FROZEN_MANIFEST_SHA="0929a94537c30faa893346a000c6cca5b51d5f45b48fbc2dfb0f6e64fa2537b9"
+PRECHECK_SHA="81a0fd43d75521988b4a02d1c148ed99a48c6976cccb1c64899f5c215f97b4f1"
+PREP=BASE/"xp_f8_legacy_preflight_dev80seedfix_20261029T064359Z"
 BAD=("confirmation","confirm305","test-ffhq","demo-ffhq")
 TRACE_SOURCE=r'''
 import os,json
