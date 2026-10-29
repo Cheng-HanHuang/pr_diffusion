@@ -56,6 +56,20 @@ def main(a):
  cap=4*3600
  project0=float(state["project_charged_gpu_h"])
  campaign0=float(state["A12_charged_gpu_h"])
+ if a.g6_final:
+  prior6=Path(a.g6_final)
+  gate(prior6.name=="XP_A12_G6_FINAL_STATUS.json" and
+       prior6.parent.parent==BASE and
+       prior6.parent.name.startswith("xp_a12_g6_prod_") and
+       prior6.is_file() and not prior6.is_symlink(),"G6_PRIOR_PATH")
+  g6=jread(prior6)
+  gate(g6["prior_campaign_sha256"]==sha(prior)
+       and g6["stage_ceiling_gpu_h"]==1.
+       if "stage_ceiling_gpu_h" in g6 else
+       g6["prior_campaign_sha256"]==sha(prior),
+       "G6_PRIOR_CONSISTENCY")
+  project0=float(g6["project_total_charged_gpu_h"])
+  campaign0=float(g6["A12_total_charged_gpu_h"])
  gate(project0+4<=400 and campaign0+4<=150,"SHARED_HEADROOM")
  freeze=Path(a.freeze)
  gate(freeze.parent==BASE and freeze.name.startswith("xp_c_c2_"),"FREEZE")
@@ -67,7 +81,7 @@ def main(a):
  gate(canonical(freeze/"XP_C_GT_IMAGES.json")==receipt["C_manifest_sha256"]
       and canonical(freeze/"XP_C2_EQUIVARIANCE_TASKS.json")==
       receipt["C2_manifest_sha256"],"FROZEN_SHA")
- with (BASE/"XP_A12_G7_CONTROLLER.lock").open("a+") as lk:
+ with (BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock").open("a+") as lk:
   fcntl.flock(lk,fcntl.LOCK_EX|fcntl.LOCK_NB)
   run.mkdir(mode=0o700)
   for x in ("results","logs","cost","pycache"):(run/x).mkdir()
@@ -185,6 +199,7 @@ def entry():
  ap=argparse.ArgumentParser()
  for x in ("expected-head","prior-campaign","freeze","run"):
   ap.add_argument("--"+x,required=True)
+ ap.add_argument("--g6-final",default=None)
  try:main(ap.parse_args())
  except Exception as e:
   traceback.print_exc();print("ACTION NEEDED: A12_G7_C2",e,flush=True)
