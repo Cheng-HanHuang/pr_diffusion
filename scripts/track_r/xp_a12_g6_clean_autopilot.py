@@ -12,15 +12,12 @@ from pathlib import Path
 from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 from scripts.track_r.xp_a12_g45_prepare_cpu import sha
-from scripts.track_r.xp_a12_g6_prepare_cpu import timing_check
 DAPS=ROOT/"conda-envs/daps/bin/python"
 FAST=ROOT/"conda-envs/fast_dips_a15_blackwell/bin/python"
 def write(p,x):
  with Path(p).open("x") as f:json.dump(x,f,indent=2,sort_keys=True);f.write("\n")
 def main(a):
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_CONTROLLER")
- gate(not all(timing_check()[x] for x in ("fast_clean","daps_clean")),
-      "CLEAN_TIMINGS_ALREADY_EXIST")
  wt=Path(__file__).resolve().parents[2]
  git=lambda *xs:subprocess.check_output(["git","-C",str(wt),*xs],
                   text=True).strip()
@@ -42,11 +39,11 @@ def main(a):
       and prior_data["A12_charged_gpu_h"]+1<=150
       and prior_data["project_charged_gpu_h"]+1<=400,
       "G6_SHARED_A12_AND_PROJECT_HEADROOM")
- rec=json.loads((prep/"XP_A12_G6_PREP_RECEIPT.json").read_text())
- gate(rec["status"]=="XP_A12_G6_CONDITIONAL_CLEAN_TIMING_PREP_PASS"
+ rec=json.loads((prep/"XP_A13_G6_PREP_RECEIPT.json").read_text())
+ gate(rec["status"]=="XP_A13_G6_CLEAN_TIMING_TWO_FAMILIES_PREP_PASS"
       and rec["head"]==a.expected_head,"PREP")
  f=prep/"XP_A12_G6_FAST_IN_TASKS.json"
- d=prep/"XP_A12_G6_DAPS_FFHQ_TASKS.json"
+ d=prep/"XP_A13_G6_DAPS400X5_TASKS.json"
  gate(sha(f)==rec["fast_manifest_sha256"] and
       sha(d)==rec["daps_manifest_sha256"],"SHA")
  with (BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock").open("a+") as lock:
@@ -118,19 +115,20 @@ def main(a):
    else:
     mf=json.loads(d.read_text());r=mf["rows"][index]
     token=hashlib.sha256(r["uid"].encode()).hexdigest()[:24]
-    p=run/"gpu"/("root_"+token)/"XP_T_DAPS4K_ROOT_COMPLETE.json"
+    p=run/"gpu"/("root_"+token)/"XP_A13_G6_DAPS400X5_ROOT.json"
     x=json.loads(p.read_text())
-    gate(x["status"]=="XP_T_DAPS4K_ROOT_PASS"
+    gate(x["status"]=="XP_A13_G6_DAPS400X5_NATIVE_ROOT_PASS"
          and x["manifest_sha256"]==rec["daps_manifest_sha256"]
-         and x["uid"]==r["uid"],"DAPS_ONE")
+         and x["method"]=="DAPS400x5_native_F8"
+         and x["uid"]==r["uid"],"DAPS400X5_ONE")
    gate(total_s<3600,"G6_CAP_OVERRUN")
    print("A12_G6_NATIVE_ROOTS_PASS",stage,index,
          "charged_s",round(total_s,2),flush=True)
    if dirty:
     print("A12_G6_DIRTY_TIMING_STOP_NO_MORE_JOBS",flush=True)
     break
-  result=dict(status=("XP_A12_G6_CLEAN_TIMING_COMPLETE"
-       if not dirty and len(cost)==10 else "XP_A12_G6_PARTIAL_OR_DIRTY"),
+  result=dict(status=("XP_A13_G6_CLEAN_TIMING_COMPLETE"
+       if not dirty and len(cost)==10 else "XP_A13_G6_PARTIAL_OR_DIRTY"),
        n_processes=len(cost),native_fast_roots=9 if cost else 0,
        native_daps_roots=sum(x["stage"]=="DAPS" for x in cost),
        wall_gpu_h=total_s/3600,cap_gpu_h=1.,
@@ -139,8 +137,9 @@ def main(a):
        prior_campaign_sha256=sha(a.prior_campaign),
        A12_total_charged_gpu_h=prior_data["A12_charged_gpu_h"]+total_s/3600,
        project_total_charged_gpu_h=prior_data["project_charged_gpu_h"]+total_s/3600,
-       no_ground_truth_access=True)
-  write(run/"XP_A12_G6_FINAL_STATUS.json",result)
+       no_ground_truth_access=True,
+       DAPS_method="native_F8_400x5_not_DAPS4K")
+  write(run/"XP_A13_G6_FINAL_STATUS.json",result)
   print("A12_G6_TERMINAL",json.dumps(result,sort_keys=True),flush=True)
 def entry():
  p=argparse.ArgumentParser()
