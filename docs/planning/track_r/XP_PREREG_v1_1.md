@@ -336,7 +336,51 @@
 >      Report the GOOD share, the mean PSNR and the share of orbit errors.
 > 5. **Priority against CPU work.** The held-out CPU analyses (D1-P2, B16 and F8 under v1/v3 and the protocol) come first; GPU stages run beside them on idle GPUs.
 
-**Status:** FROZEN v1.1 with amendments A1–A12 (planner, 2026-10-29).
+> **Amendment A13 (planner, 2026-10-29 16:10 ET): autopilot charter.** Written after the D1-P2 protocol return (XP `5f6b213`), the B16 v1/v3 return (`8798462`) and A12 G1a (`0153d23`), and before any F8, XP-D4 (run ≥ 16), XP-G, XP-I, E′8 or D2-8 outcome was scored.
+>
+> **Why (Cheng, 2026-10-29 15:29):** the executor should run end to end and return only when files are needed or outcomes could change the paper's story.
+> 1. **A12, clarified and corrected.**
+>    - **The A12 table is one priority queue,** not a timeline with gaps. Each free GPU takes the next stage in the order G1a → G1b → G2 → G3 → G4 → G5 → G6 → G7, concurrently under A10.1 co-tenancy.
+>    - **Nothing sits between them.** XP-B32, XP-K, XP-H, XP-G2, XP-J and XP-I2 are not in the A12 queue. Only the tail queue in item 2 may follow it.
+>    - **G1b launches now:** G1a cost 3.57 GPU-h for 1,600 runs. The "after G1a–G5 have launched" condition is removed.
+>    - **G7's Nov 15 is a deadline, not a start time.** It runs as soon as a GPU is free after G1–G6.
+>    - **Accounting correction.** The A12 cap of 150 GPU-h covers **A12 stages only**; A10's 55.55 GPU-h counts against the 400 GPU-h project cap, not against A12. The conservative project ledger stands at 157.15 GPU-h, including 31.31 GPU-h deliberately over-billed for a dead gate process.
+> 2. **Tail queue (pre-authorized; Tier C; cap 60 GPU-h, separate from A12).** It starts automatically once every A12 stage is complete or running and a GPU is free. Order:
+>    - **T1 XP-K:** exactly as designed in A5.4: B22 (100 ids), n = 4 per family, one parameter changed for each of SITCOM, FAST-DIPS and DAPS. Ceiling 30. It tests the registered mech v1/v1.1 forecasts.
+>    - **T2 XP-I2:** PC-DAPS on the 100 ImageNet images, 1 run × 4 particles. Ceiling 40, and only if G3 passed its smoke.
+>
+>    **Cancelled for this paper:** XP-B32, XP-H, XP-G2, XP-J. The project cap of 400 GPU-h bounds everything; a stage that would cross it does not start.
+> 3. **Decisions the executor makes without asking:**
+>    - **Launch.** The next queued stage starts whenever a GPU is free.
+>    - **Replay gate or smoke fails.** Stop that stage and continue the others. One retry is allowed after a pure infrastructure fix (timeout, lock, admission, environment); a change to the science code or settings is never allowed.
+>    - **Ceiling reached.** Keep the partial panel (complete images only) and continue.
+>    - **Code absent** (PC-DAPS for G3/T2). Post the exact clone command for Cheng once in issue #42, continue the rest, and start the stage when the code appears.
+>    - **XP-D4 seal.** Check `PREDICTIONS_REGISTRY.md` on the planner branch. Unseal when it lists `v4` as registered or declined, or at **Nov 2, 12:00 ET**, whichever comes first. No planner message is needed.
+>    - **CPU pipeline.** Run each panel through the same fixed chain as soon as its data exist:
+>      1. scoring;
+>      2. A9-schema strings and per-candidate orientation decisions, copied to `theory_inputs/`;
+>      3. comparison with every registered forecast that covers it;
+>      4. protocol v1 (`c598176`, commands as in round 7/8 notes, per-cohort τ, pooled by images);
+>      5. the A11/A12 hypothesis table;
+>      6. commit to `xp/returns/`.
+>
+>      Panels, in order: B16 protocol; F8 (v1/v3, A9.2, protocol); XP-D4 (v2/v4 at n = 32 and 64, protocol); XP-G; E′8; D2-8; XP-I; then Tier C (E′ and D2/D3 at 4 runs, FAST64 face-CLIP E1, the unsolved-images PNGs for FAST FFHQ, SITCOM B16 and ImageNet D1, A8.6, A5.5, XP-C, the tail).
+>    - **Infrastructure.** Fixes are the executor's call: document them in the commit; never weaken a gate or alter a frozen rule.
+> 4. **Stop and ask** only if one of these happens:
+>    - a frozen rule cannot be applied as written;
+>    - a data-governance question arises (forbidden datasets, the locked holdout);
+>    - a cap would be exceeded;
+>    - a frozen input or receipt appears wrong (SHA mismatch, label error);
+>    - Cheng must act (clone, permissions, disk).
+> 5. **Checkpoint returns** (at most 20 lines each; otherwise work silently):
+>    - **CP1:** B16 and F8 under the protocol, plus F8 against v1/v3. This completes the primary held-out table, including H2, and includes the project ledger.
+>    - **CP2:** XP-D4 scored after the unseal (v2, v4, protocol).
+>    - **CP3:** XP-G, E′8, D2-8 and XP-I scored. **All of CP1–CP3 by Nov 5, 12:00 ET.**
+>    - **CP4:** the Tier C batch, by Nov 15.
+>
+>    The planner reproduces each checkpoint's protocol outputs; a difference above 0.002 is a stop.
+
+**Status:** FROZEN v1.1 with amendments A1–A13 (planner, 2026-10-29).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

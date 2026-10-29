@@ -14,6 +14,10 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-29, 16:15 (planner): autopilot (A13) and the first held-out results.**
+  - **D1-P2 under the protocol:** H1 pass, H3 fail, H4 pass (planner reproduction bit-identical). **B16 vs v1:** race 18/18 selection points, S2 2/18. B16 under the protocol: H1 pass (planner run).
+  - **Prereg A13:** the executor runs on autopilot with checkpoints CP1–CP4 only. v4 is in production (theory-branch QA cache `629b1fc`).
+  - **Notes, round 9:** [`executors/xp/09_PLANNER_NOTES_20261029_EVE.md`](executors/xp/09_PLANNER_NOTES_20261029_EVE.md).
 - **2026-10-29, 12:35 (planner): GPU campaign A12 and theory round 7.**
   - **F8 complete** (920/920). Theory round 7 accepted: Proposition 1 is now in Sec. 4, the exact evaluator matches the frozen one within 3e-4, and a counterexample narrows the mechanism claim.
   - **Prereg A12:** a 150 GPU-h campaign inside the unchanged 400 cap. Stages: FAST ImageNet to 32/64 (sealed for an optional theory v4), XP-G, PC-DAPS (conditional), DAPS-4K to 8 runs (FFHQ and ImageNet), clean timing, XP-C.

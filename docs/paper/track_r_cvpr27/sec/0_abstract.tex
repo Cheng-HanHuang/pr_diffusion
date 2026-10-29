@@ -2,9 +2,9 @@
 Diffusion-prior solvers for Fourier phase retrieval are evaluated by running each method several times and reporting, for every metric separately, the run closest to the ground truth.
 We ask how much of this quality is available without the ground truth, and why the rest is not.
 For three published solvers on FFHQ, keeping the run with the smallest measurement residual and correcting its orientation with a zero-shot test falls short of an orientation-aware ground-truth oracle by at most two images per solver and cohort; for FAST-DIPS on ImageNet it closes $57$--$60\%$ of the gap between the residual pick and that oracle.
-This selection is predictable: a residual-race model fitted to four runs per image forecast the ImageNet result at all six registered points before the remaining twelve runs were scored, while the standard exchangeable-ranks model missed all six.
+This selection is predictable: a residual-race model fitted to four runs per image forecast the selected-run success of SITCOM and of FAST-DIPS on ImageNet at all $24$ registered points before the remaining runs were scored, while the standard exchangeable-ranks model missed $22$; where forecasts failed, the failure was in generation.
 What four runs cannot predict is which images a solver never solves; no selection repairs them, and ground-truth-selected numbers hide them.
 We turn these findings into a ground-truth-free protocol: it samples until two runs are measurement-consistent, selects by residual, corrects orientation, and flags images with no consistent run or an uncertain orientation.
-On development data (FAST-DIPS, FFHQ) it beats fixed best-of-$K$ at every compute level tested and matches best-of-$16$ with $8.4$ runs per image; we froze it before its held-out evaluation on three solver--dataset pairs \pending{held-out results}.
+On development data (FAST-DIPS, FFHQ) it beats fixed best-of-$K$ at every compute level tested and matches best-of-$16$ with $8.4$ runs per image; frozen before its held-out evaluation, it matched fixed best-of-$K$ at equal compute to within half a point on held-out panels and, as predicted, gained nothing where failed runs fit the measurement \pending{DAPS panel; final wording}.
 We re-report published results under it.
 \end{abstract}

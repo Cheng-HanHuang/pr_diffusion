@@ -63,6 +63,11 @@ H2: it gains at least two points on DAPS, and more than on SITCOM and on ImageNe
 H3: at least half of the $\textsc{flag}_C$ images are unsolved on DAPS and on ImageNet.
 H4: on ImageNet, outputs without either flag are \good at least five points more often than all outputs without $\textsc{flag}_C$.
 \Cref{tab:protocol} reports the outcome.
+On the two panels scored so far, H1 holds: at equal mean runs the protocol gains $+0.3$ points on ImageNet and $-0.4$ on SITCOM, as predicted for solvers whose failed runs are mostly \cons\claim{C-G5}\claim{C-G6}.
+H4 holds: outputs without either flag are \good $12.9$ points more often on ImageNet.
+H3 fails on ImageNet: one of the three flagged images is unsolved, because unsolved images of such solvers yield consistent-but-wrong runs, which $\textsc{flag}_C$ cannot see.
+On both panels the protocol stops after $3.3$--$3.4$ runs per image on average and lands $9$--$14$ points below fixed best-of-$16$, on the fixed-$K$ curve rather than above it: there, stopping trades accuracy for compute instead of saving compute at equal accuracy.
+\pending{DAPS (H1--H3), XP-D4 ($N_{\max}=32, 64$), DAPS-4K at $8$ runs.}
 
 \begin{table}[t]
 \centering\footnotesize
@@ -74,8 +79,8 @@ H4: on ImageNet, outputs without either flag are \good at least five points more
 Panel & $N_{\max}$ & \good & Runs & eq.\ runs & $K{=}N_{\max}$ & $\Oorb$ & $\textsc{flag}_C$ \\
 \midrule
 FAST, FFHQ$^\dagger$ & 64 & 91.3 & 8.4 & 89.1 & 93.9 & 96.1 & 8 (6) \\
-FAST, ImageNet & 16 & \multicolumn{6}{c}{\pending{H1, H3, H4}} \\
-SITCOM, FFHQ & 16 & \multicolumn{6}{c}{\pending{H1, H2}} \\
+FAST, ImageNet & 16 & 51.4 & 3.4 & 51.1 & 65.0 & 75.0 & 3 (1) \\
+SITCOM, FFHQ & 16 & 81.9 & 3.3 & 82.3 & 91.1 & 92.2 & 7 (1) \\
 DAPS, FFHQ & 8 & \multicolumn{6}{c}{\pending{H1--H3}} \\
 \bottomrule
 \end{tabular}

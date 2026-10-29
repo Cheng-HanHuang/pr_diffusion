@@ -23,16 +23,18 @@ Heterogeneity across images enters through a Dirichlet mixture over the class pr
 Given $n$ runs of an image, the average of a policy over all $\binom nK$ subsets is an unbiased estimate of its $K$-run value with a closed form: for an argmin rule, the run ranked $r$-th by residual is selected with probability $\binom{n-r}{K-1}/\binom nK$, and success probabilities take the pass@$k$ form $1-\binom{n-g}{K}/\binom nK$~\cite{chen2021codex}\claim{C-T7}.
 Comparing these model-free estimates with frozen forecasts tests the model.
 
-\paragraph{Two prospective tests.}
+\paragraph{Three prospective tests.}
 For each test we fitted the models to the first four runs of each image, registered forecasts with predictive intervals under (S2), the race and two variants, and only then scored the remaining runs (registry and hashes in the supplement)\claim{C-R1}\claim{C-R2}\claim{C-R3}.
 \emph{FAST-DIPS on FFHQ}, $64$ runs per image (\cref{fig:kcurves}): the race forecast of $\Eo$ holds in cohort~A at six of seven $K$ and fails in cohort~B, and every variant overestimates the oracles\claim{C-F1}.
 \emph{FAST-DIPS on ImageNet}, $16$ runs per image: the race forecast of $\Eone$ holds at all six registered points ($K=8,12,16$, two decision models), with $65\%$ observed at $K{=}16$ against $60.3\%$ $[52.0,68.2]$ forecast, while (S2) misses all six; for $\Eo$ and the oracles, the race covers six of nine points and (S2) three\claim{C-R4}.
-Both tests fail in the same place.
+\emph{SITCOM on FFHQ}, $16$ runs per image: the race forecast holds at all $18$ registered $\Eo$ and $\Eone$ points (two cohorts and pooled, $K=8,12,16$), while (S2) covers two; $\Eone$ reaches $91.1\%$ at $K{=}16$, against $92.2\%$ for the orbit oracle\claim{C-R5}.
+A second SITCOM forecast that imported FAST-DIPS's per-image difficulty did worse, $17$ of $36$ points against $31$ for the first, by underestimating the oracles\claim{C-R5}.
+Where the forecasts fail, they fail on generation.
 At $K{=}64$ on FFHQ, $96.1\%$ of images have a \good run against $98.8\%$ forecast\claim{C-F1}; on ImageNet the orbit oracle reaches $75\%$ at $K{=}16$ against $85.9\%$ forecast\claim{C-R4}.
 
 \paragraph{Selection is predictable; generation is not.}
 Holding generation fixed separates the two.
-Given each FFHQ image's realized $64$ classes, the frozen race weights predict the observed $\Eo$ within $1.4$ points at every $K$, and the weights of the weaker-prior variant within $0.3$, whereas (S2) falls $4$--$8$ points short at every $K$ (exploratory, with frozen parameters)\claim{C-F3}.
+Given each FFHQ image's realized $64$ classes, the frozen race weights predict the observed $\Eo$ within $1.4$ points at every $K$, and the weights of the weaker-prior variant within $0.3$, whereas (S2) falls $4$--$8$ points short at every $K$ (exploratory, with frozen parameters)\claim{C-F3}; for SITCOM the race is $1.5$--$2.8$ points high and (S2) $12.8$ points low\claim{C-R5}.
 By the frozen comparison rule, (S2) nevertheless covers more FFHQ $\Eo$ points ($15$ of $21$ against $6$), because its pessimistic selection offsets the optimistic generation that all variants share\claim{C-F1}.
 The generation miss has a simple anatomy.
 Of the $25$ FFHQ images without a \good run among their first four, $18$ produced one later and $7$ never did in $64$ runs, against $2.2$ forecast: the mixture shrinks an image with four failures toward its cohort's success rate\claim{C-F2}.
