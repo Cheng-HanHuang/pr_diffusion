@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""A12 automatic stage queue: gated G2, conditional G3, G4 and G5.
+"""A13 automatic stage queue after completed/partial G1b: G2, G3, G4 and G5.
 
 Single-controller shared 400 project / 150 A12 campaign GPU budget.
 New generation has no GT or scoring. Never reads D4 run >=16 outcomes.
 G3 requires a separately certified native PC-DAPS signed-y adapter;
-when absent/skipped it publishes a blocked receipt. G1b is deliberately
-not admitted unless G1a-G5 launched and remaining projected budget fits.
-G6/G7 have their own readiness gates and are NOT invented here.
+when absent/skipped it publishes a blocked receipt. G1b is independently admitted first by xp_a13_g1b_autopilot.py
+and its terminal receipt is mandatory here.
+G6/G7 use separate stage-specific readiness gates and controllers.
 """
 from __future__ import annotations
 import argparse,datetime,fcntl,hashlib,json,math,os,signal,subprocess,sys,time,traceback
@@ -20,11 +20,11 @@ from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 ROOT_FAST_PY=ROOT/"conda-envs/fast_dips_a15_blackwell/bin/python"
 ROOT_DAPS_PY=ROOT/"conda-envs/daps/bin/python"
 G1A=BASE/"xp_a12_g1a_prod_20261029T180624Z/XP_A12_G1A_FINAL_STATUS.json"
+G1B_EXPECTED_STATUS="XP_A13_G1B_3200_GENERATION_COMPLETE"
 DEADLINE={"G2":(2026,11,3,12),"G3":(2026,11,3,12),"G4":(2026,11,4,12),"G5":(2026,11,4,12),"G1b":(2026,11,4,12)}
 CAP={"G2":10.,"G3":45.,"G4":30.,"G5":40.,"G1b":40.}
 N={"G2":2880,"G3":180,"G4":720,"G5":400,"G1b":3200}
 RESERVE_MIB={"G2":8192,"G3":24576,"G4":12288,"G5":12288,"G1b":8192}
-A10=55.54578541457511
 CAMPAIGN_CAP=150.
 PROJECT_CAP=400.
 STOP=False
@@ -70,10 +70,34 @@ def prepar(a):
       and g["completed"]==1600 and g["replay_pass"] is True
       and g["failed_attempts"]==0 and g["outcome_sealed"] is True
       and g["ledger_sha256"]==sha(ledger),"G1A_RECEIPT")
- start=L["project_total_before_A12_gpu_h"]+g["stage_gpu_h"]
- campaign=A10+g["stage_gpu_h"]
- gate(start+CAMPAIGN_CAP-campaign<=PROJECT_CAP and
-      campaign<CAMPAIGN_CAP,"PROJECT_CAMPAIGN_CAP")
+ g1b_file=Path(a.g1b_final)
+ gate(g1b_file.name=="XP_A13_G1B_FINAL_STATUS.json" and
+      g1b_file.parent.parent==BASE and
+      g1b_file.parent.name.startswith("xp_a13_g1b_prod_") and
+      g1b_file.is_file() and not g1b_file.is_symlink(),
+      "A13_G1B_RECEIPT_PATH")
+ b=jread(g1b_file)
+ gate(b["status"]==G1B_EXPECTED_STATUS or
+      str(b["status"]).startswith("PARTIAL_"),"A13_G1B_TERMINAL_STATUS")
+ gate(b["g1a_final_sha256"]==sha(G1A)
+      if "g1a_final_sha256" in b else
+      b["G1a_pixel_exact_replay"] is True,
+      "A13_G1B_LINEAGE")
+ gate(b["completed"]%32==0 and
+      0<b["completed"]<=3200
+      and 0<=b["stage_gpu_h"]<=40.05
+      and b["source_head"] and
+      b["stage_cap_gpu_h"]==40.
+      and abs(b["project_total_gpu_h"]-
+       (L["project_total_before_A12_gpu_h"]+g["stage_gpu_h"]+
+         b["stage_gpu_h"]))<1e-4
+      and abs(b["A12_total_gpu_h"]-
+         (g["stage_gpu_h"]+b["stage_gpu_h"]))<1e-4,
+      "A13_G1B_ACTUAL_PROJECT_CAMPAIGN_CHARGE")
+ start=b["project_total_gpu_h"]
+ campaign=b["A12_total_gpu_h"]
+ gate(start<=PROJECT_CAP and campaign<=CAMPAIGN_CAP,
+      "A13_SHARED_HEADROOM")
  P={}; roots={}
  for stage,p in (("G2",a.g2_prep),("G45",a.g45_prep))+(
       (("G3",a.g3_prep),) if a.g3_prep else ())+(
@@ -113,12 +137,6 @@ def task_set(roots,P):
   prod=[dict(stage="G2",kind="PROD",sig=sig,start=i,count=n)
         for i,n in [(1,7),(9,7)]+[(k,8) for k in range(16,1440,8)]]
   jobs["G2_SIGMA_"+sig]=(smoke,prod)
- if "G1b" in P:
-  m=roots["G1b"]/"XP_A12_G1B_3200_TASKS.json"
-  gate(sha(m)==P["G1b"]["manifest_sha256"]
-       and len(jread(m)["rows"])==3200,"G1B_FROZEN_3200")
-  jobs["G1b"]=([],[dict(stage="G1b",kind="PROD",
-       start=i,count=32) for i in range(0,3200,32)])
  if "G3" in P:
   p=roots["G3"]/"XP_A12_G3_180_BAGS.json"
   gate(sha(p)==P["G3"]["manifest_sha256"]
@@ -442,6 +460,7 @@ def main(a):
    for phase in ("REPLAY","PROD"):(run/stage/phase/"gpu").mkdir(parents=True)
   state=dict(status="ADMITTED",head=a.expected_head,
     project_initial_gpu_h=project0,campaign_initial_gpu_h=campaign0,
+    G1b_final_receipt_sha256=sha(a.g1b_final),
     parent_ledger_sha256=sha(a.ledger),G1a_final_sha256=sha(G1A),
     stage_seconds={x:0. for x in CAP},done={},active=[],
     G3_status="NOT_ASSESSED",G1b_status="NOT_AUTHORIZED_TO_AUTO_LAUNCH",
@@ -500,32 +519,7 @@ def main(a):
      charged_gpu_h=state["stage_seconds"][stage]/3600,
      stage_cap_gpu_h=CAP[stage],head=a.expected_head,
      outcomes_GT_not_read=True))
-  # G1b may start only after all A12 G1a-G5 stages have LAUNCHED,
-  # including optional G3; no authority to silently skip G3.
-  # The projected G1b charge is based on G1a's measured 1600 roots,
-  # with a conservative 1.25 multiplier for 3200.
-  if (state.get("status","").startswith("PARTIAL_STOP_")):
-   state["G1b_status"]="BLOCKED_BY_PRIOR_STAGE_PARTIAL_STOP"
-  elif ("G1b" in jobs and all(
-       state["stage_seconds"][stage]>0 for stage in ("G2","G3","G4","G5"))):
-   forecast=1.25*g1a["stage_gpu_h"]*2
-   used=sum(state["stage_seconds"].values())/3600
-   if (campaign0+used+forecast<=CAMPAIGN_CAP and
-       project0+used+forecast<=PROJECT_CAP):
-    state["G1b_status"]="ADMITTED_CONDITIONALLY_AFTER_ALL_STAGE_LAUNCHES"
-    state["done"]={}
-    success=run_queue(a,run,"G1b",jobs["G1b"][1],
-              roots,P,state,project0,campaign0)
-    if success:
-     write(run/"XP_A12_G1b_FINAL_STATUS.json",dict(
-       status="XP_A12_G1B_3200_GENERATION_COMPLETE_SEALED",
-       n_roots=3200,head=a.expected_head,
-       charged_gpu_h=state["stage_seconds"]["G1b"]/3600,
-       prereg_v4_outcomes_still_sealed=True))
-     state["G1b_status"]="3200_SEALED_COMPLETE"
-   else:state["G1b_status"]="PARTIAL_AT_AUTHORIZED_CEILING"
-  else:
-   state["G1b_status"]="NOT_ADMITTED_CONDITIONAL_DEPENDENCY_OR_BUDGET"
+  state["G1b_status"]="BILLED_BY_PRIOR_A13_G1B_RECEIPT"
   if not state.get("status","").startswith("PARTIAL_STOP_"):
    state["status"]="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
   state["project_charged_gpu_h"]=project0+sum(state["stage_seconds"].values())/3600
@@ -539,10 +533,10 @@ def main(a):
     root=str(run)),sort_keys=True),flush=True)
 def entry():
  p=argparse.ArgumentParser()
- for x in ("expected-head","ledger","g2-prep","g45-prep","run"):
+ for x in ("expected-head","ledger","g1b-final","g2-prep","g45-prep","run"):
   p.add_argument("--"+x,required=True)
  p.add_argument("--g3-prep",default=None)
- p.add_argument("--g1b-prep",default=None)
+
  try:main(p.parse_args())
  except Exception as e:
   traceback.print_exc();print("ACTION NEEDED: A12_CAMPAIGN_AUTOPILOT",e,flush=True)
