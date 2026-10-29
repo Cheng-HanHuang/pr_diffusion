@@ -1,0 +1,71 @@
+\section{A ground-truth-free protocol}
+\label{sec:protocol}
+
+\paragraph{The rule.}
+The protocol takes the measurement $y$, a solver $S$ with a consistency threshold $\tau_S$, an orientation scorer $u$, a target $M$ and a budget $N_{\max}$ (\cref{fig:teaser}a).
+(1)~Draw runs $\hat x_1,\hat x_2,\dots$ of $S$ with fresh seeds and stop as soon as $M$ of them have $\rho\le\tau_S$, or after $N_{\max}$ runs.
+(2)~Keep $\hat x=\argmin_j\rho(\hat x_j)$.
+(3)~Output $R_{111}\hat x$ if $\delta=u(R_{111}\hat x)-u(\hat x)>0$ and $\hat x$ otherwise.
+(4)~Raise $\textsc{flag}_C$ if no drawn run had $\rho\le\tau_S$, and $\textsc{flag}_O$ if $|\delta|$ falls in the lowest $30\%$ of the margins of the evaluated outputs.
+We use $M=2$ throughout.
+Each step uses the measurement, the solver and a zero-shot scorer, never the ground truth.
+The design choices follow from what the residual can and cannot tell.
+
+\paragraph{The residual compares runs; it does not certify them.}
+Within an image, a \good run has a smaller residual than an \incons run in $570$ of $571$ pairs, and than a \cons run in $200$ of $205$\claim{C-A7}.
+The comparison is sharp because two runs of the same image are scored against the same noise, which cancels: a \cons run of SITCOM fits worse than a \good run of the same image by a median of only $0.7\%$ of $\sigma$, yet the order is systematic\claim{C-A8}.
+Absolute residual levels, in contrast, are set by the solver.
+With signed measurements the ground truth has $\rho(\xs)=\sigma$ to within $0.3\%$, but the \good runs of DAPS and SITCOM, whose data terms are overweighted (\cref{sec:setup}), have median residuals of $0.946\sigma$ and $0.884\sigma$, against $0.997\sigma$ for FAST-DIPS\claim{C-A6}.
+A threshold at the noise level would accept most of their failed runs, and one fitted to their \good runs would reject the ground truth.
+The protocol therefore uses $\tau_S$ only to decide when enough candidates exist and when none does, and $\textsc{flag}_C$ means that no run reached the solver's own consistency level, not that the output is wrong.
+
+\paragraph{Calibrating $\tau_S$ once per solver.}
+$\tau$ behaves as a constant of the solver and noise level: it is $0.0501$ for FAST-DIPS on FFHQ and $0.0502$ on ImageNet, and differs by less than $0.3\%$ between our two FFHQ cohorts for DAPS ($0.0475$, $0.0476$) and SITCOM ($0.0449$, $0.0450$)\claim{C-G3}.
+We therefore calibrate it once on images with ground truth and use it unchanged elsewhere; on ImageNet the protocol uses the FFHQ value.
+Where no calibration set exists, a label-free threshold, the median plus three scaled MADs of the per-image minimum residual over a pilot of four runs, lands within $2\%$ of $\tau$ for every solver and cohort\claim{C-G3}.
+
+\paragraph{Orientation.}
+By \cref{sec:setup}, the choice within an orbit must come from the prior, and any test that orders orbit members like the prior is the Bayes choice.
+On FFHQ, a zero-shot CLIP test with fixed upright and upside-down face prompts fixes all $58$ global orbit errors among $1{,}960$ runs and flips none of the $1{,}171$ \good runs\claim{C-A2}.
+On ImageNet the generic prompts ``a photo.'' and ``an upside-down photo.'' repair $57$ of $67$ global orbit errors of FAST-DIPS and flip $5$ of $100$ \good runs\claim{C-A11}, and the margin of the test is informative: among the development outputs, those outside the least confident $30\%$ are \good in $65.3\%$ of cases, against $50.7\%$ for all outputs without $\textsc{flag}_C$\claim{C-G4}.
+
+\paragraph{Why stopping helps, and where.}
+Fixed best-of-$K$ spends $K$ runs on every image.
+The stopping rule spends $M$ runs on an image whose runs are usually consistent, more on one whose runs rarely are, and $N_{\max}$ on one whose runs never are, which it then flags.
+Its value depends on how well consistency predicts correctness.
+If an image's failed runs are \incons, $M$ consistent runs are $M$ candidates for a correct one; if they are \cons, the rule stops on wrong candidates as readily as a small fixed $K$ would.
+On the same $80$ images of cohort~B with four runs each, stopping gains $4.9$ points over fixed best-of-$K$ at equal mean runs for DAPS, whose failed runs on these images are $12\%$ \cons, and $-0.1$ points for SITCOM, whose failed runs are $60\%$ \cons\claim{C-G2}.
+
+\paragraph{Development results.}
+Runs of an image are exchangeable in our data\claim{C-F4}, so random orders of an image's runs simulate sequential sampling; baselines are the exact all-subset estimators of \cref{sec:selection}.
+For FAST-DIPS on FFHQ with $64$ runs per image (\cref{fig:teaser}b), the protocol with $N_{\max}=64$ returns a \good image for $91.3\%$ of the $180$ images at $8.4$ runs per image, against $89.1\%$ for fixed best-of-$K$ at the same mean number of runs and $91.2\%$ for best-of-$16$\claim{C-G1}.
+It beats fixed best-of-$K$ at all $12$ operating points we tried ($M=1,\dots,4$, $\tau_S$ scaled by $0.997$, $1$ and $1.003$), by $0.8$ to $4.7$ points, and stays close to the fixed-$K$ ground-truth orbit oracle at equal mean compute, because it moves runs from easy images to hard ones.
+$\textsc{flag}_C$ is raised for $8$ images, $6$ of the $7$ that FAST-DIPS never solves; the seventh yields \cons runs\claim{C-G1}\claim{C-F5}.
+These numbers are in-sample: we designed the protocol on these runs.
+
+\paragraph{Frozen held-out test.}
+We froze the protocol, its parameters and four hypotheses before any held-out per-image result existed\claim{C-G1}, on three panels: FAST-DIPS on ImageNet ($100$ images, $16$ runs, $\tau_S$ transferred from FFHQ), SITCOM ($16$ runs) and DAPS ($8$ runs) on the $180$ FFHQ images.
+H1: at equal mean runs, the protocol loses at most one point against fixed best-of-$K$ on each panel.
+H2: it gains at least two points on DAPS, and more than on SITCOM and on ImageNet, whose failed runs are mostly \cons.
+H3: at least half of the $\textsc{flag}_C$ images are unsolved on DAPS and on ImageNet.
+H4: on ImageNet, outputs without either flag are \good at least five points more often than all outputs without $\textsc{flag}_C$.
+\Cref{tab:protocol} reports the outcome.
+
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{1.3pt}
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+ & & \multicolumn{2}{c}{Protocol} & \multicolumn{2}{c}{Fixed best-of-$K$} & & \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Panel & $N_{\max}$ & \good & Runs & eq.\ runs & $K{=}N_{\max}$ & $\Oorb$ & $\textsc{flag}_C$ \\
+\midrule
+FAST, FFHQ$^\dagger$ & 64 & 91.3 & 8.4 & 89.1 & 93.9 & 96.1 & 8 (6) \\
+FAST, ImageNet & 16 & \multicolumn{6}{c}{\pending{H1, H3, H4}} \\
+SITCOM, FFHQ & 16 & \multicolumn{6}{c}{\pending{H1, H2}} \\
+DAPS, FFHQ & 8 & \multicolumn{6}{c}{\pending{H1--H3}} \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{The protocol ($M=2$) against fixed best-of-$K$.} \good: \% of images with a \good output; Runs: mean runs per image. Fixed best-of-$K$ uses $\Eone$ (with an orientation test) or $\Eo$ (without), at the protocol's mean runs and at $K=N_{\max}$, the runs available. $\Oorb$: ground-truth orbit oracle at $N_{\max}$. $\textsc{flag}_C$: flagged images (unsolved among them). $^\dagger$Development data, without the orientation step\claim{C-G1}.}
+\label{tab:protocol}
+\end{table}

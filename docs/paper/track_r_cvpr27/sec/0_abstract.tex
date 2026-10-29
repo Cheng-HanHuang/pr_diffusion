@@ -1,11 +1,10 @@
 \begin{abstract}
-Diffusion-prior solvers for Fourier phase retrieval are usually evaluated by running each method several times and reporting, for every metric separately, the run closest to the ground truth.
-We ask what this protocol measures and what is achievable without the ground truth.
-The standard oversampled Fourier operator has an exact eight-element symmetry group (per-channel $180^\circ$ rotations).
-We prove that any selector computed from the measurements alone, and any likelihood-only particle weight, is blind to it, and that for samplers with Gaussian transitions the preference for one orientation is bounded by the transitions' equivariance defect.
-Auditing three published solvers on FFHQ, we find that selecting the run with the smallest measurement residual and then applying a zero-shot orientation test recovers $92.6$--$97.5\%$ of the gain of an orientation-aware ground-truth oracle.
-Within an image, the residual ranks a correct run ahead of a wrong but measurement-consistent one in $97.6\%$ of pairs, far more often than an imperfect-verifier model with exchangeable ranks assumes; the remaining failures are almost all runs that never approach the image.
-Yet two of the three solvers fit the noisy data more closely than the ground truth does, so a residual threshold is a property of the solver and cannot certify a reconstruction.
-\pending{$K$-scaling against forecasts frozen before the additional runs were evaluated (up to $K{=}64$); ImageNet; the per-metric oracle.}
-We end with reporting recommendations.
+Diffusion-prior solvers for Fourier phase retrieval are evaluated by running each method several times and reporting, for every metric separately, the run closest to the ground truth.
+We ask how much of this quality is available without the ground truth, and why the rest is not.
+For three published solvers on FFHQ, keeping the run with the smallest measurement residual and correcting its orientation with a zero-shot test falls short of an orientation-aware ground-truth oracle by at most two images per solver and cohort; for FAST-DIPS on ImageNet it closes $57$--$60\%$ of the gap between the residual pick and that oracle.
+This selection is predictable: a residual-race model fitted to four runs per image forecast the ImageNet result at all six registered points before the remaining twelve runs were scored, while the standard exchangeable-ranks model missed all six.
+What four runs cannot predict is which images a solver never solves; no selection repairs them, and ground-truth-selected numbers hide them.
+We turn these findings into a ground-truth-free protocol: it samples until two runs are measurement-consistent, selects by residual, corrects orientation, and flags images with no consistent run or an uncertain orientation.
+On development data (FAST-DIPS, FFHQ) it beats fixed best-of-$K$ at every compute level tested and matches best-of-$16$ with $8.4$ runs per image; we froze it before its held-out evaluation on three solver--dataset pairs \pending{held-out results}.
+We re-report published results under it.
 \end{abstract}

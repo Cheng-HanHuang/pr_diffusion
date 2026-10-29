@@ -1,25 +1,34 @@
 \begin{strip}
 \centering
-\fbox{\parbox[c][3.2cm][c]{0.31\linewidth}{\centering\small
-  \textbf{(a)} One FFHQ test image and its eight\\
-  per-channel $180^\circ$ rotations:\\
-  identical Fourier magnitudes\\[2pt]
-  \pending{render from XP-C GT set}}}\hfill
-\fbox{\parbox[c][3.2cm][c]{0.31\linewidth}{\centering\small
-  \textbf{(b)} Equivariance defect $\tilde\delta(t)$ of the FFHQ\\
-  and ImageNet denoisers vs.\ the share of\\
-  orbit errors per dataset\\[2pt]
-  \pending{XP-C2, XP-D1}}}\hfill
-\fbox{\parbox[c][3.2cm][c]{0.31\linewidth}{\centering\small
-  \textbf{(c)} What the published protocol reports:\\
-  first run $\to$ GT-free selection $\to$ GT oracle\\
-  $\to$ per-metric oracle (PSNR, dB)\\[2pt]
-  \pending{R0-N.2 A4.3/A7; XP-D2}}}
+\begin{minipage}[c]{0.42\linewidth}\centering\footnotesize
+\resizebox{0.98\linewidth}{!}{%
+\begin{tikzpicture}[node distance=2.2mm and 2.6mm,
+  box/.style={draw=black!55,rounded corners=1.5pt,inner sep=2.2pt,align=center,font=\scriptsize},
+  flag/.style={draw=black!55,dashed,rounded corners=1.5pt,inner sep=2pt,align=center,font=\scriptsize},
+  arr/.style={-{Stealth[length=1.6mm]},black!65}]
+\node[box] (run) {draw run $\hat x_j$\\ residual $\rho_j$};
+\node[box,right=of run] (stop) {$M$ runs with\\ $\rho\le\tau_S$?};
+\node[box,right=of stop] (pick) {keep\\ $\argmin_j\rho_j$};
+\node[box,below=of pick] (ori) {zero-shot\\ orientation test};
+\node[box,left=of ori] (out) {output};
+\node[flag,below=of run,xshift=0mm] (flags) {flags: no consistent run;\\ orientation uncertain};
+\draw[arr] (run) -- (stop);
+\draw[arr] (stop) -- node[above,font=\tiny]{yes} (pick);
+\draw[arr] (stop.north) -- ++(0,2.2mm) -| node[pos=0.25,above,font=\tiny]{no, $j<N_{\max}$} (run.north);
+\draw[arr] (pick) -- (ori);
+\draw[arr] (ori) -- (out);
+\draw[arr,dashed] (out) -- (flags);
+\end{tikzpicture}}\\[3pt]
+\textbf{(a)} The ground-truth-free protocol (\cref{sec:protocol}).
+\end{minipage}\hfill
+\begin{minipage}[c]{0.50\linewidth}\centering
+\includegraphics[width=\linewidth]{fig/protocol_frontier.pdf}\\[-1pt]
+{\footnotesize\textbf{(b)} Success against compute, FAST-DIPS on FFHQ.}
+\end{minipage}
 \captionsetup{hypcap=false}
 \captionof{figure}{\textbf{Overview.}
-(a) The oversampled Fourier operator used throughout the diffusion phase-retrieval literature has an exact eight-element symmetry group; every image in a row has the same measurement.
-(b) Measurement guidance cannot tell these images apart; a sampler's preference for the upright one comes only from the denoiser's lack of equivariance, which we bound and measure (\cref{sec:symmetry}).
-(c) Each layer of the standard best-of-$K$ protocol adds reported quality that is not available at test time (\cref{sec:audit}).}
+(a) The protocol draws runs until $M$ of them fit the measurement as well as the solver's correct runs do, keeps the run with the smallest residual, corrects its orientation with a zero-shot test, and flags images with no consistent run or an uncertain orientation.
+(b) At every compute level we tested, it returns a \good reconstruction for more images than a fixed best-of-$K$ with the same mean number of runs, the residual pick $\Eo$ (development data, $180$ images with $64$ runs each; held-out tests in \cref{sec:protocol}). The dashed curve is the fixed-$K$ ground-truth orbit oracle.}
 \captionsetup{hypcap=true}
 \label{fig:\currfilebase}%
 \end{strip}

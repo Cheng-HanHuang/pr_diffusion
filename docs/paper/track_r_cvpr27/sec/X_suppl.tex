@@ -1,13 +1,15 @@
-% Supplementary material outline (separate PDF, due Nov 23, 2026).
+% Supplementary material outline (separate PDF, due Nov 23, 2026). Restructured 2026-10-29 for direction (a), prereg A11.
+% The former main-text Sec. 4 (symmetry: Prop. ratio, Cor. blind, Thm. equivariant samplers, Thm. TV bound, measurements)
+% is kept verbatim in sec/X_symmetry_moved_to_suppl.tex as the source for S1.
 \section*{Supplementary material (outline)}
 \begin{enumerate}[label=S\arabic*.]
-\item Proofs: \cref{lem:orbit}, \cref{prop:ratio}, \cref{cor:blind} (likelihood-only weights and pruning; why full twisted-SMC weights are not covered), \cref{thm:equivariant}, \cref{thm:tv}, and the posterior--sampler triangle bound. A per-solver source audit of every operation other than the denoiser, including terminal steps, NaN branches and step schedules.
-\item Selection model: derivation of \cref{eq:curves}, the residual-race model and its fit, the order-statistic estimators and their unbiasedness, the per-metric inflation model, tests of (S1)--(S2), and the four-moment non-identifiability example.
-\item Frozen forecasts: files, hashes, commit times; every forecast against its observation.
-\item Full audit tables per solver, cohort, metric and $K$; ImageNet at secondary thresholds.
+\item The GT-free protocol: the frozen specification, its hash and freeze time; the reference implementation; development results on every panel (FAST, DAPS and SITCOM prefixes; ImageNet phase 1); the frontier over $M$ and $\tau_S$; the label-free threshold; every held-out hypothesis with its outcome; secondary panels (DAPS-4K FFHQ and ImageNet, SITCOM ImageNet, FAST face-CLIP $\Eone$). \pending{theory: when stopping beats fixed $K$ at equal budget (heterogeneous consistency rates); optional registered forecast of the protocol (v3P).}
+\item Symmetry: the orbit lemma (classical; proof for the even canvas), the posterior ratio within an orbit, orientation-blindness of measurement-only selection and likelihood-only weights (and why full twisted-SMC weights are not covered), invariance of the output law under equivariant samplers, the total-variation bound by the equivariance defect, the posterior--sampler triangle bound; a per-solver source audit of every operation other than the denoiser; equivariance-defect profiles.
+\item Selection model: derivation of \cref{eq:curves}, the residual-race model and its fit, the order-statistic estimators and their unbiasedness, tests of (S1)--(S2), the four-moment non-identifiability example, and the data-specific identification bounds.
+\item Frozen forecasts: files, hashes, commit times; every forecast against its observation (v1, v2, v2 E1, v3); the composition-conditional selection test.
+\item Full tables per solver, cohort, metric and $K$; the per-metric oracle; ImageNet at secondary thresholds.
 \item The noise floor: $\rho/\sigma$ and the fit-error/absorbed-noise decomposition per class and solver; the data-term calibration runs (XP-K).
-\item Controls: noise level; $512$ canvas; DPS; PC-DAPS and DiffFPR on the same measurements; the published DAPS configuration on FFHQ (if run).
-\item Orientation tests on ground truth and reconstructions, both datasets; equivariance-defect profiles.
-\item Exploratory: ground-truth-free reliability diagnostics (cross-run agreement, PRTF-style score) and the mixed-twin anatomy of inconsistent failures.
-\item Compute: timings, GPU-hours, and the compute frontier.
+\item Controls: noise level; $512$ canvas; DPS; PC-DAPS on the same measurements.
+\item Why a blur or misalignment cannot break the twin ambiguity ($|\cF(x*k)|=|\cF x|\,|\cF k|$), and what masks and references change.
+\item Compute: timings, GPU-hours, and the compute axis of the protocol.
 \end{enumerate}

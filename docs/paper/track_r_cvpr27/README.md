@@ -25,19 +25,18 @@ latexmk -pdf main.tex
   - the in-house NP family is not described as ours.
 - **Numbers** come only from committed aggregates or registered prediction files (`FIGURES_PLAN.md`).
 
-## Section map (8 pages)
+## Section map (8 pages; restructured 2026-10-29, direction (a), prereg A11)
 
 | File | Content | Depends on |
 |---|---|---|
-| `sec/1_intro.tex` | Problem, symmetry view, contributions | Final numbers |
-| `sec/2_related.tex` | Solvers, evaluation practice, classical PR, best-of-n theory | Verified citations |
-| `sec/3_setup.tex` | Operator, orbit lemma, identifiability, labels, policies, data | R0-N.2 B2 (training membership); A4.4 (DAPS config) |
-| `sec/4_symmetry.tex` | Prop. 1, Cor. 1, Thms. 1–2, measurements, orientation tests | TH1.1 proofs; XP-C/C2; XP-D |
-| `sec/5_selection.tex` | Selection model, monotone gap, estimators, frozen predictions | TH1.2–TH1.5; XP-A/B/F |
-| `sec/6_audit.tex` | Protocol table; decomposition; anatomy; ImageNet; controls | R0-N.2 A4.3/A7; XP-D; XP-T |
-| `sec/7_discussion.tex` | Recommendations; limitations | All |
+| `fig/teaser.tex` | (a) protocol diagram (TikZ); (b) frontier, `fig/protocol_frontier.pdf` from `fig/make_fig_protocol_frontier.py` | Protocol dev outputs; held-out frontier panels optional |
+| `sec/1_intro.tex` | Problem; three findings; protocol; contributions | Held-out protocol results |
+| `sec/2_related.tex` | Solvers; evaluation practice; best-of-n, verifiers, adaptive sampling; uniqueness and symmetry breaking | Verified citations (C-L1) |
+| `sec/3_setup.tex` | Operator; orbit as classical, with the two consequences for selection; labels; policies; data | — |
+| `sec/4_protocol.tex` | **The method:** rule; residual as comparison; τ calibration; orientation; why stopping helps; dev results; frozen held-out test; Tab. 1 | Held-out D1-P2, B16, F8 (A11) |
+| `sec/5_selection.tex` | Selection model; estimators; two prospective tests; "selection is predictable, generation is not"; identification limit; Fig. kcurves | B16/F8 vs v1/v3; ImageNet panel |
+| `sec/6_audit.tex` | What survives without GT: protocols table; FFHQ; ImageNet; unsolved-images figure (placeholder) | A7 per-metric; A8.6; E′; XP-I |
+| `sec/7_discussion.tex` | Recommendations; limitations, including symmetry-breaking measurements | All |
+| `sec/X_suppl.tex` | Supplement outline. The old Sec. 4 (symmetry theorems) is kept verbatim in `sec/X_symmetry_moved_to_suppl.tex` | — |
 
-**Title candidates** (Cheng is flexible):
-- (D, current) "Orientation-Blind Guidance and Ground-Truth-Free Selection in Diffusion Phase Retrieval"
-- (C) "What Does Best-of-K Measure? Symmetry, Selection Ceilings and an Audit of Diffusion Phase Retrieval"
-- (A) "Best-of-K Without Ground Truth: An Audit and a Selection Theory for Diffusion Phase Retrieval"
+**Title** (planner, 2026-10-29; Cheng may change it): "Best-of-K Without Ground Truth: Selection, Stopping and Unsolved Images in Diffusion Phase Retrieval". Earlier candidates are retired.

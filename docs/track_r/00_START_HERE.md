@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-10-28 by the planner (Claude).
+**Updated:** 2026-10-29 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,12 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-29, 03:55 (planner): direction (a) and protocol v1.**
+  - **Cheng chose (a):** the paper is a GT-free best-of-K protocol, plus "selection is predictable, coverage is not". Symmetry theorems go to the supplement (prereg **A11**).
+  - **Protocol v1 frozen** at `c598176`: [`protocol/GTFREE_PROTOCOL_v1.md`](protocol/GTFREE_PROTOCOL_v1.md), with code and dev results. Registered in the predictions registry under "Frozen protocols". Held-out panels: D1-P2, B16, F8 (H1–H4).
+  - **Earlier, 02:45:** v3 registered (theory `e71026e`, planner `356ec2a`); B16/F8 unsealed. D1-P2 result: E1 race 6/6, S2 0/6; oracle overforecast. A10.2 extension: the DAPS lane may run until Nov 1, 12:00 ET.
+  - **Paper restructured** (`docs/paper/track_r_cvpr27/`); the plan's ninth update has the revised Nov 8 go/no-go.
+  - **Notes, round 7:** [`executors/theory/07_PLANNER_GUIDANCE_20261029.md`](executors/theory/07_PLANNER_GUIDANCE_20261029.md) and [`executors/xp/07_PLANNER_NOTES_20261029.md`](executors/xp/07_PLANNER_NOTES_20261029.md).
 - **2026-10-28, 15:30 (planner):**
   - **`v2 E1` frozen and registered** (theory `9cb57f5`, planner `7d1882c`). **D1 phase 2 is unblinded.** B16/F8 stay sealed (A9.4).
   - **FAST decomposition:** the miss is generation. Six of the 7 never-GOOD images are INCONSISTENT in all 64 runs. Given the realized classes, the race fits selection within 1.4 points (race_tau1 within 0.3), while S2 falls 4–8 points short.

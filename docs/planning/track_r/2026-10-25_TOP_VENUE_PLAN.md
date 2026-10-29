@@ -1,6 +1,36 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-28)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
 
-> **Eighth update, 2026-10-28, 15:30 ET** (the newest; read it first).
+> **Ninth update, 2026-10-29, 03:55 ET** (the newest; read it first).
+> - **Direction decided: (a)** (Cheng, 03:36). The paper is rebuilt around:
+>   - a **ground-truth-free best-of-K protocol**: sequential stopping at M = 2 consistent runs, residual pick, zero-shot orientation test, FLAG_C/FLAG_O;
+>   - the finding that **GT-free selection is predictable, while unsolved images are not**.
+>
+>   The orbit lemma is presented as classical, and the symmetry theorems go to the supplement (prereg A11).
+> - **Why this direction.** Cheng's critique (Oct 29, 02:21) was right: Lemma 1 is classical, and Secs. 5–6 had no deliverable. Two other directions were considered:
+>   - symmetry-breaking measurement (CDP masks, references; DOLPH uses a random mask): it leaves the benchmark and is not deliverable by Nov 16. A blur cannot break the twin ambiguity.
+>   - a new in-sampler repair: it overlaps PC-DAPS.
+> - **Protocol v1 frozen** at planner `c598176` (07:49:32Z), before any held-out per-image data reached the planner. Held-out: D1-P2 (ImageNet FAST), B16 (SITCOM), F8 (DAPS), with hypotheses H1–H4.
+>   - **Dev (FAST FFHQ):** 91.3% at 8.4 runs/img, against 89.1% for fixed best-of-K at equal runs and 91.2% for best-of-16. It beats fixed K at 12/12 operating points.
+>   - **Mechanism:** gain where failures are INCONSISTENT. DAPS gains +4.9 on cohort B; SITCOM −0.1 on the same images.
+> - **Second prospective test (D1-P2, 02:45 round):**
+>   - E1 race forecast 6/6, S2 0/6;
+>   - the oracle is overforecast again (0.75 vs 0.859);
+>   - 25 of 100 images are not solved in any orientation in 16 runs.
+>
+>   **v3 registered** (theory `e71026e`); B16/F8 unsealed.
+> - **GPU.** The DAPS 400 × 5 replay passed 8/8 pixel-exact (XP `b9987b5`); F8 is in production. B16 is complete; its scoring has started on `codex/prdiff-track-r-xp-b16-analysis-20261029`.
+> - **Paper.** Restructured draft (title "Best-of-K Without Ground Truth: Selection, Stopping and Unsolved Images in Diffusion Phase Retrieval"). The main text ends on page 7, which leaves about 1.3 pages for:
+>   - held-out protocol results;
+>   - the unsolved-images figure;
+>   - the SITCOM/DAPS K-curves.
+> - **Go/no-go on Nov 8 (revised for direction (a)).** CVPR **only if all three hold:**
+>   1. held-out protocol results exist for at least two of D1-P2, B16 and F8, and H1 holds on them;
+>   2. B16 and F8 are scored against v1 and v3;
+>   3. the A8.6 comparability checks leave no doubt about the ImageNet numbers.
+>
+>   Otherwise SPL/EUSIPCO, or TMLR (no page limit, protocol + audit). H2–H4 failing does not block CVPR, but each failure is reported and narrows the claims.
+>
+> **Eighth update, 2026-10-28, 15:30 ET.**
 > - **`v2 E1` frozen and registered.** Race E1 is 0.60 at K = 16, against E0 0.41 and O_orbit 0.86. D1 phase 2 is unblinded and is the second prospective test.
 > - **FAST decomposition.**
 >   - **Generation:** the 7 never-GOOD images are unsolvable for FAST-DIPS; 6 are INCONSISTENT in all 64 runs.

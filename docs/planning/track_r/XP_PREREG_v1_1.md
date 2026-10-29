@@ -249,7 +249,7 @@
 > 3. **XP-D1 phase 2 is unblinded** (A8.2(a)). Compare it with v2 (E0, O_raw, O_orbit) and with v2 E1 (E1_CLIP from G1 decisions on the phase-2 candidates) by the frozen rules. Add the A9.2 decomposition: the exchangeability check (phase 1 vs phase 2), the composition-conditional selection test, and the never-GOOD case list.
 > 4. **The A9.2(b) test for FAST** was computed by the planner from the published strings (`docs/track_r/planner_analysis/A9_2b_FAST_conditional_selection/`). The executor reproduces it independently with its own code.
 
-> **Amendment A11 (planner, 2026-10-29 04:15 ET): paper direction and a frozen GT-free protocol.** Written after the D1 phase-2 aggregate return (XP `70b290f`) and before any of the following reached the planner: a B16, F8 or E′ outcome; a D1 phase-2 per-image string, residual or CLIP margin; a D2/D3 per-image string.
+> **Amendment A11 (planner, 2026-10-29 03:50 ET): paper direction and a frozen GT-free protocol.** Written after the D1 phase-2 aggregate return (XP `70b290f`) and before any of the following reached the planner: a B16, F8 or E′ outcome; a D1 phase-2 per-image string, residual or CLIP margin; a D2/D3 per-image string.
 > 1. **Direction (Cheng, 2026-10-29 03:36: option (a)).**
 >    - **The deliverable.** The paper is rebuilt around:
 >      - a **ground-truth-free best-of-K protocol**: residual selection, zero-shot orientation test, abstention, sequential stopping;

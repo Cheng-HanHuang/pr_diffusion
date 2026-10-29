@@ -2,34 +2,24 @@
 \label{sec:related}
 
 \paragraph{Diffusion priors for phase retrieval.}
-DPS~\cite{chung2023dps} guides a pretrained diffusion model with the gradient of the measurement likelihood at the denoised estimate.
-DAPS~\cite{zhang2025daps} decouples consecutive steps by re-noising a measurement-corrected clean estimate.
-DiffFPR~\cite{li2024difffpr} targets oversampled Fourier phase retrieval directly.
-SITCOM~\cite{alkhouri2025sitcom} enforces measurement and diffusion consistency at every step by optimizing the network input; its authors' phase-retrieval code, which we run, instead follows each ODE denoising step with a measurement-gradient step and refines the estimate by Langevin dynamics\claim{C-S6}.
+DPS~\cite{chung2023dps} guides a pretrained diffusion model with the gradient of the measurement likelihood at the denoised estimate; DAPS~\cite{zhang2025daps} decouples consecutive steps by re-noising a measurement-corrected clean estimate; DiffFPR~\cite{li2024difffpr} targets oversampled Fourier phase retrieval.
+SITCOM~\cite{alkhouri2025sitcom} enforces measurement and diffusion consistency at every step; its authors' phase-retrieval code, which we run, follows each ODE denoising step with a measurement-gradient step and refines the estimate by Langevin dynamics\claim{C-S6}.
 FAST-DIPS~\cite{kim2026fastdips} uses analytic steps with a hard measurement constraint.
-For phase retrieval, DPS, DAPS, SITCOM and FAST-DIPS report a best-of-four protocol\claim{C-P1}\TODO{check DiffFPR's protocol}.
-PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by interacting particles pruned by prior consistency, which reduces orientation failures, especially on FFHQ.
-TGD~\cite{makris2026tgd} runs particles through tempered posteriors; for phase retrieval its accelerated variant keeps the lowest-residual of four partial DAPS trajectories~\cite[Tab.~2]{makris2026tgd}.
-Asymptotically exact samplers exist under idealized assumptions~\cite{wu2023tds,makris2026tgd}, and the failure modes of approximate posterior samplers have been analyzed in exactly solvable settings~\cite{burns2026whenwhy,dandapanthula2026tilting}.
-The phase-retrieval settings of DAPS, SITCOM and FAST-DIPS weight the data more strongly than the noise level implies (\cref{sec:setup}); the classical discrepancy principle instead fits the data only to the noise level~\cite{morozov1966discrepancy}, and a solution fitted to noisy data has a smaller expected residual than the truth, by $\sigma^2$ per fitted degree of freedom~\cite{stein1981sure}.
+PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by interacting particles pruned by prior consistency, which reduces orientation failures; TGD~\cite{makris2026tgd} runs particles through tempered posteriors.
+DOLPH~\cite{shoushtari2022dolph} applies a diffusion prior to coded-diffraction measurements, whose random masks remove the twin ambiguity that the benchmark operator has; we keep the benchmark operator.
 
 \paragraph{Evaluation practice.}
-The ground-truth best-of-four protocol originates in DPS~\cite{chung2023dps}; DAPS adopts it ``due to the inherent instability of phase retrieval''~\cite[Sec.~4.1]{zhang2025daps}.
-In the DAPS and FAST-DIPS reference code, the best run is chosen separately for each metric~\cite{zhang2025daps,kim2026fastdips}\claim{C-P1}.
-Makris~\etal\cite[App.~F.4]{makris2026tgd} point out that this oracle is unavailable at test time and select by measurement error instead; they find that residual-selected best-of-four DAPS is a strong baseline at matched compute~\cite[Tab.~4]{makris2026tgd}.
-Kocabas~\etal\cite{kocabas2026pcdaps} show that the ground-truth oracle hides orientation failures.
-We quantify each layer of the protocol across solvers, datasets and metrics, explain the residual's blindness to orientation, and predict how the layers scale with the number of runs.
+The ground-truth best-of-four protocol originates in DPS~\cite{chung2023dps}; DAPS adopts it ``due to the inherent instability of phase retrieval''~\cite[Sec.~4.1]{zhang2025daps}, and in the DAPS, SITCOM and FAST-DIPS reference code the best run is chosen separately for each metric\claim{C-P1}.
+Makris~\etal\cite[App.~F.4]{makris2026tgd} note that this oracle is unavailable at test time and select by measurement error instead; Kocabas~\etal\cite{kocabas2026pcdaps} show that it hides orientation failures.
+We measure each layer of the protocol, model how selection scales with the number of runs, and replace fixed best-of-$K$ by a stopping rule.
 
-\paragraph{Classical phase retrieval.}
-In two or more dimensions, generic images are determined by their Fourier magnitudes up to translation and conjugate inversion~\cite{bruck1979ambiguity,hayes1982reconstruction}, provided the support occupies at most half the grid in each dimension~\cite{barnett2020geometry}; the standard diffusion benchmark canvas does not satisfy this condition (\cref{sec:setup}).
-Iterative algorithms are equally likely to reconstruct an object or its twin, and stagnate in mixtures of both when the support is centrosymmetric~\cite{fienup1986stagnation}.
-Coherent diffraction imaging has long run many random starts and kept or combined them according to their Fourier-space error~\cite{chen2007ghio}\TODO{verify the GHIO selection rule in the paper}; it also averages aligned runs, with the phase retrieval transfer function measuring their reproducibility~\cite{chapman2006highres}.
-Our measurement-based selector is of this kind; what is new is its analysis under a learned prior.
-
-\paragraph{Best-of-\texorpdfstring{$n$}{n} and verifiers.}
+\paragraph{Best-of-$n$, verifiers and adaptive sampling.}
 Unbiased estimators of best-of-$k$ success from $n$ samples are standard in code generation~\cite{chen2021codex}.
-Stroebl~\etal\cite{stroebl2026limits} show that a verifier with false positives caps the accuracy of resampling, with heterogeneous task difficulty making the cap bite early.
-Yano~\etal\cite{yano2026tail} show that the large-$N$ behavior of best-of-$N$ is decided by the competition between the score tails of correct and incorrect samples, so accuracy can rise, saturate or fall with $N$.
-Dandapanthula and Boffi~\cite{dandapanthula2026tilting} prove that finite-particle guidance cannot choose between modes that the reward gradient does not distinguish, whereas best-of-$n$ with a mode-resolving reward can.
-In our setting the measurement residual is exactly such a non-resolving reward for the orbit.
-The invariance of marginals under equivariant Markov kernels is used in equivariant generative modeling~\cite{xu2022geodiff,hoogeboom2022edm}; we apply it to an inverse problem whose forward operator is symmetric.
+A verifier with false positives caps the accuracy of resampling~\cite{stroebl2026limits}, and the large-$n$ behavior of best-of-$n$ is decided by the score tails of correct and incorrect samples~\cite{yano2026tail}; finite-particle guidance cannot choose between modes its reward does not distinguish~\cite{dandapanthula2026tilting}.
+Stopping once samples agree saves compute in self-consistency decoding~\cite{aggarwal2023adaptive,li2024escape}, and abstaining on low-confidence inputs is the subject of selective prediction~\cite{geifman2017selective}.
+Coherent diffraction imaging has long run many random starts and kept or combined them by their Fourier-space error~\cite{chen2007ghio,chapman2006highres}.
+Our protocol is of this family; what is specific to phase retrieval with a learned prior is that the verifier is a residual whose level is set by the solver, that it is blind to an exact symmetry, and that its failures split into kinds with different remedies.
+
+\paragraph{Uniqueness and symmetry breaking.}
+In two or more dimensions, generic images are determined by their Fourier magnitudes up to translation and conjugate inversion~\cite{bruck1979ambiguity,hayes1982reconstruction} when the support occupies at most half the grid in each dimension~\cite{barnett2020geometry}; iterative algorithms reconstruct an object or its twin with equal probability~\cite{fienup1986stagnation}.
+Coded diffraction patterns~\cite{candes2015cdp} and known references~\cite{barmherzig2019holographic} break the twin ambiguity by changing the measurement; a blur or misalignment cannot, since $|\cF(x*k)|=|\cF x|\cdot|\cF k|$ is the same for an image and its twin.
