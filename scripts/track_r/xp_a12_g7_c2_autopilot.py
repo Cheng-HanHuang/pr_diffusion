@@ -40,11 +40,15 @@ def main(a):
  gate(run.parent==BASE and run.name.startswith("xp_a12_g7_prod_")
       and not run.exists(),"OUTPUT")
  prior=Path(a.prior_campaign)
- gate(prior.parent==BASE or prior.name=="XP_A12_CAMPAIGN_STATE.json",
-      "PRIOR_PATH")
+ gate(prior.name=="XP_A12_CAMPAIGN_STATE.json" and
+      prior.parent.parent==BASE and
+      prior.parent.name.startswith("xp_a12_campaign_prod_") and
+      prior.is_file() and not prior.is_symlink(),
+      "PRIOR_A12_CANONICAL_CONTROLLER_PATH")
  state=jread(prior)
  gate(state["status"]=="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
-      and state["head"] and
+      and state.get("active")==[] and
+      state["head"] and
       0<state["A12_charged_gpu_h"]<150
       and 0<state["project_charged_gpu_h"]<400
       and sum(state["stage_seconds"].values())>=0,
