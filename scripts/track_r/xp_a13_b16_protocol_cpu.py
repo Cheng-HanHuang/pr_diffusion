@@ -17,7 +17,8 @@ SOURCE_SHA={
  "clip":"a5869ba84f56485bbbf98fc2c089688c0eb03cbe7f0493a1324887b84eca77f0",
  "protocol":"d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658"
 }
-PROTO=Path(__file__).resolve().parents[2]/"docs/track_r/protocol/gtfree_protocol.py"
+PROTO_REF="c598176"
+PROTO_GIT_PATH="docs/track_r/protocol/gtfree_protocol.py"
 COHORTS={"B22":(100,0.0448503),"DEV80":(80,0.0449706)}
 def sha(p):
  h=hashlib.sha256()
@@ -35,13 +36,19 @@ def main(a):
  gate(git("rev-parse","HEAD")==a.expected_head and
       not git("status","--porcelain"),"PINNED_WORKTREE")
  gate(sha(STRINGS)==SOURCE_SHA["strings"] and
-      sha(CLIP)==SOURCE_SHA["clip"] and
-      sha(PROTO)==SOURCE_SHA["protocol"],
-      "FROZEN_A11_INPUT_OR_PROTOCOL_SHA")
+      sha(CLIP)==SOURCE_SHA["clip"],
+      "FROZEN_A11_INPUT_SHA")
+ code=subprocess.check_output(["git","-C",str(wt),"show",
+         PROTO_REF+":"+PROTO_GIT_PATH])
+ gate(hashlib.sha256(code).hexdigest()==SOURCE_SHA["protocol"],
+      "FROZEN_REFERENCE_CODE_SHA")
  out=Path(a.out)
  gate(out.parent==BASE and out.name.startswith("xp_a13_b16_protocol_")
       and not out.exists() and not out.is_symlink(),"FRESH_OUTPUT")
  out.mkdir(mode=0o700)
+ script=out/"gtfree_protocol_v1_original.py"
+ with script.open("xb") as f:f.write(code)
+ gate(sha(script)==SOURCE_SHA["protocol"],"FROZEN_SCRIPT_ROUNDTRIP")
  settings=[
    ("primary",True,False,False),
    ("E0",False,False,False),
@@ -52,7 +59,7 @@ def main(a):
   results={}
   for cohort,(n,tau) in COHORTS.items():
    path=out/f"B16_{name}_{cohort}.json"
-   cmd=[sys.executable,"-I",str(PROTO),
+   cmd=[sys.executable,"-I",str(script),
         "--strings",str(STRINGS),"--cohort",cohort,
         "--m","2","--nmax","16","--R","4000",
         "--seed","20261029","--out",str(path)]
@@ -116,7 +123,7 @@ def main(a):
      status="XP_A13_B16_PROTOCOL_V1_FROZEN_COMPLETE",
      source_head=a.expected_head,
      input_source_files={str(STRINGS):sha(STRINGS),str(CLIP):sha(CLIP),
-                         str(PROTO):sha(PROTO)},
+                         str(script):sha(script)},
      frozen_primary=allres["primary"],
      variants={k:sha(out/f"B16_{k}_POOLED.json")
                for k in allres},
