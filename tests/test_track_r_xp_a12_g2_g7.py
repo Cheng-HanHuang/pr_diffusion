@@ -20,7 +20,13 @@ STAGE_SCRIPTS=(
  "xp_a12_g3_pcdaps_gpu.py",
  "xp_a12_g367_readiness_cpu.py",
  "xp_a12_g7_c_clip_cpu.py",
- "xp_a12_g7_c2_gpu.py")
+ "xp_a12_g7_c2_gpu.py",
+ "xp_a13_g1b_autopilot.py",
+ "xp_a13_b16_protocol_cpu.py",
+ "xp_a12_g6_prepare_cpu.py",
+ "xp_a12_g6_daps_gpu.py",
+ "xp_a12_g6_clean_autopilot.py",
+ "xp_a12_g7_c2_autopilot.py")
 class A12Stages(unittest.TestCase):
  def test_all_sources_parse(self):
   for name in STAGE_SCRIPTS:
@@ -81,12 +87,24 @@ class A12Stages(unittest.TestCase):
  def test_seal_and_conditional_stage(self):
   controller=(ROOT/"scripts/track_r/xp_a12_campaign_autopilot.py").read_text()
   self.assertIn("D4_outcomes_not_opened=True",controller)
+  self.assertIn("g1b_final",controller)
+  self.assertNotIn("campaign=A10+",controller)
   self.assertIn("G3_CONDITIONAL_CODE_ABSENT",controller) if False else None
   self.assertNotIn("psnr_rgb8",controller)
   self.assertNotIn("candidate_source",controller)
   self.assertIn("G3_CODE_ABSENT_SKIP_PER_A12",controller)
   g1bsrc=inspect.getsource(g1b.main)
-  self.assertIn("G2_G3_G4_G5_must_have_launched=True",g1bsrc)
-  self.assertIn("A12_campaign_projection_must_fit=True",g1bsrc)
+  self.assertIn("A13_prereg_priority=\"G1a_then_G1b_immediately\"",g1bsrc)
+  self.assertIn("v4_registered_sha256=",g1bsrc)
+  g1b_ctl=(ROOT/"scripts/track_r/xp_a13_g1b_autopilot.py").read_text()
+  self.assertIn("a12_before=float(g1a[\"stage_gpu_h\"])",g1b_ctl)
+  self.assertNotIn("A10_FINAL_GPU_H+",g1b_ctl)
+  self.assertIn("STAGE_CAP=40.",g1b_ctl)
+  self.assertIn("PROJECT_CAP=400.",g1b_ctl)
+  b16=(ROOT/"scripts/track_r/xp_a13_b16_protocol_cpu.py").read_text()
+  self.assertIn("0.8186",b16)
+  self.assertIn("0.0448503",b16)
+  self.assertIn("0.0449706",b16)
+  self.assertIn("abs(weighted[k]-ref)<0.002",b16)
 if __name__=="__main__":
  unittest.main()
