@@ -156,7 +156,81 @@ are positive. Across heterogeneous images, use **ratios of summed
 expected counts** and not averages of per-image precision. This is
 not a claim that FLAG_C certifies failure or reveals the unseen p_i.
 
-## 3. When stopping beats equal-compute fixed K: valid statements
+## 3. Exact random-order evaluation on a FIXED completed panel
+
+The frozen offline evaluator does **not** draw iid fresh samples from
+an infinite generator. It uniformly permutes a fixed panel containing
+`n` already recorded runs and stops within `N<=n` of them. There is
+also a **combinatorial closed form** for this exact target, requiring
+no new or held-out records to prove.
+
+Suppose exactly `L` of the `n` candidates pass tau. The number J of
+passing runs among the first N of a uniformly random permutation is
+Hypergeometric(n,L,N). Let `A_j^+` be the exact probability that the
+physical-residual minimizer of a uniform j-subset of the L *passing*
+candidates yields GOOD after the frozen orientation correction, and
+`A_j^-` the analogous quantity among the n-L *nonpassing* candidates.
+Each is computable from the completed pool's residual-ordered success
+indicators `(a_1,...,a_L)` by
+
+\[
+ A_j^+ = \sum_{r=1}^L a_r
+  \frac{\binom{L-r}{j-1}}{\binom Lj},
+\]
+
+where zero binomial terms contribute zero. Then the exact random-order
+protocol success for any N<=n is
+
+\[
+ S^{\mathrm{panel}}_{M,N} =
+ \Pr(J\ge M)A_M^+
+ +\sum_{j=1}^{M-1}\Pr(J=j)A_j^+
+ +\Pr(J=0)A_N^- .
+\]
+
+The compute and flag expectations are
+
+\[
+ \mathbb E_{\mathrm{order}}T =
+ \sum_{t=0}^{N-1}\sum_{j=0}^{M-1}
+ \frac{\binom Lj\binom{n-L}{t-j}}{\binom nt},
+ \qquad
+ \Pr_{\mathrm{order}}(\mathrm{FLAG}_C)
+ =\frac{\binom{n-L}{N}}{\binom nN}.
+\]
+
+In the **actual held-out primary panel** N=n, J=L is fixed:
+
+\[
+ \boxed{\mathbb E_{\mathrm{order}}T =
+  \begin{cases}M(n+1)/(L+1),&L\ge M,\\n,&L<M,\end{cases}}
+\]
+
+\[
+ \boxed{S^{\mathrm{panel}}_{M,n}=
+  \begin{cases}A_M^+,&L\ge M,\\
+  a_{\rm best\ pass},&0<L<M,\\
+  a_{\rm best\ fail},&L=0,\end{cases}
+ \qquad\mathrm{FLAG}_C=\mathbf1\{L=0\}.}
+\]
+
+For L>=M this is the classical expected Mth order statistic of L
+uniformly random distinct positions in {1,...,n}. The first M
+passing candidates form a uniform M-subset of all L passing
+candidates, regardless of the stopping index. For L<M all n runs
+are consumed, so the residual minimizer is deterministic.
+
+**Practical consequence:** the 4,000 random orders per image used in
+the frozen evaluator provide a Monte Carlo estimate of these exact
+conditional-panel means. One can QA that implementation against the
+finite formulas without modifying or re-running the pre-registered
+protocol. The transductive 30% orientation-margin threshold couples
+images and remains a separate part of H4; it is not represented by
+this three-statistic QA identity. This fixed-panel hypergeometric law
+is related to, but different from, the **iid generator** binomial/
+negative-binomial law in Sections 1--2.
+
+## 4. When stopping beats equal-compute fixed K: valid statements
 
 For any one image, T(s) decreases stochastically in s: couple all
 Bernoulli pass indicators by common Uniform[0,1] draws. Consequently,
@@ -204,7 +278,7 @@ image while limiting the solvable image to two passing candidates.
 This counterexample does not contradict the positive FAST FFHQ
 in-sample result; it proves that an unqualified general theorem is false.
 
-## 4. Why a high CONSISTENT share can erase the gain
+## 5. Why a high CONSISTENT share can erase the gain
 
 A concrete reduced model isolates the source of failures. Let each run
 be GOOD G with probability p, CONSISTENT-but-wrong C with
@@ -255,7 +329,7 @@ This comparison is consistent with the model's mechanism, but does
 not establish causality or prove the gain is monotonically decreasing
 in C share in a general class-race model.
 
-## 5. Claim and protocol boundaries
+## 6. Claim and protocol boundaries
 
 1. The closed forms are PROVED for iid marked runs **conditional on an
    image**. The actual finite-panel random-order estimator shuffles a

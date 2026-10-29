@@ -101,6 +101,51 @@ positive. Heterogeneous-image precision is a ratio of expected counts,
 not the mean of per-image precisions. These population calculations
 are not certificates of individual reconstruction failure.
 
+\paragraph{Exact random-order means on the frozen finite panel.}
+The offline reference implementation randomly permutes an already
+realized panel of $n$ reconstructions, with at most $N\le n$
+sequential trials. Let $L$ of its reconstructions have $R\le\tau_S$.
+For a uniform permutation, the number $J$ of passing candidates in
+the first $N$ positions is hypergeometric,
+\[
+ \Pr(J=j)=\frac{\binom Lj\binom{n-L}{N-j}}{\binom nN}.
+\]
+Let $A_j^+$ be the exact finite-pool success probability of the
+residual-minimum selector with orientation correction on a uniform
+$j$-subset of the $L$ passing candidates, and $A_j^-$ the analogous
+statistic on the $n-L$ nonpassing candidates. Sorting the passing
+candidates by residual, the ordinary subset-order-statistic formula
+gives
+\[
+ A_j^+=\sum_{r=1}^{L}a_r\frac{\binom{L-r}{j-1}}{\binom Lj},
+\]
+with the actual per-run post-orientation success indicators $a_r$.
+Then the exact random-order success, compute, and consistency flag are
+\begin{align}
+ S^{\mathrm{panel}}_{M,N}
+ &=\Pr(J\ge M)A_M^+
+ +\sum_{j=1}^{M-1}\Pr(J=j)A_j^++\Pr(J=0)A_N^-,\\
+ \mathbb E_{\mathrm{order}}T
+ &=\sum_{t=0}^{N-1}\sum_{j=0}^{M-1}
+   \frac{\binom Lj\binom{n-L}{t-j}}{\binom nt},\\
+ \Pr_{\mathrm{order}}(\textsc{flag}_C)
+ &=\frac{\binom{n-L}{N}}{\binom nN}.
+\end{align}
+If $N=n$, as on the three preregistered primary panels, this
+simplifies to
+\[
+ \mathbb E_{\mathrm{order}}T
+ =\begin{cases}M(n+1)/(L+1),&L\ge M,\\n,&L<M,\end{cases}
+ \quad
+ \Pr(\textsc{flag}_C)=\mathbf1\{L=0\},
+\]
+with success $A_M^+$ for $L\ge M$ and the deterministic full-panel
+residual-minimum success indicator otherwise. These exact conditional
+means are an independent QA of the frozen $4{,}000$-permutation
+Monte Carlo, \emph{not a change} to the registered evaluator. They
+must not be confused with the iid generator-level formula
+\eqref{eq:stop-success-general}.
+
 \paragraph{Equal-budget comparison: sufficient condition and limitation.}
 Stochastic coupling shows that $\mathbb ET(s)$ is nonincreasing in
 $s$. Therefore $\operatorname{Cov}(s,\mathbb ET(s))\le0$ in a
