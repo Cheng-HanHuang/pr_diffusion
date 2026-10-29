@@ -187,6 +187,44 @@ def verified(a,run,task,dest,source_sha,roots,P):
         ImageChops.difference(x,y).getbbox() is None,
         "G45_REPLAY_PIXEL_MISMATCH")
  return sha(receipt)
+def smoke_projection(run,stage,smoke,P,roots,stage_seconds):
+ """Use native per-root sampling wall times, not CPU/model import overhead.
+
+ Historical DAPS sampling often takes ~33-66 s, FAST ~3-15 s.
+ A12 §1 requires a projection after TWO stage-native replay/smoke roots.
+ Conservatively inflate native time 1.25x; never change the method.
+ """
+ times=[]
+ for job in smoke:
+  if stage=="G2":
+   mf=jread(P["G2"]["per_sigma"][job["sig"]]["path"])
+   row=mf["rows"][job["start"]]
+   dest=run/"G2"/("sigma_"+job["sig"])/(
+     f"chunk_{job['start']:05d}_{job['count']:03d}")
+   root=root_folder(dest,row)
+   rc=jread(root/"R0_FAST_ROOT_COMPLETE.json")
+   gate(rc["status"]=="R0_FAST_ROOT_PASS","SMOKE_FAST_PASS")
+   t=float(rc["native_sample_wall_seconds"])
+  else:
+   phase="REPLAY"
+   mf=jread(roots["G45"]/f"XP_A12_{stage}_{phase}_TASKS.json")
+   row=mf["rows"][job["index"]]
+   dest=run/stage/phase/"gpu"/("root_"+
+       hashlib.sha256(row["uid"].encode()).hexdigest()[:24])
+   rc=jread(dest/"XP_T_DAPS4K_ROOT_COMPLETE.json")
+   gate(rc["status"]=="XP_T_DAPS4K_ROOT_PASS","SMOKE_DAPS_PASS")
+   t=float(rc["native_sampling_wall_s"])
+  gate(math.isfinite(t) and 0<t<1800,"SMOKE_TIMING_FINITE")
+  times.append(t)
+ gate(len(times)==2,"TWO_ROOT_TIMING_GATE")
+ remaining=N[stage]-2
+ projected=stage_seconds+sum(times)+1.25*max(times)*remaining
+ gate(projected/3600<=CAP[stage],
+      "STAGE_SMOKE_PROJECTS_OVER_CEILING_"+stage)
+ return dict(smoke_native_seconds=times,projected_gpu_h=projected/3600,
+    comparison_ceiling_gpu_h=CAP[stage],
+    upper_estimate_multiplier=1.25,projection_pass=True)
+
 def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
  active={}
  draining_reason=None
@@ -345,8 +383,10 @@ def main(a):
       # import wall; if even the best-case projected stage exceeds cap,
       # refuse production rather than modifying prereg runtime limits.
       done=state["done"]
+      estimate=smoke_projection(run,stage,smoke,P,roots,
+             state["stage_seconds"][stage])
       emit(run,"STAGE_SMOKE_OR_REPLAY_PASS",stage=stage,
-           completed=len(done),projected_note="native time audit follows")
+           completed=len(done),projection=estimate)
     if not success:break
    if not success:break
    emit(run,"STAGE_GENERATION_COMPLETE",stage=stage,
