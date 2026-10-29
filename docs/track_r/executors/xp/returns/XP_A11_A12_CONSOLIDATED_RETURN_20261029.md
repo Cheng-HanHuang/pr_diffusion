@@ -1,5 +1,4 @@
 # Track R A11/A12 combined executor return — 2026-10-29
-
 1. **First held-out D1-P2 return** committed/pushed: `5f6b21334668d1a614c011f79de0684335c3ab87` (`codex/prdiff-track-r-xp-a11-d1p2-heldout-20261029`).
 2. Authoritative 100 ImageNet images × ordered FAST run 0–15 labels and signed-residual strings: `docs/track_r/executors/xp/theory_inputs/XP_D1P2_16RUN_STRINGS.csv` on that branch.
 3. **STRINGS SHA256:** `48169156486de4438e715d97a5a3251a728f52e055f135caf14fbcb02fd33e27`.
