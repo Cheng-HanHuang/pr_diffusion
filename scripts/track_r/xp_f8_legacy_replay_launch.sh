@@ -10,9 +10,9 @@ ROOT=/egr/research-pac/huang248
 BASE="$ROOT/outputs/pr_diffusion/track_r"
 WT="$(cd "$(dirname "$0")/../.." && pwd)"
 PY="$ROOT/conda-envs/prdiff_track_r/bin/python"
-PREP="$BASE/xp_f8_legacy_preflight_20261029T052005Z"
-INPUT_SHA=f077dd896759d2e3eeaa879394680a0fcef5b816559ee84db46a06a199af2be5
-PRECHECK_SHA=c19c632a831c47926301814f2abfa05675c4f46cf104449e34ba98bc78287237
+PREP="$BASE/xp_f8_legacy_preflight_dev80seedfix_20261029T064359Z"
+INPUT_SHA=0929a94537c30faa893346a000c6cca5b51d5f45b48fbc2dfb0f6e64fa2537b9
+PRECHECK_SHA=81a0fd43d75521988b4a02d1c148ed99a48c6976cccb1c64899f5c215f97b4f1
 
 export CUDA_VISIBLE_DEVICES=""
 export PYTHONPYCACHEPREFIX="$BASE/.cache/f8_legacy/pycache"
@@ -30,6 +30,21 @@ test -z "$(git -C "$WT" status --porcelain)"
 test "$(sha256sum "$PREP/XP_F8_REPLAY_INPUTS_GT_FREE.json" | cut -d' ' -f1)" = "$INPUT_SHA"
 test "$(sha256sum "$PREP/XP_F8_PRECHECK_RECEIPT.json" | cut -d' ' -f1)" = "$PRECHECK_SHA"
 test -f "$PY"
+# Freeze the DEV80 provenance contract before *any* GPU admission.
+"$PY" - "$PREP" <<'PY'
+import json,sys
+from pathlib import Path
+p=Path(sys.argv[1]);m=json.loads((p/"XP_F8_REPLAY_INPUTS_GT_FREE.json").read_text())
+r=json.loads((p/"XP_F8_PRECHECK_RECEIPT.json").read_text())
+assert m["frozen_dev80_seed_domain"]=="B24_DEV80_DAPS_SOLVER_V1"
+assert r["corrected_dev80_seed_provenance"] is True
+assert r["legacy_replay_selection_unchanged"] is True
+assert r["native_adapter_certified"] is False
+assert r["any_gpu_job_launched"] is False
+assert [x["source"] for x in m["rows"]]==["S1_b22"]*4+["S2_b24_dev80"]*4
+assert [int(x["native_seed"]) for x in m["rows"]]==[22020,23020,22035,23035,1269390804,1756260723,3183756402,377042404]
+print("CORRECTED_DEV80_DAPS_SEED_PIN_PASS",flush=True)
+PY
 cd "$WT"
 
 if [ "$MODE" = "launch" ]; then
