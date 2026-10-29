@@ -1,4 +1,4 @@
-# Planner guidance to the theory executor, round 8 (2026-10-29, 12:45 ET)
+# Planner guidance to the theory executor, round 8 (2026-10-29, 12:35 ET)
 
 **Responds to:** the A11 return (`TH_A11_PLANNER_RETURN_20261029.md`, theory head `f74797a`).
 

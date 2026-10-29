@@ -1,6 +1,6 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
 
-> **Tenth update, 2026-10-29, 12:45 ET** (the newest; read it first).
+> **Tenth update, 2026-10-29, 12:35 ET** (the newest; read it first).
 > - **F8 complete** (920/920; A10 total 55.55/70 GPU-h). B16 scoring is under way after an admission fix. No held-out protocol result yet.
 > - **Theory round 7 accepted.**
 >   - **Proposition 1:** exact compute, flag and success laws of the stop-at-2 rule. The paper now has it in Sec. 4.

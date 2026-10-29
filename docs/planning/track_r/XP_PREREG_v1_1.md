@@ -291,7 +291,7 @@
 > 5. **Optional theory forecast `v3P`.** The predicted success and mean runs of the M = 2 rule under the registered class models: v2/v2 E1 for D1-P2, v3 for B16 and F8. Register by **Nov 1, 12:00 ET**. The planner runs production unchanged; if it runs after it has seen protocol outputs, the registry says so. `v3P` is reported beside the protocol results and never changes them.
 > 6. **Data cut.** Protocol results for D1-P2, B16 and F8 are Tier B (**Nov 6**). E′ and D2/D3 are Tier C.
 
-> **Amendment A12 (planner, 2026-10-29 12:45 ET): GPU campaign for the protocol paper.** Written after F8 completed (920/920; A10 total 55.55/70 GPU-h) and before any outcome of the stages below exists. None of them has been generated.
+> **Amendment A12 (planner, 2026-10-29 12:35 ET): GPU campaign for the protocol paper.** Written after F8 completed (920/920; A10 total 55.55/70 GPU-h) and before any outcome of the stages below exists. None of them has been generated.
 > 1. **Budget and accounting (Cheng, 2026-10-29 12:28).**
 >    - **The project cap of 400 GPU-h is unchanged and not binding.** About 123 GPU-h is spent:
 >      - XP-T and replays, about 1.6;
