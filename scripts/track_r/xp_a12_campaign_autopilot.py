@@ -637,6 +637,38 @@ def main(a):
       source="https://github.com/voilalab/PC-DAPS",
       pinned_head="59b2f046"))
     continue
+   if stage=="G2" and a.a14:
+    pilot,full,base,tail=a14_g2_jobs(P)
+    state["done"]={}
+    gate(run_queue(a,run,"G2",pilot,roots,P,state,project0,campaign0),
+         "A14_TWO_PRODUCTION_PILOTS_MUST_PASS")
+    report=a14_g2_pilot_report(run,P,state,prior)
+    emit(run,"A14_G2_PILOT_COMPLETE",projection_gpu_h=report["full_projection_gpu_h"],
+         full_fit=report["full_panel_fits"])
+    segments=(("FULL",full),) if report["full_panel_fits"] else (
+      ("BASE_BOTH_SIGMAS",base),("TAIL_COHORT_A_THEN_B",tail))
+    complete=True
+    for tag,subset in segments:
+     state["done"]={}
+     if not run_queue(a,run,"G2",subset,roots,P,state,project0,campaign0):
+      emit(run,"A14_G2_PARTIAL_BUDGET",segment=tag)
+      complete=False
+      break
+    coverage=a14_g2_coverage(state)
+    result=dict(status=("XP_A14_G2_ALL_2880_COMPLETE" if complete else
+                        "XP_A14_G2_IMAGE_COMPLETE_PARTIAL"),
+       source_head=a.expected_head,completed_chunks=len(state["verified_jobs"]["G2"]),
+       old_smoke_billed_once=True,charged_gpu_h=state["stage_seconds"]["G2"]/3600,
+       stage_cap_gpu_h=CAP["G2"],coverage=coverage,
+       H_G2_evaluable=coverage["H_G2_evaluable"],no_GT_scoring=True)
+    write(run/"XP_A14_G2_PROGRESS.json",result)
+    emit(run,"A14_G2_STAGE_TERMINAL",coverage=coverage,complete=complete)
+    if not complete:
+     write(run/"XP_A13_G2_PARTIAL_STATUS.json",dict(
+        status="XP_A13_STAGE_PARTIAL_CONTINUE",stage="G2",
+        charged_gpu_h=state["stage_seconds"]["G2"]/3600,
+        stage_ceiling_gpu_h=CAP["G2"],coverage=coverage))
+    continue
    phase_lists=(jobs["G2_SIGMA_0.02"],jobs["G2_SIGMA_0.10"]) if stage=="G2" else (jobs[stage],)
    success=True
    for smoke,production in phase_lists:
@@ -650,8 +682,17 @@ def main(a):
       # import wall; if even the best-case projected stage exceeds cap,
       # refuse production rather than modifying prereg runtime limits.
       done=state["done"]
-      estimate=smoke_projection(run,stage,smoke,P,roots,
-             state["stage_seconds"][stage])
+      try:
+       estimate=smoke_projection(run,stage,smoke,P,roots,
+              state["stage_seconds"][stage])
+      except RuntimeError as exc:
+       if "STAGE_SMOKE_PROJECTS_OVER_CEILING_" not in str(exc):
+        raise
+       emit(run,"STAGE_PROJECTED_OVER_CAP_PARTIAL_PER_A13",
+            stage=stage,reason=str(exc))
+       estimate=dict(projection_pass=False,
+          comparison_ceiling_gpu_h=CAP[stage],
+          reason=str(exc),partial_permitted_by_A13=True)
       if stage=="G3" and estimate.get("cohort_A_only"):
        production=[x for x in production if x["index"]<100]
        state["G3_status"]="COHORT_A_REDUCTION_AUTHORIZED_BY_A12"
