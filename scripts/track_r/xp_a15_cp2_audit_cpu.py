@@ -112,6 +112,7 @@ def main(a):
   # Replay frozen protocol into a fresh local output file, not stdout.
   # The independent audit needs one exact execution per panel.
   temp=p/f"CP2_AUDIT_REPLAY_N{n}.json"
+  if n==32:cmd+=["--run-range","0:32"]
   child=subprocess.run(cmd+["--out",str(temp)],capture_output=True,text=True)
   gate(child.returncode==0,"CP2_AUDIT_REPLAY_"+str(n))
   doc=jread(temp)
