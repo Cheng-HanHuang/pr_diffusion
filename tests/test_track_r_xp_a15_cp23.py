@@ -59,6 +59,11 @@ class A15Tests(unittest.TestCase):
                   p.index("xp_a15_cp2_publish.sh"))
   self.assertLess(p.index("xp_a15_cp2_publish.sh"),
                   p.index("xp_a15_cp3_score_cpu.py"))
+ def test_shared_clip_accepts_stage_specific_candidate_counts(self):
+  source=inspect.getsource(cp2.clip_new)
+  self.assertIn('len(result)==len(newrows)',source)
+  self.assertNotIn('len(result)==4800',source)
+  self.assertIn('CP2_4800_G1_CLIP',inspect.getsource(cp2.main))
  def test_cp3_only_continuation_never_replays_cp2(self):
   pipeline=(ROOT/"scripts/track_r/xp_a15_cp3_only_pipeline.sh").read_text()
   launcher=(ROOT/"scripts/track_r/xp_a15_cp3_only_launch.sh").read_text()
