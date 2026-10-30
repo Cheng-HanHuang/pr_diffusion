@@ -51,6 +51,40 @@ def emit(run,tag,**fields):
 def head(wt):
  return subprocess.check_output(["git","-C",str(wt),"rev-parse","HEAD"],
                                 text=True).strip()
+# A14 import only the immutable GPU-hour costs of the terminated G2 smoke.
+# The old native results stay in their original provenance namespace.
+OLD_G2_SMOKE=BASE/"xp_a12_campaign_prod_20261030T002042Z"
+OLD_G2_HEAD="613034e10552d1288179aa89bca6e8d51c337639"
+def imported_g2_smoke():
+ old=OLD_G2_SMOKE
+ gate(old.is_dir() and not old.is_symlink(),"A14_OLD_SMOKE_PATH")
+ state=jread(old/"XP_A12_CAMPAIGN_STATE.json")
+ gate(state["head"]==OLD_G2_HEAD and state["status"]=="G2_COMPLETE"
+      and not state["active"] and len(state["done"])==2,
+      "A14_OLD_SMOKE_TERMINAL")
+ paths=sorted((old/"cost").glob("*.json"))
+ gate(len(paths)==2,"A14_OLD_SMOKE_TWO_COSTS")
+ costs=[jread(p) for p in paths]
+ gate(all(v["stage"]=="G2" and v["job"]["sig"]=="0.02"
+       and v["job"]["kind"]=="SMOKE" and v["rc"]==0
+       and v["charged_gpu_h"]>0 for v in costs),
+      "A14_OLD_SMOKE_VALID_COSTS")
+ gate(sorted(v["job"]["start"] for v in costs)==[0,8],
+      "A14_OLD_SMOKE_TWO_IMAGES")
+ seconds=sum(float(v["elapsed_seconds"]) for v in costs)
+ gate(0<seconds<1800 and
+      abs(seconds-state["stage_seconds"]["G2"])<0.1,
+      "A14_OLD_SMOKE_COST_RECONCILED")
+ paths2=sorted((old/"G2"/"sigma_0.02").glob(
+     "chunk_*/root_*/R0_FAST_ROOT_COMPLETE.json"))
+ gate(len(paths2)==2 and all(
+      jread(p)["status"]=="R0_FAST_ROOT_PASS" for p in paths2),
+      "A14_OLD_SMOKE_TWO_NATIVE_RECEIPTS")
+ return dict(status="XP_A14_PRIOR_G2_SMOKE_VERIFIED_CHARGED_ONCE",
+   old_run=str(old),old_head=OLD_G2_HEAD,seconds=seconds,
+   gpu_h=seconds/3600,receipts={str(p):sha(p) for p in paths+paths2},
+   original_state_sha256=sha(old/"XP_A12_CAMPAIGN_STATE.json"))
+
 def prepar(a):
  wt=Path(__file__).resolve().parents[2]
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_CONTROLLER")
