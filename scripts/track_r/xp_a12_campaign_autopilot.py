@@ -557,6 +557,9 @@ def entry():
  for x in ("expected-head","ledger","g1b-final","g2-prep","g45-prep","run"):
   p.add_argument("--"+x,required=True)
  p.add_argument("--g3-prep",default=None)
+ # Optional legacy G1b preparation is not passed for A13: G1b has
+ # already completed and is authenticated by --g1b-final.
+ p.add_argument("--g1b-prep",default=None)
  p.add_argument("--preflight-only",action="store_true")
  try:main(p.parse_args())
  except Exception as e:
