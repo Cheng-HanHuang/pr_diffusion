@@ -13,6 +13,7 @@ from collections import defaultdict,Counter
 from pathlib import Path
 import numpy as np
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
+from scripts.track_r.xp_a12_g1a_fast_gpu import A12_G1A_FROZEN_PRODUCER
 from scripts.track_r.xp_a12_campaign_fast_gpu import root_folder,validate_complete
 from scripts.track_r.xp_t_sitcom_prepare_cpu import IMAGENET,COMMON_Y_SHA
 from scripts.track_r.xp_d1p2_a11_export_cpu import D1_SHA
@@ -117,10 +118,11 @@ def provenance(a):
  new=prep_b/"XP_A12_G1B_3200_TASKS.json"
  mf_b=jread(new);gate(len(mf_b["rows"])==3200 and
        sha(new)==g1b["manifest_sha256"],"CP2_G1B_MANIFEST")
- gate(sha(old)==g1a["production_manifest_sha256"] if
-      "production_manifest_sha256" in g1a else
-      sha(old)==jread(G1A_PREP/"XP_A12_G1A_PREP_RECEIPT.json")["production_manifest_sha256"],
-      "CP2_G1A_MANIFEST_SHA")
+ prep_a=jread(G1A_PREP/"XP_A12_G1A_PREP_RECEIPT.json")
+ gate(sha(old)==prep_a["production_manifest_sha256"] and
+      prep_a["head"]==mf_a["head"]==A12_G1A_FROZEN_PRODUCER
+      and g1a["source_head"]!=mf_a["head"] and
+      g1b["source_head"]==mf_b["head"],"CP2_PRODUCER_VS_EXECUTION_HEADS")
  old_dirs=sorted(p for p in BASE.glob("xp_d1p2_protocol_*")
    if (p/"XP_D1P2_A11_INPUT_RECEIPT.json").is_file())
  gate(len(old_dirs)==1,"CP2_D1_16_PREFIX_UNIQUE")
@@ -146,8 +148,8 @@ def provenance(a):
       "CP2_100_SAME_IMAGES")
  grouped={i:{} for i in ids}
  for run,mf,expect,start,count,head in (
-  (G1A_RUN,mf_a,g1a,16,16,mf_a["head"]),
-  (g1b_run,mf_b,g1b,32,32,mf_b["head"])):
+  (G1A_RUN,mf_a,g1a,16,16,g1a["source_head"]),
+  (g1b_run,mf_b,g1b,32,32,g1b["source_head"])):
   for row in mf["rows"]:
    rep=row["rep"];iid=row["image_id"]
    gate(start<=rep<start+count and rep not in grouped[iid]
