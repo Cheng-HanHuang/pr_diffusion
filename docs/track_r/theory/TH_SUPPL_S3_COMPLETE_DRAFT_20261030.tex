@@ -1,0 +1,286 @@
+% Track R Supplement S3, revised theory-owned integration draft (2026-10-30).
+% Source: earlier TH_SUPPL_S3_SELECTION_BOUNDS_DROPIN_20261029.tex,
+% A8 calibration/theory, registered v1/v2/v2-E1/v3 files and released
+% FAST64, ImageNet D1-P2, SITCOM B16 and DAPS F8 comparison relays.
+% Do NOT re-fit a registered prediction or read xp/returns for this draft.
+% Copy into paper only after planner approves the integration and labels.
+\section{Residual selection, exact finite-panel evaluation, and the identification limit}
+\label{sec:suppl-selection}
+
+\paragraph{Candidate classes and the exchangeable-rank reference.}
+For a fixed image and solver, label a generated candidate by
+$J\in\{G,O_g,O_p,C,I\}$, denoting raw GOOD, globally rotated
+ORBIT, partially rotated ORBIT, measurement-CONSISTENT but wrong,
+and measurement-INCONSISTENT, with class probabilities
+$\theta=(p,o_g,o_p,c,u)$.
+Set $q=p+o_g+o_p$ and $s=q+c=1-u$.
+The conventional exchangeable-passing-ranks model (S2) takes all
+non-$I$ candidates to have equal chance to win the physical-residual
+ranking, while $I$ never wins when a passing candidate exists (S1).
+Let $h$ be the chance that the orientation verifier breaks GOOD and
+$\phi_g,\phi_p$ the repair chances for $O_g,O_p$, respectively. With
+$a=(1-h)p+\phi_go_g+\phi_po_p$, independent fresh-$K$ sampling gives
+\begin{align}
+ E_0^{\mathrm{S2}}(K)&=(1-u^K)\frac{p}{s}, &
+ E_1^{\mathrm{S2}}(K)&=(1-u^K)\frac{a}{s},\label{eq:suppl-S3-S2}\\
+ O_{\mathrm{raw}}(K)&=1-(1-p)^K, &
+ O_{\mathrm{orbit}}(K)&=1-(1-q)^K.\label{eq:suppl-S3-oracle}
+\end{align}
+The formulas use a fresh-$K$ iid model and assume $s>0$;
+for $s=0$, $E_0=E_1=0$ under the stated $I$-last rule.
+They are neither the physical law of native diffusion residuals nor
+the exact evaluation of an existing fixed panel.
+
+\paragraph{A class-conditional rank race and exact winner law.}
+For a residual-\emph{rank} surrogate, draw independent competing
+clocks $T\mid J=j\sim\operatorname{Exp}(w_j)$ with
+$w_G=1$, $w_{O_g}=w_{O_p}=w_O$, $w_C>0$ and $w_I=0$.
+A smaller clock is treated as a lower residual. For a class with
+$w_j>0$, the probability it wins among $K$ fresh candidates is
+\begin{equation}\label{eq:suppl-race-integral}
+ W_j(K\mid\theta,w)
+ =K\theta_j\int_0^\infty w_j e^{-w_jt}
+ \left(\sum_\ell\theta_\ell e^{-w_\ell t}\right)^{K-1}\,dt.
+\end{equation}
+To prove this, designate one of the $K$ runs as the winning class-$j$
+run: its joint class/time density is $\theta_j w_j e^{-w_jt}$,
+while each other run has survival function
+$\sum_\ell\theta_\ell e^{-w_\ell t}$.
+For realized class counts $N_j$, competing exponential minima
+instead give the elementary Plackett--Luce identity
+\begin{equation}\label{eq:suppl-race-conditional}
+ \Pr(J_{\arg\min T}=j\mid (N_\ell)_\ell)
+ =\frac{N_jw_j}{\sum_\ell N_\ell w_\ell}
+\end{equation}
+when the denominator is positive. If every clock rate is zero, a
+predeclared deterministic tie convention is required. Thus, under
+class-conditional independent repair decisions,
+\begin{equation}\label{eq:suppl-race-policies}
+ E_0^{\mathrm{race}}(K)=W_G(K),\qquad
+ E_1^{\mathrm{race}}(K)=(1-h)W_G(K)
+ +\phi_gW_{O_g}(K)+\phi_pW_{O_p}(K).
+\end{equation}
+The probabilities refer to a single chosen candidate, \emph{not}
+repairing the entire pool or using ground truth for selection.
+Taking $K\to\infty$ at fixed class rates yields
+\[
+ E_0^{\mathrm{race}}(\infty)
+ =\frac{p w_G}{p w_G+o_gw_O+o_pw_O+cw_C}
+\]
+if the denominator is positive, generally different from $p/s$.
+Exponential-race formulas are classical; their role here is a
+solver-specific calibrated approximation to physical-residual ranks.
+An exact Fourier twin has the same measurement magnitude, but two
+\emph{separately generated} G and O outputs can have different
+non-orbit reconstruction errors and therefore different residuals.
+
+\paragraph{What is and is not learned from a few ranks.}
+The authorized A8 calibration comprises 540 eligible image--solver
+rows and 1,960 candidates across DAPS, SITCOM, and FAST-DIPS:
+1,171 G, 58 global O, one partial O, 215 C and 515 I.
+Within-image G ranks ahead of C in 200/205 available pair comparisons;
+E0 chooses G in 92/100 image--solver rows with mixed passing classes,
+versus an expectation of 51.92 under the exchangeable S2 reference.
+These pair comparisons share runs/images and are \emph{not}
+independent binomial trials. Composite Bradley--Terry fits regularize
+$\log(w_O),\log(w_C)$ independently with a zero-mean Gaussian
+logweight penalty (primary scale 2.5); they tie P to O because only
+one partial-orbit candidate is observed. The approximate primary
+class rates $(w_O,w_C)$ are DAPS $(.1704,.0201)$, SITCOM
+$(.9536,.0454)$, and FFHQ FAST $(.0366,.0236)$.
+An $I$-last surrogate has observed exceptions, handled in the
+frozen scripts by a small finite clock rate only for the affected
+\emph{observed} prefix candidate. Do not claim those fitted weights
+are physically calibrated units of a Fourier residual or generally
+portable to other datasets.
+
+The oracle--selector gap need \emph{not} be monotone in $K$ under
+class-dependent ranks, even when the GOOD rate is larger.
+With $p_G=p_{\mathrm{bad}}=1/2$ and
+$(w_G,w_{\mathrm{bad}})=(1,.03)$,
+\[
+ D_K=\sum_{g=1}^{K-1}\binom Kg2^{-K}
+ \frac{(K-g)\,.03}{g+(K-g)\,.03}
+\]
+has $D_6=.0386195271>D_7=.0385396532$ and
+$D_\infty=.0291262136$. The monotone-gap observation for the
+exchangeable reference must therefore \emph{not} be transferred
+into a general race theorem.
+
+\paragraph{Exact all-subset policy and oracle estimands.}
+For a \emph{completed fixed panel} of $n$ candidates ordered by the
+measured residual, let rank $r=1$ be the best. If a uniform $K$-subset
+is drawn, the chance that its minimum-residual candidate has rank
+$r$ is exactly
+\begin{equation}\label{eq:suppl-subset-weight}
+ \omega_r(n,K)=\frac{\binom{n-r}{K-1}}{\binom nK},
+\end{equation}
+with the binomial coefficient defined as zero when its arguments are
+infeasible. For observed per-run success indicators $b_r$ after
+any specified orientation action, the \emph{complete U-statistic}
+policy success is $\sum_{r=1}^n\omega_r(n,K)b_r$.
+If precisely $g$ of $n$ candidates are accepted by a ground-truth
+oracle, its complete U-statistic is
+\begin{equation}\label{eq:suppl-oracle-subset}
+ \widehat O(K)=1-\frac{\binom{n-g}{K}}{\binom nK}.
+\end{equation}
+These identities use no statistical extrapolation and are valid for
+the \emph{actual completed panel}. They prevent conflating a fixed
+panel with independently regenerated pools for each $K$.
+
+\paragraph{Exact conditional-prefix oracle means.}
+For a registered conditional-prefix forecast, suppose $n_0$ old
+runs with fixed class counts $C$ remain in a panel of size $n$;
+only $m=n-n_0$ future runs are generated. Let
+$\theta\mid C\sim\operatorname{Dirichlet}(C+\alpha)$ and let the
+oracle's target be either G alone or $\{G,O_g,O_p\}$.
+Write $g_0$ for old successes, $A$ for the posterior total
+concentration, and $A_{\neg}$ for its non-target concentration.
+Then the \emph{exact model-conditional} expected oracle, without
+residual-race simulation, is
+\begin{align}\label{eq:suppl-S3-prefix-oracle}
+ \mathbb E[O(K)\mid C]
+ =1-\sum_{j=\max(0,K-m)}^{\min(K,n_0-g_0)}
+ \frac{\binom{n_0-g_0}{j}\binom{m}{K-j}}{\binom nK}
+ \frac{(A_{\neg})_{K-j}}{(A)_{K-j}},
+\end{align}
+where $(a)_r=a(a+1)\cdots(a+r-1)$ and $(a)_0=1$.
+Indeed a K-subset with $j$ old non-target candidates must also have
+$K-j$ future non-target draws; the posterior expectation of their
+joint probability is a beta moment
+$\mathbb E[(1-\theta_{\rm target})^{K-j}\mid C]
+ =(A_{\neg})_{K-j}/(A)_{K-j}$.
+This is the correct control-variate anchor for the oracle \emph{and}
+for the associated E0/E1 loss; membership of the single residual
+winner in the target classes is \emph{not} an oracle.
+
+\paragraph{A sharp logical obstruction from finite moments.}
+Let a population of images have unknown mixing law $\mu$ for the
+image-specific probability $p\in[0,1]$ of generating raw GOOD.
+For $n$ independent runs conditional on image,
+\begin{equation}\label{eq:suppl-four-moments}
+ \Pr(G_n=j)=\binom nj\int_0^1p^j(1-p)^{n-j}\mu(dp).
+\end{equation}
+The $n$-run count law determines only the first $n$ moments of
+$\mu$. Yet the population oracle at depth $K$ is
+$O_K(\mu)=\int[1-(1-p)^K]\mu(dp)$, with limiting ceiling
+$\Pr_\mu(p>0)$. The following two mixing laws have \emph{identical}
+four-run count probabilities, including in the infinite-image
+limit:
+\begin{equation}\label{eq:suppl-radau-witness}
+ \mu_A=\operatorname{Uniform}[0,1],\qquad
+ \mu_B=\frac19\delta_0+
+ \frac{16+\sqrt6}{36}\delta_{(6-\sqrt6)/10}
+ +\frac{16-\sqrt6}{36}\delta_{(6+\sqrt6)/10}.
+\end{equation}
+They agree on all polynomials of degree at most four by the
+classical three-node left Gauss--Radau quadrature formula.
+Consequently their four-run count law is identical
+($\Pr(G_4=j)=1/5$ for $j=0,\dots,4$), but
+\[
+ O_{64}(\mu_A)=64/65\approx .984615,\qquad
+ O_{64}(\mu_B)\approx .888889,
+\]
+a difference of \textbf{9.57 percentage points}, and their limiting
+ceilings differ by exactly $1/9$. For DAPS/B22's still shallower
+$n=2$ prefix, $\operatorname{Uniform}[0,1]$ and
+$\tfrac14\delta_0+\tfrac34\delta_{2/3}$ agree on moments of
+degree at most two yet have different large-$K$ ceilings.
+Neither pair describes the true image population; nor does
+failure in a finite number of runs prove that any particular
+image has $p=0$.
+
+\paragraph{Data-specific outer bounds, with the correct target.}
+An \emph{exploratory} numerical supplement calculation performed
+after FAST64 outcome release used only the original FAST four-run
+GOOD-count histograms. Under iid images from a cohort population,
+construct five marginal 99\% Clopper--Pearson binomial intervals
+$[L_j,U_j]$ for the five four-run count-category probabilities.
+By Bonferroni, all five bands hold simultaneously with probability
+at least 95\%. Optimize the \emph{population}, not fixed-panel,
+$O_{64}(\mu)$ over nonnegative probability measures $\mu$ with
+\[
+ L_j\le\int\binom4j p^j(1-p)^{4-j}\mu(dp)\le U_j,
+ \quad j=0,\ldots,4,\qquad\int\mu(dp)=1.
+\]
+To certify a conservative continuum outer interval from a finite
+mesh of spacing $h=10^{-4}$, assign each continuum mass to its
+nearest grid point (distance at most $h/2$). The Bernstein
+polynomial count integrands have derivative norm at most four;
+the target $1-(1-p)^{64}$ has derivative norm at most 64.
+Expanding the grid LP count constraints by $2h$ and its minimum and
+maximum target by $32h$ therefore encloses all compatible
+continuum measures up to numerical solver tolerance. The resulting
+\emph{population} outer bounds are
+\begin{equation}\label{eq:suppl-population-bounds}
+ O_{64}^{\mathrm{population}}\in
+ \begin{cases}
+ [0.8696,1.0000],&\text{FFHQ B22 (100 images)},\\
+ [0.6113,1.0000],&\text{FFHQ enriched DEV80 (80 images)}.
+ \end{cases}
+\end{equation}
+The confidence interpretation requires iid sampling of images
+within each cohort; the deliberately selected/enriched DEV80
+cohort does not automatically meet this assumption. These are
+\emph{not} 95\% bounds for the registered conditional-prefix
+fixed-image realized-panel estimands. They also do not estimate
+the intrinsic proportion of unsolvable images precisely.
+
+\paragraph{Registered predictions versus observations: report both halves.}
+All reported comparisons below evaluate already committed and
+registered forecast artifacts \emph{without refitting}.
+Counts across $K$ and uncertainty arms are correlated; coverage
+fractions are descriptive across a frozen grid, \emph{not}
+independent Bernoulli trials or a calibrated frequentist
+significance test.
+\begin{itemize}
+\item \textbf{FFHQ FAST v1 (64-run panel).}
+For E0, race predictive-interval coverage is 6/21, versus S2
+15/21. Raw/orbit oracles cover only 6/21 and 4/21 points, and
+seven images never generate GOOD across 64 runs, six being
+INCONSISTENT in every one. With \emph{realized} class composition
+held fixed in a strictly post-outcome diagnostic, the frozen primary
+race predicts pooled K64 E0 .9526 versus .9389 observed;
+the stricter-prior race gives .9379, S2 .8773. S2's better
+unconditional coverage arises partly from cancellation of a
+pessimistic rank selector with optimistic generation.
+\item \textbf{SITCOM B16 v1 and separately registered v3.}
+Across its primary $n=16$ panels, v1 race covers all 18/18 E0/E1
+selection policy points versus 2/18 for S2; raw/orbit oracles
+cover 13/18. At pooled K16 the observed
+$(E0,E1,O_{\rm raw},O_{\rm orbit})=(.822,.911,.917,.922)$,
+versus race forecast $(.853,.908,.929,.942)$. The FAST-informed
+v3 has only 17/36 all-policy coverage, compared with 31/36
+for v1, as its generator becomes overly pessimistic on SITCOM.
+\item \textbf{DAPS F8 v1 and v3.}
+V1 race covers 21/28 overall (E0 7/7, E1 5/7, oracles 9/14),
+while S2 covers 22/28 including all 14/14 E0/E1 selection
+points. At pooled K8 the observed
+$(E0,E1,O_{\rm raw},O_{\rm orbit})=(.928,.939,.939,.944)$
+versus race $(.943,.963,.962,.968)$. The original orbit
+oracle overforecasts ($.9685$ versus $.944$ observed) and v3
+covers only 17/28 overall; DAPS does \emph{not} establish a
+race-over-S2 coverage advantage.
+\item \textbf{ImageNet FAST D1 (16-run panel).}
+In the separately registered v2 E1 addendum, race, strict-prior
+race and transferred-tail each cover 6/6 E1 interval checks,
+while S2 covers 0/6. Here 6/6 means \emph{three K values times
+two different uncertainty constructions evaluated on the same
+observations}, not six independent held-out experiments.
+At K16 E1 is .650, versus race .603 [.520,.682], but the
+orbit oracle is only .750 versus predicted .859 (outside the
+frozen band), while raw oracle is .700 versus .683 forecast.
+Thus E1 coverage alone does not validate the generation model.
+\end{itemize}
+
+\paragraph{Scope of the selection claim.}
+These results support a \emph{calibrated, GT-free residual
+selection explanation} for particular native solvers/cohorts,
+with clear failures of the extrapolated image-generation model.
+The conditional-on-realized-label analysis is diagnostic after
+unblinding, not prospective verification of the joint forecast.
+The exact combinatorial and moment statements are mathematical;
+Dirichlet image-rate extrapolation, structural-zero priors,
+score surrogates, and CLIP orientation rates are statistical
+modeling choices. No new general Plackett--Luce theorem,
+Fourier-symmetry theorem, or quadrature inequality is claimed.
