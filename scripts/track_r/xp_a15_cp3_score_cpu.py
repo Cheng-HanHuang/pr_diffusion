@@ -32,7 +32,7 @@ STAGE_CHOICES=("G2_0.02","G2_0.10","G4","G5","G3")
 BASE_COLS=("image_id","cohort","labels_by_run","rho_signed_by_run",
   "tau_signed_good_q95","n_G","n_O_g","n_O_p","n_C","n_I")
 RUN_COLS=("image_id","cohort","run","label","rho_signed","psnr_raw",
-          "psnr_orbit_best","flip_good","reconstruction_path",
+          "psnr_orbit_best","psnr_flip","flip_good","reconstruction_path",
           "reconstruction_sha256","uid","measurement_sha256")
 SRC_COH={"S1_b22":"B22","S2_b24_dev80":"DEV80"}
 def find_prep(prefix,receipt_key,stage,manifest_expected):
@@ -246,7 +246,7 @@ def score(stage,raw,meta,out,expected_head):
    gate(all(math.isfinite(v) for v in (rawpsnr,bestpsnr,rho))
         and rho>=0,"CP3_SCORES_FINITE")
    tmp.append(dict(image_id=key,cohort=cohort,run=r["rep"],
-      raw=rawpsnr,orbit=bestpsnr,best=best,rho=rho,
+      raw=rawpsnr,orbit=bestpsnr,best=best,psnr_flip=float(orb["111"]),rho=rho,
       flip_good=int(float(orb["111"])>=goal),
       reconstruction_path=str(path),reconstruction_sha256=r["hash"],
       uid=r["uid"],measurement_sha256=ysha))
@@ -274,6 +274,7 @@ def score(stage,raw,meta,out,expected_head):
     run=r["run"],label=label,rho_signed=format(r["rho"],".15g"),
     psnr_raw=format(r["raw"],".12g"),
     psnr_orbit_best=format(r["orbit"],".12g"),
+    psnr_flip=format(r["psnr_flip"],".12g"),
     flip_good=r["flip_good"],
     reconstruction_path=r["reconstruction_path"],
     reconstruction_sha256=r["reconstruction_sha256"],
