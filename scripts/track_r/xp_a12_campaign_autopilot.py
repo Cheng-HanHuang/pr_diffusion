@@ -193,6 +193,96 @@ def task_set(roots,P):
   jobs[stage]=([dict(stage=stage,kind="REPLAY",index=i) for i in range(2)],
                [dict(stage=stage,kind="PROD",index=i) for i in range(N[stage])])
  return jobs
+
+def a14_g2_jobs(P):
+ """A14 preserves paired sigma panels and complete per-image run blocks."""
+ image_panels={}
+ for sig in ("0.02","0.10"):
+  p=P["G2"]["per_sigma"][sig]["path"]
+  rows=jread(p)["rows"]
+  gate(len(rows)==1440,"A14_G2_ROWS_"+sig)
+  for i in range(180):
+   chunk=rows[8*i:8*i+8]
+   gate([x["rep"] for x in chunk]==list(range(8))
+        and len({x["image_id"] for x in chunk})==1,
+        "A14_G2_ORDER_"+sig)
+  image_panels[sig]=[rows[i*8]["image_id"] for i in range(180)]
+ gate(image_panels["0.02"]==image_panels["0.10"]
+      and len(set(image_panels["0.02"]))==180,"A14_PAIRED_IMAGES")
+ names=image_panels["0.02"]
+ gate(sum(x.startswith("S1_b22_") for x in names)==100
+      and sum(x.startswith("S2_b24_dev80_") for x in names)==80,
+      "A14_EXPOSED_COHORT_COUNTS")
+ # Run the exact production worker on one whole image per sigma.
+ pilot=[dict(stage="G2",kind="PILOT",sig=sig,start=0,count=8)
+        for sig in ("0.02","0.10")]
+ # Pilot completes all runs for the first image, so skip it thereafter.
+ full=[dict(stage="G2",kind="PROD",sig=sig,start=8*i,count=8)
+       for i in range(1,180) for sig in ("0.02","0.10")]
+ # All images, 0..3 first; then 4..7 in cohort A and B.
+ # Group by complete image, and interleave the two sigma settings.
+ base=[dict(stage="G2",kind="BASE",sig=sig,start=8*i,count=4)
+       for i in range(1,180) for sig in ("0.02","0.10")]
+ tail=[dict(stage="G2",kind="TAIL",sig=sig,start=8*i+4,count=4)
+       for i in range(1,180) for sig in ("0.02","0.10")]
+ gate(len(pilot)==2 and len(full)==358 and len(base)==358
+      and len(tail)==358,"A14_G2_JOB_GRID")
+ return pilot,full,base,tail
+
+def a14_g2_pilot_report(run,P,state,prior):
+ samples={}
+ for sig in ("0.02","0.10"):
+  rows=jread(P["G2"]["per_sigma"][sig]["path"])["rows"]
+  dest=run/"G2"/("sigma_"+sig)/"chunk_00000_008"
+  times=[]
+  for row in rows[:8]:
+   rc=jread(root_folder(dest,row)/"R0_FAST_ROOT_COMPLETE.json")
+   gate(rc["status"]=="R0_FAST_ROOT_PASS","A14_PILOT_NATIVE")
+   seconds=float(rc["native_sample_wall_seconds"])
+   gate(math.isfinite(seconds) and seconds>0,"A14_PILOT_POSITIVE_SAMPLE")
+   times.append(seconds)
+  samples[sig]=times
+ launches=[]
+ with (run/"XP_A12_CAMPAIGN_EVENTS.jsonl").open() as f:
+  for line in f:
+   d=json.loads(line)
+   if d["event"]=="TASK_LAUNCHED" and d["job"]["stage"]=="G2":
+    launches.append(d)
+ gate(len(launches)==2,"A14_PILOT_TWO_LAUNCHES")
+ remaining_per_sigma=1440-8
+ projected_s=float(state["stage_seconds"]["G2"])+sum(
+   1.25*max(samples[sig])*remaining_per_sigma
+   for sig in ("0.02","0.10"))
+ result=dict(status="XP_A14_G2_PRODUCTION_MODE_PILOT_PASS",
+   n_images_per_sigma=1,n_runs_per_image=8,
+   source_head=state["head"],native_sample_wall_seconds=samples,
+   gpu_launch_telemetry=launches,
+   previous_smoke_cost_gpu_h=prior["gpu_h"],
+   billed_before_production_gpu_h=state["stage_seconds"]["G2"]/3600,
+   full_projection_gpu_h=projected_s/3600,
+   stage_cap_gpu_h=CAP["G2"],
+   full_panel_fits=projected_s/3600<=CAP["G2"],
+   no_GT_scoring=True,co_tenant_fallback_permitted=True)
+ write(run/"XP_A14_G2_PILOT_REPORT.json",result)
+ return result
+
+def a14_g2_coverage(state):
+ seen={sig:{} for sig in ("0.02","0.10")}
+ for job in state.get("verified_jobs",{}).get("G2",[]):
+  r=seen[job["sig"]]
+  for index in range(job["start"],job["start"]+job["count"]):
+   r.setdefault(index//8,set()).add(index%8)
+ counts={}
+ for sig,images in seen.items():
+  counts[sig]=dict(base4=sum(all(k in v for k in range(4))
+                              for v in images.values()),
+    full8=sum(len(v)==8 for v in images.values()))
+ paired=sum(len(seen["0.02"].get(i,set()))==8
+            and len(seen["0.10"].get(i,set()))==8
+            for i in range(180))
+ return dict(per_sigma=counts,paired_full8_images=paired,
+    H_G2_evaluable=all(v["full8"]>=60 for v in counts.values()))
+
 def make_command(a,run,task,gpu,roots,P,attempt):
  stage=task["stage"];kind=task["kind"]
  if stage=="G1b":
