@@ -317,9 +317,11 @@ def run_protocol(wt,blob,out,strings,clip):
   cmd=[sys.executable,"-I",str(script),"--strings",str(strings),
        "--clip",str(clip),"--tau","0.0500829","--m","2",
        "--nmax",str(n),"--R","4000","--seed","20261029","--out",str(target)]
+  if n==32:cmd+=["--run-range","0:32"]
   subprocess.run(cmd,check=True,cwd=str(wt),env=dict(os.environ,CUDA_VISIBLE_DEVICES=""))
   doc=jread(target)
   gate(doc["N_MAX"]==n and doc["n_images"]==100
+       and doc["n_runs_per_image_panel"]==n
        and doc["M"]==2 and doc["orientation_step"] is True,
        "CP2_PROTOCOL_N"+str(n))
   outputs[str(n)]=dict(sha256=sha(target),
