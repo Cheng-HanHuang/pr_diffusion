@@ -77,6 +77,8 @@ class A12Stages(unittest.TestCase):
    self.assertIn(word,native)
   self.assertEqual(gates.PC_HEAD,"59b2f046")
   self.assertEqual(g3.PC_HEAD,"59b2f046")
+  self.assertIn('group.sort(key=lambda x:int(x["run_index"]))',inspect.getsource(g3.main))
+  self.assertNotIn('x["rep"]',inspect.getsource(g3.main))
  def test_budget_global(self):
   self.assertEqual(driver.CAP["G2"],25.)
   self.assertEqual(driver.CAP["G3"],45.)
