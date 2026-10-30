@@ -152,7 +152,7 @@ def provenance(a):
         and row["measurement_sha256"]==measurements[iid]["measurement_sha256"]
         and row["measurement_path"]==measurements[iid]["measurement_path"],
         "CP2_D4_TASK_LINEAGE")
-   chunk=(run/"production"/f"chunk_{(rep//count)*count if False else (list(sorted(ids)).index(iid)*count):05d}_{count:03d}")
+   chunk=(run/"production"/f"chunk_{sorted(ids).index(iid)*count:05d}_{count:03d}")
    # Chunk index corresponds to sorted image IDs, not global run index.
    x=root_folder(chunk,row)
    receipt=validate_complete(x,row,head,sha(old if count==16 else new))
@@ -334,7 +334,7 @@ def main(a):
  out.mkdir(mode=0o700)
  strings,scored,previous=new_scores(data,a,out)
  clip_new_rows,clipmeta=clip_new(scored)
- clips=clip0+clip_new_rows
+ clips=[{k:r[k] for k in CLIP_NAMES} for r in clip0]+clip_new_rows
  gate(len(clips)==6400 and len({(r["image_id"],int(r["run"])) for r in clips})==6400,
       "CP2_6400_CLIP")
  csvwrite(out/"D4_64RUN_G1_CLIP.csv",sorted(clips,key=lambda x:(x["image_id"],int(x["run"]))),CLIP_NAMES)
