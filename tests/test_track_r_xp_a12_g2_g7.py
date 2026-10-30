@@ -77,7 +77,7 @@ class A12Stages(unittest.TestCase):
   self.assertEqual(gates.PC_HEAD,"59b2f046")
   self.assertEqual(g3.PC_HEAD,"59b2f046")
  def test_budget_global(self):
-  self.assertEqual(driver.CAP["G2"],10.)
+  self.assertEqual(driver.CAP["G2"],25.)
   self.assertEqual(driver.CAP["G3"],45.)
   self.assertEqual(driver.CAP["G4"],30.)
   self.assertEqual(driver.CAP["G5"],40.)
@@ -99,6 +99,35 @@ class A12Stages(unittest.TestCase):
   publish=(ROOT/"scripts/track_r/xp_a13_cp1_publish.sh").read_text()
   self.assertIn('XP_A13_CP1_PROJECT_GPU_LEDGER.json',publish)
   self.assertIn('A10_included_in_project_prior_but_excluded_from_A12',publish)
+ def test_A14_pilot_and_complete_image_schedule(self):
+  from unittest.mock import patch
+  def rows():
+   ids=(["S1_b22_"+str(k).zfill(5) for k in range(100)]+
+        ["S2_b24_dev80_"+str(k).zfill(5) for k in range(80)])
+   return [dict(image_id=iid,rep=rep) for iid in ids for rep in range(8)]
+  manifests={"02":{"rows":rows()},"10":{"rows":rows()}}
+  prep=dict(G2=dict(per_sigma={"0.02":dict(path="02"),
+                               "0.10":dict(path="10")}))
+  with patch.object(driver,"jread",side_effect=lambda p:manifests[str(p)]):
+   pilot,full,base,tail=driver.a14_g2_jobs(prep)
+  self.assertEqual(len(pilot),2)
+  self.assertEqual((pilot[0]["start"],pilot[0]["count"]),(0,8))
+  self.assertEqual({x["sig"] for x in pilot},{"0.02","0.10"})
+  self.assertEqual((len(full),len(base),len(tail)),(358,358,358))
+  self.assertEqual((base[0]["start"],base[0]["count"]),(8,4))
+  self.assertEqual((tail[0]["start"],tail[0]["count"]),(12,4))
+  self.assertEqual((tail[197]["start"],tail[197]["sig"]),(99*8+4,"0.10"))
+  records=pilot+base[:2]+tail[:2]
+  coverage=driver.a14_g2_coverage({"verified_jobs":{"G2":records}})
+  self.assertEqual(coverage["per_sigma"]["0.02"]["base4"],2)
+  self.assertEqual(coverage["per_sigma"]["0.10"]["full8"],2)
+  self.assertEqual(coverage["paired_full8_images"],2)
+  self.assertFalse(coverage["H_G2_evaluable"])
+  src=inspect.getsource(driver.main)
+  self.assertIn('("G4","G5","G2") if a.a14',src)
+  self.assertIn('a14_g2_pilot_report',src)
+  self.assertIn('XP_A14_G2_PROGRESS.json',src)
+  self.assertEqual(driver.CAP["G2"],25.)
  def test_g7_mapping_to_native_1000(self):
   script=(ROOT/"scripts/track_r/xp_a12_g7_c2_gpu.py").read_text()
   self.assertIn("native.M==1000",script)
