@@ -17,7 +17,7 @@ test -d "$PUB"
 test "$(git -C "$PUB" symbolic-ref --short HEAD)" = "$CP2_BRANCH"
 LOCAL_CP2=$(git -C "$PUB" rev-parse HEAD)
 case "$LOCAL_CP2" in ef1cf10*) ;; *) echo STOP_CP2_WRONG_LOCAL_COMMIT;exit 8;; esac
-REMOTE_CP2=$(git -C "$PUB" ls-remote origin "refs/heads/$CP2_BRANCH" | cut -f1)
+REMOTE_CP2=$(git -C "$PUB" -c core.sshCommand='ssh -o BatchMode=yes -o ConnectTimeout=12' ls-remote git@github.com:Cheng-HanHuang/pr_diffusion.git "refs/heads/$CP2_BRANCH" | cut -f1)
 test "$LOCAL_CP2" = "$REMOTE_CP2" || { echo STOP_CP2_NOT_PUSHED_EXACT;exit 8; }
 AUDIT="$PUB/docs/track_r/executors/xp/returns/XP_A15_CP2_20261030T185023Z/XP_A15_CP2_INDEPENDENT_AUDIT.json"
 "$PY" - "$AUDIT" <<'PY'
