@@ -1,0 +1,182 @@
+% Theory-owned addition to Supplement S2, 2026-10-30.
+% Place AFTER paper/X_symmetry_moved_to_suppl.tex, without editing that source.
+% The source includes open editorial \pending markers: these are not resolved here.
+% Existing theorem labels and source-specific macros are deliberately reused.
+\subsection{Proofs, precise hypotheses, and implementation scope}
+\label{sec:suppl-symmetry-proofs-audit}
+
+\paragraph{Exact Fourier orbit and posterior ratio (classical).}
+For an image with real channels padded centrally from $256\times256$
+to a $384\times384$ periodic canvas, reversing both pixel coordinates
+about the center of each original channel maps the padded image $f$
+to $f'_{j,k}=f_{-j-1,-k-1}$ (indices taken modulo $384$).
+For the two-dimensional discrete Fourier transform, a change of
+summation indices gives
+\[
+ \widehat f'(\omega)=
+ e^{2\pi i(\omega_1+\omega_2)/384}\widehat f(-\omega).
+\]
+Since $f$ is real, $\widehat f(-\omega)=\overline{\widehat f(\omega)}$;
+hence $|\widehat f'|=|\widehat f|$. The three channel reversals
+commute, forming the eight-element group
+$\mathcal G\cong(\mathbb Z/2\mathbb Z)^3$; this is one family of
+measurement symmetries, not a uniqueness theorem for the inverse
+problem. The derivation assumes the stated even, centrally padded,
+periodic operator; asymmetric cropping or another forward operator
+must be checked anew.
+
+Write $p(x\mid y)=Z_y^{-1}\pi(x)\ell(y;\mathcal A(x))$ with
+$0<Z_y<\infty$. The orbit relation
+$\mathcal A(gx)=\mathcal A(x)$ gives the cross-multiplied identity
+\[
+ \pi(x)p(gx\mid y)=\pi(gx)p(x\mid y),
+\]
+without dividing by a potentially vanishing density. The ratio in
+\cref{prop:ratio} is valid only where the denominators are positive.
+Because the group transformations permute coordinates, they preserve
+Lebesgue measure. Moreover, conditional on the unordered orbit,
+observing $y$ supplies no further orientation information:
+if $O=\mathcal GX$, then $Y\perp X\mid O$, because its likelihood is
+a function of $O$ alone. This is a standard conditional-independence
+consequence, not a new information-theoretic theorem.
+
+\paragraph{Why measurement-only selection is blind.}
+For a measurement-based selector with score
+$R(x;y)=\varphi(\mathcal A(x),y)$, one has
+$R(gx;y)=R(x;y)$. Replacing an individual candidate by its
+same-orbit representative therefore cannot change its score or
+the selected \emph{index}, provided the tie rule is also invariant.
+This extends to likelihood-only particle potentials and pruning,
+not to full twisted-SMC proposal/prior importance weights. It also
+does not assert that separately generated orbit-related candidates
+have identical residuals: their additional reconstruction errors
+can be different.
+
+\paragraph{Equivariant transitions and the eight orientations.}
+Let an initial law $\mu_T$ be invariant under $\mathcal G$.
+If each Markov kernel obeys
+$K_i(gx,gB)=K_i(x,B)$, induction shows every later law is invariant.
+For a Gaussian kernel $N(m_i(x),s_i^2 I)$, positive
+state-independent $s_i$ and $m_i(gx)=g m_i(x)$ suffice. If a
+neighborhood $B$ of a target has eight pairwise-disjoint translates
+$gB$, their equal probabilities give conditional mass $1/8$ in each,
+\emph{provided the orbit has eight distinct elements and the union
+has positive probability}. No assertion of native solver equivariance
+is implicit in this abstract result.
+
+\paragraph{Proof of the Gaussian-path total-variation inequality.}
+Fix $g\in\mathcal G$ and let $P$ be the path law of
+$(X_T,\ldots,X_0)$, $Q=g_\#P$. Because $g$ is orthogonal and the
+initial law is invariant, the two path laws have the same initial
+marginal; their respective conditional transitions are
+$N(m_i(x),s_i^2 I)$ and $N(gm_i(g^{-1}x),s_i^2 I)$.
+With $\Delta_i^g(x)=m_i(x)-gm_i(g^{-1}x)$, the KL chain rule and
+same-covariance Gaussian formula give
+\[
+ D_{\mathrm{KL}}(P\Vert Q)
+ =\sum_i\frac{\mathbb E_P\|\Delta_i^g(X_i)\|_2^2}{2s_i^2}.
+\]
+Data processing for total variation followed by Pinsker gives
+\[
+ \operatorname{TV}(L,g_\#L)
+ \le\operatorname{TV}(P,Q)
+ \le\sqrt{\frac{1}{2}D_{\mathrm{KL}}(P\Vert Q)}
+ =\left(\sum_i\frac{\mathbb E_P\|\Delta_i^g(X_i)\|_2^2}
+ {4s_i^2}\right)^{1/2}.
+\]
+The bound is on the law of the state at the end of \emph{this}
+Gaussian chain. It assumes the correct, full Markov factorization;
+a single Gaussian substep inside a non-Gaussian native update does
+not certify the entire transition. Exceptional NaN branches and
+stateful optimizers require explicit treatment. A final deterministic
+readout $H$ preserves this comparison only if it commutes with $g$;
+there is no such general guarantee for a learned terminal denoiser.
+
+For completeness, an arbitrary deterministic readout can violate
+it maximally: let $Z\sim N(0,I_2)$ be invariant under coordinate
+swap $g$, but apply
+$H(z)=(\max(z_1,z_2),\min(z_1,z_2))$.
+The output and its swap have disjoint supports (up to a null set),
+so their TV distance is one although the preceding Gaussian chain
+has zero equivariance defect. Therefore the statement must not be
+extended to FAST-DIPS's final $\widehat x_0$ readout by omission.
+
+\paragraph{Posterior--sampler mismatch and a necessary defect.}
+For the target posterior $\Pi$ and solver output law $L$,
+TV is invariant under measurable bijections. A triangle inequality
+therefore yields the classical relation
+\[
+ \operatorname{TV}(\Pi,g_\#\Pi)
+ \le 2\operatorname{TV}(\Pi,L)
+       +\operatorname{TV}(L,g_\#L).
+\]
+For an exactly invariant $L$, a noninvariant target posterior
+necessarily incurs at least half its orbit-TV asymmetry in posterior
+sampling error. Conversely, for the Gaussian chain above, an output
+asymmetry $\eta=|L(B)-L(g^{-1}B)|$ requires
+$\sum_i\mathbb E\|\Delta_i^g(X_i)\|^2/s_i^2\ge4\eta^2$.
+These are general inequalities, not estimates of the deployed
+solvers' defects. Denoiser defects measured on noised clean images
+cannot replace the \emph{on-trajectory mean-map defects} here.
+
+\paragraph{Pinned native source audit and scope (C--T3).}
+\begin{enumerate}
+\item \textbf{DAPS, pinned $\texttt{e7a77d0}$.}
+Its data-gradient Langevin updates and isotropic innovations are
+structurally equivariant if the denoiser and gradient plumbing are;
+the MCMC path also contains deterministic reverse-diffusion segments
+and a NaN fallback. The planner-confirmed final noise scale is zero,
+so the returned image is the final Langevin iterate, not a
+new nonzero-noise perturbation. A path-KL proof must account for every
+nondegenerate Langevin microstep and intervening deterministic map.
+\item \textbf{SITCOM-ODE, pinned $\texttt{275ab67}$.}
+The audited phase-retrieval implementation uses ODE score steps,
+an SSE-gradient correction, inner optimization and Langevin noise;
+it is not interchangeable with the repository's lightweight
+\texttt{prdiffusion/algorithms/sitcom.py}. Its terminal scheduled
+noise scale is likewise zero and it returns the last inner
+Langevin iterate. Equivariance requires transformed optimizer states,
+initializations, tie rules, and denoiser-Jacobian interactions.
+\item \textbf{FAST-DIPS, pinned $\texttt{a9758b38}$.}
+The measurement-side ADMM projection and JVP/VJP correction are
+structurally equivariant under the pixel-permutation action given
+an equivariant denoiser and compatible scalar tolerances. But the
+last pixel step returns $\operatorname{clip}(\widehat x_0,-1,1)$,
+not the computed final corrected state $x_{0y}$. Its terminal
+denoising/clamping is deterministic; the Gaussian-chain TV theorem
+can bound a qualifying preterminal law, but \emph{not automatically}
+the actual returned reconstruction.
+\end{enumerate}
+The audit is source-specific, not a proof that any native solver
+samples its proposed posterior exactly. It also cannot attribute
+all non-equivariance uniquely to the denoiser: exceptional branches,
+initialization, and numerical tie handling can matter.
+
+\paragraph{Why circular blur and translation do not remove twins.}
+For fixed shift-invariant circular convolution with the \emph{same}
+known kernel $k$ for every candidate,
+\[
+ \mathcal F(x*k)=(\mathcal F x)(\mathcal F k),\qquad
+ |\mathcal F((gx)*k)|=|\mathcal Fx|\,|\mathcal Fk|
+ =|\mathcal F(x*k)|
+\]
+whenever $|\mathcal F(gx)|=|\mathcal F x|$. This remains true for
+asymmetric $k$: the known blur factor multiplies both twins equally.
+A translation contributes only a unit-modulus Fourier phase; unknown
+misalignment of that kind cannot identify the orientation either.
+This does \emph{not} cover spatially varying blur, boundary cropping,
+or a nonconvolutional kernel. Known premeasurement coded illumination
+$|\mathcal F(m\odot x)|$ or known reference objects can break the
+symmetry, because the mask/reference does not transform with $x$;
+these are different measurement operators with separate
+identifiability conditions.
+
+\paragraph{Remaining source/figure checks for paper integration.}
+The authoritative relocated symmetry source still contains pending
+editorial markers for XP--C2 equivariance-defect profiles, an
+ImageNet orbit-error count, a generic-detector result, and the
+exact FFHQ prompt quotation. These are \emph{not inferred or filled}
+from the mathematical arguments above. The planner should resolve
+them from registered empirical outputs or delete the dependent
+sentences before camera-ready integration. All proof statements above
+are valid independently of those pending measurements.
