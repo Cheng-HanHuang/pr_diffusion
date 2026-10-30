@@ -21,6 +21,7 @@ export OPENBLAS_NUM_THREADS=4 NUMEXPR_NUM_THREADS=4
 cd "$WT"
 echo "===== CPU SYNTAX/REGRESSION CHECK ====="
 for file in scripts/track_r/xp_a15_cp23_cpu_autopilot.sh \
+ scripts/track_r/xp_a15_cp23_cpu_pipeline.sh \
  scripts/track_r/xp_a15_cp2_publish.sh; do
  bash -n "$file"
 done
