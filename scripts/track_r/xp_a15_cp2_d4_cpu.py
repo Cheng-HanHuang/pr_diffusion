@@ -224,21 +224,27 @@ def new_scores(data,a,out):
  csvwrite(out/"D4_64RUN_STRINGS.csv",strings,NAMES)
  csvwrite(out/"D4_NEW_4800_LOCAL_SCORES.csv",newrows,list(newrows[0]))
  return strings,newrows,prefix
-def clip_new(newrows):
+def clip_new(newrows,mode="g1",threshold=20):
  from PIL import Image
  import torch
  from prdiffusion.track_r.r0n_clip_compat import encode_text_univfd_tuple_compat
  clipfile,native,nativehead=model_source()
+ if mode=="face":
+  from scripts.track_r.r0n_2_clip_orientation import PROMPTS_UP,PROMPTS_INV
+  up_prompts,inv_prompts=PROMPTS_UP,PROMPTS_INV
+ elif mode=="g1":
+  up_prompts,inv_prompts=G1_UP,G1_INV
+ else:raise RuntimeError("STOP_A15_UNREGISTERED_CLIP_MODE")
  sys.path.insert(0,str(native))
  clip=importlib.import_module("models.clip")
  model,preprocess=clip.load(str(clipfile),device="cpu",jit=False)
  model.eval();torch.set_num_threads(4)
  torch.manual_seed(0)
  with torch.inference_mode():
-  prompts=clip.tokenize(list(G1_UP+G1_INV)).to("cpu")
+  prompts=clip.tokenize(list(up_prompts+inv_prompts)).to("cpu")
   text=encode_text_univfd_tuple_compat(model,prompts).float()
   text=text/text.norm(dim=-1,keepdim=True)
-  up=text[:len(G1_UP)].mean(0);down=text[len(G1_UP):].mean(0)
+  up=text[:len(up_prompts)].mean(0);down=text[len(up_prompts):].mean(0)
   up=up/up.norm();down=down/down.norm()
   result=[]
   for base in range(0,len(newrows),16):
@@ -253,10 +259,10 @@ def clip_new(newrows):
    margins=((z@up)-(z@down))[1::2]-((z@up)-(z@down))[::2]
    for row,margin in zip(batch,margins.tolist()):
     choice="111" if margin>0 else "000"
-    good=int(bool(row["flip_good"])) if choice=="111" else int(float(row["psnr_raw"])>=20)
+    good=int(bool(row["flip_good"])) if choice=="111" else int(float(row["psnr_raw"])>=threshold)
     result.append(dict(image_id=row["image_id"],run=row["run"],
-       label=row["label"],g1_choice=choice,g1_margin=format(margin,".12g"),
-       g1_chosen_good=good))
+       label=row["label"],**{mode+"_choice":choice,
+       mode+"_margin":format(margin,".12g"),mode+"_chosen_good":good}))
    if (base+16)%480==0:print("CP2_CLIP_G1",min(base+16,len(newrows)),flush=True)
  gate(len(result)==4800,"CP2_4800_CLIP")
  return result,dict(checkpoint_sha256=sha(clipfile),native_head=nativehead)
