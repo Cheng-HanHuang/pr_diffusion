@@ -144,6 +144,17 @@ class A12Stages(unittest.TestCase):
   self.assertIn("A14_G3_PC_NATIVE_IMPORT_CERT_PASS",launch)
   self.assertIn("A14_G3_CPU_MANIFEST_CERT_PASS",launch)
   self.assertIn("A14_G3_AUTOPILOT_LAUNCHED",launch)
+  # Earlier G3 attempt stopped before creating its run directory; fix both
+  # admission path depth and the shared scheduler's optional a14 flag.
+  self.assertIn('prior.parent.parent==BASE',src)
+  self.assertIn('a.a14=False',src)
+  self.assertIn('p.add_argument("--preflight-only",action="store_true")',src)
+  self.assertIn('A14_CERTIFIED_PREP_SHA=',src)
+  recovery=(ROOT/"scripts/track_r/xp_a14_g3_recovery_launch.sh").read_text()
+  self.assertIn('XP_A14_G3_RECOVERY_LATEST_RUN.txt',recovery)
+  self.assertIn('--preflight-only',recovery)
+  self.assertIn('A14_G3_RECOVERY_AUTOPILOT_LAUNCHED',recovery)
+  self.assertNotIn('rm -rf',recovery)
   self.assertNotIn('test-ffhq',src)
   self.assertEqual(driver.DEADLINE["G3"],(2026,11,4,12))
  def test_g7_mapping_to_native_1000(self):
