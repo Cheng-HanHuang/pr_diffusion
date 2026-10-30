@@ -139,7 +139,7 @@ def main(a):
              per_sigma=manifests,paired_y_audit_sha256=sha(
                   out/"XP_A12_G2_PAIRED_Y_AUDIT.json"),
              no_GPU=True,no_GT_sent_to_worker=True,
-             per_sigma_smoke_required=True,stage_ceiling_gpu_h=10,
+             per_sigma_smoke_required=True,stage_ceiling_gpu_h=25,
              source_catalog_sha256=sha(CAT)))
     print("XP_A12_G2_CPU_PREP_2880_PASS",flush=True)
     for sig in manifests:
