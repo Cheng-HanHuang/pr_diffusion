@@ -1,0 +1,24 @@
+{
+  "A10_historical_gpu_h": 55.54578541457511,
+  "A10_included_in_project_prior_but_excluded_from_A12": true,
+  "A12_after_g1b_gpu_h": 10.52396286744702,
+  "A12_cap_gpu_h": 150.0,
+  "A12_remaining_after_g1b_gpu_h": 139.476037132553,
+  "further_G2_G7_charge_not_yet_in_this_CP1_snapshot": true,
+  "g1a_gpu_h": 3.572931348127313,
+  "g1b_gpu_h": 6.951031519319707,
+  "historical_uncertain_gate_conservative_upper_bill_gpu_h": 31.314365,
+  "project_cap_gpu_h": 400.0,
+  "project_conservative_after_g1b_gpu_h": 164.10554415512885,
+  "project_conservative_prior_to_A12_gpu_h": 153.58158128768181,
+  "project_remaining_after_g1b_gpu_h": 235.89445584487115,
+  "schema": "prdiff.track_r.a13.cp1.project-ledger.v1",
+  "source_references": {
+    "g1a_receipt_sha256": "653ff2d48ca7fb5fc3f8374dab86df4812942421fd2a87db4a3e7c77ee928ade",
+    "g1b_execution_head": "bce6fc3ae3afc8c821f0eb8f6a8e47547b1c0264",
+    "g1b_receipt_sha256": "c2bf550ca197421bf520f1bb8bc8c644f880a212ea263a0b5e22f03e8fa9a9bb",
+    "historical_ledger_sha256": "3eabf7b978e1341549f72690061d65d2aee1c29046c0749df0e2b821d74a2f8c",
+    "planner_A13_head": "988aaed5fb61099ca43cbe950a181a6c38ab74c7"
+  },
+  "status": "XP_A13_CP1_G1A_G1B_PROJECT_LEDGER_VERIFIED"
+}

@@ -1,0 +1,73 @@
+{
+  "H1_PASS": true,
+  "clip_sha256": "a5869ba84f56485bbbf98fc2c089688c0eb03cbe7f0493a1324887b84eca77f0",
+  "cohorts": {
+    "B22": {
+      "clip_cohort_sha256": "0b2620b28ed78037f592a1b555da6b8c28f07fa34562d546fd1156e2721c7c84",
+      "n": 100,
+      "out_sha256": "5c09b87e7b9aac23dd60e1b45c80a44516a4ff6f7f2e5eaf1e696e1b9e445c1b",
+      "tau": 0.0448503
+    },
+    "DEV80": {
+      "clip_cohort_sha256": "f2f512ebcc35fe6c3c02bffa4dea93abead2f01f20754a116e472cfdfd562f7f",
+      "n": 80,
+      "out_sha256": "26357cc993390e77f4ec986aa4d866bd7577062ea7795afa0cd2f836d3504630",
+      "tau": 0.0449706
+    }
+  },
+  "frozen_code_sha256": "d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658",
+  "frozen_params": {
+    "M": 2,
+    "N_MAX": 16,
+    "R": 4000,
+    "per_cohort_tau": {
+      "B22": 0.0448503,
+      "DEV80": 0.0449706
+    },
+    "seed": 20261029
+  },
+  "n_images": 180,
+  "planner_reference": {
+    "gain_vs_fixed_equal_runs": -0.0043,
+    "runs_mean": 3.29,
+    "success_all": 0.8186
+  },
+  "source_expected_head": "bce6fc3ae3afc8c821f0eb8f6a8e47547b1c0264",
+  "status": "XP_A13_B16_PROTOCOL_V1_POOLED_BY_IMAGES",
+  "string_sha256": "b910b69ec20ef6bb7e0099d4506c1109d0c40d4528a2a3f89f0a3433eb968051",
+  "variant": "primary",
+  "weighted": {
+    "M": 2.0,
+    "N_MAX": 16.0,
+    "R": 4000.0,
+    "coverage_unflagged": 0.6728472222222222,
+    "fixed_at_equal_mean_runs": 0.8229437851498906,
+    "fixed_at_nmax": 0.9111111111111111,
+    "flag_c_expected_count": 3.5555555555555554,
+    "flag_c_on_never_good_panel": 0.4444444444444444,
+    "flag_c_on_never_orbit_panel": 0.4444444444444444,
+    "flag_c_precision_unsolved": 0.14814814814814814,
+    "flag_c_rate": 0.03888888888888889,
+    "flag_c_recall_unsolved": 0.0404040404040404,
+    "flag_o_cut_abs_margin": 0.08036223881555556,
+    "gain_vs_fixed_equal_runs": -0.004303507372112676,
+    "gap_vs_fixed_nmax": -0.09247083333333324,
+    "n_images": 91.11111111111111,
+    "n_never_good_panel": 7.0,
+    "n_never_orbit_panel": 6.555555555555555,
+    "n_runs_per_image_panel": 16.0,
+    "n_unsolved_panel": 6.555555555555555,
+    "oracle_orbit_at_nmax": 0.9222222222222223,
+    "oracle_raw_at_nmax": 0.9166666666666666,
+    "qflag": 0.3,
+    "runs_fraction_of_nmax": 0.2056322048611111,
+    "runs_mean": 3.290115277777778,
+    "seed": 20261029.0,
+    "success_all": 0.8186402777777779,
+    "success_all_e0_pick": 0.7652694444444443,
+    "success_flag_o_only": 0.6120533374854563,
+    "success_given_not_flag_c": 0.8172170138888889,
+    "success_unflagged": 0.9051052813018456,
+    "tau": 0.044903766666666664
+  }
+}
