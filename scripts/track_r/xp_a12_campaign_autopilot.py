@@ -625,6 +625,14 @@ def main(a):
   if prior:
    write(run/"XP_A14_IMPORTED_G2_SMOKE_COST.json",prior)
    state["A14_previous_smoke_receipt_sha256"]=sha(run/"XP_A14_IMPORTED_G2_SMOKE_COST.json")
+  if a.a14:
+   state["G3_status"]=("A14_CONDITIONAL_SOURCE_READY_SEPARATE_CERTIFICATION"
+      if "G3" in jobs else
+      "A14_SOURCE_ABSENT_PENDING_OCT31_TIER_C_GATE")
+   write(run/"XP_A14_G3_CONDITIONAL_STATUS.json",dict(
+      status=state["G3_status"],deadline_ET="2026-11-04T12:00:00-05:00",
+      Tier_C_if_absent_ET="2026-10-31T12:00:00-04:00",
+      source_head=a.expected_head,not_launched_by_this_A14_controller=True))
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
   for stage in (("G4","G5","G2") if a.a14 else ("G2","G3","G4","G5")):
    if stage=="G3" and "G3" not in jobs:
