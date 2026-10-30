@@ -249,6 +249,15 @@ def a14_g2_pilot_report(run,P,state,prior):
    if d["event"]=="TASK_LAUNCHED" and d["job"]["stage"]=="G2":
     launches.append(d)
  gate(len(launches)==2,"A14_PILOT_TWO_LAUNCHES")
+ telemetry=[]
+ with (run/"XP_A12_CAMPAIGN_EVENTS.jsonl").open() as f:
+  for line in f:
+   ev=json.loads(line)
+   if ev["event"]=="A14_G2_PRODUCTION_PILOT_GPU_TELEMETRY":
+    telemetry.append(ev)
+ gate(len(telemetry)>0,"A14_PILOT_TELEMETRY_MISSING")
+ foreign_seen=sorted({pid for ev in telemetry
+    for item in ev["observations"] for pid in item["foreign_pids"]})
  remaining_per_sigma=1440-8
  projected_s=float(state["stage_seconds"]["G2"])+sum(
    1.25*max(samples[sig])*remaining_per_sigma
@@ -257,6 +266,9 @@ def a14_g2_pilot_report(run,P,state,prior):
    n_images_per_sigma=1,n_runs_per_image=8,
    source_head=state["head"],native_sample_wall_seconds=samples,
    gpu_launch_telemetry=launches,
+   telemetry_sample_count=len(telemetry),
+   foreign_gpu_processes_seen=foreign_seen,
+   telemetry_event_stream=str(run/"XP_A12_CAMPAIGN_EVENTS.jsonl"),
    previous_smoke_cost_gpu_h=prior["gpu_h"],
    billed_before_production_gpu_h=state["stage_seconds"]["G2"]/3600,
    full_projection_gpu_h=projected_s/3600,
@@ -499,6 +511,11 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
   save("RUN_"+stage)
   while len(state["done"])<len(tasks):
    cards=collect(own_roots=[v["proc"].pid for j,v in active.values()])
+   if a.a14 and stage=="G2" and tasks and tasks[0]["kind"]=="PILOT":
+    emit(run,"A14_G2_PRODUCTION_PILOT_GPU_TELEMETRY",
+      observations=[dict(gpu=c.index,foreign_pids=list(c.foreign_pids),
+        utilization_pct=c.utilization_pct,used_mib=c.used_mib,
+        visibility=c.visibility) for c in cards])
    # A10.1 contract: stop only our own worker when observed total
    # device VRAM crosses 80%; do not touch foreign co-tenants.
    for _,v in active.values():
