@@ -16,6 +16,8 @@ class A15Tests(unittest.TestCase):
    p=ROOT/"scripts/track_r"/name
    ast.parse(p.read_text(),filename=str(p))
  def test_frozen_sources(self):
+  self.assertEqual(cp2.PREREG_HEAD,
+   "988aaed5fb61099ca43cbe950a181a6c38ab74c7")
   self.assertEqual(cp2.V4[2],
    "b0ff25bc98ef7ba294db3f33c4df4f1f9835951890ebd879afedf807c9d93da3")
   self.assertEqual(cp2.PROTO[2],
