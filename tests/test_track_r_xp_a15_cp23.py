@@ -59,4 +59,17 @@ class A15Tests(unittest.TestCase):
                   p.index("xp_a15_cp2_publish.sh"))
   self.assertLess(p.index("xp_a15_cp2_publish.sh"),
                   p.index("xp_a15_cp3_score_cpu.py"))
+ def test_cp3_only_continuation_never_replays_cp2(self):
+  pipeline=(ROOT/"scripts/track_r/xp_a15_cp3_only_pipeline.sh").read_text()
+  launcher=(ROOT/"scripts/track_r/xp_a15_cp3_only_launch.sh").read_text()
+  self.assertIn('XP_A15_CP2_INDEPENDENT_AUDIT_PASS',pipeline)
+  self.assertIn('REMOTE_CP2',pipeline)
+  self.assertIn('REMOTE',launcher)
+  self.assertIn('ef1cf10',pipeline)
+  self.assertIn('ef1cf10',launcher)
+  self.assertIn('xp_a15_cp3_score_cpu.py',pipeline)
+  self.assertIn('xp_a15_cp3_protocol_cpu.py',pipeline)
+  self.assertNotIn('xp_a15_cp2_d4_cpu.py',pipeline)
+  self.assertNotIn('xp_a15_cp2_publish.sh',pipeline)
+  self.assertIn('CP3_PROVISIONAL_CPU_ANALYSIS_COMPLETE__DO_NOT_RETURN_OR_PUBLISH_CP3',pipeline)
 if __name__=="__main__": unittest.main()
