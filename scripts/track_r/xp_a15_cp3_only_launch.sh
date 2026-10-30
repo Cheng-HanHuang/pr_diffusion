@@ -16,7 +16,7 @@ test -d "$PUB"
 test "$(git -C "$PUB" branch --show-current)" = "$CP2_BRANCH"
 LOCAL=$(git -C "$PUB" rev-parse HEAD)
 case "$LOCAL" in ef1cf10*) ;; *) echo STOP_CP2_LOCAL_HEAD;exit 8;; esac
-REMOTE=$(git -C "$PUB" ls-remote origin "refs/heads/$CP2_BRANCH" | cut -f1)
+REMOTE=$(git -C "$PUB" -c core.sshCommand='ssh -o BatchMode=yes -o ConnectTimeout=12' ls-remote git@github.com:Cheng-HanHuang/pr_diffusion.git "refs/heads/$CP2_BRANCH" | cut -f1)
 test "$LOCAL" = "$REMOTE" || { echo STOP_CP2_REMOTE_NOT_PUBLISHED;exit 8; }
 if test -e "$BASE/XP_A15_CP3_ONLY_LATEST_LOG.txt"; then
  echo STOP_CP3_ALREADY_LAUNCHED;exit 8
