@@ -53,8 +53,9 @@ def main(a):
  gate(len(sources)==180,"COHORT180")
  rows=[]
  for (cohort,iid),group in sorted(sources.items()):
-  group.sort(key=lambda x:x["rep"])
-  gate([r["rep"] for r in group]==list(range(4)),"R0_PANEL")
+  # R0.7 offline catalog records run_index; rep belongs to GPU manifests.
+  group.sort(key=lambda x:int(x["run_index"]))
+  gate([int(r["run_index"]) for r in group]==list(range(4)),"R0_PANEL")
   y={(r["measurement_path"],r["measurement_sha256"]) for r in group}
   gate(len(y)==1,"R0_Y")
   yp,yd=next(iter(y))
