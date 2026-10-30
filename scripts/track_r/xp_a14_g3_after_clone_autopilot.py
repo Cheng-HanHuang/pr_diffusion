@@ -19,6 +19,49 @@ A14_OLD_HEAD="0acb0081d992405f034f246318c3c5dbc6e3282f"
 # infrastructure-only controller fix. Retain exact original provenance.
 A14_CERTIFIED_PREP_HEAD="f7681abfa6722d9c8c996da7a92eff73dbed98bb"
 A14_CERTIFIED_PREP_SHA="3ad52d84216ccd57c14d8b59c3a643a9b89f59adfce908dac2f43d4d1639ff84"
+A14_FAILED_SMOKE_HEAD="6bf78b912baf51cd4fc0e87520343f472437ed42"
+
+def load_failed_native_smoke_cost(failed_run):
+ """Attest two failed G3 native smoke attempts; carry exact occupied time."""
+ old=Path(failed_run)
+ gate(old.parent==BASE and old.name==
+      "xp_a12_g3_prod_20261030T160238Z" and
+      old.is_dir() and not old.is_symlink(),
+      "G3_FAILED_NATIVE_PATH")
+ prior=jread(old/"XP_A12_CAMPAIGN_STATE.json")
+ gate(prior["status"]=="STOP_G3_EXCEPTION"
+      and prior["head"]==A14_FAILED_SMOKE_HEAD
+      and prior["active"]==[] and
+      len(prior.get("verified_jobs",{}).get("G3",[]))==0
+      and len(prior.get("done",{}))==0,
+      "G3_FAILED_NATIVE_TERMINAL_STATE")
+ paths=sorted((old/"cost").glob("*.json"))
+ gate({p.name for p in paths}==
+      {"G3__SMOKE_0_A0.json","G3__SMOKE_1_A_EXCEPTION.json"},
+      "G3_FAILED_NATIVE_COST_RECEIPT_SET")
+ rows=[jread(p) for p in paths]
+ for name,row in zip((p.name for p in paths),rows):
+  gate(row["job"]==dict(stage="G3",kind="SMOKE",
+                        index=0 if "_0_A0" in name else 1)
+       and row["status"] in ("A12_ATTEMPT_GPU_COST",
+                             "A12_FAILED_ATTEMPT_CHARGED")
+       and row.get("rc",row.get("returncode"))==8,
+       "G3_FAILED_NATIVE_ATTEMPT_PROVENANCE")
+  seconds=float(row.get("elapsed_seconds",row.get("seconds")))
+  gate(0<seconds<600 and abs(row["charged_gpu_h"]-
+       seconds/3600)<1e-10,"G3_FAILED_NATIVE_ATTEMPT_COST")
+ seconds=sum(float(x.get("elapsed_seconds",x.get("seconds"))) for x in rows)
+ gate(abs(seconds-prior["stage_seconds"]["G3"])<1e-6
+      and not list((old/"roots").glob("bag_*/XP_A12_G3_BAG_COMPLETE.json")),
+      "G3_FAILED_NATIVE_TOTAL_AND_NO_PARTICLES")
+ return dict(status="XP_A14_G3_FAILED_NATIVE_SMOKE_COST_IMPORTED_ONCE",
+  original_run=str(old),old_head=A14_FAILED_SMOKE_HEAD,
+  seconds=seconds,gpu_h=seconds/3600,
+  old_state_sha256=sha(old/"XP_A12_CAMPAIGN_STATE.json"),
+  cost_receipt_sha256={p.name:sha(p) for p in paths},
+  zero_successful_bags=True,n_attempts=2,
+  pure_infrastructure_retry="YAML_lr_5e-5_str_to_float")
+
 
 def main(a):
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
@@ -51,6 +94,11 @@ def main(a):
       "A14_PRIOR_G2")
  project0=float(p["project_charged_gpu_h"])
  campaign0=float(p["A12_charged_gpu_h"])
+ gate(bool(a.failed_g3_run),"G3_RETRY_MUST_ACCOUNT_FAILED_GPU_COST")
+ prior_g3=load_failed_native_smoke_cost(a.failed_g3_run)
+ gate(project0+prior_g3["gpu_h"]+CAP["G3"]<=PROJECT_CAP
+      and campaign0+prior_g3["gpu_h"]+CAP["G3"]<=CAMPAIGN_CAP,
+      "A14_G3_RETRY_SHARED_BUDGET")
  gate(project0+CAP["G3"]<=PROJECT_CAP
       and campaign0+CAP["G3"]<=CAMPAIGN_CAP,
       "A14_SHARED_BUDGET_G3")
@@ -81,7 +129,8 @@ def main(a):
   print("A14_G3_SHARED_LEDGER_AND_PREP_PREFLIGHT_PASS",
         "project_prior_gpu_h",project0,
         "A12_prior_gpu_h",campaign0,
-        "G3_cap_gpu_h",CAP["G3"],flush=True)
+        "G3_cap_gpu_h",CAP["G3"],
+        "previous_failed_smoke_gpu_h",prior_g3["gpu_h"],flush=True)
   return
  # The common run_queue queries a.a14 for G2-only timing telemetry.
  # G3 is a separately admitted continuation, not an A14 G2 pilot.
@@ -91,10 +140,13 @@ def main(a):
   run.mkdir(mode=0o700)
   for sub in ("roots","cost","logs","pycache"):
    (run/sub).mkdir()
+  write(run/"XP_A14_G3_FAILED_SMOKE_CHARGED.json",prior_g3)
   state=dict(status="G3_ADMITTED",head=a.expected_head,
-    stage_seconds={k:0. for k in CAP},
+    stage_seconds={k:(prior_g3["seconds"] if k=="G3" else 0.) for k in CAP},
     project_initial_gpu_h=project0,campaign_initial_gpu_h=campaign0,
+    historical_failed_gpu_h=prior_g3["gpu_h"],
     parent_A14_campaign_sha256=sha(prior),
+    prior_native_failed_cost_sha256=sha(run/"XP_A14_G3_FAILED_SMOKE_CHARGED.json"),
     G3_status="SMOKE_REQUIRED",done={},active=[],verified_jobs={},
     GT_not_read=True,D4_outcomes_not_opened=True,
     A14_prereg_head="f31901c808954f2bee724ab8a3834e2b65ef25c9")
@@ -155,6 +207,8 @@ def main(a):
       A12_charged_gpu_h=campaign0+charge,
       two_id_smoke_pass=True,no_GT_scoring=True,
       prior_campaign_sha256=sha(prior),
+      failed_native_smoke_receipt_sha256=sha(run/"XP_A14_G3_FAILED_SMOKE_CHARGED.json"),
+      previous_failed_gpu_h=prior_g3["gpu_h"],
       prep_manifest_sha256=rec["manifest_sha256"])
   state["status"]=final["status"]
   state["active"]=[]
@@ -170,6 +224,7 @@ def entry():
  for name in ("expected-head","prior-campaign","prep","run"):
   p.add_argument("--"+name,required=True)
  p.add_argument("--preflight-only",action="store_true")
+ p.add_argument("--failed-g3-run",required=True)
  try:
   main(p.parse_args())
  except Exception as exc:
