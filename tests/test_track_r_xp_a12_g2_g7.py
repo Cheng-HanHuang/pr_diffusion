@@ -27,6 +27,7 @@ STAGE_SCRIPTS=(
  "xp_a12_g6_daps_gpu.py",
  "xp_a12_g6_clean_autopilot.py",
  "xp_a12_g7_c2_autopilot.py",
+ "xp_a14_g3_after_clone_autopilot.py",
  "xp_a13_f8_score_cpu.py",
  "xp_a13_f8_faceclip_cpu.py",
  "xp_a13_f8_v1_v3_compare_cpu.py",
@@ -131,6 +132,16 @@ class A12Stages(unittest.TestCase):
   self.assertIn('a14_g2_pilot_report',src)
   self.assertIn('XP_A14_G2_PROGRESS.json',src)
   self.assertEqual(driver.CAP["G2"],25.)
+ def test_A14_G3_native_source_clone_and_shared_accounting(self):
+  src=(ROOT/"scripts/track_r/xp_a14_g3_after_clone_autopilot.py").read_text()
+  self.assertIn('prior_campaign_sha256=sha(prior)',src)
+  self.assertIn('XP_A14_G2_ALL_2880_COMPLETE',src)
+  self.assertIn('XP_A12_G3_PREP_RECEIPT.json',src)
+  self.assertIn('A14_G3_NATIVE_TWO_ID_SMOKE_BEGIN',src)
+  self.assertIn('smoke_projection(run,"G3"',src)
+  self.assertIn('XP_A14_G3_FINAL_STATUS.json',src)
+  self.assertNotIn('test-ffhq',src)
+  self.assertEqual(driver.DEADLINE["G3"],(2026,11,4,12))
  def test_g7_mapping_to_native_1000(self):
   script=(ROOT/"scripts/track_r/xp_a12_g7_c2_gpu.py").read_text()
   self.assertIn("native.M==1000",script)
