@@ -34,7 +34,8 @@ BRANCH="codex/prdiff-track-r-xp-a15-cp2-$STAMP"
 test ! -e "$PUBLISH"
 test -z "$(git -C "$WT" branch --list "$BRANCH")"
 git -C "$WT" worktree add -b "$BRANCH" "$PUBLISH" "$HEAD"
-DEST="$PUBLISH/docs/track_r/executors/xp/returns/XP_A15_CP2_$STAMP"
+REL="docs/track_r/executors/xp/returns/XP_A15_CP2_$STAMP"
+DEST="$PUBLISH/$REL"
 mkdir -p "$DEST"
 for file in \
  D4_64RUN_STRINGS.csv \
@@ -66,7 +67,7 @@ Registered v4 was checked before scoring. This checkpoint contains:
 Candidate-level GT scores, image paths, images and tensors remain local on PAC.
 CP3 is a separate checkpoint and is not covered by this return.
 EOF
-git -C "$PUBLISH" add -- "$DEST"
+git -C "$PUBLISH" add -- "$REL"
 git -c core.whitespace=trailing-space,space-before-tab,cr-at-eol \
   -C "$PUBLISH" diff --cached --check
 git -C "$PUBLISH" commit -m "results(track-r): audited CP2 FAST ImageNet D4 n32/n64 checkpoint"
