@@ -168,7 +168,7 @@ def stage_records(stage):
   oldrun=STAGES[stage][1]
   rows=[]
   for r in original["rows"]:
-   rows+=verify_native_row(stage,oldrun,r,sha(oldpath),original["head"],phase="HIST")
+   rows+=verify_native_row(stage,oldrun,r,sha(oldpath),original["source_head"],phase="HIST")
   for r in new:
    rows+=verify_native_row(stage,A14_RUN,r,sha_new,A14_HEAD,phase="PROD")
   n=180 if stage=="G4" else 100
