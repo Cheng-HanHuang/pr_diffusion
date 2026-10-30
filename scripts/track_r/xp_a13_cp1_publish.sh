@@ -5,6 +5,8 @@ ROOT=/egr/research-pac/huang248
 BASE="$ROOT/outputs/pr_diffusion/track_r"
 SOURCE="$ROOT/pr_diffusion_track_r_xp_a13"
 WT="$ROOT/pr_diffusion_track_r_xp_a13_cp1_publish"
+PY="$ROOT/conda-envs/prdiff_track_r/bin/python"
+test -x "$PY"
 HEAD="$1"
 [[ "$HEAD" =~ ^[a-f0-9]{40}$ ]] || { echo STOP_SOURCE_SHA;exit 8; }
 test "$(git -C "$SOURCE" rev-parse HEAD)" = "$HEAD"
@@ -19,7 +21,7 @@ for p in "$B16" "$F8S" "$F8C" "$F8F" "$F8P"; do
  case "$p" in "$BASE"/xp_a13_*) test -d "$p";;
   *) echo STOP_INPUT_DIR_NOT_CANONICAL;exit 8;; esac
 done
-python - "$B16" "$F8S" "$F8C" "$F8F" "$F8P" <<'PY'
+"$PY" - "$B16" "$F8S" "$F8C" "$F8F" "$F8P" <<'PY'
 import json,sys
 from pathlib import Path
 b,s,c,f,p=map(Path,sys.argv[1:])
@@ -56,7 +58,7 @@ G1A="$BASE/xp_a12_g1a_prod_20261029T180624Z/XP_A12_G1A_FINAL_STATUS.json"
 G1BRUN=$(cat "$BASE/XP_A13_G1B_LATEST_RUN.txt")
 case "$G1BRUN" in "$BASE"/xp_a13_g1b_prod_*) ;; *) echo STOP_G1B_LEDGER_PATH;exit 8;; esac
 G1B="$G1BRUN/XP_A13_G1B_FINAL_STATUS.json"
-python - "$LEDGER" "$G1A" "$G1B" "$OUT" <<'PYLEDGER'
+"$PY" - "$LEDGER" "$G1A" "$G1B" "$OUT" <<'PYLEDGER'
 import hashlib,json,sys
 from pathlib import Path
 ledger,g1a,g1b,out=map(Path,sys.argv[1:])
@@ -110,7 +112,7 @@ assert 0<doc["project_remaining_after_g1b_gpu_h"]<400
 (out/"XP_A13_CP1_PROJECT_GPU_LEDGER.json").write_text(json.dumps(doc,indent=2,sort_keys=True)+"\n")
 print("CP1_LEDGER_VERIFIED",doc["project_conservative_after_g1b_gpu_h"],doc["A12_after_g1b_gpu_h"])
 PYLEDGER
-python - "$OUT" <<'PY'
+"$PY" - "$OUT" <<'PY'
 import json,sys
 from pathlib import Path
 out=Path(sys.argv[1])
