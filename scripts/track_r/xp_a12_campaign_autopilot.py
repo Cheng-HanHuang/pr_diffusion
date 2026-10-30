@@ -401,6 +401,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
     raise RuntimeError("STOP_A12_NATIVE_RC_"+name+"_"+str(rc))
    digest=verified(a,run,job,v["dest"],v["root_sha"],roots,P)
    state["done"][str(idx)]=digest
+   state.setdefault("verified_jobs",{}).setdefault(stage,[]).append(job)
    emit(run,"ROOT_VERIFIED",job=job,digest=digest)
    save("RUN_"+stage)
  def loop():
@@ -499,6 +500,7 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
   raise
 def main(a):
  wt,roots,P,ledger,g1a,project0,campaign0=prepar(a)
+ prior=imported_g2_smoke() if a.a14 else None
  jobs=task_set(roots,P)
  if a.preflight_only:
   print("XP_A13_G2G5_PREPARE_AND_DUAL_LEDGER_PREFLIGHT_PASS",flush=True)
@@ -506,6 +508,7 @@ def main(a):
   print("A13_PRIOR_A12_GPU_H",campaign0,flush=True)
   print("A13_READY_STAGES",sorted(jobs),flush=True)
   print("G3_MISSING_PRODUCER_SKIP",bool("G3" not in jobs),flush=True)
+  if prior:print("A14_PRIOR_G2_SMOKE_CHARGED_GPU_H",prior["gpu_h"],flush=True)
   return
  run=Path(a.run)
  gate(run.parent==BASE and run.name.startswith("xp_a12_campaign_prod_")
@@ -520,13 +523,18 @@ def main(a):
    for phase in ("REPLAY","PROD"):(run/stage/phase/"gpu").mkdir(parents=True)
   state=dict(status="ADMITTED",head=a.expected_head,
     project_initial_gpu_h=project0,campaign_initial_gpu_h=campaign0,
+    A14_head="f31901c808954f2bee724ab8a3834e2b65ef25c9",
     G1b_final_receipt_sha256=sha(a.g1b_final),
     parent_ledger_sha256=sha(a.ledger),G1a_final_sha256=sha(G1A),
-    stage_seconds={x:0. for x in CAP},done={},active=[],
+    stage_seconds={x:(prior["seconds"] if prior and x=="G2" else 0.) for x in CAP},
+    done={},active=[],verified_jobs={},
     G3_status="NOT_ASSESSED",G1b_status="NOT_AUTHORIZED_TO_AUTO_LAUNCH",
     G6_status="CONDITIONAL_NO_WORK_UNTIL_CLEAN_AUDIT",
     G7_status="NOT_YET_ADMITTED",
     GT_not_read=True,D4_outcomes_not_opened=True)
+  if prior:
+   write(run/"XP_A14_IMPORTED_G2_SMOKE_COST.json",prior)
+   state["A14_previous_smoke_receipt_sha256"]=sha(run/"XP_A14_IMPORTED_G2_SMOKE_COST.json")
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
   for stage in (("G4","G5","G2") if a.a14 else ("G2","G3","G4","G5")):
    if stage=="G3" and "G3" not in jobs:
