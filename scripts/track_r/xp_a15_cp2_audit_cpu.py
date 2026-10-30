@@ -109,10 +109,8 @@ def main(a):
   cmd=[sys.executable,"-I",str(script),"--strings",str(p/"D4_64RUN_STRINGS.csv"),
     "--clip",str(p/"D4_64RUN_G1_CLIP.csv"),"--tau","0.0500829","--m","2",
     "--nmax",str(n),"--R","4000","--seed","20261029"]
-  child=subprocess.run(cmd,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
-  gate(child.returncode==0,"CP2_AUDIT_PROTOCOL_CHILD_"+str(n))
-  # Original CLI emits a JSON summary on stdout only when no --out.
-  # Explicit double-run via an isolated fresh audit path is safer.
+  # Replay frozen protocol into a fresh local output file, not stdout.
+  # The independent audit needs one exact execution per panel.
   temp=p/f"CP2_AUDIT_REPLAY_N{n}.json"
   child=subprocess.run(cmd+["--out",str(temp)],capture_output=True,text=True)
   gate(child.returncode==0,"CP2_AUDIT_REPLAY_"+str(n))
