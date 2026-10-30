@@ -1,0 +1,36 @@
+{
+  "CP2_ready_for_sanitized_commit": true,
+  "GT_not_used_by_policy": true,
+  "all_forecast_rows_recomputed": true,
+  "expected_head": "5342404cd543151fb5f5ceacdedb252c72f556b6",
+  "forecast_coverage": {
+    "v2": {
+      "coverage": 21,
+      "n": 36
+    },
+    "v2 E1": {
+      "coverage": 18,
+      "n": 24
+    },
+    "v4": {
+      "coverage": 55,
+      "n": 120
+    }
+  },
+  "frozen_protocol_replayed": {
+    "32": {
+      "sha256": "b55bcef31e96101e08d8e5abcbaee5aecf15665d11946d0f62f213cc9f16351b",
+      "status": "EXACT_REPEAT_PASS"
+    },
+    "64": {
+      "sha256": "29fc8d4b59ab7b8458aaa83139d462c4a174f355dc8156283b586ed32ee8b2d3",
+      "status": "EXACT_REPEAT_PASS"
+    }
+  },
+  "n_candidates": 6400,
+  "n_images": 100,
+  "no_GPU": true,
+  "source_receipt_sha256": "987f9cbef9a0b383f7f191b6162fbf44c1e27c38431ce30c4294f64360cf66e2",
+  "status": "XP_A15_CP2_INDEPENDENT_AUDIT_PASS",
+  "v4_registered_before_outcomes": true
+}

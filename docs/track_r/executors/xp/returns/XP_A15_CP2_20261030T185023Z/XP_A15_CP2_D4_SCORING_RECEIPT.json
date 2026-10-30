@@ -1,0 +1,65 @@
+{
+  "GT_only_for_evaluation": true,
+  "all_native_receipts_verified": true,
+  "checkpoint": "CP2",
+  "clip_native": {
+    "checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "native_head": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619"
+  },
+  "csv_sha256": {
+    "D4_64RUN_G1_CLIP.csv": "cbf2a1ccf8d0a07e637f631fc94cb7ff5142470b31f4ac5e9f20ae62fecf0d4e",
+    "D4_64RUN_STRINGS.csv": "7f1627339dccaf4ddcec4b049fdc7cd0a8880e17e03837f5262f78e8d35758be",
+    "D4_NEW_4800_LOCAL_SCORES.csv": "6e0a7cd367fd769d7b5d971805d5e948faf75968aa108ac5e06928f7e20bbb89"
+  },
+  "forecast_comparison_sha256": "b3a6ef7e18ccce7ee2f0cfa6ceb12b2269017df905acf218df7129d37c1b20b4",
+  "forecast_refit": false,
+  "forecast_sha256": {
+    "v2": "8dda36349efc55848c585b0fbed06641fe0c0bf7c3594044e421d1bde0bf8f55",
+    "v2 E1": "13ff550ca42c0941c430eff75e1f9ecc107dbe3801ee19d355371518980ec406",
+    "v4": "b0ff25bc98ef7ba294db3f33c4df4f1f9835951890ebd879afedf807c9d93da3"
+  },
+  "hypothesis_n32": {
+    "H1": false,
+    "H3": false,
+    "H4": true
+  },
+  "hypothesis_n64": {
+    "H1": false,
+    "H3": null,
+    "H4": true
+  },
+  "n_candidates": 6400,
+  "n_historical": 1600,
+  "n_images": 100,
+  "n_native_new": 4800,
+  "no_GPU": true,
+  "no_checkpoint_publication_yet": true,
+  "proto_n32": {
+    "primary": {
+      "flag_c_expected_count": 3.0,
+      "flag_c_precision_unsolved": 0.3333333333333333,
+      "gain_vs_fixed_equal_runs": -0.01791250835849345,
+      "runs_mean": 4.27462,
+      "success_all": 0.49511250000000007,
+      "success_given_not_flag_c": 0.4898067010309278,
+      "success_unflagged": 0.6207630159927857
+    },
+    "sha256": "b55bcef31e96101e08d8e5abcbaee5aecf15665d11946d0f62f213cc9f16351b"
+  },
+  "proto_n64": {
+    "primary": {
+      "flag_c_expected_count": 1.0,
+      "flag_c_precision_unsolved": 1.0,
+      "gain_vs_fixed_equal_runs": -0.034415911785649345,
+      "runs_mean": 4.996737499999999,
+      "success_all": 0.49186749999999996,
+      "success_given_not_flag_c": 0.4968358585858586,
+      "success_unflagged": 0.6331677865420197
+    },
+    "sha256": "29fc8d4b59ab7b8458aaa83139d462c4a174f355dc8156283b586ed32ee8b2d3"
+  },
+  "protocol_sha256": "d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658",
+  "source_head": "5342404cd543151fb5f5ceacdedb252c72f556b6",
+  "status": "XP_A15_CP2_D4_SCORED_READY_FOR_INDEPENDENT_AUDIT",
+  "v4_registered_before_outcomes": true
+}
