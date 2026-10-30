@@ -15,6 +15,7 @@ from pathlib import Path
 from PIL import Image
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 from scripts.track_r.xp_a12_g3_prepare_cpu import PC,PC_HEAD,MODEL_SHA,sha,seed
+from scripts.track_r.xp_a14_g3_mcmc_config import normalize_mcmc_config
 from scripts.track_r.xp_t_daps4k_worker_gpu import (
     load_model_native,model_config)
 from scripts.track_r.xp_t_daps4k_prepare_cpu import (
@@ -97,8 +98,11 @@ def run_one(a,root,mf,row,mhash):
        and weight_trace["missing_keys"]==[]
        and weight_trace["unexpected_keys"]==[],"STRICT_CHECKPOINT")
   model.eval()
+  # Native YAML spells lr as 5e-5; PyYAML may parse it as str.
+  # Cast exactly that scalar to float, with published value locked.
+  mcmc_cfg=normalize_mcmc_config(task_cfg["mcmc_sampler_config"])
   sampler=get_sampler(name="pcdaps",**sampler_cfg,
-       mcmc_sampler_config=copy.deepcopy(task_cfg["mcmc_sampler_config"]))
+       mcmc_sampler_config=mcmc_cfg)
   gate(sampler.bag_size==4 and sampler.prune is True
        and sampler.skip_final_langevin is True,
        "PC_NATIVE_BAG_AND_PRUNING")
