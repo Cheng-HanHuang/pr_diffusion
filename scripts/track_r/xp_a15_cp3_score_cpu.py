@@ -195,8 +195,9 @@ def stage_records(stage):
     native_method_reporting="MEAN_OF_FOUR_PARTICLE_METRICS_NOT_PIXEL_MEAN",
     no_claim_of_pixel_mean_or_matched_NFE=True)
  raise RuntimeError("STOP_CP3_UNKNOWN_STAGE")
-def score(stage,raw,meta,out):
+def score(stage,raw,meta,out,expected_head):
  import torch
+ import numpy as np
  from PIL import Image
  from torchvision.transforms import Compose,ToTensor,Resize,CenterCrop
  torch.set_num_threads(4)
@@ -253,15 +254,15 @@ def score(stage,raw,meta,out):
    print("CP3_"+stage+"_IMAGES_SCORED",index+1,"/",expected,flush=True)
  # Each family/settings/dataset computes tau on run 0..3 only.
  # FFHQ cohorts retain separate calibrations. G2 sigma is also separate.
- tau={}
- for cohort in sorted({r["cohort"] for r in tmp}):
-  calibration=[r["rho"] for r in tmp
-               if r["cohort"]==cohort and r["run"]<4
-               and r["raw"]>=(20 if stage=="G5" else 25)]
-  gate(bool(calibration),"CP3_NO_GOOD_RUNS_TO_CALIBRATE_TAU_"+cohort)
-  tau[cohort]=float(np.quantile(calibration,.95,method="linear"))
-  gate(tau[cohort]>0 and math.isfinite(tau[cohort]),"CP3_TAU_FINITE")
- import numpy as np
+ # The §1 GT-derived tau is per family/settings (per sigma where
+ # relevant), NOT refitted separately by B22/DEV80. The frozen F8
+ # historical per-cohort thresholds belong to another solver family.
+ calibration=[r["rho"] for r in tmp if r["run"]<4
+              and r["raw"]>=(20 if stage=="G5" else 25)]
+ gate(bool(calibration),"CP3_NO_GOOD_RUNS_TO_CALIBRATE_FAMILY_TAU")
+ shared_tau=float(np.quantile(calibration,.95,method="linear"))
+ gate(shared_tau>0 and math.isfinite(shared_tau),"CP3_TAU_FINITE")
+ tau={c:shared_tau for c in sorted({r["cohort"] for r in tmp})}
  final=[]
  for r in tmp:
   goal=20 if stage=="G5" else 25
@@ -298,7 +299,7 @@ def score(stage,raw,meta,out):
             mode+"_choice",mode+"_margin",mode+"_chosen_good")
  csvwrite(out/"CP3_CLIP_DECISIONS.csv",cliprows,clip_cols)
  result=dict(status="XP_A15_CP3_STAGE_CPU_SCORED_NOT_CHECKPOINT",
-   stage=stage,expected_head=a.expected_head,
+   stage=stage,expected_head=expected_head,
    n_images=expected,n_candidates=len(final),
    n_runs_per_image=n,tau_by_cohort=tau,clip_mode=mode,
    clip_source=clipmeta,root_provenance=meta,
@@ -328,7 +329,7 @@ def main(a):
         len(rows),flush=True)
   return
  out.mkdir(mode=0o700)
- score(a.stage,rows,meta,out)
+ score(a.stage,rows,meta,out,a.expected_head)
 if __name__=="__main__":
  p=argparse.ArgumentParser()
  p.add_argument("--expected-head",required=True)
