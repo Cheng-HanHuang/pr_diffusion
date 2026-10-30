@@ -1,6 +1,23 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
 
-> **Eleventh update, 2026-10-29, 16:05 ET** (the newest; read it first).
+> **Twelfth update, 2026-10-29, 21:45 ET** (the newest; read it first).
+> - **CP1 is in, and the protocol has its out-of-sample win.** On DAPS F8, the protocol gains **+3.4 points** over fixed best-of-K at equal compute and comes within 0.8 points of best-of-8 at 40% of its runs: 93.1% at 3.2 runs. H2 passes.
+>   - The gain falls inside a range (+2 to +4) that the theory chat committed from the four-run prefix about 5 h before CP1 existed.
+>   - That forecast's levels were too high by 3–6 points; the paper says so.
+> - **H1 holds on all three held-out panels.** The protocol is never more than 0.4 points below fixed K at equal compute.
+> - **H3 fails twice** (DAPS 5/11, ImageNet 1/3). FLAG_C marks hard images, not unsolved ones; the paper drops it as a detector and keeps it as a reported share.
+> - **DAPS forecasts.** Race and S2 coincide on selection (12/14 and 14/14), as expected when consistent-but-wrong runs are rare; v1 overforecasts the oracles again.
+>   - Across four prospective tests, the race model is decisive exactly where wrong runs fit the measurement (SITCOM, ImageNet: 24/24 vs 2/24). Generation (oracle) forecasts are the recurring miss.
+> - **G2 stopped at its smoke.** FAST ran 7–15× slower than in production; co-tenancy explains about 2× elsewhere. **A14:** a production-mode pilot first, the ceiling raised to 25 GPU-h, and G4/G5 never wait for G2. PC-DAPS needs Cheng's clone; G3 moves to Nov 4, or to Tier C if the code is not present by Oct 31, 12:00 ET.
+> - **Planner's view.** The paper now has all three parts it needs:
+>   1. **Selection without GT is near-oracle and predictable,** with a stated condition on when the race matters.
+>   2. **Unsolved images are the limit,** and forecasts miss them.
+>   3. **A protocol that is never worse than fixed K and better exactly where its mechanism says,** with a pre-score prediction of the gain.
+>
+>   The main text sits at the 8-page limit; CP2/CP3 results must replace text, not add to it. CVPR odds improve to moderate.
+>   - **Remaining risks:** reviewers may see the method as simple; DAPS is a single panel for the positive regime. XP-D4 (CP2) and the published DAPS-4K configuration at 8 runs (E′8, CP3) are the next tests.
+>
+> **Eleventh update, 2026-10-29, 16:05 ET.**
 > - **First held-out protocol results.** (1) ImageNet FAST, D1-P2: reproduced bit-identically by the planner. (2) SITCOM, B16: planner run; the executor's commit is pending.
 >   - **H1 holds on both:** +0.3 and −0.4 points at equal compute.
 >   - **H4 holds:** +12.9 points.

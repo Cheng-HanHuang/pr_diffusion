@@ -380,7 +380,29 @@
 >
 >    The planner reproduces each checkpoint's protocol outputs; a difference above 0.002 is a stop.
 
-**Status:** FROZEN v1.1 with amendments A1–A13 (planner, 2026-10-29).
+> **Amendment A14 (planner, 2026-10-29 21:45 ET): CP1 accepted; G2 re-projection; G3 clone.** Written after CP1 (XP `29ef1f5`) and the G2 smoke stop (`STAGE_SMOKE_PROJECTS_OVER_CEILING_G2`), and before any G2, G3, G4, G5 or XP-D4 outcome was scored.
+> 1. **CP1 accepted.** The planner reproduced the F8 protocol pooled fields exactly (≤ 1e-16); B16 matches the planner's earlier run.
+>    - H1 holds on all three primary panels; **H2 holds** (+3.38 points on DAPS).
+>    - **H3 fails** on DAPS (5/11) and on ImageNet (1/3); H4 holds.
+>    - The theory pre-score forecast for H2 (theory `d42ac3c`, pushed 20:12:55Z, about 5 h before CP1) predicted +2 to +4 points.
+> 2. **G2 (XP-G): measure, then decide.**
+>    - **The anomaly.** The smoke's 52–59 s per FAST run is 7–15× the FAST production rate (G1a/G1b: about 7.8 s per root, co-tenant included; R0.5: 3.3 s). Co-tenancy explains about 2× for DAPS and SITCOM. FAST's many short kernels may suffer more under time-slicing, or the smoke may not run in production mode.
+>    - **Before any reduction:** run a production-mode pilot of one image × 8 runs per σ on the GPU class G2 will use, with the foreign-process telemetry recorded, and re-project from it. This is an infrastructure measurement; no science changes.
+>    - **The G2 ceiling is raised from 10 to 25 GPU-h,** inside the A12 cap (139.5 GPU-h left after G1b).
+>    - **Placement.** G2 prefers clean GPUs. G4/G5 (DAPS-4K, large kernels) take co-tenant GPUs and never wait for G2.
+>    - **If the pilot projects more than 25 GPU-h,** run image-complete in this order:
+>      1. runs 0–3 on all 180 ids at both σ (needed for H-G1);
+>      2. runs 4–7, cohort A, then cohort B, until the ceiling.
+>
+>      H-G2 is evaluated on images with all 8 runs if there are at least 60 per σ; otherwise it is reported as not evaluable. H-G1 is unchanged.
+> 3. **G3 (XP-I).**
+>    - Cheng clones PC-DAPS with the executor's exact commands:
+>      - `git clone https://github.com/voilalab/PC-DAPS.git /egr/research-pac/huang248/external/PC_DAPS_xp`
+>      - `git -C /egr/research-pac/huang248/external/PC_DAPS_xp checkout --detach 59b2f046`
+>    - The executor then certifies its signed-y adapter on CPU, runs the 2-id smoke, and launches.
+>    - **The G3 deadline moves to Nov 4, 12:00 ET.** If the code is not present by Oct 31, 12:00 ET, G3 leaves CP3 and joins Tier C with XP-I2.
+
+**Status:** FROZEN v1.1 with amendments A1–A14 (planner, 2026-10-29).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

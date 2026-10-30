@@ -14,6 +14,10 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-29, 21:45 (planner): CP1 accepted (H2 passes on DAPS, +3.4 points); A14.**
+  - **Protocol held-out:** H1 3/3; H2 pass (as the theory pre-score note forecast); H3 fail ×2; H4 pass. F8 is reproduced exactly.
+  - **A14:** G2 production-mode pilot, G2 ceiling 25 GPU-h; PC-DAPS clone by Cheng (G3 to Nov 4).
+  - **Notes, round 10:** [`executors/xp/10_PLANNER_NOTES_20261029_NIGHT.md`](executors/xp/10_PLANNER_NOTES_20261029_NIGHT.md) and [`executors/theory/10_PLANNER_GUIDANCE_20261029_NIGHT.md`](executors/theory/10_PLANNER_GUIDANCE_20261029_NIGHT.md).
 - **2026-10-29, 16:05 (planner): autopilot (A13), the first held-out results, v4 registered.**
   - **D1-P2 under the protocol:** H1 pass, H3 fail, H4 pass (planner reproduction bit-identical). **B16 vs v1:** race 18/18 selection points, S2 2/18. B16 under the protocol: H1 pass (planner run).
   - **Prereg A13:** the executor runs on autopilot with checkpoints CP1–CP4 only. **v4 registered** (theory `149331c`, SHA `b0ff25bc…`); XP-D4 unsealed.

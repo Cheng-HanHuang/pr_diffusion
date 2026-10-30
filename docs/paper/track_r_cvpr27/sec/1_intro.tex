@@ -20,7 +20,7 @@ We study three published solvers (DAPS, SITCOM, FAST-DIPS) on common measurement
 Within an image, the residual ranks a correct run ahead of a wrong but measurement-consistent one in $200$ of $205$ pairs\claim{C-A7}: the noise shared by two runs of the same measurement cancels in the comparison.
 Residual selection followed by a zero-shot orientation test falls short of an orientation-aware ground-truth oracle by at most two images per solver and cohort on FFHQ\claim{C-A3}.
 For FAST-DIPS on ImageNet, where rotated runs are common, the same test closes $57$--$60\%$ of the gap between the residual pick and that oracle\claim{C-R4}.
-A residual-race model, fitted to four runs per image and frozen before more runs were scored, predicted the selected-run success of SITCOM and of FAST-DIPS on ImageNet at all $24$ registered points; the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} missed $22$\claim{C-R4}\claim{C-R5}.
+A residual-race model, fitted to four runs per image and frozen before more runs were scored, predicted the selected-run success of SITCOM and of FAST-DIPS on ImageNet at all $24$ registered points; the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} missed $22$\claim{C-R4}\claim{C-R5}; on DAPS, whose wrong runs rarely fit the measurement, the two models nearly coincide and both held\claim{C-R6}.
 
 \emph{The bottleneck is images the solver never solves.}
 Our frozen forecasts for FAST-DIPS overestimated how many images eventually yield a correct run.
@@ -37,12 +37,12 @@ These findings define a procedure (\cref{fig:teaser}a, \cref{sec:protocol}).
 It draws runs until $M$ of them reach the solver's own consistency level, keeps the run with the smallest residual, and corrects its orientation; it flags images on which no run becomes consistent and outputs whose orientation the test is unsure of.
 Each component is simple; what we add is evidence for each, a calibration that transfers across datasets, and a mechanism that predicts where stopping saves compute: where failures are inconsistent rather than consistent-but-wrong.
 On development data the protocol beats fixed best-of-$K$ at every compute level we tested (\cref{fig:teaser}b).
-We froze it, with four falsifiable hypotheses, before its held-out evaluation on ImageNet FAST-DIPS ($16$ runs), SITCOM ($16$) and DAPS ($8$) on FFHQ\claim{C-G1}; on the held-out panels scored so far it matches fixed best-of-$K$ at equal compute, and gains nothing there, as its mechanism predicts for solvers whose failed runs fit the measurement \pending{DAPS}.
+We froze it, with four falsifiable hypotheses, before its held-out evaluation on ImageNet FAST-DIPS ($16$ runs), SITCOM ($16$) and DAPS ($8$) on FFHQ\claim{C-G1}. It never fell more than half a point below fixed best-of-$K$ at equal compute; it gained $3.4$ points on DAPS, as a theory note had predicted before scoring, and nothing on SITCOM and ImageNet, whose failed runs often fit the measurement.
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
 \item \textbf{A ground-truth-free best-of-$K$ protocol} with sequential stopping, residual selection, orientation correction and two abstention flags; per-solver calibration; development results and a frozen held-out test (\cref{sec:protocol}).
-\item \textbf{Predictability of ground-truth-free selection.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and three prospective tests against forecasts registered before the data, including a failure (\cref{sec:selection}).
+\item \textbf{Predictability of ground-truth-free selection.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and four prospective tests against forecasts registered before the data, including a failure (\cref{sec:selection}).
 \item \textbf{The coverage limit.} Unsolved images dominate what remains; we quantify them and bound what a few runs can identify about them (\cref{sec:selection,sec:audit}).
 \item \textbf{A re-evaluation} of three published solvers on two datasets that separates the solver, ground-truth-free selection and the ground-truth oracles, with reporting recommendations (\cref{sec:audit,sec:discussion}).
 \end{itemize}

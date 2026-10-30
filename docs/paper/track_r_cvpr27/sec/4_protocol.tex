@@ -63,11 +63,15 @@ H2: it gains at least two points on DAPS, and more than on SITCOM and on ImageNe
 H3: at least half of the $\textsc{flag}_C$ images are unsolved on DAPS and on ImageNet.
 H4: on ImageNet, outputs without either flag are \good at least five points more often than all outputs without $\textsc{flag}_C$.
 \Cref{tab:protocol} reports the outcome.
-On the two panels scored so far, H1 holds: at equal mean runs the protocol gains $+0.3$ points on ImageNet and $-0.4$ on SITCOM, as predicted for solvers whose failed runs are mostly \cons\claim{C-G5}\claim{C-G6}.
-H4 holds: outputs without either flag are \good $12.9$ points more often on ImageNet.
-H3 fails on ImageNet: one of the three flagged images is unsolved, because unsolved images of such solvers yield consistent-but-wrong runs, which $\textsc{flag}_C$ cannot see.
-On both panels the protocol stops after $3.3$--$3.4$ runs per image on average and lands $9$--$14$ points below fixed best-of-$16$, on the fixed-$K$ curve rather than above it: there, stopping trades accuracy for compute instead of saving compute at equal accuracy.
-\pending{DAPS (H1--H3), XP-D4 ($N_{\max}=32, 64$), DAPS-4K at $8$ runs.}
+H1 holds on all three panels\claim{C-G5}\claim{C-G6}\claim{C-G7}.
+H2 holds: at equal mean runs the protocol gains $3.4$ points on DAPS, against $+0.3$ on ImageNet and $-0.4$ on SITCOM.
+A theory note committed before the DAPS panel was scored, using only the four-run prefix, predicted a gain of $2$ to $4$ points (central $3$); it overestimated the success levels themselves by $3$ to $6$ points\claim{C-T14}.
+On DAPS the protocol returns a \good image for $93.1\%$ of the images at $3.2$ runs per image, within $0.8$ points of fixed best-of-$8$ at $40\%$ of its runs.
+On SITCOM and ImageNet it stops after $3.3$--$3.4$ runs and lands $9$--$14$ points below fixed best-of-$16$, on the fixed-$K$ curve rather than above it: where failed runs fit the measurement, stopping trades accuracy for compute instead of saving compute at equal accuracy.
+H4 holds: on ImageNet, outputs without either flag are \good $12.9$ points more often.
+H3 fails on both panels where it was tested: $5$ of the $11$ flagged DAPS images and $1$ of the $3$ flagged ImageNet images are unsolved.
+$\textsc{flag}_C$ thus marks hard images, not only unsolved ones, and unsolved images whose runs fit the measurement escape it.
+\pending{XP-D4 ($N_{\max}=32, 64$), DAPS-4K at $8$ runs.}
 
 \begin{table}[t]
 \centering\footnotesize
@@ -81,7 +85,7 @@ Panel & $N_{\max}$ & \good & Runs & eq.\ runs & $K{=}N_{\max}$ & $\Oorb$ & $\tex
 FAST, FFHQ$^\dagger$ & 64 & 91.3 & 8.4 & 89.1 & 93.9 & 96.1 & 8 (6) \\
 FAST, ImageNet & 16 & 51.4 & 3.4 & 51.1 & 65.0 & 75.0 & 3 (1) \\
 SITCOM, FFHQ & 16 & 81.9 & 3.3 & 82.3 & 91.1 & 92.2 & 7 (1) \\
-DAPS, FFHQ & 8 & \multicolumn{6}{c}{\pending{H1--H3}} \\
+DAPS, FFHQ & 8 & 93.1 & 3.2 & 89.7 & 93.9 & 94.4 & 11 (5) \\
 \bottomrule
 \end{tabular}
 \caption{\textbf{The protocol ($M=2$) against fixed best-of-$K$.} \good: \% of images with a \good output; Runs: mean runs per image. Fixed best-of-$K$ uses $\Eone$ (with an orientation test) or $\Eo$ (without), at the protocol's mean runs and at $K=N_{\max}$, the runs available. $\Oorb$: ground-truth orbit oracle at $N_{\max}$. $\textsc{flag}_C$: flagged images (unsolved among them). $^\dagger$Development data, without the orientation step\claim{C-G1}.}
