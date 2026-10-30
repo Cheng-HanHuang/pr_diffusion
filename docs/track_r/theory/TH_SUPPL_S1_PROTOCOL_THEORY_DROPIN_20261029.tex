@@ -228,5 +228,47 @@ so additional adaptive attempts convey little benefit. This
 is an \emph{interpretation after evaluation}, not a fit of
 $H_j^+$, a causal demonstration, or a new prospective prediction.
 
+\paragraph{H2: a correctly predicted gain with miscalibrated levels (post-outcome).}
+The DAPS F8 equal-compute protocol gain, $+3.38$ percentage points,
+falls inside the \emph{prospectively committed} historical-prefix
+prediction of $+2$ to $+4$ points (central $+3$), but this is
+\emph{not} an accurate prediction of its component success levels:
+the observed mean compute is $3.195$ rather than $2.835$ runs,
+and observed stop/fixed E1 success is $(.931,.897)$, compared
+with $(.957,.930)$ under exchangeable passing ranks or
+$(.993,.953)$ under transferred race weights. Two sources of
+model discrepancy are visible even before the held panel:
+the original threshold rejected $9$ of $165$ B22 and $9$ of
+$170$ DEV80 historical GOOD candidates, so the approximation
+that GOOD always passes is false; and collapsing image-specific
+pass probabilities $s_i$ to a cohort average loses the nonlinear
+dependence of $\mathbb E T(s_i)$ and success on $s_i$.
+More generally, the rank-conditioned passing winner quality
+$H_j^+$ and the equal-compute fixed-$K$ comparator can both
+be biased optimistically. Since the reported gain is the
+\emph{difference} between those two accuracies, their
+shared upward errors partly cancel even when each level
+misses by roughly $3$--$6$ points. This supports the
+\emph{directional} H2 stopping advantage on DAPS but
+does not establish calibration of the generative or residual
+ranking approximations; the frozen pre-score note is unchanged.
+
+\paragraph{\textsc{flag}$_C$ precision under an image mixture.}
+Let $U$ indicate an intrinsically unsolvable image (latent prevalence
+$\pi$), and let $S$ be the image-specific probability that a run
+passes the consistency threshold. Under conditional iid runs,
+\begin{equation}\label{eq:protocol-flag-precision}
+ \Pr(U\mid\textsc{flag}_C)
+ =\frac{\pi\,\mathbb E[(1-S)^N\mid U]}
+ {\pi\,\mathbb E[(1-S)^N\mid U]
+ +(1-\pi)\,\mathbb E[(1-S)^N\mid U^c]}.
+\end{equation}
+This precision can fall below $1/2$ when many solvable but low-$S$
+images are flagged, while unsolvable images whose wrong reconstructions
+are CONSISTENT almost never trigger the flag.
+The post-hoc finite-panel analog was $5/11$ on DAPS F8 and $1/3$
+on ImageNet D1-P2; \emph{no GOOD within $N$ runs} is observable with
+ground truth but does not prove the latent structural impossibility $U$.
+
 % Synthetic regression: scripts/track_r/theory/test_stop_at_m_theory.py
 % Not a forecast for D1-P2/B16/F8 and not a claim of a universal gain theorem.
