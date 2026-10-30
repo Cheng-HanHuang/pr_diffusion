@@ -55,8 +55,9 @@ def original():
          sum(k[0]=="S2_b24_dev80" for k in group)==80,"FFHQ_180")
     out=[]
     for (cohort,iid),rr in sorted(group.items()):
-        rr.sort(key=lambda x:x["rep"])
-        gate([r["rep"] for r in rr]==[0,1,2,3],"R0_REPS")
+        # R0.7 offline catalog uses run_index (not GPU-manifest rep).
+        rr.sort(key=lambda x:int(x["run_index"]))
+        gate([int(r["run_index"]) for r in rr]==[0,1,2,3],"R0_REPS")
         y={(r["measurement_path"],r["measurement_sha256"]) for r in rr}
         gt={(r["gt_path"],r["gt_format"]) for r in rr}
         gate(len(y)==len(gt)==1,"R0_Y_GT_UNIQUE")
