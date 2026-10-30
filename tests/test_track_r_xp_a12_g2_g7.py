@@ -91,6 +91,14 @@ class A12Stages(unittest.TestCase):
   for x in ("choose_gpu","STAGE_CEILING","CAMPAIGN_CEILING",
             "PROJECT_CEILING","STOP_A12","os.killpg"):
    self.assertIn(x,s)
+ def test_A13_G2G5_cli_and_cp1_ledger(self):
+  code=(ROOT/"scripts/track_r/xp_a12_campaign_autopilot.py").read_text()
+  self.assertIn('p.add_argument("--g1b-prep",default=None)',code)
+  self.assertIn('if a.g1b_prep else ()',code)
+  self.assertIn('p.add_argument("--preflight-only",action="store_true")',code)
+  publish=(ROOT/"scripts/track_r/xp_a13_cp1_publish.sh").read_text()
+  self.assertIn('XP_A13_CP1_PROJECT_GPU_LEDGER.json',publish)
+  self.assertIn('A10_included_in_project_prior_but_excluded_from_A12',publish)
  def test_g7_mapping_to_native_1000(self):
   script=(ROOT/"scripts/track_r/xp_a12_g7_c2_gpu.py").read_text()
   self.assertIn("native.M==1000",script)
