@@ -24,10 +24,11 @@ def main(a):
  gate(git("rev-parse","HEAD")==a.expected_head
       and not git("status","--porcelain"),"WORKTREE")
  prior=Path(a.prior_campaign)
- gate(prior.parent==BASE and prior.parent.name.startswith(
+ gate(prior.parent.parent==BASE and prior.parent.name.startswith(
       "xp_a12_campaign_prod_") and prior.name==
       "XP_A12_CAMPAIGN_STATE.json" and prior.is_file()
-      and not prior.is_symlink(),"PRIOR_CAMPAIGN_PATH")
+      and not prior.is_symlink() and not prior.parent.is_symlink(),
+      "PRIOR_CAMPAIGN_PATH")
  p=jread(prior)
  gate(p["status"]=="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
       and p["head"]==A14_OLD_HEAD and p.get("active")==[]
@@ -70,6 +71,15 @@ def main(a):
  gate(run.parent==BASE and run.name.startswith(
       "xp_a12_g3_prod_") and not run.exists()
       and not run.is_symlink(),"NEW_G3_RUN")
+ if a.preflight_only:
+  print("A14_G3_SHARED_LEDGER_AND_PREP_PREFLIGHT_PASS",
+        "project_prior_gpu_h",project0,
+        "A12_prior_gpu_h",campaign0,
+        "G3_cap_gpu_h",CAP["G3"],flush=True)
+  return
+ # The common run_queue queries a.a14 for G2-only timing telemetry.
+ # G3 is a separately admitted continuation, not an A14 G2 pilot.
+ a.a14=False
  with (BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock").open("a+") as lock:
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   run.mkdir(mode=0o700)
@@ -153,6 +163,7 @@ def entry():
  p=argparse.ArgumentParser()
  for name in ("expected-head","prior-campaign","prep","run"):
   p.add_argument("--"+name,required=True)
+ p.add_argument("--preflight-only",action="store_true")
  try:
   main(p.parse_args())
  except Exception as exc:
