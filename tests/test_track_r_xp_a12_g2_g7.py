@@ -47,6 +47,15 @@ class A12Stages(unittest.TestCase):
   self.assertIn("n=(old-clean)/0.05",code)
   self.assertIn("n_roots=1440",code)
   self.assertIn("gt_paths_supplied=False",code)
+ def test_G2_R07_catalog_uses_run_index(self):
+  # R0.7's offline catalog is not a GPU manifest: it has run_index, not rep.
+  r07=(ROOT/"scripts/track_r/r0_7_prepare_cpu.py").read_text()
+  self.assertIn('"run_index":int(r["run_index"])',r07)
+  code=inspect.getsource(g2.original)
+  self.assertIn('rr.sort(key=lambda x:int(x["run_index"]))',code)
+  self.assertIn('[int(r["run_index"]) for r in rr]==[0,1,2,3]',code)
+  self.assertNotIn('x["rep"]',code)
+  self.assertNotIn('r["rep"]',code)
  def test_G45_extension_indices_and_native(self):
   self.assertEqual(g45.seed("G4","S1_b22_60044",4),
                    g45.a6_seed("S1_b22_60044",4))
