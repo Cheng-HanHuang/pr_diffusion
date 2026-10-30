@@ -46,6 +46,7 @@ class A12Stages(unittest.TestCase):
   self.assertIn("paired=clean+val*n",code)
   self.assertIn("n=(old-clean)/0.05",code)
   self.assertIn("n_roots=1440",code)
+  self.assertIn("stage_ceiling_gpu_h=25",code)
   self.assertIn("gt_paths_supplied=False",code)
  def test_G2_R07_catalog_uses_run_index(self):
   # R0.7's offline catalog is not a GPU manifest: it has run_index, not rep.
