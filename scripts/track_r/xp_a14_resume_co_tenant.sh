@@ -42,13 +42,10 @@ echo '===== CPU FREEZE G2 PAIRED-NOISE 360 OBSERVATIONS ====='
 echo '===== CPU FREEZE G4/G5 DAPS-4K CONTINUATIONS AND REPLAYS ====='
 "$PY" scripts/track_r/xp_a12_g45_prepare_cpu.py \
  --expected-head "$HEAD" --out "$G45PREP"
-echo '===== CONDITIONAL G3 PC-DAPS NATIVE SOURCE ====='
+echo '===== G3 PC-DAPS: INDEPENDENT A14 CERTIFICATION, NOT A G4/G5 BLOCKER ====='
 PC_AVAILABLE=false
 if [ -d "$ROOT/external/PC_DAPS_xp" ]; then
- "$PY" scripts/track_r/xp_a12_g3_prepare_cpu.py \
-  --expected-head "$HEAD" --out "$G3PREP"
- test -f "$G3PREP/XP_A12_G3_PREP_RECEIPT.json"
- PC_AVAILABLE=true
+ echo 'G3_SOURCE_PRESENT: separate CPU adapter certification and 2-id smoke required'
 else
  echo 'G3_CODE_ABSENT: Cheng must clone the exact upstream PC-DAPS source'
  echo 'git clone https://github.com/voilalab/PC-DAPS.git /egr/research-pac/huang248/external/PC_DAPS_xp'
