@@ -140,6 +140,10 @@ class A12Stages(unittest.TestCase):
   self.assertIn('A14_G3_NATIVE_TWO_ID_SMOKE_BEGIN',src)
   self.assertIn('smoke_projection(run,"G3"',src)
   self.assertIn('XP_A14_G3_FINAL_STATUS.json',src)
+  launch=(ROOT/"scripts/track_r/xp_a14_g3_after_clone_launch.sh").read_text()
+  self.assertIn("A14_G3_PC_NATIVE_IMPORT_CERT_PASS",launch)
+  self.assertIn("A14_G3_CPU_MANIFEST_CERT_PASS",launch)
+  self.assertIn("A14_G3_AUTOPILOT_LAUNCHED",launch)
   self.assertNotIn('test-ffhq',src)
   self.assertEqual(driver.DEADLINE["G3"],(2026,11,4,12))
  def test_g7_mapping_to_native_1000(self):
