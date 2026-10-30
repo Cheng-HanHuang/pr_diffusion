@@ -24,7 +24,7 @@ from prdiffusion.track_r.r0n_clip_compat import encode_text_univfd_tuple_compat
 G1A_RUN=BASE/"xp_a12_g1a_prod_20261029T180624Z"
 G1A_PREP=BASE/"xp_a12_g1a_prepare_20261029T170316Z"
 G1B_SOURCE=BASE/"XP_A13_G1B_LATEST_RUN.txt"
-PREREG_HEAD="f31901c808954f2bee724ab8a3834e2b65ef25c9"
+PREREG_HEAD="988aaed5fb61099ca43cbe950a181a6c38ab74c7"
 REG_PATH="docs/track_r/theory/PREDICTIONS_REGISTRY.md"
 V4=("149331c319bb8697c1a0f40c04bf0e4016ec3420",
     "docs/track_r/theory/TH1_PREDICTIONS_v4.json",
@@ -63,7 +63,9 @@ def csvwrite(p,rows,columns):
 def git(wt,*args):
  return subprocess.check_output(["git","-C",str(wt),*args],timeout=120)
 def frozen(wt):
- # The registration itself precedes all D4 run16+ analysis.
+ # Pin to the earlier v4 registration snapshot already verified by the
+ # successful G1b GPU admission. Do NOT depend on the later planner tip;
+ # the registry at 988aaed includes v2, v2 E1 and v4 REGISTERED.
  reg=git(wt,"show",PREREG_HEAD+":"+REG_PATH).decode()
  artifacts={}
  for key,(ref,path,digest) in (("v4",V4),("v2",V2),
