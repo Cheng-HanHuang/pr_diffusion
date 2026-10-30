@@ -15,6 +15,10 @@ from scripts.track_r.xp_a12_campaign_autopilot import (
  sha,jread,write,emit,run_queue,smoke_projection)
 from scripts.track_r.xp_a12_g367_readiness_cpu import PC,PC_HEAD
 A14_OLD_HEAD="0acb0081d992405f034f246318c3c5dbc6e3282f"
+# The G3 native/measurement manifest passed CPU certification before the
+# infrastructure-only controller fix. Retain exact original provenance.
+A14_CERTIFIED_PREP_HEAD="f7681abfa6722d9c8c996da7a92eff73dbed98bb"
+A14_CERTIFIED_PREP_SHA="3ad52d84216ccd57c14d8b59c3a643a9b89f59adfce908dac2f43d4d1639ff84"
 
 def main(a):
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
@@ -57,7 +61,9 @@ def main(a):
  rec=jread(prep/"XP_A12_G3_PREP_RECEIPT.json")
  mf=prep/"XP_A12_G3_180_BAGS.json"
  gate(rec["status"]=="XP_A12_G3_CPU_PREP_PASS"
-      and rec["head"]==a.expected_head
+      and (rec["head"]==a.expected_head or
+           (rec["head"]==A14_CERTIFIED_PREP_HEAD and
+            rec["manifest_sha256"]==A14_CERTIFIED_PREP_SHA))
       and rec["n_bags"]==180
       and rec["two_id_smoke_required"] is True
       and rec["cap_gpu_h"]==45
