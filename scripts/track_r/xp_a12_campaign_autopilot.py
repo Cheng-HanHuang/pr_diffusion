@@ -22,7 +22,7 @@ ROOT_DAPS_PY=ROOT/"conda-envs/daps/bin/python"
 G1A=BASE/"xp_a12_g1a_prod_20261029T180624Z/XP_A12_G1A_FINAL_STATUS.json"
 G1B_EXPECTED_STATUS="XP_A13_G1B_3200_GENERATION_COMPLETE"
 DEADLINE={"G2":(2026,11,3,12),"G3":(2026,11,3,12),"G4":(2026,11,4,12),"G5":(2026,11,4,12),"G1b":(2026,11,4,12)}
-CAP={"G2":10.,"G3":45.,"G4":30.,"G5":40.,"G1b":40.}
+CAP={"G2":25.,"G3":45.,"G4":30.,"G5":40.,"G1b":40.}
 N={"G2":2880,"G3":180,"G4":720,"G5":400,"G1b":3200}
 RESERVE_MIB={"G2":8192,"G3":24576,"G4":12288,"G5":12288,"G1b":8192}
 CAMPAIGN_CAP=150.
@@ -413,8 +413,9 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
      break
     candidates=[c for c in cards if c.index not in occupied
                 and c.visibility=="known"]
+    preferred=tuple(c.index for c in candidates if not c.foreign_pids and c.used_mib<=2048) if stage=="G2" else ()
     gpu,_=choose_gpu(candidates,RESERVE_MIB[stage],
-        safety_margin_mib=2048,fraction=.80,clean_only=False)
+        safety_margin_mib=2048,fraction=.80,clean_only=False,preferred=preferred)
     if gpu is None:break
     cmd,dest,digest,exe=make_command(a,run,job,gpu,roots,P,0)
     gate(not dest.exists(),"NEW_TASK_OUTPUT_ALREADY_EXISTS")
@@ -434,8 +435,16 @@ def run_queue(a,run,stage,tasks,roots,P,state,project0,campaign0):
     active[idx]=(job,dict(proc=proc,gpu=gpu,start=time.monotonic(),
         dest=dest,root_sha=digest,log=log,handle=handle,attempt=0))
     occupied.add(gpu)
-    emit(run,"TASK_LAUNCHED",stage=stage,job=job,gpu=gpu,pid=proc.pid)
+    card=next((c for c in cards if c.index==gpu),None)
+    emit(run,"TASK_LAUNCHED",stage=stage,job=job,gpu=gpu,pid=proc.pid,
+      foreign_pids=list(card.foreign_pids) if card else [],
+      gpu_memory_used_mib=card.used_mib if card else None,
+      gpu_utilization_pct=card.utilization_pct if card else None)
     save("RUN_"+stage)
+   if not active and remaining and (current_spend()+600>cap or
+      campaign0*3600+total_spend()+600>CAMPAIGN_CAP*3600 or
+      project0*3600+total_spend()+600>PROJECT_CAP*3600):
+    save("PARTIAL_"+stage+"_RESERVATION_CEILING");return False
    time.sleep(2)
   save(stage+"_COMPLETE")
   return True
@@ -485,7 +494,7 @@ def main(a):
     G7_status="NOT_YET_ADMITTED",
     GT_not_read=True,D4_outcomes_not_opened=True)
   write(run/"XP_A12_CAMPAIGN_STATE.json",state)
-  for stage in ("G2","G3","G4","G5"):
+  for stage in (("G4","G5","G2") if a.a14 else ("G2","G3","G4","G5")):
    if stage=="G3" and "G3" not in jobs:
     state["G3_status"]="CONDITIONAL_SOURCE_ABSENT_NOT_LAUNCHED"
     emit(run,"G3_CODE_ABSENT_SKIP_PER_A12")
@@ -557,6 +566,7 @@ def entry():
  for x in ("expected-head","ledger","g1b-final","g2-prep","g45-prep","run"):
   p.add_argument("--"+x,required=True)
  p.add_argument("--g3-prep",default=None)
+ p.add_argument("--a14",action="store_true")
  # Optional legacy G1b preparation is not passed for A13: G1b has
  # already completed and is authenticated by --g1b-final.
  p.add_argument("--g1b-prep",default=None)
