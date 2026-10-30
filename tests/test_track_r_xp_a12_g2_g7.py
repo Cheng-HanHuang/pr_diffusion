@@ -7,6 +7,7 @@ from scripts.track_r import xp_a12_g45_prepare_cpu as g45
 from scripts.track_r import xp_a12_g3_prepare_cpu as g3
 from scripts.track_r import xp_a12_campaign_autopilot as driver
 from scripts.track_r import xp_a12_g367_readiness_cpu as gates
+from scripts.track_r.xp_a14_g3_mcmc_config import normalize_mcmc_config
 
 ROOT=Path(g2.__file__).resolve().parents[2]
 STAGE_SCRIPTS=(
@@ -80,6 +81,33 @@ class A12Stages(unittest.TestCase):
   self.assertEqual(g3.PC_HEAD,"59b2f046")
   self.assertIn('group.sort(key=lambda x:int(x["run_index"]))',inspect.getsource(g3.main))
   self.assertNotIn('x["rep"]',inspect.getsource(g3.main))
+ def test_G3_exact_native_YAML_lr_type_fix(self):
+  # Upstream PC-DAPS YAML spells 5e-5 without a decimal point;
+  # PyYAML SafeLoader represents this spelling as text.
+  raw=dict(num_steps=100,lr="5e-5",tau=0.01,
+           lr_min_ratio=0.01,mc_algo="langevin",prior_solver="gaussian")
+  corrected=normalize_mcmc_config(raw)
+  self.assertEqual(corrected["lr"],5e-5)
+  self.assertIs(type(corrected["lr"]),float)
+  self.assertEqual(raw["lr"],"5e-5") # no source-config mutation
+  self.assertEqual({k:v for k,v in corrected.items() if k!="lr"},
+                   {k:v for k,v in raw.items() if k!="lr"})
+  self.assertEqual(normalize_mcmc_config(corrected),corrected)
+  for bad in ("5e-4",0.005,0.0,"oops"):
+   with self.assertRaises(ValueError):
+    normalize_mcmc_config(dict(raw,lr=bad))
+  native=(ROOT/"scripts/track_r/xp_a12_g3_pcdaps_gpu.py").read_text()
+  self.assertIn('normalize_mcmc_config(task_cfg["mcmc_sampler_config"])',native)
+  self.assertIn('mcmc_sampler_config=mcmc_cfg',native)
+  g3=(ROOT/"scripts/track_r/xp_a14_g3_after_clone_autopilot.py").read_text()
+  self.assertIn('load_failed_native_smoke_cost',g3)
+  self.assertIn('failed_g3_run',g3)
+  self.assertIn('"G3__SMOKE_0_A0.json"',g3)
+  self.assertIn('"G3__SMOKE_1_A_EXCEPTION.json"',g3)
+  launcher=(ROOT/"scripts/track_r/xp_a14_g3_native_lr_recovery_launch.sh").read_text()
+  self.assertIn('XP_A14_G3_NATIVE_LR_LATEST_RUN.txt',launcher)
+  self.assertIn('--failed-g3-run "$OLD"',launcher)
+  self.assertNotIn('rm -rf',launcher)
  def test_budget_global(self):
   self.assertEqual(driver.CAP["G2"],25.)
   self.assertEqual(driver.CAP["G3"],45.)
