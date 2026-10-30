@@ -268,7 +268,7 @@ def clip_new(newrows,mode="g1",threshold=20):
        label=row["label"],**{mode+"_choice":choice,
        mode+"_margin":format(margin,".12g"),mode+"_chosen_good":good}))
    if (base+16)%480==0:print("CP2_CLIP_G1",min(base+16,len(newrows)),flush=True)
- gate(len(result)==4800,"CP2_4800_CLIP")
+ gate(len(result)==len(newrows),"A15_CLIP_INPUT_OUTPUT_COUNT")
  return result,dict(checkpoint_sha256=sha(clipfile),native_head=nativehead)
 def exact_observed(strings,cliprows,panel,K):
  by={(r["image_id"],int(r["run"])):r for r in cliprows}
@@ -346,6 +346,7 @@ def main(a):
  out.mkdir(mode=0o700)
  strings,scored,previous=new_scores(data,a,out)
  clip_new_rows,clipmeta=clip_new(scored)
+ gate(len(clip_new_rows)==4800,"CP2_4800_G1_CLIP")
  clips=[{k:r[k] for k in CLIP_NAMES} for r in clip0]+clip_new_rows
  gate(len(clips)==6400 and len({(r["image_id"],int(r["run"])) for r in clips})==6400,
       "CP2_6400_CLIP")
