@@ -25,6 +25,14 @@ class A15Tests(unittest.TestCase):
   s=inspect.getsource(cp2.provenance)
   self.assertLess(s.index("artifacts=frozen(wt)"),s.index("g1a=jread("))
   self.assertIn("validate_complete",s)
+  # GPU G1a execution head differs intentionally from frozen manifest
+  # producer head; never authenticate native root against producer SHA.
+  self.assertIn('g1a["source_head"]',s)
+  self.assertIn('g1b["source_head"]',s)
+  self.assertIn('A12_G1A_FROZEN_PRODUCER',s)
+  self.assertNotIn('16,16,mf_a["head"]',s)
+  self.assertNotIn('32,32,mf_b["head"]',s)
+  self.assertIn('"CP2_PRODUCER_VS_EXECUTION_HEADS"',s)
  def test_u_statistic(self):
   one=dict(image_id="test",labels_by_run="G;O_g;I;I",
            rho_signed_by_run=".1;.2;.3;.4")
