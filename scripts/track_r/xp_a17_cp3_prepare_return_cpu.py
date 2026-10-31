@@ -81,7 +81,7 @@ def build_digest(desc,summary,timing):
   f"XP-I E1 minus native PSNR: {ps['delta_mean']:+.3f} dB, paired bootstrap 95% [{ps['CI95_lower']:+.3f},{ps['CI95_upper']:+.3f}].",
   f"XP-I E1 minus native SSIM: {ss['delta_mean']:+.4f}, paired 95% [{ss['CI95_lower']:+.4f},{ss['CI95_upper']:+.4f}].",
   f"XP-I E1 minus native GOOD25: {100*good['delta_mean']:+.2f}pp, paired 95% [{100*good['CI95_lower']:+.2f},{100*good['CI95_upper']:+.2f}].",
-  "XP-I: PC-DAPS E1 vs DAPS4K run0, fixed E1 K1/K2 and frozen Eprime8: see descriptive JSON.",
+  "XP-I: PC bag E1 vs DAPS4K run0, fixed E1 K1/K2 and Eprime8: compute-labeled table (K2/Eprime8 clock is extrapolated).",
   "DAPS4K: 400 annealing x 10 ODE = 4000 nominal NFE/run, 100 Langevin/anneal (native receipts).",
   "PC-DAPS: 1920 nominal NFE/bag, logged mean lower bound 1928.4; exact pruning NFE unknown.",
   f"Clean batch1 native sampling seconds, same GPU/3 images: PC bag {t['PC']:.2f}; DAPS4K run {t['DAPS4K']:.2f}.",
@@ -91,6 +91,77 @@ def build_digest(desc,summary,timing):
  ]
  gate(len(lines)<=20,"A17_DIGEST_LINE_LIMIT")
  return "\n".join(lines)+"\n"
+
+def compute_labeled_table(desc,summary,timing):
+ # Three clean same-y FFHQ pairs directly measure PC bag and DAPS4K
+ # single-root native sampling. Multi-run policy timing is explicitly
+ # a *linear extrapolation* of DAPS single-run time, not timed policy.
+ pc=float(timing["mean_native_sampling_seconds"]["PC"])
+ dap=float(timing["mean_native_sampling_seconds"]["DAPS4K"])
+ gate(0<pc<7200 and 0<dap<7200,"A17_RELEASE_TIMING_SECONDS")
+ base=summary["pc_daps_vs_daps_same_180_frozen_y"]["table"]
+ byname={r["policy"]:r for r in base if r["cohort"]=="ALL"}
+ gate(all(x in byname for x in
+    ("PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN",
+     "PC_E0_RESIDUAL_SELECTION","PC_E1_CLIP_ORIENTATION",
+     "DAPS_4K_ONE_RUN")),"A17_RELEASE_180_PAIR_TABLE")
+ out=[]
+ pc_nfe=desc["PC_DAPS_compute"]
+ for policy in ("PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN",
+                "PC_E0_RESIDUAL_SELECTION",
+                "PC_E1_CLIP_ORIENTATION"):
+  row=byname[policy]
+  out.append(dict(policy=policy,n_images=180,
+     PSNR_db=row["PSNR_db"],SSIM=row["SSIM"],
+     LPIPS_VGG=row["LPIPS_VGG"],GOOD25=row["GOOD"],
+     nominal_denoiser_NFE=pc_nfe["nominal_NFE_per_image"],
+     logged_mean_NFE_lower_bound=pc_nfe["logged_lower_bound_mean_NFE"],
+     exact_NFE_available=False,
+     mean_native_sampling_seconds=pc,
+     time_basis="MEASURED_3_CLEAN_PC_BAGS_EXCLUDES_SELECTION_AND_CLIP"))
+ one=byname["DAPS_4K_ONE_RUN"]
+ out.append(dict(policy="DAPS_4K_ONE_RUN_RAW",n_images=180,
+    PSNR_db=one["PSNR_db"],SSIM=one["SSIM"],
+    LPIPS_VGG=one["LPIPS_VGG"],GOOD25=one["GOOD"],
+    nominal_denoiser_NFE=4000,mean_native_sampling_seconds=dap,
+    time_basis="MEASURED_3_CLEAN_SINGLE_RUNS_EXCLUDES_CLIP"))
+ fixed=[r for r in desc["DAPS_FFHQ_fixed_E1_K1_K2"]
+        if r["cohort"]=="ALL"]
+ gate(len(fixed)==2 and
+      set(x["mean_runs"] for x in fixed)=={1,2},
+      "A17_RELEASE_FIXED_E1_COUNTS")
+ for r in sorted(fixed,key=lambda z:z["mean_runs"]):
+  k=int(r["mean_runs"])
+  out.append(dict(policy="DAPS_4K_FIXED_E1_K"+str(k),n_images=180,
+     PSNR_db=r["PSNR_db"],SSIM=r["SSIM"],
+     LPIPS_VGG=r["LPIPS_VGG"],GOOD25=r["GOOD"],
+     nominal_denoiser_NFE=r["nominal_NFE_per_image"],
+     mean_native_sampling_seconds=k*dap,
+     time_basis=("MEASURED_PER_RUN_EXTRAPOLATION_EXCLUDES_CLIP"
+        if k==1 else
+         "LINEAR_EXTRAPOLATION_NOT_DIRECT_POLICY_TIMING_EXCLUDES_CLIP")))
+ ep=desc["frozen_Eprime8_protocol"]
+ gate(ep["status"]=="FROZEN_M2_EPRIME8_POOLED"
+      and 2<=ep["mean_runs"]<=8,
+      "A17_RELEASE_EPRIME8_FROZEN")
+ out.append(dict(policy="DAPS_4K_FROZEN_EPRIME8_M2",
+     n_images=180,GOOD25=ep["success"],
+     mean_runs=ep["mean_runs"],
+     nominal_denoiser_NFE=ep["nominal_mean_NFE"],
+     mean_native_sampling_seconds=ep["mean_runs"]*dap,
+     time_basis="LINEAR_EXTRAPOLATION_NOT_DIRECT_POLICY_TIMING_EXCLUDES_CLIP"))
+ return dict(status="A15_CP3_A12_PAIRED_DESCRIPTIVE_COMPUTE_LABELED",
+  frozen_protocol_unchanged=True,matched_NFE_rule="WITHDRAWN_UNRESOLVED",
+  exact_matched_compute_claim=False,
+  clean_time_sample_size_per_native_family=3,
+  clean_physical_gpu=timing["gpu_physical"],
+  native_sampling_only=True,
+  model_load_and_CLIP_time_excluded=True,
+  DAPS4K_config="400_anneal_x10_ODE_100_Langevin",
+  note=("PC bag and one DAPS-4K run are directly timed on three images; "
+        "multi-run times assume linear scaling and are not independent "
+        "measurements of the frozen adaptive policy."),
+  rows=out)
 
 def a86(summary):
  raw=summary["daps_GT_per_metric_oracles_not_GT_free"]
@@ -174,6 +245,10 @@ def main(a):
       "A17_RELEASE_G3_DESCRIPTIVE")
  digest=build_digest(desc,summary,timing)
  oracle=a86(summary)
+ comp=compute_labeled_table(desc,summary,timing)
+ gate(len(comp["rows"])==7 and
+      comp["matched_NFE_rule"]=="WITHDRAWN_UNRESOLVED",
+      "A17_RELEASE_COMPUTE_LABELED_7_POLICIES")
  gate(len(digest.splitlines())<=20 and
       set(oracle["our_DAPS4K"])=={"FFHQ","IMAGENET"} and
       all(set(oracle["our_DAPS4K"][ds])=={"best_4","best_8"}
@@ -222,6 +297,7 @@ def main(a):
   item["attempt_run"]=oldpath.parent.name
  write(ret/"A17_CP3_CLEAN_TIMING_RECEIPT.json",safe_timing)
  write(ret/"A8_6_PUBLISHED_PROTOCOL_REFERENCES.json",oracle)
+ write(ret/"XP_A17_CP3_COMPUTE_LABELED_POLICY_TABLE.json",comp)
  (ret/"CP3_DIGEST.md").write_text(digest)
  (ret/"README.md").write_text(
    "# A15 CP3 — released under planner disposition\n\n"
