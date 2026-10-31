@@ -77,7 +77,8 @@ class A15Tests(unittest.TestCase):
                    "xp_a15_cp3_G4_20261030T210259Z")
   pub=(ROOT/"scripts/track_r/xp_a17_cp3_publish.sh").read_text()
   self.assertIn('sha256sum -c SHA256SUMS',pub)
-  self.assertIn('git@github.com:Cheng-HanHuang/pr_diffusion.git',pub)
+  self.assertIn('STOP_CP3_WRONG_ORIGIN_URL',pub)
+  self.assertIn('git -C "$PUBLISH" push -u origin "$BRANCH"',pub)
   self.assertIn('A17_CP3_REMOTE_CHECKPOINT_PUBLISHED_AND_VERIFIED',pub)
  def test_a15_clean_timing_uses_real_DAPS4K_and_same_y(self):
   from scripts.track_r import xp_a17_cp3_clean_timing_cpu as t
