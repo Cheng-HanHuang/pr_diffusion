@@ -171,6 +171,13 @@ def v5_code_freeze(wt):
     "origin","refs/heads/"+PLANNER_BRANCH],check=True,
     stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=60)
   text=git(wt,"show","FETCH_HEAD:"+REGISTRY)
+  # The planner registry may point to a theory-branch commit whose
+  # objects are not yet reachable in this detached execution worktree.
+  # Fetch its branch without touching source code or working files.
+  subprocess.run(["git","-C",str(wt),"fetch","--no-tags","--quiet",
+    "origin","refs/heads/theory/prdiff-track-r-th-20261026"],
+    check=True,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,
+    timeout=60)
  except (OSError,subprocess.SubprocessError):
   return None
  lines=[line for line in text.splitlines()
