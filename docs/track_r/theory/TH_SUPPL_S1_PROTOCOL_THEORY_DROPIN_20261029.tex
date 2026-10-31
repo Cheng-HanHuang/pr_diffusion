@@ -272,3 +272,131 @@ ground truth but does not prove the latent structural impossibility $U$.
 
 % Synthetic regression: scripts/track_r/theory/test_stop_at_m_theory.py
 % Not a forecast for D1-P2/B16/F8 and not a claim of a universal gain theorem.
+
+
+% === A15 dated post-outcome additions, 2026-10-31 ===
+\paragraph{When increasing the cap reverses the stopping advantage (post-outcome).}
+The exact waiting-time law makes this failure mechanism explicit.
+Consider a mixture with a fraction $\pi_0$ of very
+low-consistency-pass images (type $h$), with $s_h\ll 1/N$,
+and fraction $1-\pi_0$ of ordinarily passing images (type $e$).
+Write $t_j(N)=\mathbb E[T\mid j]$, $S_j(N)$ for stopped
+success and $F_j(k)$ for fixed-$k$ success on type $j$.
+With $\bar K_N=\pi_0t_h(N)+(1-\pi_0)t_e(N)$,
+the exact equal-compute advantage is
+\begin{equation}\label{eq:stop-mixture-large-N}
+ \Delta_N =
+ \pi_0\{S_h(N)-F_h(\bar K_N)\}
+ +(1-\pi_0)\{S_e(N)-F_e(\bar K_N)\}.
+\end{equation}
+Here $F_j(k)$ at noninteger $k$ means the protocol's
+\emph{frozen linear interpolation}, not exponentiation
+of a fresh-$k$ formula.
+For two-pass stopping, $t_h(N)=N-O(N^3s_h^2)$
+when $Ns_h\ll1$, while $t_e(N)$ approaches
+$2/s_e$ if the cap is large relative to $1/s_e$.
+Consequently the near-zero-pass component alone adds
+approximately $\pi_0N$ to the average run budget.
+
+To exhibit the mechanism without asserting that all low-pass
+images are intrinsically unsolvable, suppose in a
+\emph{stylized sufficient counterexample} that hard images
+have $S_h(N)=F_h(k)=0$, while the easy stopped
+success approaches $H^+_{2,e}$.
+Then
+\[
+ \Delta_N\simeq (1-\pi_0)
+ \{H^+_{2,e}-F_e((1-\pi_0)t_e+\pi_0N)\}.
+\]
+If increasing $k$ improves the easy-image fixed selector,
+let $K_\star$ be a crossing
+$F_e(K_\star)=H^+_{2,e}$, when it exists.
+The stopping gain is negative when
+\begin{equation}\label{eq:stop-pi0-crossing}
+  \pi_0>\frac{K_\star-t_e}{N-t_e},
+  \qquad N>t_e,\quad t_e<K_\star<N.
+\end{equation}
+Thus the effect of a near-zero-$s$ tail can increase
+roughly like $N\pi_0$, while the
+stopped quality on easy images saturates after the first
+two passes. This condition is \emph{not} universal:
+if fixed-$k$ never surpasses $H^+_{2,e}$, there
+need be no crossover, and hard images may succeed via
+rejected-GOOD/nonpassing outputs. Equation
+\eqref{eq:stop-mixture-large-N} remains the proper
+comparison in those cases.
+
+On the released ImageNet XP-D4 completed panels,
+the frozen protocol H1 fails by \emph{$-1.8$ points}
+at $N_{\max}=32$ and \emph{$-3.4$ points} at
+$N_{\max}=64$. In the planner's \emph{post-hoc}
+budget decomposition, only four to six images
+with fewer than five passing candidates consume
+approximately $43\%$ of all generated runs.
+The remaining images stop at $2.6$--$3.0$ runs,
+while the equal-budget fixed comparator spends
+$4.3$--$5.0$ on \emph{every} image.
+This is evidence for the mechanism of
+\eqref{eq:stop-mixture-large-N}, not a fit of
+$\pi_0$, a claim that the hard images have $s=0$,
+or a new preregistered forecast.
+In particular, an image's repeated no-pass events
+do not by themselves certify irrecoverability.
+
+\paragraph{Why a FAST-DIPS threshold need not scale with noise (post-outcome).}
+Write $y_\sigma=a+\sigma Z$ and
+$d_\sigma=\mathcal A(\hat x_\sigma)-a$ for the
+reconstruction's signed-measurement displacement.
+The normalized residual obeys exactly
+\[
+ \frac{\rho_\sigma}{\sigma}=
+ \frac{\|Z-d_\sigma/\sigma\|_2}{\sqrt m}.
+\]
+A GOOD-class residual quantile can scale linearly
+with $\sigma$ only if the conditional law of
+$d_\sigma/\sigma$ (including its correlation with
+$Z$ and the class-selection event) is stable.
+FAST-DIPS instead retains a \emph{fixed}
+projection tolerance $\epsilon=0.05$:
+$\epsilon/\sigma$ changes from $2.5$ at
+$\sigma=.02$ to $.5$ at $\sigma=.10$.
+Its returned denoised, clamped output can have
+a noise-dependent fit or bias outside that
+projection, so neither linearity nor a signed
+direction of departure follows from the
+noise-floor identity. The registered H-G1
+linear extrapolations were $.02003316$ and
+$.1001658$, whereas the released XP-G thresholds
+are $.02223$ (about $+11.0\%$) and
+$.09809$ (about $-2.1\%$), respectively;
+both fail the prespecified $1\%$ criterion.
+This is a \emph{post-outcome} qualification
+of the earlier pre-score assessment, which had
+explicitly classified H-G1 as unresolved.
+
+\paragraph{Interacting PC-DAPS particles are not independent runs.}
+PC-DAPS returns a jointly generated
+\emph{bag of four interacting particles}, not
+four iid samples from the single-run class model.
+Although the joint law may be permutation
+exchangeable under a symmetric implementation,
+particle interactions invalidate the
+\emph{independence} needed for the original
+per-run stopping and Dirichlet extrapolations.
+Choosing the residual-minimum particle and applying
+the predeclared orientation test remain
+ground-truth-free within a bag, regardless of
+dependence. In the released \emph{descriptive}
+180-image FFHQ analysis, PC-DAPS's native
+particle-mean readout gives $79.0\%$ GOOD25;
+E0 within the same particles gives $82.8\%$
+and E1 gives $84.4\%$. These are
+selection/readout comparisons on one existing
+bag, not matched-NFE improvements; the
+matched-cost claim was withdrawn.
+A \emph{new} protocol treating each independently
+generated bag as one marked candidate could
+satisfy the iid \emph{bag-level} waiting-time
+assumptions, after defining a label-free
+per-bag residual and a cost in bags, but
+no such stopping-across-bags experiment exists.
