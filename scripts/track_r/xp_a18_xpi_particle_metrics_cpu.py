@@ -40,8 +40,8 @@ def rows_from_stage(stage):
          set(s)==set(c)==set(m),"A18_XPI_JOIN_KEYS")
     rows=[]
     for (cohort,iid),group in sorted(stage["image_groups"].items()):
-        gate(cohort in ("S1_b22","S2_b24_dev80") and
-             iid.startswith(cohort+"_") and len(group)==4,
+        tag={"B22":"S1_b22_","DEV80":"S2_b24_dev80_"}.get(cohort)
+        gate(tag is not None and iid.startswith(tag) and len(group)==4,
              "A18_XPI_COHORT_KEY")
         measurement_set=set()
         for k in range(4):
@@ -94,7 +94,7 @@ def main(a):
     out.mkdir(mode=0o700)
     p=out/"A16_XPI_PER_PARTICLE_METRICS.csv"
     with p.open("x",newline="",encoding="utf-8") as f:
-        writer=csv.DictWriter(f,fieldnames=COLUMNS,lineterminator="\\n")
+        writer=csv.DictWriter(f,fieldnames=COLUMNS,lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     with p.open("r",newline="",encoding="utf-8") as f:
@@ -107,9 +107,7 @@ def main(a):
              metric_source="CP3 frozen RGB8 raw PSNR; independent original float piq SSIM/LPIPS",
              score_columns_are_gt_evaluation_only=True,
              face_columns_are_gt_free_decisions=True,
-             source_candidate_metrics_receipt_sha256=sha(
-                 Path(stage["receipt"]["input_stage_scoring_receipt_sha256"])
-                 ) if False else stage["receipt"]["input_stage_scoring_receipt_sha256"],
+             source_candidate_metrics_receipt_sha256=stage["receipt"]["input_stage_scoring_receipt_sha256"],
              sha256=sha(p),no_native_tensor_or_path=True,
              unchanged_frozen_data=True,no_gpu_calls=True,
              no_matched_compute_claim=True)
