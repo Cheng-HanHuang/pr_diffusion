@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-10-29 by the planner (Claude).
+**Updated:** 2026-10-31 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,10 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-31, 14:25 (planner): CP3 accepted (reproduction exact); A16.**
+  - **A16:** post-CP3 exploratory analyses (`planner_analysis/A16_cp3_and_exploratory/`); XP-N image-disjoint ImageNet panel, conditional on Cheng's GO, with hypotheses and planner forecasts registered at `21babef`; XP-C3 prior orientation test.
+  - **Paper:** Table 1 complete with gain intervals; selection-first framing; supplement 15 pages with planner S4.
+  - **Notes, round 12:** [`executors/xp/12_PLANNER_NOTES_20261031_PM.md`](executors/xp/12_PLANNER_NOTES_20261031_PM.md) and [`executors/theory/12_PLANNER_GUIDANCE_20261031_PM.md`](executors/theory/12_PLANNER_GUIDANCE_20261031_PM.md).
 - **2026-10-31, 01:20 (planner): CP2 accepted (H1 fails at N_max 32/64 on ImageNet; v4 selection 18/18, coverage 0/6); CP3 option 1 (XP-I descriptive); A15.**
   - **Paper:** claims rebuilt around "selection predictable, coverage not"; five-test table and calibration figure.
   - **Supplement:** first build `docs/paper/track_r_cvpr27/supp/` (S1–S3 from theory `061c618`).

@@ -1,6 +1,21 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-31)
 
-> **Thirteenth update, 2026-10-31, 01:20 ET** (the newest; read it first).
+> **Fourteenth update, 2026-10-31, 14:25 ET** (the newest; read it first).
+> - **CP3 accepted.** All 7 per-cohort protocol outputs were reproduced exactly (max diff 0); the XP-I GOOD25 shares were reproduced from strings. Table 1 is complete.
+> - **Two GPT adversarial reviews evaluated** (A16).
+>   - **Adopted:** selection-first positioning; gains reported with image-bootstrap intervals; "equal mean runs" wording; the noise cross-term stated exactly; correlated forecast points; PC-DAPS described as a random-particle readout; an image-disjoint test (XP-N, conditional).
+>   - **Tested and rejected:** confidence-conditioned stopping (−1.8 at N_max = 16, −6.5 at 64; abandoned untuned).
+>   - **Not pursued:** 8-way RGB correction (headroom ≤ 0.6 points); near-tie reranking (no independent quality score); a trained face-orientation classifier (FFHQ orientation loss is 0).
+> - **New exploratory facts** (post hoc; paper and supplement S4):
+>   - **Where GT-free selection loses.** FFHQ ≤ 1.1 points for every solver, PC-DAPS included. ImageNet FAST at K = 64: 13 points = 8 (consistent-wrong picks) + 5 (orientation).
+>   - **The label-free τ fixes H-G1's failure without labels.** Cross-fitted gains: +4.1 at σ = 0.02 and +0.9 at σ = 0.10.
+>   - **Budget frontier.** On ImageNet the rule is within a point at N_max ≤ 8 and loses steadily beyond.
+>   - **Gain intervals.** ±1.1–3.1 points per panel. DAPS gains and the ImageNet N_max = 64 loss are resolved; the other panels are not.
+> - **XP-N (needs Cheng's GO + ImageNet val on PAC by Nov 2, 12:00 ET).** 100 new ImageNet images × 64 FAST runs, about 14 GPU-h, cap 20. Hypotheses and planner forecasts were registered before any data existed (`21babef`). It answers the reviewer point that every held-out test reuses the development images.
+> - **XP-C3:** the prior orientation test on the ImageNet candidates (≤ 2 GPU-h), to measure how much of the 4–5 orientation points a prior-based test recovers.
+> - **Paper:** main text 8 pages, supplement 15 pages, both clean.
+>
+> **Thirteenth update, 2026-10-31, 01:20 ET.**
 > - **CP2 (XP-D4, ImageNet FAST at 32 and 64 runs).**
 >   - **Selection holds again:** v4 race 18/18 vs S2 1/18.
 >   - **Coverage is not predicted even from 16 pilot runs:** O_orbit 0/6; coverage plateaus at 75–78% vs a forecast of 84–90%.
