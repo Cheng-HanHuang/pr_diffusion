@@ -48,6 +48,20 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_a15_cp3_native_receipts_ci_and_fixed_e1(self):
+  from scripts.track_r import xp_a17_cp3_a15_descriptive_cpu as a17
+  code=inspect.getsource(a17)
+  self.assertEqual(a17.G4_RUN_PER_NFE,4000)
+  self.assertEqual(a17.BOOT_SEED,20261031)
+  self.assertEqual(a17.BOOT_REPS,20000)
+  self.assertIn('cfg==DAPS4K',code)
+  self.assertIn('["num_steps"]==10',code)
+  self.assertIn('["num_steps"]==100',code)
+  self.assertIn("rng.integers(0,180,size=180)",code)
+  self.assertIn('"frozen_Eprime8_protocol"',code)
+  self.assertIn('"WITHDRAWN_UNRESOLVED"',code)
+  self.assertIn("no_matched_compute_claim=True",code)
+  self.assertIn('"PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN"',code)
  def test_joint_pc_daps_readout_keeps_unmatched_nfe_explicit(self):
   from scripts.track_r import xp_a16_cp3_joint_readout_cpu as joint
   src=inspect.getsource(joint)
