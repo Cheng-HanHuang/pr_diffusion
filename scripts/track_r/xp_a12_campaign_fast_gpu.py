@@ -139,7 +139,17 @@ def preflight(a):
         raise RuntimeError("STOP_XP_FAST_OPERATOR_SETTINGS")
     producer=a.roots_source_head or a.expected_head
     rows=frozen_roots(manifest,producer)
-    if producer!=a.expected_head:
+    if manifest.get("stage") in (
+            "A18_XPN_PILOT_0_3",
+            "A18_XPN_MAIN_4_15",
+            "A18_XPN_LATE_16_63"):
+        # A16.5 prospective ImageNet cohort. This branch only permits
+        # new immutable GT-free manifests after the pixel-exact D1 replay.
+        # Native diffusion, phase operator and sampler are unchanged.
+        from scripts.track_r.xp_a18_xpn_contract import validate_xpn_source
+        validate_xpn_source(roots,a.roots_sha,manifest,rows,
+                            producer,a.start,a.count)
+    elif producer!=a.expected_head:
         if manifest.get("stage") in (
                 "A12_G2_SIGMA_0.02","A12_G2_SIGMA_0.10",
                 "A12_G1B_FAST_IMAGENET_D4",
