@@ -96,13 +96,34 @@ class A18PlannerTests(unittest.TestCase):
         self.assertIn('no_XPN_candidates_generated=True',src)
         self.assertNotIn("GT_ONLY_CPU.json",src)
 
+    def test_xpn_6400_manifest_phase_sealing_and_native_algorithm(self):
+        from scripts.track_r.xp_a18_xpn_contract import PHASES
+        self.assertEqual(PHASES,{
+            "A18_XPN_PILOT_0_3":(0,4,400),
+            "A18_XPN_MAIN_4_15":(4,16,1200),
+            "A18_XPN_LATE_16_63":(16,64,4800)})
+        self.assertEqual(sum(x[2] for x in PHASES.values()),6400)
+        prep=(ROOT/"scripts/track_r/xp_a18_xpn_prepare_tasks_cpu.py").read_text()
+        worker=(ROOT/"scripts/track_r/xp_a12_campaign_fast_gpu.py").read_text()
+        self.assertIn('"XP_N_TASKS_PREP_RECEIPT.json"',prep)
+        self.assertIn('a.cheng_go=="GO"',prep)
+        self.assertIn("no_GT_or_candidate_outcomes_read=True",prep)
+        self.assertIn("validate_xpn_source(roots,a.roots_sha,manifest,rows",worker)
+        self.assertIn("network,x0,operator,y,evaluator=None",worker)
+        self.assertIn("seed=int(row[\"seed\"])",worker)
+        self.assertIn("CUBLAS_WORKSPACE_CONFIG",(
+            ROOT/"scripts/track_r/xp_a18_xpn_replay_cpu.py").read_text())
+
     def test_python_syntax_and_go_data_isolation(self):
         for filename in ("xp_a18_xpi_particle_metrics_cpu.py",
                          "xp_a18_xpn_image_inventory_cpu.py",
                          "xp_a18_xpn_decode_isolated.py",
                          "xp_a18_xpn_prepare_y_cpu.py",
                          "xp_a18_xpn_audit_y_cpu.py",
-                         "xp_a18_xpn_replay_cpu.py"):
+                         "xp_a18_xpn_replay_cpu.py",
+                         "xp_a18_xpn_contract.py",
+                         "xp_a18_xpn_prepare_tasks_cpu.py",
+                         "xp_a12_campaign_fast_gpu.py"):
             path=ROOT/"scripts"/"track_r"/filename
             ast.parse(path.read_text(),filename=str(path))
         inventory=(ROOT/"scripts/track_r/xp_a18_xpn_image_inventory_cpu.py").read_text()
