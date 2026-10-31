@@ -176,35 +176,41 @@ def main(a):
      seen.update(card.foreign_pids)
      max_used=max(max_used,card.used_mib)
      nsamples+=1
-     if card.used_mib>.8*card.total_mib:
+     if (card.used_mib>.8*card.total_mib or
+         (time.monotonic()-start)>REPLAY_CAP*3600):
       # Only terminate our own native worker; preserve foreign jobs.
       proc.terminate()
    except (Exception,StopIteration):
     unknown=True
   rc=proc.wait()
  cost=(time.monotonic()-start)/3600
- correct=False;pixel_match=[]
- if rc==0:
-  valid=jread(dest/"R0_5_CHUNK_COMPLETE.json")
-  gate(valid["status"]=="R0_5_CHUNK_PASS"
-       and valid["count"]==2 and valid["new"]==2
-       and valid["head"]==a.expected_head,
-       "A18_REPLAY_TWO_NATIVE_COMPLETES")
-  correct=True
-  for row,oldpath,oldrec in refs:
-   path=root_folder(dest,row)
-   newer=validate_complete(path,row,a.expected_head,sha(FROZEN))
-   with Image.open(oldpath/"reconstruction.png") as im0, \\
-        Image.open(path/"reconstruction.png") as im1:
-    same=im0.mode==im1.mode and im0.size==im1.size and (
-         ImageChops.difference(im0,im1).getbbox() is None)
-   pixel_match.append(dict(uid=row["uid"],original_png_sha256=oldrec[
-       "reconstruction_png_sha256"],replayed_png_sha256=newer[
-       "reconstruction_png_sha256"],pixels_exact=same))
-   correct=correct and same
+ correct=False;pixel_match=[];verify_error=None
+ try:
+  if rc==0:
+   valid=jread(dest/"R0_5_CHUNK_COMPLETE.json")
+   gate(valid["status"]=="R0_5_CHUNK_PASS"
+        and valid["count"]==2 and valid["new"]==2
+        and valid["head"]==a.expected_head,
+        "A18_REPLAY_TWO_NATIVE_COMPLETES")
+   correct=True
+   for row,oldpath,oldrec in refs:
+    path=root_folder(dest,row)
+    newer=validate_complete(path,row,a.expected_head,sha(FROZEN))
+    with Image.open(oldpath/"reconstruction.png") as im0, \\
+         Image.open(path/"reconstruction.png") as im1:
+     same=im0.mode==im1.mode and im0.size==im1.size and (
+          ImageChops.difference(im0,im1).getbbox() is None)
+    pixel_match.append(dict(uid=row["uid"],original_png_sha256=oldrec[
+        "reconstruction_png_sha256"],replayed_png_sha256=newer[
+        "reconstruction_png_sha256"],pixels_exact=same))
+    correct=correct and same
+ except Exception as e:
+  correct=False
+  verify_error=type(e).__name__+":"+str(e)[:400]
  status=("A18_XPN_D1_REPLAY2_PIXEL_EXACT_PASS"
           if rc==0 and correct and len(pixel_match)==2 and
-             max_used<=.8*initial_card.total_mib
+             max_used<=.8*initial_card.total_mib and
+             not unknown and nsamples>0
           else "A18_XPN_D1_REPLAY_FAILED_OR_PARTIAL")
  receipt=dict(status=status,
     expected_head=a.expected_head,XP_N_independent_GT_Y_audit_sha256=sha(
@@ -217,6 +223,7 @@ def main(a):
     foreign_pids_seen=sorted(seen),visibility_unknown=unknown,
     max_memory_used_mib=max_used,n_telemetry_samples=nsamples,
     native_worker_rc=rc,native_log_sha256=sha(logfile),
+    validation_error=verify_error,
     charged_gpu_h=cost,prior_XPN_replay_gpu_h=prior,
     project_gpu_h_before_XPN=project,
     project_cap_gpu_h=PROJECT_CAP,XP_N_GPU_h_cap=XPN_CAP,
