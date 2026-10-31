@@ -8,7 +8,7 @@ No foreign GPU process is terminated. Excludes model load from reported
 sampling wall; process wall charged separately for the project budget.
 """
 from __future__ import annotations
-import argparse,datetime,hashlib,json,os,subprocess,sys,time,traceback
+import argparse,datetime,hashlib,json,math,os,subprocess,sys,time,traceback
 from pathlib import Path
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 from scripts.track_r.xp_a15_cp2_d4_cpu import sha,jread,write
@@ -97,9 +97,26 @@ def budget():
  gate(st["status"]=="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
       and st.get("active")==[],"A17_TIMING_SOURCE_A12_TERMINAL")
  project=float(st["project_charged_gpu_h"])
- gate(project+STAGE_CAP_GPU_H<=PROJECT_CAP_GPU_H,
-      "A17_TIMING_PROJECT_BUDGET")
- return origin,project
+ # Count *all* previous A17 process-wall charges. A failed native
+ # import or an interrupted clean-timing attempt still uses GPU access.
+ prior=[];previous=0.
+ for p in sorted(BASE.glob("xp_a17_cp3_timing_*/A17_CP3_CLEAN_TIMING_RECEIPT.json")):
+  rec=jread(p)
+  gate(rec.get("status") in ("A17_CP3_CLEAN_PAIRED_TIMING_PASS",
+                            "A17_CP3_TIMING_PARTIAL_OR_DIRTY")
+       and rec.get("DAPS4K_anneal_ODE")=="400x10",
+       "A17_TIMING_PRIOR_RECEIPT_STATUS")
+  value=float(rec["additional_charged_gpu_hours"])
+  gate(0<=value<=STAGE_CAP_GPU_H and math.isfinite(value),
+       "A17_TIMING_PRIOR_RECEIPT_COST")
+  previous+=value
+  prior.append(dict(path=str(p),sha256=sha(p),
+                    status=rec["status"],charged_gpu_h=value))
+ gate(not any(z["status"]=="A17_CP3_CLEAN_PAIRED_TIMING_PASS" for z in prior),
+      "A17_TIMING_SUCCESS_EXISTS_DO_NOT_DUPLICATE")
+ gate(project+previous+STAGE_CAP_GPU_H<=PROJECT_CAP_GPU_H,
+      "A17_TIMING_PROJECT_BUDGET_INCLUDING_FAILED_RUNS")
+ return origin,project,previous,prior
 
 def main(a):
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","A17_TIMING_CONTROLLER_CPU")
@@ -109,7 +126,7 @@ def main(a):
  gate(git("rev-parse","HEAD")==a.expected_head
       and not git("status","--porcelain"),"A17_TIMING_WT")
  dp,pc_source,dr,jobs=prepare()
- origin,project=budget()
+ origin,project,prior_charged,prior_receipts=budget()
  gate(PY_PC.is_file() and PY_DAPS.is_file()
       and PY_PC==PY_DAPS,
       "A17_TIMING_ACCEPTED_G3_PYTHON_ENV")
@@ -249,7 +266,10 @@ def main(a):
                       else "A17_CP3_TIMING_PARTIAL_OR_DIRTY"),
     expected_head=a.expected_head,source_A12_state_sha256=sha(origin),
     A12_project_gpu_hours_before=project,
+    previous_A17_attempts=prior_receipts,
+    previous_A17_charged_gpu_hours=prior_charged,
     additional_charged_gpu_hours=cost/3600,
+    total_A17_charged_gpu_hours=prior_charged+cost/3600,
     gpu_physical=chosen,clean_timing_valid=valid,
     three_same_signed_y_ids=True,
     timing_scope="native_sampling_only_excludes_model_load",
