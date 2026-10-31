@@ -59,6 +59,8 @@ for name in ("lpips_weights.pt","vgg16-397923af.pth"):
   print("PRETRAINED_WEIGHT_CACHED",name,f.stat().st_size,h.hexdigest())
  else:print("PRETRAINED_WEIGHT_MISSING",name,str(f))
 PY
+echo "===== RESOLVE AUTHENTIC OFFICIAL PRETRAINED METRIC WEIGHTS ====="
+bash "$WT/scripts/track_r/xp_a16_cp3_metric_weights_bootstrap.sh" "$EXPECTED_HEAD"
 echo "===== TEST ACTUAL G4 PIQ PREFLIGHT, NO METRIC WORK ====="
 "$PY" "$WT/scripts/track_r/xp_a16_cp3_piq_metrics_cpu.py" \
   --expected-head "$EXPECTED_HEAD" --stage G4 --stamp 20261030T210259Z --preflight-only
