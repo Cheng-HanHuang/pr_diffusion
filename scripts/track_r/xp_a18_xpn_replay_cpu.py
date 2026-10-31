@@ -196,8 +196,10 @@ def main(a):
    for row,oldpath,oldrec in refs:
     path=root_folder(dest,row)
     newer=validate_complete(path,row,a.expected_head,sha(FROZEN))
-    with Image.open(oldpath/"reconstruction.png") as im0, \\
-         Image.open(path/"reconstruction.png") as im1:
+    with (
+        Image.open(oldpath/"reconstruction.png") as im0,
+        Image.open(path/"reconstruction.png") as im1,
+    ):
      same=im0.mode==im1.mode and im0.size==im1.size and (
           ImageChops.difference(im0,im1).getbbox() is None)
     pixel_match.append(dict(uid=row["uid"],original_png_sha256=oldrec[
