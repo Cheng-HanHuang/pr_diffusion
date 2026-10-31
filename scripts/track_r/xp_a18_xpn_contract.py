@@ -6,6 +6,7 @@ D1's unchanged FAST configuration and signed-y operator. Three distinct
 run phases enable unconditional 0..3 publication and 4..63 embargo.
 """
 from __future__ import annotations
+import hashlib,json
 from collections import defaultdict
 from pathlib import Path
 from scripts.track_r.xp_t_imagenet_prepare_cpu import seed as native_seed
@@ -42,6 +43,18 @@ def validate_xpn_source(path,digest,manifest,rows,producer,start,count):
  phase=manifest.get("stage")
  if phase not in PHASES or path.name!=expected_file[phase]:
   raise RuntimeError("STOP_A18_XPN_STAGE_MAPPING")
+ receiptfile=path.parent/"XP_N_TASKS_PREP_RECEIPT.json"
+ if not receiptfile.is_file() or receiptfile.is_symlink():
+  raise RuntimeError("STOP_A18_XPN_PREP_RECEIPT_MISSING")
+ rec=json.loads(receiptfile.read_text())
+ if (rec.get("status")!="A18_XPN_GT_FREE_6400_MANIFESTS_FROZEN_PASS"
+     or rec.get("expected_head")!=producer
+     or rec.get("source_y_manifest_sha256")!=Y_SHA
+     or rec.get("source_gt_y_audit_sha256")!=AUDIT_SHA
+     or rec.get("native_d1_replay_pixel_exact") is not True
+     or rec.get("phase_files",{}).get(phase,{}).get("sha256")!=digest
+     or hashlib.sha256(path.read_bytes()).hexdigest()!=digest):
+  raise RuntimeError("STOP_A18_XPN_STAGE_MANIFEST_FROZEN_SHA")
  lo,hi,total=PHASES[phase]
  if (manifest.get("schema")!="prdiff.track_r.xp.fast-tasks.v1"
      or manifest.get("status")!="XP_FAST_TASKS_FROZEN"
