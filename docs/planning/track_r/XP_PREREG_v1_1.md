@@ -436,7 +436,88 @@
 > 5. **Tail reorder.** T2 XP-I2 (PC-DAPS on ImageNet, one bag, analyses (a) and (b) in the same form, against DAPS-4K D2-8) now runs **before** T1 XP-K. It reaches the main paper only if it is scored by **Nov 5, 12:00 ET**. XP-K follows under the tail cap.
 > 6. **No protocol v2 is introduced before submission.** A budget cap or give-up rule motivated by item 1 would be post hoc; the paper may show it only as an exploratory frontier on panels already seen.
 
-**Status:** FROZEN v1.1 with amendments A1–A15 (planner, 2026-10-31).
+> **Amendment A16 (planner, 2026-10-31 14:30 ET): CP3 accepted; post-CP3 exploratory analyses; image-disjoint panel XP-N (conditional); XP-C3.** Written after the CP3 return (XP `1981dea`) and two external adversarial reviews that Cheng relayed. It is written before any XP-N image, measurement or run exists, and before any XP-C3, XP-I2 or XP-K outcome exists.
+> 1. **CP3 accepted.**
+>    - **Reproduction.** The planner reran all seven per-cohort protocol outputs (G2 at σ = 0.02 and 0.10, G4, G5) from `c598176` on the returned strings and orientation decisions (all SHA256SUMS verified). The maximum absolute difference is **0** in every field.
+>    - **Outcomes.** As recorded in A15.2. Two descriptive facts are added; neither is a registered hypothesis:
+>      - at σ = 0.02 the scaled threshold rejects every run, so FLAG_C is raised on all 180 images, 13 of them unsolved (precision 0.07);
+>      - FLAG_C precision is 3/5 on G4 and 1/1 on G5, where H3 was not registered.
+>    - **XP-I (a) and (b) are accepted as descriptive.**
+>      - The planner reproduced the GOOD25 shares exactly (native 0.7903, E0 0.8278, E1 0.8444) and the paired bootstrap interval within Monte Carlo error.
+>      - The PSNR, SSIM and LPIPS intervals stay executor-computed until the per-particle table in item 6 arrives.
+>      - The timing receipt and the compute-labeled table (30.58 s per bag and 65.98 s per DAPS-4K run, on a clean GPU, 3 ids) supersede the `PENDING` timing field in `XP_A17_CP3_A15_DESCRIPTIVE.json`.
+> 2. **Post-CP3 exploratory analyses (planner).** All are post hoc, all run on panels already seen, and none changes a frozen rule. Code and outputs: `docs/track_r/planner_analysis/A16_cp3_and_exploratory/`.
+>    - **(a) Oracle-gap decomposition.** O_orbit − E1 = selection loss + orientation loss.
+>      - **FFHQ:** the gap is at most 1.1 points for every solver, PC-DAPS included.
+>      - **DAPS-4K ImageNet, K = 8:** 5.0 points = 1.0 selection + 4.0 orientation.
+>      - **FAST ImageNet, K = 64:** 13.0 points = 8.0 selection, all from consistent-wrong picks, + 5.0 orientation.
+>      - **Partial orbit errors** cost at most 0.6 points on any panel.
+>    - **(b) Budget frontier on XP-D4** (frozen rule, N_MAX ∈ {2, …, 64}). The gain at equal mean runs is:
+>      - +0.5 to +0.8 at N_MAX = 3–6;
+>      - +0.1 at 8;
+>      - −0.9 at 16;
+>      - −3.4 at 64.
+>    - **(c) Confidence-conditioned stopping** (a reviewer suggestion): stop only when the pick's |CLIP margin| also exceeds c. c = 0.00763, the D1-P2 FLAG_O cut, was fixed before the replay. It is worse at every N_MAX ≥ 8 (−1.8 at 16, −6.5 at 64). **Abandoned without tuning.**
+>    - **(d) Label-free τ at other noise levels.** `self_mad3` is within 3.5% of the labeled τ at σ = 0.02 and within 1.2% at σ = 0.10. Cross-fitted from the other cohort, the protocol gains:
+>      - +4.1 points at σ = 0.02;
+>      - +0.9 at σ = 0.10;
+>      - +3.7 on G4;
+>      - +0.4 on G5 (cross-fitted between halves of the images).
+>    - **(e) PC-DAPS, image level.**
+>      - 135 images have all four particles GOOD, 27 have none GOOD in any orientation, and 18 are mixed.
+>      - E1 picks a GOOD particle in 17 of the 18 mixed images, against 7.25 for a random particle.
+>      - E1 reaches 84.4%, against 85.0% for the four-particle orbit oracle.
+>    - **(f) Gain uncertainty.** Image-bootstrap 95% intervals of every registered equal-mean-runs gain (stratified by cohort, τ held fixed):
+>      - DAPS F8 [+2.1, +4.7];
+>      - DAPS-4K G4 [+2.8, +5.1];
+>      - SITCOM B16 [−2.2, +1.7];
+>      - D1-P2 [−2.7, +2.8];
+>      - G5 [−1.6, +1.8];
+>      - XP-D4 32 [−4.2, +0.7];
+>      - XP-D4 64 [−6.5, −0.3];
+>      - XP-G 0.10 [+0.3, +1.3].
+>
+>      **H1's one-point margin is smaller than the sampling error of one 100-image panel.** The registered outcomes stand; the paper reports these intervals beside them.
+> 3. **Considered and not adopted.**
+>    - **Near-tie reranking by a semantic score.** No candidate-quality score exists that is independent of the selection under study. A new one would need to be developed on other data and tested on fresh images.
+>    - **Eight-way RGB orbit correction.** Item 2(a) bounds its headroom by 0.6 points.
+>    - **A trained orientation classifier for faces.** The FFHQ orientation loss is 0.
+>    - **Protocol v2.** A15.6 stands.
+> 4. **XP-C3 (exploratory; inside G7, ceiling +2 GPU-h).**
+>    - **What.** The XP-C prior orientation test exactly as specified for XP-C (2-forward S_mid, global2: 000 against 111), applied to every XP-D4 candidate (6,400) and every G5 candidate (800).
+>    - **Output.** One row per candidate, `image_id, run, label, prior_choice, prior_margin, prior_chosen_good`, in the G1 schema, copied to `theory_inputs/`. The planner computes E1-prior against E1-CLIP with the exact estimator.
+>    - **Why.** Orientation costs 4–5 points on ImageNet (item 2a), and Sec. 3 of the paper says the within-orbit choice must come from the prior.
+>    - **When.** On the first free GPU after XP-N generation starts; it never delays XP-I2. Due **Nov 5, 12:00 ET** for the main text, otherwise supplement.
+> 5. **XP-N: an image-disjoint ImageNet panel.** Conditional on Cheng's **GO** and on ImageNet validation images being available on PAC. Cheng downloads; external data are untrusted (`python -I`, own directory). It lapses, and is recorded as lapsed, if either is missing on **Nov 2, 12:00 ET**.
+>    - **Images.** ILSVRC2012 validation `00048900`–`00048999`, the 100 images preceding DAPS's ImageNet test set. The executor verifies that none is among the D1 ids. Preprocessing, operator, σ = 0.05, signed y, the measurement-noise seed rule (family tag `N`) and the GT/y identity checks follow D1.
+>    - **Generation.** FAST-DIPS ImageNet, exactly D1's configuration and checkpoint, 64 runs per image, seeds `XP|FAST|imagenet_n|<uid>|<r>`. Order: runs 0–15 on all images, then runs 16–63. 2-root replay of D1 first.
+>    - **Scoring.** Labels as D1 (GT for evaluation only); G1 decisions for every candidate; XP-C3 prior decisions if they exist.
+>    - **Seal.** Runs 4–63 stay sealed until the registry lists `v5` as registered or declined, or until Nov 4, 12:00 ET.
+>    - **Frozen hypotheses.** Protocol v1 at `c598176`, τ = 0.0500829, G1, M = 2:
+>      - **N-H1a:** on runs 0–15 with N_MAX = 16, gain ≥ −0.01;
+>      - **N-H1b:** on runs 0–63 with N_MAX = 64, **gain < −0.01** (H1 fails again);
+>      - **N-H4:** at both budgets, unflagged success ≥ answered success + 0.05.
+>    - **Planner forecasts (population transfer).** Registered now in `out/XP_N_PLANNER_FORECAST.json`. Predictive 95% intervals for a new 100-image panel:
+>      - **gain at N_MAX = 16:** +0.3 [−3.6, +4.2], so N-H1a fails with probability ≈ 0.25 by sampling alone;
+>      - **gain at N_MAX = 64:** −3.4 [−7.8, +0.9];
+>      - **gain with a label-free τ computed on D1 runs 0–3 (0.0504344):** +0.3 [−2.0, +2.6];
+>      - **share of images with no orbit-GOOD run:** 25% [13, 37] at K = 16 and 22% [11, 33] at K = 64;
+>      - **partial-orbit share of O_orbit − E1 at K = 64:** below 1 point.
+>    - **Optional theory forecast `v5`.** The v2 model code generalized to any 100-image FAST ImageNet panel, forecasting runs 0–3 → K ∈ {4, 8, 16, 32, 64} for E0, E1, O_raw and O_orbit with the four variants. The **code** is frozen (commit and SHA) by **Nov 2, 12:00 ET**, before any XP-N run exists. The planner then runs it unchanged on the released runs 0–3 and registers the output before the unseal. Without frozen code in time, XP-N goes ahead with no forecast test.
+>    - **Cap.** 20 GPU-h, separate from the A12 and tail caps; the project cap of 400 GPU-h binds. 6,400 runs are about 14 GPU-h at the G1a/G1b rate.
+>    - **Priority.** After the Nov 4 CPU items; alongside XP-I2; before XP-K.
+>    - **Data cut.** Runs 0–15 scored by **Nov 5, 12:00 ET** (main text); runs 16–63 by Nov 8 (main text if in time, otherwise supplement).
+>    - **Return: CP-N** (≤ 20 lines), with every hypothesis and forecast outcome, strings and decisions copied to `theory_inputs/`. The planner reproduces it.
+> 6. **Executor requests (CPU).**
+>    - The XP-I per-particle metric table: `image_id, particle, label, PSNR, SSIM, VGG-LPIPS, rho, face_choice, face_margin`. It is evaluation data only. Due by Nov 4 so the planner can reproduce the intervals.
+>    - The Nov 4 items of round 11 are unchanged: the unsolved-image PNGs and A9.2(d).
+> 7. **Paper consequences.**
+>    - Selection and its predictability lead; stopping is presented as conditional; coverage is the limit.
+>    - The gains are reported with their intervals.
+>    - Item 2's analyses are labeled exploratory.
+>    - No matched-compute claim is made.
+
+**Status:** FROZEN v1.1 with amendments A1–A16 (planner, 2026-10-31).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

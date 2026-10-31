@@ -1,0 +1,139 @@
+{
+ "status": "EXPLORATORY_POST_HOC_FRONTIER_ON_SEEN_PANEL",
+ "panel": "XP-D4 64 runs, FAST-DIPS ImageNet, 100 images (strings 7f162733..., G1 cbf2a1cc...)",
+ "rule": "frozen protocol v1, M=2, tau 0.0500829, G1 orientation; N_MAX varied; runs drawn without replacement from the 64 available",
+ "by_nmax": {
+  "2": {
+   "success_all": 0.44018749999999995,
+   "runs_mean": 2.0,
+   "fixed_at_equal_mean_runs": 0.4407490079365079,
+   "gain_vs_fixed_equal_runs": -0.0005615079365079434,
+   "fixed_at_nmax": 0.4407490079365079,
+   "oracle_orbit_at_nmax": 0.5088244047619048,
+   "flag_c_expected_count": 11.765500000000003,
+   "flag_c_on_never_orbit_panel": 1.8552499999999998,
+   "success_unflagged": 0.6038215426210067,
+   "success_given_not_flag_c": 0.47006556392340865
+  },
+  "3": {
+   "success_all": 0.45762749999999996,
+   "runs_mean": 2.2540199999999997,
+   "fixed_at_equal_mean_runs": 0.4509843929819508,
+   "gain_vs_fixed_equal_runs": 0.006643107018049155,
+   "fixed_at_nmax": 0.48104262672811055,
+   "oracle_orbit_at_nmax": 0.5614796947004609,
+   "flag_c_expected_count": 8.973,
+   "flag_c_on_never_orbit_panel": 1.73775,
+   "success_unflagged": 0.6115317916807257,
+   "success_given_not_flag_c": 0.47766871367835917
+  },
+  "4": {
+   "success_all": 0.4659624999999999,
+   "runs_mean": 2.4272925,
+   "fixed_at_equal_mean_runs": 0.45796616904401877,
+   "gain_vs_fixed_equal_runs": 0.007996330955981124,
+   "fixed_at_nmax": 0.5073126621087356,
+   "oracle_orbit_at_nmax": 0.5961529393618897,
+   "flag_c_expected_count": 7.3862499999999995,
+   "flag_c_on_never_orbit_panel": 1.6655,
+   "success_unflagged": 0.6135250800015422,
+   "success_given_not_flag_c": 0.48081413397038775
+  },
+  "6": {
+   "success_all": 0.47324999999999995,
+   "runs_mean": 2.6775849999999997,
+   "fixed_at_equal_mean_runs": 0.46805135962541594,
+   "gain_vs_fixed_equal_runs": 0.005198640374584007,
+   "fixed_at_nmax": 0.5410053109083894,
+   "oracle_orbit_at_nmax": 0.6403218318559217,
+   "flag_c_expected_count": 5.703250000000001,
+   "flag_c_on_never_orbit_panel": 1.5474999999999999,
+   "success_unflagged": 0.6148606693927003,
+   "success_given_not_flag_c": 0.4837070206555369
+  },
+  "8": {
+   "success_all": 0.4767824999999999,
+   "runs_mean": 2.8638099999999995,
+   "fixed_at_equal_mean_runs": 0.47555503878488214,
+   "gain_vs_fixed_equal_runs": 0.0012274612151177422,
+   "fixed_at_nmax": 0.5624561843234774,
+   "oracle_orbit_at_nmax": 0.6675701893657761,
+   "flag_c_expected_count": 4.7924999999999995,
+   "flag_c_on_never_orbit_panel": 1.435,
+   "success_unflagged": 0.6155017477534243,
+   "success_given_not_flag_c": 0.48504844681353887
+  },
+  "12": {
+   "success_all": 0.4801149999999999,
+   "runs_mean": 3.1493449999999994,
+   "fixed_at_equal_mean_runs": 0.48496592516202996,
+   "gain_vs_fixed_equal_runs": -0.004850925162030062,
+   "fixed_at_nmax": 0.5891322663833981,
+   "oracle_orbit_at_nmax": 0.69989079879033,
+   "flag_c_expected_count": 3.78025,
+   "flag_c_on_never_orbit_panel": 1.27075,
+   "success_unflagged": 0.6171959330383142,
+   "success_given_not_flag_c": 0.4866386578639001
+  },
+  "16": {
+   "success_all": 0.48205249999999994,
+   "runs_mean": 3.3791249999999997,
+   "fixed_at_equal_mean_runs": 0.49100225389179003,
+   "gain_vs_fixed_equal_runs": -0.008949753891790091,
+   "fixed_at_nmax": 0.6055712838376013,
+   "oracle_orbit_at_nmax": 0.7190460030149023,
+   "flag_c_expected_count": 3.19575,
+   "flag_c_on_never_orbit_panel": 1.16375,
+   "success_unflagged": 0.6179589999741767,
+   "success_given_not_flag_c": 0.4877910835526333
+  },
+  "24": {
+   "success_all": 0.4843449999999999,
+   "runs_mean": 3.7573299999999996,
+   "fixed_at_equal_mean_runs": 0.5009377126229193,
+   "gain_vs_fixed_equal_runs": -0.016592712622919392,
+   "fixed_at_nmax": 0.6250397043491573,
+   "oracle_orbit_at_nmax": 0.7418554081979771,
+   "flag_c_expected_count": 2.48925,
+   "flag_c_on_never_orbit_panel": 1.05275,
+   "success_unflagged": 0.6205959479058321,
+   "success_given_not_flag_c": 0.48978958730191285
+  },
+  "32": {
+   "success_all": 0.4861249999999999,
+   "runs_mean": 4.07365,
+   "fixed_at_equal_mean_runs": 0.5087144310937539,
+   "gain_vs_fixed_equal_runs": -0.022589431093753998,
+   "fixed_at_nmax": 0.6357475208967555,
+   "oracle_orbit_at_nmax": 0.7553987846001248,
+   "flag_c_expected_count": 2.0180000000000002,
+   "flag_c_on_never_orbit_panel": 1.01325,
+   "success_unflagged": 0.6236632039365774,
+   "success_given_not_flag_c": 0.49173062399216183
+  },
+  "48": {
+   "success_all": 0.48915499999999995,
+   "runs_mean": 4.5987325,
+   "fixed_at_equal_mean_runs": 0.5187082445774727,
+   "gain_vs_fixed_equal_runs": -0.029553244577472715,
+   "fixed_at_nmax": 0.645972756702097,
+   "oracle_orbit_at_nmax": 0.7709466901638631,
+   "flag_c_expected_count": 1.38575,
+   "flag_c_on_never_orbit_panel": 1.0,
+   "success_unflagged": 0.6278919959612482,
+   "success_given_not_flag_c": 0.4948676281571882
+  },
+  "64": {
+   "success_all": 0.49186749999999996,
+   "runs_mean": 4.996737499999999,
+   "fixed_at_equal_mean_runs": 0.5262834117856493,
+   "gain_vs_fixed_equal_runs": -0.034415911785649345,
+   "fixed_at_nmax": 0.65,
+   "oracle_orbit_at_nmax": 0.78,
+   "flag_c_expected_count": 1.0,
+   "flag_c_on_never_orbit_panel": 1.0,
+   "success_unflagged": 0.6331677865420197,
+   "success_given_not_flag_c": 0.4968358585858586
+  }
+ }
+}

@@ -1,0 +1,5 @@
+N_MAX=  4 success=0.4829 runs=2.882 fixed_E1_eq=0.4763 gain=+0.0066
+N_MAX=  8 success=0.5072 runs=4.086 fixed_E1_eq=0.5089 gain=-0.0018
+N_MAX= 16 success=0.5207 runs=5.874 fixed_E1_eq=0.5392 gain=-0.0184
+N_MAX= 32 success=0.5275 runs=8.682 fixed_E1_eq=0.5680 gain=-0.0406
+N_MAX= 64 success=0.5304 runs=13.222 fixed_E1_eq=0.5949 gain=-0.0645

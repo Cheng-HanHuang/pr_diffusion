@@ -1,0 +1,68 @@
+{
+ "B22": {
+  "n": 100,
+  "native": 0.855,
+  "E0": 0.9,
+  "E1": 0.91,
+  "E1_each_particle_mean": 0.865,
+  "O_raw4": 0.91,
+  "O_orbit4": 0.92
+ },
+ "DEV80": {
+  "n": 80,
+  "native": 0.709375,
+  "E0": 0.7375,
+  "E1": 0.7625,
+  "E1_each_particle_mean": 0.728125,
+  "O_raw4": 0.7375,
+  "O_orbit4": 0.7625
+ },
+ "ALL": {
+  "n": 180,
+  "native": 0.7902777777777777,
+  "E0": 0.8277777777777777,
+  "E1": 0.8444444444444444,
+  "E1_each_particle_mean": 0.8041666666666667,
+  "O_raw4": 0.8333333333333334,
+  "O_orbit4": 0.85
+ },
+ "image_level": {
+  "all4_good": 135,
+  "all4_E1_good": 135,
+  "none_good_any_orientation": 27,
+  "mixed": 18,
+  "mixed_E1_good": 17,
+  "mixed_E0_good": 14,
+  "mixed_native_expected_good": 7.25,
+  "mixed_E1_each_expected_good": 9.75
+ },
+ "delta_E1_minus_native": {
+  "pos": 17,
+  "zero": 162,
+  "neg": 1,
+  "sum_pos": 10.25,
+  "sum_neg": -0.5
+ },
+ "E1_vs_E0": {
+  "orientation_fixes": 3,
+  "orientation_breaks": 0,
+  "picked_label_counts": {
+   "G": 149,
+   "I": 21,
+   "C": 7,
+   "O_g": 3
+  }
+ },
+ "gap_decomposition": {
+  "O_orbit": 0.85,
+  "picked_orbit_good": 0.8444444444444444,
+  "E1": 0.8444444444444444,
+  "selection_loss": 0.005555555555555536,
+  "orientation_loss": 0.0
+ },
+ "boot_E1_minus_native_GOOD": {
+  "mean": 0.05416666666666667,
+  "lo": 0.02638888888888889,
+  "hi": 0.08472222222222223
+ }
+}

@@ -1,0 +1,254 @@
+{
+ "status": "EXPLORATORY_POST_HOC_LABEL_FREE_TAU",
+ "rule": "self_mad3 of protocol v1 (frozen c598176): median + 3*1.4826*MAD of the per-image minimum residual over runs 0-3 (label-free). own = computed on the evaluated cohort itself; cross = computed on the other cohort (B22<->DEV80) or the other half (G5 split by sha256(image_id) mod 2) and applied unchanged",
+ "labeled_tau": {
+  "G2_0p02": 0.02223162092268467,
+  "G2_0p10": 0.09808984324336052
+ },
+ "scaled_tau_registered": {
+  "G2_0p02": 0.02003316,
+  "G2_0p10": 0.1001658
+ },
+ "panels": {
+  "G2_0p02": {
+   "own": {
+    "B22": {
+     "tau": 0.022251045029051682,
+     "success_all": 0.9809599999999999,
+     "runs_mean": 2.983485,
+     "fixed_at_equal_mean_runs": 0.94019716875,
+     "gain_vs_fixed_equal_runs": 0.04076283124999991,
+     "fixed_at_nmax": 0.99,
+     "flag_c_expected_count": 3.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 1
+    },
+    "DEV80": {
+     "tau": 0.023009430983662694,
+     "success_all": 0.790315625,
+     "runs_mean": 3.4129937499999996,
+     "fixed_at_equal_mean_runs": 0.7673553278459821,
+     "gain_vs_fixed_equal_runs": 0.022960297154017817,
+     "fixed_at_nmax": 0.85,
+     "flag_c_expected_count": 6.0,
+     "flag_c_on_never_good_panel": 5.0,
+     "n_unsolved_panel": 12
+    }
+   },
+   "cross": {
+    "B22": {
+     "tau": 0.023009430983662694,
+     "success_all": 0.96041,
+     "runs_mean": 2.6363325,
+     "fixed_at_equal_mean_runs": 0.9180661968749999,
+     "gain_vs_fixed_equal_runs": 0.04234380312500008,
+     "fixed_at_nmax": 0.99,
+     "flag_c_expected_count": 1.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 1
+    },
+    "DEV80": {
+     "tau": 0.022251045029051682,
+     "success_all": 0.8326125000000001,
+     "runs_mean": 4.135990625,
+     "fixed_at_equal_mean_runs": 0.7942283537946428,
+     "gain_vs_fixed_equal_runs": 0.03838414620535724,
+     "fixed_at_nmax": 0.85,
+     "flag_c_expected_count": 9.0,
+     "flag_c_on_never_good_panel": 6.0,
+     "n_unsolved_panel": 12
+    }
+   },
+   "own_pooled": {
+    "gain": 0.03285059387400787,
+    "runs": 3.1743777777777775,
+    "success": 0.8962291666666666
+   },
+   "cross_pooled": {
+    "gain": 0.04058395560515882,
+    "runs": 3.302847222222222,
+    "success": 0.9036111111111111
+   }
+  },
+  "G2_0p10": {
+   "own": {
+    "B22": {
+     "tau": 0.09867694148421291,
+     "success_all": 0.7219725,
+     "runs_mean": 2.1679525,
+     "fixed_at_equal_mean_runs": 0.7106656415178572,
+     "gain_vs_fixed_equal_runs": 0.011306858482142856,
+     "fixed_at_nmax": 0.75,
+     "flag_c_expected_count": 0.0,
+     "flag_c_on_never_good_panel": 0.0,
+     "n_unsolved_panel": 15
+    },
+    "DEV80": {
+     "tau": 0.09922820260897283,
+     "success_all": 0.465440625,
+     "runs_mean": 2.32331875,
+     "fixed_at_equal_mean_runs": 0.4541155636160714,
+     "gain_vs_fixed_equal_runs": 0.01132506138392858,
+     "fixed_at_nmax": 0.5125,
+     "flag_c_expected_count": 1.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 31
+    }
+   },
+   "cross": {
+    "B22": {
+     "tau": 0.09922820260897283,
+     "success_all": 0.7210999999999999,
+     "runs_mean": 2.1630325,
+     "fixed_at_equal_mean_runs": 0.7105101343750001,
+     "gain_vs_fixed_equal_runs": 0.01058986562499975,
+     "fixed_at_nmax": 0.75,
+     "flag_c_expected_count": 0.0,
+     "flag_c_on_never_good_panel": 0.0,
+     "n_unsolved_panel": 15
+    },
+    "DEV80": {
+     "tau": 0.09867694148421291,
+     "success_all": 0.46628437500000003,
+     "runs_mean": 2.4770624999999997,
+     "fixed_at_equal_mean_runs": 0.459469140625,
+     "gain_vs_fixed_equal_runs": 0.006815234375000034,
+     "fixed_at_nmax": 0.5125,
+     "flag_c_expected_count": 2.0,
+     "flag_c_on_never_good_panel": 2.0,
+     "n_unsolved_panel": 31
+    }
+   },
+   "own_pooled": {
+    "gain": 0.011314948660714289,
+    "runs": 2.237004166666667,
+    "success": 0.6079583333333334
+   },
+   "cross_pooled": {
+    "gain": 0.008912251736110988,
+    "runs": 2.3026013888888888,
+    "success": 0.607848611111111
+   }
+  },
+  "G4": {
+   "own": {
+    "B22": {
+     "tau": 0.04756278346106416,
+     "success_all": 0.978875,
+     "runs_mean": 2.4922025,
+     "fixed_at_equal_mean_runs": 0.9476888325892856,
+     "gain_vs_fixed_equal_runs": 0.03118616741071445,
+     "fixed_at_nmax": 0.99,
+     "flag_c_expected_count": 1.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 1
+    },
+    "DEV80": {
+     "tau": 0.04763032664805651,
+     "success_all": 0.8905375,
+     "runs_mean": 3.192334375,
+     "fixed_at_equal_mean_runs": 0.8410036049107141,
+     "gain_vs_fixed_equal_runs": 0.04953389508928585,
+     "fixed_at_nmax": 0.9125,
+     "flag_c_expected_count": 4.0,
+     "flag_c_on_never_good_panel": 2.0,
+     "n_unsolved_panel": 5
+    }
+   },
+   "cross": {
+    "B22": {
+     "tau": 0.04763032664805651,
+     "success_all": 0.9768950000000001,
+     "runs_mean": 2.4624574999999997,
+     "fixed_at_equal_mean_runs": 0.9467061852678571,
+     "gain_vs_fixed_equal_runs": 0.030188814732142966,
+     "fixed_at_nmax": 0.99,
+     "flag_c_expected_count": 1.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 1
+    },
+    "DEV80": {
+     "tau": 0.04756278346106416,
+     "success_all": 0.8947249999999999,
+     "runs_mean": 3.465434375,
+     "fixed_at_equal_mean_runs": 0.8497818191964286,
+     "gain_vs_fixed_equal_runs": 0.04494318080357129,
+     "fixed_at_nmax": 0.9125,
+     "flag_c_expected_count": 6.0,
+     "flag_c_on_never_good_panel": 2.0,
+     "n_unsolved_panel": 5
+    }
+   },
+   "own_pooled": {
+    "gain": 0.03934071304563507,
+    "runs": 2.803372222222222,
+    "success": 0.9396138888888887
+   },
+   "cross_pooled": {
+    "gain": 0.03674631076388889,
+    "runs": 2.908225,
+    "success": 0.940375
+   }
+  },
+  "G5": {
+   "own": {
+    "H0": {
+     "tau": 0.04841171196587389,
+     "success_all": 0.5742826086956522,
+     "runs_mean": 2.381195652173913,
+     "fixed_at_equal_mean_runs": 0.5721073707129355,
+     "gain_vs_fixed_equal_runs": 0.0021752379827166823,
+     "fixed_at_nmax": 0.7608695652173914,
+     "flag_c_expected_count": 1.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 7
+    },
+    "H1": {
+     "tau": 0.04817311730645606,
+     "success_all": 0.6884398148148149,
+     "runs_mean": 2.319449074074074,
+     "fixed_at_equal_mean_runs": 0.688198363707623,
+     "gain_vs_fixed_equal_runs": 0.00024145110719187013,
+     "fixed_at_nmax": 0.7777777777777778,
+     "flag_c_expected_count": 0.0,
+     "flag_c_on_never_good_panel": 0.0,
+     "n_unsolved_panel": 11
+    }
+   },
+   "cross": {
+    "H0": {
+     "tau": 0.04817311730645606,
+     "success_all": 0.5805054347826086,
+     "runs_mean": 2.508157608695652,
+     "fixed_at_equal_mean_runs": 0.5790567635194437,
+     "gain_vs_fixed_equal_runs": 0.0014486712631649468,
+     "fixed_at_nmax": 0.7608695652173914,
+     "flag_c_expected_count": 1.0,
+     "flag_c_on_never_good_panel": 1.0,
+     "n_unsolved_panel": 7
+    },
+    "H1": {
+     "tau": 0.04841171196587389,
+     "success_all": 0.6859212962962963,
+     "runs_mean": 2.168148148148148,
+     "fixed_at_equal_mean_runs": 0.6801930237115422,
+     "gain_vs_fixed_equal_runs": 0.005728272584754057,
+     "fixed_at_nmax": 0.7777777777777778,
+     "flag_c_expected_count": 0.0,
+     "flag_c_on_never_good_panel": 0.0,
+     "n_unsolved_panel": 11
+    }
+   },
+   "own_pooled": {
+    "gain": 0.0011309930699332838,
+    "runs": 2.3478525,
+    "success": 0.6359275
+   },
+   "cross_pooled": {
+    "gain": 0.003759655976823066,
+    "runs": 2.3245525,
+    "success": 0.6374299999999999
+   }
+  }
+ }
+}

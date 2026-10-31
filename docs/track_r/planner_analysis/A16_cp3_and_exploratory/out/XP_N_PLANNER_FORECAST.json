@@ -1,0 +1,58 @@
+{
+ "status": "PLANNER_POPULATION_TRANSFER_FORECAST_FOR_XP_N (registered in prereg A16 before any XP-N image, measurement or run exists)",
+ "assumption": "the 100 XP-N images are exchangeable with the 100 D1/XP-D4 images; predictive interval for a new 100-image panel = estimate +/- 1.96*sqrt(2)*image-bootstrap SE (estimate and new panel both sampled)",
+ "source_panel": "XP-D4 64-run strings 7f162733..., G1 cbf2a1cc... (runs 0-15 for N_MAX=16)",
+ "P_N1": {
+  "what": "protocol v1 gain vs fixed E1 at equal mean runs, N_MAX=16 on runs 0-15, tau 0.0500829",
+  "central": 0.0033265974759614236,
+  "pred95": [
+   -0.035732383424890476,
+   0.042385578376813324
+  ],
+  "P_gain_below_minus_0p01": 0.2518320767767831
+ },
+ "P_N2": {
+  "what": "same at N_MAX=64 on runs 0-63",
+  "central": -0.034415911785649345,
+  "pred95": [
+   -0.07803125877232961,
+   0.009199435201030913
+  ],
+  "P_gain_below_minus_0p01": 0.8637251597184394
+ },
+ "P_N3": {
+  "what": "N_MAX=16 with the label-free tau computed on D1 runs 0-3 (self_mad3 = 0.050434426327793; image-disjoint calibration)",
+  "central": 0.0029699786755952307,
+  "pred95": [
+   -0.020076967169672548,
+   0.02601692452086301
+  ],
+  "P_gain_below_minus_0p01": 0.1350100313522974
+ },
+ "P_N4": {
+  "what": "share of images with no orbit-GOOD run",
+  "K16": {
+   "central": 0.25,
+   "pred95": [
+    0.13,
+    0.37
+   ]
+  },
+  "K64": {
+   "central": 0.22,
+   "pred95": [
+    0.1052,
+    0.3348
+   ]
+  }
+ },
+ "P_N5": {
+  "what": "partial-orbit (O_p) contribution to O_orbit - E1 at K=64",
+  "prediction": "below 0.01"
+ },
+ "P_N6": {
+  "what": "E1 - E0 at K=16 (orientation test gain)",
+  "central": 0.16970000000000002,
+  "note": "descriptive target from XP-D4 decomposition; no interval registered"
+ }
+}

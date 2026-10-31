@@ -1,0 +1,116 @@
+{
+ "status": "EXPLORATORY_UNCERTAINTY_STATEMENT",
+ "method": "image bootstrap stratified by cohort, 5000 replicates (seed 7); per-image protocol values from the frozen code with its own seed (20261029, fresh per cohort, file order), so point estimates equal the registered outputs; tau held at its panel value",
+ "panels": [
+  {
+   "panel": "B16_SITCOM_FFHQ_16",
+   "nmax": 16,
+   "n_images": 180,
+   "gain": -0.004304,
+   "se": 0.010127,
+   "ci95": [
+    -0.022388,
+    0.017225
+   ]
+  },
+  {
+   "panel": "D1P2_FAST_IN_16",
+   "nmax": 16,
+   "n_images": 100,
+   "gain": 0.003327,
+   "se": 0.014091,
+   "ci95": [
+    -0.027246,
+    0.028277
+   ]
+  },
+  {
+   "panel": "D4_FAST_IN_32",
+   "nmax": 32,
+   "n_images": 100,
+   "gain": -0.017913,
+   "se": 0.012365,
+   "ci95": [
+    -0.04236,
+    0.006502
+   ]
+  },
+  {
+   "panel": "D4_FAST_IN_64",
+   "nmax": 64,
+   "n_images": 100,
+   "gain": -0.034416,
+   "se": 0.015735,
+   "ci95": [
+    -0.06541,
+    -0.002926
+   ]
+  },
+  {
+   "panel": "DEV_FAST_FFHQ_64",
+   "nmax": 64,
+   "n_images": 180,
+   "gain": 0.022041,
+   "se": 0.008768,
+   "ci95": [
+    0.006497,
+    0.040634
+   ]
+  },
+  {
+   "panel": "F8_DAPS_FFHQ_8",
+   "nmax": 8,
+   "n_images": 180,
+   "gain": 0.033794,
+   "se": 0.006592,
+   "ci95": [
+    0.021065,
+    0.04705
+   ]
+  },
+  {
+   "panel": "XPG_0p02_FAST_FFHQ_8",
+   "nmax": 8,
+   "n_images": 180,
+   "gain": 0.0,
+   "se": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "panel": "XPG_0p10_FAST_FFHQ_8",
+   "nmax": 8,
+   "n_images": 180,
+   "gain": 0.007783,
+   "se": 0.002502,
+   "ci95": [
+    0.002894,
+    0.012781
+   ]
+  },
+  {
+   "panel": "G4_DAPS4K_FFHQ_8",
+   "nmax": 8,
+   "n_images": 180,
+   "gain": 0.039341,
+   "se": 0.005723,
+   "ci95": [
+    0.028346,
+    0.050879
+   ]
+  },
+  {
+   "panel": "G5_DAPS4K_IN_8",
+   "nmax": 8,
+   "n_images": 100,
+   "gain": 0.001043,
+   "se": 0.008724,
+   "ci95": [
+    -0.01611,
+    0.018027
+   ]
+  }
+ ]
+}
