@@ -71,6 +71,9 @@ class A15Tests(unittest.TestCase):
   self.assertIn('checked[stage]=(len(strings),len(clips))',source)
   self.assertIn('digest=build_digest(desc,summary,timing)',source)
   self.assertIn('oracle=a86(summary)',source)
+  self.assertIn('comp=compute_labeled_table(desc,summary,timing)',source)
+  self.assertIn('LINEAR_EXTRAPOLATION_NOT_DIRECT_POLICY_TIMING_EXCLUDES_CLIP',source)
+  self.assertIn('XP_A17_CP3_COMPUTE_LABELED_POLICY_TABLE.json',source)
   self.assertIn('safe_timing=json.loads(json.dumps(timing))',source)
   self.assertIn('item["attempt_run"]=oldpath.parent.name',source)
   self.assertEqual(release.files_for("G4").name,
