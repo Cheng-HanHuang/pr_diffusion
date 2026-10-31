@@ -13,7 +13,8 @@ The design choices follow from what the residual can and cannot tell.
 
 \paragraph{The residual compares runs; it does not certify them.}
 Within an image, a \good run has a smaller residual than an \incons run in $570$ of $571$ pairs, and than a \cons run in $200$ of $205$\claim{C-A7}.
-The comparison is sharp because two runs of the same image are scored against the same noise, which cancels: a \cons run of SITCOM fits worse than a \good run of the same image by a median of only $0.7\%$ of $\sigma$, yet the order is systematic\claim{C-A8}.
+The comparison is sharp because two runs of the same image are scored against the same noise $\eta$: with $e_j=A(\hat x_j)-A(\xs)$, $m(\rho_i^2-\rho_j^2)=\|e_i\|^2-\|e_j\|^2-2\langle\eta,e_i-e_j\rangle$, so the noise energy $m\sigma^2$ cancels and only a cross term with the difference of the two fits remains.
+A \cons run of SITCOM fits worse than a \good run of the same image by a median of only $0.7\%$ of $\sigma$, yet the order is systematic\claim{C-A8}.
 Absolute residual levels, in contrast, are set by the solver.
 With signed measurements the ground truth has $\rho(\xs)=\sigma$ to within $0.3\%$, but the \good runs of DAPS and SITCOM, whose data terms are overweighted (\cref{sec:setup}), have median residuals of $0.946\sigma$ and $0.884\sigma$, against $0.997\sigma$ for FAST-DIPS\claim{C-A6}.
 A threshold at the noise level would accept most of their failed runs, and one fitted to their \good runs would reject the ground truth.
@@ -44,7 +45,7 @@ With $M=2$ and budget $N_{\max}=N$,
 \end{proposition}
 The proof rests on one fact: the first two passing runs are independent draws from the passing law, whenever they arrive (supplement)\claim{C-T12}.
 The consistency rate $s$ thus decides how many runs are spent, and $H^+$, how often a consistent run is correct, decides what they buy.
-Heterogeneity of $s$ across images does not by itself make stopping better than a fixed $K$ at equal mean compute; the supplement gives a counterexample.
+Heterogeneity of $s$ across images does not by itself make stopping better than a fixed $K$ at equal mean runs; the supplement gives a counterexample.
 Stopping gains when consistency predicts correctness: when an image's failed runs are \incons rather than \cons.
 On the same $80$ images of cohort~B with four runs each, it gains $4.9$ points over fixed best-of-$K$ at equal mean runs for DAPS, whose failed runs on these images are $12\%$ \cons, and $-0.1$ points for SITCOM, whose failed runs are $60\%$ \cons\claim{C-G2}.
 
@@ -52,7 +53,7 @@ On the same $80$ images of cohort~B with four runs each, it gains $4.9$ points o
 Runs of an image are exchangeable in our data\claim{C-F4}, so random orders of an image's runs simulate sequential sampling.
 On a panel of $n$ runs of which $L\ge M$ pass, the stopping time averages $M(n+1)/(L+1)$ over orders, and the first $M$ passing runs form a uniform $M$-subset of the $L$, so the protocol's value has the same exact subset form as the baselines of \cref{sec:selection}; it agrees with our simulated evaluation to within $3\times10^{-4}$\claim{C-T13}.
 For FAST-DIPS on FFHQ with $64$ runs per image (\cref{fig:teaser}b), the protocol with $N_{\max}=64$ returns a \good image for $91.3\%$ of the $180$ images at $8.4$ runs per image, against $89.1\%$ for fixed best-of-$K$ at the same mean number of runs and $91.2\%$ for best-of-$16$\claim{C-G1}.
-It beats fixed best-of-$K$ at all $12$ operating points we tried ($M=1,\dots,4$, $\tau_S$ scaled by $0.997$, $1$ and $1.003$), by $0.8$ to $4.7$ points, and stays close to the fixed-$K$ ground-truth orbit oracle at equal mean compute.
+It beats fixed best-of-$K$ at all $12$ operating points we tried ($M=1,\dots,4$, $\tau_S$ scaled by $0.997$, $1$ and $1.003$), by $0.8$ to $4.7$ points, and stays close to the fixed-$K$ ground-truth orbit oracle at equal mean runs.
 $\textsc{flag}_C$ is raised for $8$ images, $6$ of the $7$ that FAST-DIPS never solves; the seventh yields \cons runs\claim{C-G1}\claim{C-F5}.
 These numbers are in-sample: we designed the protocol on these runs.
 
@@ -65,33 +66,35 @@ H4: on ImageNet, outputs without either flag are \good at least five points more
 
 \paragraph{Outcome.}
 With $8$ to $16$ runs, H1 holds on all seven panels\claim{C-G5}\claim{C-G6}\claim{C-G7}\claim{C-G9}.
-The protocol gains where consistency predicts correctness: $3.4$ points for DAPS and $3.9$ for the published DAPS-4K configuration on FFHQ, whose failed runs rarely fit the measurement; on DAPS it is within $0.8$ points of best-of-$8$ at $40\%$ of its runs.
+The protocol gains where consistency predicts correctness: $3.4$ points for DAPS and $3.9$ for the published DAPS-4K configuration on FFHQ, whose failed runs rarely fit the measurement, with image-bootstrap $95\%$ intervals above $+2$ points; on DAPS it is within $0.8$ points of best-of-$8$ at $40\%$ of its runs\claim{C-E5}.
 H2 holds, and a theory note committed before the DAPS panel was scored had predicted a gain of $2$ to $4$ points from the historical runs alone, while overestimating the success levels by $3$ to $6$ points\claim{C-T14}.
-Where failed runs fit the measurement (SITCOM, and FAST-DIPS and DAPS-4K on ImageNet) the gain lies between $-0.4$ and $+0.3$ points: stopping then moves along the fixed-$K$ curve, trading accuracy for compute.
+Where failed runs fit the measurement (SITCOM, and FAST-DIPS and DAPS-4K on ImageNet) the gain lies between $-0.4$ and $+0.3$ points, within intervals of $\pm2$ to $\pm3$: H1 holds as registered, but one panel cannot resolve a one-point loss, and stopping there moves along the fixed-$K$ curve, trading accuracy for compute\claim{C-E5}.
 With $32$ and $64$ runs on ImageNet, H1 fails: the protocol falls $1.8$ and $3.4$ points behind, because the four to six images whose runs almost never pass absorb $40$--$43\%$ of all runs, while the others stop after about three runs and would gain from more; this is the counterexample of the supplement in the data\claim{C-G8}.
+On the same runs, budgets of $3$ to $8$ keep the rule within a point of fixed best-of-$K$, and also requiring a confident orientation before stopping makes it worse ($-1.8$ points at $N_{\max}{=}16$; exploratory, supplement)\claim{C-E2}\claim{C-E3}.
 H4 holds at all three ImageNet budgets ($+12.9$ to $+13.6$ points).
 H3 fails wherever it was tested, so $\textsc{flag}_C$ marks hard images rather than unsolved ones.
-Finally, $\tau_S$ does not scale with the noise level: FAST-DIPS's threshold scaled from $\sigma=0.05$ misses the calibrated one by $10\%$ at $\sigma=0.02$, where the rule then never stops, and by $2\%$ at $\sigma=0.10$; it must be calibrated per noise level\claim{C-G10}.
+Finally, $\tau_S$ does not scale with the noise level: FAST-DIPS's threshold scaled from $\sigma=0.05$ misses the calibrated one by $10\%$ at $\sigma=0.02$, where the rule then never stops and flags every image, and by $2\%$ at $\sigma=0.10$\claim{C-G10}.
+It needs no labels, though: the label-free threshold of a different cohort's four-run pilots lands within $3.5\%$ of the calibrated one at both levels, and with it the protocol gains $4.1$ and $0.9$ points (exploratory)\claim{C-E4}.
 
 \begin{table}[t]
 \centering\footnotesize
 \setlength{\tabcolsep}{1.3pt}
 \begin{tabular}{@{}lccccccc@{}}
 \toprule
- & & \multicolumn{2}{c}{Protocol} & \multicolumn{2}{c}{Fixed best-of-$K$} & & \\
-\cmidrule(lr){3-4}\cmidrule(lr){5-6}
-Panel & $N_{\max}$ & \good & Runs & eq.\ runs & $K{=}N_{\max}$ & $\Oorb$ & $\textsc{flag}_C$ \\
+ & & \multicolumn{3}{c}{Protocol} & \multicolumn{2}{c}{$K{=}N_{\max}$} & \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-7}
+Panel & $N_{\max}$ & \good & Runs & Gain & Fixed & $\Oorb$ & $\textsc{flag}_C$ \\
 \midrule
-FAST, FFHQ$^\dagger$ & 64 & 91.3 & 8.4 & 89.1 & 93.9 & 96.1 & 8 (6) \\
-DAPS, FFHQ & 8 & 93.1 & 3.2 & 89.7 & 93.9 & 94.4 & 11 (5) \\
-DAPS-4K, FF & 8 & 94.0 & 2.8 & 90.0 & \multicolumn{3}{c}{\pending{CP3}} \\
-SITCOM, FFHQ & 16 & 81.9 & 3.3 & 82.3 & 91.1 & 92.2 & 7 (1) \\
-DAPS-4K, IN & 8 & 63.9 & 2.4 & 63.8 & \multicolumn{3}{c}{\pending{CP3}} \\
-FAST, IN & 16 & 51.4 & 3.4 & 51.1 & 65.0 & 75.0 & 3 (1) \\
-FAST, IN & 32 & 49.5 & 4.3 & 51.3 & 63.0 & 75.0 & 3 (1) \\
-FAST, IN & 64 & 49.2 & 5.0 & 52.6 & 65.0 & 78.0 & 1 (1) \\
+FAST, FF$^\dagger$ & 64 & 91.3 & 8.4 & $+2.2{\scriptstyle\pm1.7}$ & 93.9 & 96.1 & 8 (6) \\
+DAPS, FF & 8 & 93.1 & 3.2 & $+3.4{\scriptstyle\pm1.3}$ & 93.9 & 94.4 & 11 (5) \\
+DAPS-4K, FF & 8 & 94.0 & 2.8 & $+3.9{\scriptstyle\pm1.1}$ & 95.6 & 96.7 & 5 (3) \\
+SITCOM, FF & 16 & 81.9 & 3.3 & $-0.4{\scriptstyle\pm2.0}$ & 91.1 & 92.2 & 7 (1) \\
+DAPS-4K, IN & 8 & 63.9 & 2.4 & $+0.1{\scriptstyle\pm1.7}$ & 77.0 & 82.0 & 1 (1) \\
+FAST, IN & 16 & 51.4 & 3.4 & $+0.3{\scriptstyle\pm2.8}$ & 65.0 & 75.0 & 3 (1) \\
+FAST, IN & 32 & 49.5 & 4.3 & $-1.8{\scriptstyle\pm2.4}$ & 63.0 & 75.0 & 3 (1) \\
+FAST, IN & 64 & 49.2 & 5.0 & $-3.4{\scriptstyle\pm3.1}$ & 65.0 & 78.0 & 1 (1) \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{The protocol ($M=2$) against fixed best-of-$K$.} \good: \% of images with a \good output; Runs: mean runs per image. Fixed best-of-$K$ uses $\Eone$ (with an orientation test) or $\Eo$ (without), at the protocol's mean runs and at $K=N_{\max}$, the runs available. $\Oorb$: ground-truth orbit oracle at $N_{\max}$. $\textsc{flag}_C$: flagged images (unsolved among them). $^\dagger$Development data, without the orientation step\claim{C-G1}. FF: FFHQ; FF: FFHQ; IN: ImageNet. The FAST-DIPS noise-level panels ($\sigma=0.02, 0.10$) are in the text.}
+\caption{\textbf{The protocol ($M=2$) against fixed best-of-$K$.} \good: \% of images with a \good output; Runs: mean runs per image. Gain: protocol minus fixed best-of-$K$ at the protocol's mean runs, in points, $\pm$ the half-width of an image-bootstrap $95\%$ interval\claim{C-E5}. Fixed best-of-$K$ uses $\Eone$ (with an orientation test) or $\Eo$ (without). $K{=}N_{\max}$: fixed best-of-$K$ and the ground-truth orbit oracle $\Oorb$ on all runs available. $\textsc{flag}_C$: flagged images (unsolved among them)\claim{C-G9}. $^\dagger$Development data, without the orientation step\claim{C-G1}. FF: FFHQ; IN: ImageNet. The FAST-DIPS noise-level panels ($\sigma=0.02, 0.10$) are in the text.}
 \label{tab:protocol}
 \end{table}

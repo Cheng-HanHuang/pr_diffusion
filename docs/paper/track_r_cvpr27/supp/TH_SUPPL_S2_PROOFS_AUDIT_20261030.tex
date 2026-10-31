@@ -125,15 +125,15 @@ cannot replace the \emph{on-trajectory mean-map defects} here.
 Its data-gradient Langevin updates and isotropic innovations are
 structurally equivariant if the denoiser and gradient plumbing are;
 the MCMC path also contains deterministic reverse-diffusion segments
-and a NaN fallback. The planner-confirmed final noise scale is zero,
+and a NaN fallback. The final noise scale in the pinned source is zero,
 so the returned image is the final Langevin iterate, not a
 new nonzero-noise perturbation. A path-KL proof must account for every
 nondegenerate Langevin microstep and intervening deterministic map.
 \item \textbf{SITCOM-ODE, pinned $\texttt{275ab67}$.}
 The audited phase-retrieval implementation uses ODE score steps,
 an SSE-gradient correction, inner optimization and Langevin noise;
-it is not interchangeable with the repository's lightweight
-\texttt{prdiffusion/algorithms/sitcom.py}. Its terminal scheduled
+it is not interchangeable with the lightweight SITCOM
+reimplementation in our code base. Its terminal scheduled
 noise scale is likewise zero and it returns the last inner
 Langevin iterate. Equivariance requires transformed optimizer states,
 initializations, tie rules, and denoiser-Jacobian interactions.
@@ -171,12 +171,13 @@ symmetry, because the mask/reference does not transform with $x$;
 these are different measurement operators with separate
 identifiability conditions.
 
-\paragraph{Remaining source/figure checks for paper integration.}
-The authoritative relocated symmetry source still contains pending
-editorial markers for XP--C2 equivariance-defect profiles, an
-ImageNet orbit-error count, a generic-detector result, and the
-exact FFHQ prompt quotation. These are \emph{not inferred or filled}
-from the mathematical arguments above. The planner should resolve
-them from registered empirical outputs or delete the dependent
-sentences before camera-ready integration. All proof statements above
-are valid independently of those pending measurements.
+% [planner integration, 2026-10-31: internal note removed from the rendered supplement; kept here as a comment]
+% \paragraph{Remaining source/figure checks for paper integration.}
+% The authoritative relocated symmetry source still contains pending
+% editorial markers for XP--C2 equivariance-defect profiles, an
+% ImageNet orbit-error count, a generic-detector result, and the
+% exact FFHQ prompt quotation. These are \emph{not inferred or filled}
+% from the mathematical arguments above. The planner should resolve
+% them from registered empirical outputs or delete the dependent
+% sentences before camera-ready integration. All proof statements above
+% are valid independently of those pending measurements.

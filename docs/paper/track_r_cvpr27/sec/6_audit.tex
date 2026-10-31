@@ -44,10 +44,16 @@ FAST (A+B) & 4 & 23.81 & 29.01 & 29.00 & 29.18 & 96.8\% & 155 & 156 \\
 
 \paragraph{ImageNet: orientation and coverage both bite.}
 For FAST-DIPS with $16$ runs per image, the share of images with a \good output is $50\%$ for the residual pick, $65\%$ after the generic orientation test, $70\%$ for $\Oraw$ and $75\%$ for $\Oorb$\claim{C-R4}: the test closes $60\%$ of the gap to the orbit oracle, and a quarter of the images are not solved in any orientation.
-Under the published protocol (DAPS-4K; per-metric best of four against the ground truth), DAPS reaches $22.3$\,dB and SSIM $0.52$ on these images (\cref{tab:imagenet})\claim{C-A9}, below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above an independent rerun ($20.98$\,dB~\cite{kocabas2026pcdaps})\claim{C-P2} \pending{A8.6 comparability checks}.
+Under the published protocol (DAPS-4K; per-metric best of four against the ground truth), DAPS reaches $22.3$\,dB and SSIM $0.52$ on these images (\cref{tab:imagenet})\claim{C-A9}, below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above an independent rerun ($20.98$\,dB~\cite{kocabas2026pcdaps})\claim{C-P2}, although our ground truth and measurements are identical to those of the DAPS code for all $100$ images; best of eight reaches $24.1$\,dB\claim{C-A12}.
 Of the $4.2$\,dB that the per-metric oracle adds to the first run, the residual pick recovers $1.9$\,dB, and searching each run's orbit would add $2.1$\,dB more: no measurement-based selector can see an orbit error (\cref{sec:setup}), and on ImageNet such errors are common.
 SITCOM, run with its FFHQ settings and the ImageNet model, follows the same pattern at a lower level\claim{C-A10}.
-\pending{$\Eone$ and protocol columns for DAPS-4K and SITCOM (secondary panels); VGG LPIPS.}
+\pending{$\Eone$ columns for DAPS-4K and SITCOM; VGG LPIPS.}
+
+\paragraph{Where the ground-truth-free pick still loses.}
+We split the gap between $\Eone$ and $\Oorb$ into a selection part, where the residual picks a \cons or \incons run although an orbit-\good run exists, and an orientation part, where the pick is orbit-\good but the test leaves it, or turns it, upside down (exploratory)\claim{C-E1}.
+On FFHQ the gap is at most $1.1$ points for every solver with $8$ to $16$ runs, PC-DAPS included.
+On ImageNet it is $5.0$ points for DAPS-4K at $K{=}8$, $4.0$ of them orientation, and $13.0$ points for FAST-DIPS at $K{=}64$: $8.0$ from \cons runs that outrank a \good one and $5.0$ from orientation.
+Partial orbit errors, the only ones a channel-wise correction could fix, cost at most $0.6$ points on any panel; a better orientation scorer could recover at most $4$ to $5$ points on ImageNet and nothing on FFHQ.
 
 \begin{table}[t]
 \centering\small
@@ -67,8 +73,9 @@ SITCOM & 14.85 / .228 & 16.31 / .270 & 18.24 / .317 & 20.02 / .359 \\
 \end{table}
 
 \paragraph{PC-DAPS on the same measurements.}
-PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by four interacting particles pruned by prior consistency.
-On our $180$ FFHQ measurements, its four particles, scored by the mean over particles as it reports them, give $28.07$\,dB and a \good image for $79.0\%$ of the images; choosing among the same particles by residual and orientation test gives $29.10$\,dB and $84.4\%$ at no extra cost, against $25.22$\,dB and $68.3\%$ for one DAPS-4K run\claim{C-X1}.
-The ground-truth-free selection thus composes with a stronger sampler.
-A matched-compute comparison with the protocol is not possible: the protocol needs at least two runs, while one PC-DAPS bag costs about as much as one DAPS run (at least $1{,}928$ denoiser calls) \pending{resolved NFE and clean wall-clock per bag and per run (A15.3)}.
+PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by four interacting particles pruned by prior consistency, and reports the mean of its particles' metrics, \ie the quality of a random particle.
+On our $180$ FFHQ measurements that is $28.07$\,dB and a \good image for $79.0\%$ of the images; choosing among the same particles by residual and orientation test gives $29.10$\,dB and $84.4\%$ at no extra cost, with paired $95\%$ intervals of $[+0.54,+1.61]$\,dB and $[+2.8,+8.5]$ points for the difference\claim{C-X1}.
+The gain comes from the $18$ images whose bag mixes \good and wrong particles: the selection keeps a \good particle in $17$ of them, against $7.25$ expected at random, and ends one image short of the four-particle orbit oracle\claim{C-X3}.
+The particles interact, so a bag is not four independent runs and the stopping rule does not apply within it; the selection does.
+For scale, a bag costs $1{,}920$ nominal denoiser calls and $30.6$\,s on a clean GPU, against $4{,}000$ calls and $66.0$\,s for a DAPS-4K run, which reaches $84.4\%$ only with two runs and the same selection (compute-labeled, not matched)\claim{C-X2}.
 \pending{XP-I2: the same on ImageNet; supplement: $\sigma\in\{0.02,0.10\}$, the $512$ canvas, DPS.}

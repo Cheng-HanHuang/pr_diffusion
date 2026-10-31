@@ -17,10 +17,10 @@ How much of the published quality survives without the ground truth has not been
 We study three published solvers (DAPS, SITCOM, FAST-DIPS) on common measurements of FFHQ and ImageNet images, with up to $64$ runs per image, and reach three conclusions.
 
 \emph{Selection without the ground truth is close to the oracle on faces, and predictable.}
-Within an image, the residual ranks a correct run ahead of a wrong but measurement-consistent one in $200$ of $205$ pairs\claim{C-A7}: the noise shared by two runs of the same measurement cancels in the comparison.
-Residual selection followed by a zero-shot orientation test falls short of an orientation-aware ground-truth oracle by at most two images per solver and cohort on FFHQ\claim{C-A3}.
-For FAST-DIPS on ImageNet, where rotated runs are common, the same test closes $57$--$60\%$ of the gap between the residual pick and that oracle\claim{C-R4}.
-A residual-race model, fitted to the runs already observed and frozen before more runs were scored, predicted the selected run's success at $57$ of $59$ registered points in four of five prospective tests; the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} held at $17$, and both missed in the fifth\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}.
+Within an image, the residual ranks a correct run ahead of a wrong but measurement-consistent one in $200$ of $205$ pairs\claim{C-A7}: the noise energy shared by two runs of the same measurement cancels in the comparison.
+Residual selection followed by a zero-shot orientation test falls short of an orientation-aware ground-truth oracle by at most two images per solver and cohort on FFHQ, and by at most $1.1$ points with $8$ to $16$ runs, also among the particles of PC-DAPS\claim{C-A3}\claim{C-E1}.
+For FAST-DIPS on ImageNet, where rotated runs are common, the same test closes $57$--$60\%$ of the gap between the residual pick and that oracle; at $64$ runs the remaining $13$ points split into consistent-wrong runs that outrank good ones ($8$) and rotations the generic test misses ($5$)\claim{C-R4}\claim{C-E1}.
+A residual-race model, fitted to the runs already observed and frozen before more runs were scored, covered $57$ of $59$ registered points for the selected run in four of five prospective tests; the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} covered $17$ and failed three of the four; in the fifth both overestimated generation\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}.
 
 \emph{The bottleneck is images the solver never solves, and they are not predictable.}
 Our frozen forecasts overestimated how many images eventually yield a correct run in four of five tests, including one fitted to sixteen runs per image\claim{C-R7}.
@@ -37,13 +37,13 @@ These findings define a procedure (\cref{fig:teaser}a, \cref{sec:protocol}).
 It draws runs until $M$ of them reach the solver's own consistency level, keeps the run with the smallest residual, and corrects its orientation; it flags images on which no run becomes consistent and outputs whose orientation the test is unsure of.
 Each component is simple; what we add is evidence for each, a calibration that transfers across datasets, an exact account of what stopping costs and buys, and a mechanism for where it helps: where failures are inconsistent rather than consistent-but-wrong.
 We froze it, with four falsifiable hypotheses, before evaluating it on nine held-out panels\claim{C-G1}.
-With $8$ to $16$ runs it never fell more than one point below fixed best-of-$K$ at equal compute, and gained $3.4$--$3.9$ points for DAPS on FFHQ, as a theory note had predicted before scoring; with $32$--$64$ runs on ImageNet it fell behind, because a few images that never produce a consistent run absorb the budget.
-The same selection also improves the concurrent PC-DAPS~\cite{kocabas2026pcdaps}: choosing among its particles instead of averaging them raises its share of good images from $79.0\%$ to $84.4\%$ at no extra cost\claim{C-X1}.
+With $8$ to $16$ runs it never fell more than one point below fixed best-of-$K$ at equal mean runs, and gained $3.4$--$3.9$ points for DAPS on FFHQ, as a theory note had predicted before scoring; where failed runs fit the measurement it was neutral within sampling error, and with $32$--$64$ runs on ImageNet it fell behind, because a few images that never produce a consistent run absorb the budget.
+The same selection also improves the concurrent PC-DAPS~\cite{kocabas2026pcdaps}: choosing among its particles, instead of reporting their average quality, raises its share of good images from $79.0\%$ to $84.4\%$ at no extra cost\claim{C-X1}.
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
-\item \textbf{A ground-truth-free best-of-$K$ protocol} with sequential stopping, residual selection, orientation correction and two abstention flags; per-solver calibration; development results and a frozen held-out test (\cref{sec:protocol}).
-\item \textbf{Predictability of ground-truth-free selection.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and five prospective tests against forecasts registered before the data, including a failure (\cref{sec:selection}).
+\item \textbf{Predictability of ground-truth-free selection.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and five prospective tests against forecasts registered before the data, including a failure (\cref{sec:selection}); the selection transfers to a particle sampler (\cref{sec:audit}).
 \item \textbf{The coverage limit.} Unsolved images dominate what remains, forecasts miss them even from sixteen pilot runs, and we bound what a few runs can identify about them (\cref{sec:selection,sec:audit}).
+\item \textbf{A ground-truth-free best-of-$K$ protocol} with residual selection, orientation correction, two abstention flags and sequential stopping, frozen and tested on held-out runs, with an exact account of when stopping helps and evidence that it does only where failed runs are inconsistent (\cref{sec:protocol}).
 \item \textbf{A re-evaluation} of three published solvers on two datasets that separates the solver, ground-truth-free selection and the ground-truth oracles, with reporting recommendations (\cref{sec:audit,sec:discussion}).
 \end{itemize}

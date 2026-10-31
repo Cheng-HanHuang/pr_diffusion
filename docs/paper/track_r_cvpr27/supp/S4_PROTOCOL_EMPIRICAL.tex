@@ -1,0 +1,195 @@
+% Planner-authored supplement section (2026-10-31). Numbers generated from the committed analysis outputs
+% (docs/track_r/planner_analysis/A16_cp3_and_exploratory/out/); see the claims ledger, IDs in comments.
+\section{The protocol: registered outcomes, intervals and exploratory analyses}
+\label{sec:suppl-protocol-empirical}
+
+All numbers in this section were computed from per-image residual strings and per-candidate orientation decisions with the frozen protocol code (SHA-256 \texttt{d5f973fe}\ldots).
+Ground truth enters only through the evaluation labels.
+Items marked \emph{exploratory} were designed after the registered outcomes were known, use panels already seen, and change no frozen rule.
+
+\paragraph{Registered hypotheses and outcomes.}
+\Cref{tab:s4-hyp} lists every registered protocol hypothesis with its outcome.
+The intervals are image-bootstrap $95\%$ intervals of the equal-mean-runs gain (5{,}000 replicates, stratified by cohort, $\tau_S$ held at its panel value; exploratory).
+Their half-widths, $1$ to $3$ points, exceed H1's one-point margin, so H1's outcome on a single panel is a point-estimate statement; the gains for DAPS on FFHQ, and the loss at $N_{\max}=64$ on ImageNet, are resolved by the intervals.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llcll@{}}
+\toprule
+Solver, data & $N_{\max}$ & $\tau_S$ & H1: gain [95\% interval], points & Other registered hypotheses \\
+\midrule
+FAST-DIPS, ImageNet & 16 & FFHQ value & $+0.33$ $[-2.72,+2.83]$ \quad pass & H3 fail (1/3); H4 pass ($+12.9$) \\
+SITCOM, FFHQ & 16 & labeled & $-0.43$ $[-2.24,+1.72]$ \quad pass & H2 comparator \\
+DAPS, FFHQ & 8 & labeled & $+3.38$ $[+2.11,+4.71]$ \quad pass & H2 pass; H3 fail (5/11) \\
+FAST-DIPS, ImageNet & 32 & FFHQ value & $-1.79$ $[-4.24,+0.65]$ \quad \textbf{fail} & H3 fail (1/3); H4 pass ($+13.1$) \\
+FAST-DIPS, ImageNet & 64 & FFHQ value & $-3.44$ $[-6.54,-0.29]$ \quad \textbf{fail} & H3 not evaluable (1 flag); H4 pass ($+13.6$) \\
+DAPS-4K, FFHQ & 8 & label-free & $+3.93$ $[+2.83,+5.09]$ \quad pass & -- \\
+DAPS-4K, ImageNet & 8 & label-free & $+0.10$ $[-1.61,+1.80]$ \quad pass & -- \\
+FAST-DIPS, FFHQ, $\sigma{=}0.02$ & 8 & scaled & $0.00$ (never stops) \quad pass & H-G1 fail: scaled $0.02003$, labeled $0.02223$ \\
+FAST-DIPS, FFHQ, $\sigma{=}0.10$ & 8 & scaled & $+0.78$ $[+0.29,+1.28]$ \quad pass & H-G1 fail: scaled $0.10017$, labeled $0.09809$ \\
+\midrule
+\multicolumn{5}{@{}l}{\footnotesize Development (in-sample): FAST-DIPS, FFHQ, $N_{\max}=64$, no orientation step: $+2.20$ $[+0.65,+4.06]$.}\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Every registered protocol hypothesis (H1--H4, H-G1, H-G2) and its outcome.} H1: gain $\ge-1$ point; H2: gain on DAPS $\ge2$ points and larger than on SITCOM and FAST-DIPS ImageNet; H3: at least half of the flagged images unsolved (registered where at least two images are flagged); H4: unflagged outputs \good at least $5$ points more often than all answered outputs; H-G1: the threshold scaled with $\sigma$ lies within $1\%$ of the labeled one; H-G2: H1 with the scaled threshold. At $\sigma=0.02$ the scaled threshold rejects every run, so the rule uses all $8$ runs and flags all $180$ images, $13$ of them unsolved.}
+\label{tab:s4-hyp}
+\end{table}
+
+\paragraph{Budget frontier and confidence-conditioned stopping (exploratory).}
+On the $64$-run ImageNet panel we evaluated the frozen rule with smaller budgets, drawing runs without replacement from the $64$ available (\cref{tab:s4-frontier}).
+Small budgets keep it within a point of fixed best-of-$K$; from $N_{\max}=12$ on, the loss grows with the budget, because the extra runs go to the images that never pass while the protocol's success rises only from $44.0\%$ to $49.2\%$.
+We also tested one natural variant: stop only when two runs pass \emph{and} the selected output's orientation margin exceeds $c$, with $c=0.0076$, the $\textsc{flag}_O$ cut of the $16$-run ImageNet panel, fixed before the replay.
+It spends more runs on images whose orientation stays uncertain and is worse at every budget from $8$ on.
+We did not tune it further.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}rcccccc|ccc@{}}
+\toprule
+ & \multicolumn{6}{c|}{Frozen rule} & \multicolumn{3}{c}{With confidence condition} \\
+$N_{\max}$ & \good & Runs & Fixed, eq.\ runs & Gain & Fixed, $K{=}N_{\max}$ & $\Oorb$, $K{=}N_{\max}$ & \good & Runs & Gain \\
+\midrule
+2 & 44.0 & 2.00 & 44.1 & $-$0.06 & 44.1 & 50.9 & -- & -- & -- \\
+3 & 45.8 & 2.25 & 45.1 & +0.66 & 48.1 & 56.1 & -- & -- & -- \\
+4 & 46.6 & 2.43 & 45.8 & +0.80 & 50.7 & 59.6 & 48.3 & 2.88 & +0.66 \\
+6 & 47.3 & 2.68 & 46.8 & +0.52 & 54.1 & 64.0 & -- & -- & -- \\
+8 & 47.7 & 2.86 & 47.6 & +0.12 & 56.2 & 66.8 & 50.7 & 4.09 & $-$0.18 \\
+12 & 48.0 & 3.15 & 48.5 & $-$0.49 & 58.9 & 70.0 & -- & -- & -- \\
+16 & 48.2 & 3.38 & 49.1 & $-$0.89 & 60.6 & 71.9 & 52.1 & 5.87 & $-$1.84 \\
+24 & 48.4 & 3.76 & 50.1 & $-$1.66 & 62.5 & 74.2 & -- & -- & -- \\
+32 & 48.6 & 4.07 & 50.9 & $-$2.26 & 63.6 & 75.5 & 52.8 & 8.68 & $-$4.06 \\
+48 & 48.9 & 4.60 & 51.9 & $-$2.96 & 64.6 & 77.1 & -- & -- & -- \\
+64 & 49.2 & 5.00 & 52.6 & $-$3.44 & 65.0 & 78.0 & 53.0 & 13.22 & $-$6.45 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{FAST-DIPS on ImageNet, $100$ images, $64$ runs each: the frozen rule at other budgets, and a confidence-conditioned variant} (exploratory; \% \good, mean runs, gain in points against fixed best-of-$K$ $\Eone$ at equal mean runs).}
+\label{tab:s4-frontier}
+\end{table}
+
+\paragraph{The label-free threshold at other noise levels (exploratory).}
+The registered rule scaled FAST-DIPS's threshold linearly with $\sigma$ and failed (H-G1).
+The label-free rule frozen with the protocol (median plus three scaled MADs of the per-image minimum residual over four pilot runs) needs no scaling.
+\Cref{tab:s4-tau} computes it on each cohort itself (``own'') and, to charge the pilot to separate images, on the other cohort (``cross-fitted''; for DAPS-4K on ImageNet, on the other half of the images, split by a hash of the image id).
+It lands within $3.5\%$ of the labeled threshold at both noise levels, and the protocol keeps or increases its gain.
+The pilot costs four runs on each image of the reference set.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}llccccccc@{}}
+\toprule
+ & & Labeled & \multicolumn{3}{c}{Own} & \multicolumn{3}{c}{Cross-fitted} \\
+\cmidrule(lr){4-6}\cmidrule(l){7-9}
+Panel & Cohort & $\tau$ & $\tau$ & Gain & Runs & $\tau$ & Gain & Runs \\
+\midrule
+FAST-DIPS, FFHQ, $\sigma{=}0.02$ & A & 0.02223 & 0.02225 & +4.08 & 2.98 & 0.02301 & +4.23 & 2.64 \\
+FAST-DIPS, FFHQ, $\sigma{=}0.02$ & B & 0.02223 & 0.02301 & +2.30 & 3.41 & 0.02225 & +3.84 & 4.14 \\
+\multicolumn{4}{@{}r}{pooled} & +3.29 & 3.17 & & +4.06 & 3.30 \\ \midrule
+FAST-DIPS, FFHQ, $\sigma{=}0.10$ & A & 0.09809 & 0.09868 & +1.13 & 2.17 & 0.09923 & +1.06 & 2.16 \\
+FAST-DIPS, FFHQ, $\sigma{=}0.10$ & B & 0.09809 & 0.09923 & +1.13 & 2.32 & 0.09868 & +0.68 & 2.48 \\
+\multicolumn{4}{@{}r}{pooled} & +1.13 & 2.24 & & +0.89 & 2.30 \\ \midrule
+DAPS-4K, FFHQ & A & -- & 0.04756 & +3.12 & 2.49 & 0.04763 & +3.02 & 2.46 \\
+DAPS-4K, FFHQ & B & -- & 0.04763 & +4.95 & 3.19 & 0.04756 & +4.49 & 3.47 \\
+\multicolumn{4}{@{}r}{pooled} & +3.93 & 2.80 & & +3.67 & 2.91 \\ \midrule
+DAPS-4K, ImageNet & half 1 & -- & 0.04841 & +0.22 & 2.38 & 0.04817 & +0.14 & 2.51 \\
+DAPS-4K, ImageNet & half 2 & -- & 0.04817 & +0.02 & 2.32 & 0.04841 & +0.57 & 2.17 \\
+\multicolumn{4}{@{}r}{pooled} & +0.11 & 2.35 & & +0.38 & 2.32 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Label-free threshold, computed on the evaluated cohort (own) or on other images (cross-fitted).} Gain in points against fixed best-of-$K$ at equal mean runs ($\Eo$ for the noise-level panels, $\Eone$ otherwise); $N_{\max}=8$. The DAPS-4K ``own'' rows are the registered panels.}
+\label{tab:s4-tau}
+\end{table}
+
+\paragraph{Where the ground-truth-free pick loses (exploratory).}
+For each panel we split $\Oorb(K)-\Eone(K)$ with the exact subset weights of \cref{M-sec:selection}.
+The selection loss is the probability that the residual pick is \cons or \incons although the $K$ runs contain an orbit-\good one; the orientation loss is the probability that the pick is orbit-\good but the output is not \good (\cref{tab:s4-decomp}).
+On FFHQ the remaining gap is at most $1.1$ points for every solver.
+On ImageNet, consistent-but-wrong runs that outrank a \good one cost FAST-DIPS $8$ points at $K=64$, and the generic orientation test costs $4$ to $5$ points, mostly rotations it leaves in place.
+Partial orbit errors, the only kind a channel-wise correction could repair, cost at most $0.6$ points on any panel.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccccccc@{}}
+\toprule
+ & & & & & \multicolumn{2}{c}{Selection loss} & \multicolumn{3}{c}{Orientation loss} \\
+\cmidrule(lr){6-7}\cmidrule(l){8-10}
+Solver, data & $K$ & $\Oorb$ & Pick orbit-\good & $\Eone$ & \cons pick & \incons pick & \good broken & rotation kept & partial \\
+\midrule
+DAPS, FFHQ & 8 & 94.4 & 94.4 & 93.9 & 0.0 & 0.0 & 0.0 & 0.0 & 0.6 \\
+SITCOM, FFHQ & 16 & 92.2 & 91.1 & 91.1 & 1.1 & 0.0 & 0.0 & 0.0 & 0.0 \\
+DAPS-4K, FFHQ & 8 & 96.7 & 95.6 & 95.6 & 0.6 & 0.6 & 0.0 & 0.0 & 0.0 \\
+PC-DAPS, FFHQ (particles) & 4 & 85.0 & 84.4 & 84.4 & 0.6 & 0.0 & 0.0 & 0.0 & 0.0 \\
+DAPS-4K, ImageNet & 8 & 82.0 & 81.0 & 77.0 & 0.0 & 1.0 & 3.0 & 1.0 & 0.0 \\
+FAST-DIPS, ImageNet & 16 & 71.9 & 65.4 & 60.6 & 6.4 & 0.1 & 1.5 & 3.1 & 0.2 \\
+FAST-DIPS, ImageNet & 64 & 78.0 & 70.0 & 65.0 & 8.0 & 0.0 & 1.0 & 4.0 & 0.0 \\
+\bottomrule
+\end{tabular}}
+\caption{\textbf{Decomposition of the gap between $\Eone$ and the orbit oracle} (exploratory; points). ``Pick orbit-\good'': the residual pick is \good or an orbit error. Columns 6--10 sum to $\Oorb-\Eone$ up to rounding.}
+\label{tab:s4-decomp}
+\end{table}
+
+\paragraph{PC-DAPS on the same measurements.}
+One PC-DAPS bag (four interacting particles, its own FFHQ phase-retrieval configuration) was drawn for each of the $180$ FFHQ measurements.
+PC-DAPS reports the mean of its particles' metrics, the quality of a random particle; we compare it with residual selection ($\Eo$) and residual selection plus the face orientation test ($\Eone$) over the same particles (\cref{tab:s4-pcdaps}).
+The difference comes from the $18$ images whose bag mixes \good and wrong particles: $135$ bags are all \good, and $27$ contain no particle that is \good in any orientation.
+$\Eone$ keeps a \good particle in $17$ of the $18$ mixed bags, against $7.25$ expected for a random particle, and falls below the random-particle value on one image; the orientation test fixes three outputs and breaks none.
+Because the particles interact, a bag is not four independent runs, and the stopping rule does not apply within it.
+The compute labels in the lower block place the policies on a common axis; they are not a matched-compute comparison.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Policy & PSNR (dB) & SSIM & LPIPS (VGG) & \good (\%) & Denoiser calls & Seconds \\
+\midrule
+PC-DAPS, mean over particles (as reported) & 28.07 & 0.797 & 0.188 & 79.0 & 1{,}920 & 30.6 \\
+PC-DAPS, $\Eo$ over particles & 28.56 & 0.806 & 0.179 & 82.8 & 1{,}920 & 30.6 \\
+PC-DAPS, $\Eone$ over particles & 29.10 & 0.823 & 0.166 & 84.4 & 1{,}920 & 30.6 \\
+$\Eone$ minus mean, $95\%$ interval & $[+0.54,+1.61]$ & $[+.013,+.040]$ & $[-.035,-.013]$ & $[+2.8,+8.5]$ & & \\
+PC-DAPS, four-particle orbit oracle & & & & 85.0 & & \\
+\midrule
+DAPS-4K, one run & 25.22 & 0.690 & 0.260 & 68.3 & 4{,}000 & 66.0 \\
+DAPS-4K, fixed $\Eone$, $K=1$ & 26.47 & 0.729 & 0.228 & 71.7 & 4{,}000 & 66.0 \\
+DAPS-4K, fixed $\Eone$, $K=2$ & 28.70 & 0.780 & 0.177 & 84.4 & 8{,}000 & 132$^*$ \\
+DAPS-4K, protocol ($N_{\max}=8$) & & & & 94.0 & 11{,}213 & 185$^*$ \\
+\bottomrule
+\end{tabular}}
+\caption{\textbf{PC-DAPS and DAPS-4K on the $180$ FFHQ measurements} (descriptive). Paired image-bootstrap intervals (20{,}000 replicates). Denoiser calls are nominal: DAPS-4K uses $400$ annealing steps with $10$ ODE steps each; a PC-DAPS bag uses $4\times(130+70\cdot5)$, and its logged count, which omits some pruning cost, averages $1{,}928$. Seconds: sampling only, batch 1, measured on one otherwise idle GPU on three images; $^*$linear extrapolation from the per-run time.}
+\label{tab:s4-pcdaps}
+\end{table}
+
+\paragraph{Published operating points.}
+Our ImageNet ground truth and measurements are identical to those produced by the DAPS code for all $100$ images.
+DAPS-4K's per-metric best of four (eight) runs gives $22.28$ ($24.07$)\,dB, SSIM $0.518$ ($0.565$) and VGG-LPIPS $0.340$ ($0.298$) on ImageNet, against $25.78$\,dB, $0.743$ and $0.254$ in the DAPS paper and $20.98$\,dB, $0.461$ and $0.387$ in the PC-DAPS rerun.
+On our $180$ FFHQ images it gives $29.76$ ($30.26$)\,dB, $0.801$ ($0.811$) and $0.156$ ($0.146$), against $30.63$, $0.851$ and $0.139$ in the DAPS paper (on other images) and $29.66$, $0.770$ and $0.177$ in the PC-DAPS rerun.
+These are ground-truth oracles, not ground-truth-free outputs.
+
+\paragraph{Registration record.}
+\Cref{tab:s4-registry} lists every frozen forecast and protocol with the time it was committed.
+Each was verified to precede the first commit containing the outcomes it predicts; the repository with the full registry will be released.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lp{0.42\linewidth}ll@{}}
+\toprule
+Freeze & What it predicts & SHA-256 (prefix) & Committed (UTC) \\
+\midrule
+v1 & FFHQ: FAST-DIPS, SITCOM and DAPS beyond the first four runs (976 predictions) & \texttt{c19798f9} & 2026-10-28 06:22 \\
+v2 & ImageNet FAST-DIPS, runs 0--3 $\to$ 16 ($\Eo$, oracles) & \texttt{8dda3634} & 2026-10-28 06:32 \\
+v2 $\Eone$ & ImageNet FAST-DIPS, runs 0--3 $\to$ 16 ($\Eone$) & \texttt{13ff550c} & 2026-10-28 19:04 \\
+v3 & FFHQ SITCOM and DAPS, second forecast & \texttt{9feeef5f} & 2026-10-29 06:36 \\
+protocol v1 & the rule, its parameters and H1--H4 & \texttt{7e9a5fd8} (spec), \texttt{d5f973fe} (code) & 2026-10-29 07:49 \\
+v4 & ImageNet FAST-DIPS, runs 0--15 $\to$ 32, 64 & \texttt{b0ff25bc} & 2026-10-29 20:02 \\
+H2 pre-score & the DAPS gain, from historical runs only & (note) & 2026-10-29 20:12 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Registered forecasts and protocol.} The hypotheses for panels added later were registered before those panels were generated.}
+\label{tab:s4-registry}
+\end{table}
