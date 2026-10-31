@@ -82,7 +82,7 @@ class A15Tests(unittest.TestCase):
   self.assertIn('["num_steps"]==10',code)
   self.assertIn('["num_steps"]==100',code)
   self.assertIn("rng.integers(0,180,size=180)",code)
-  self.assertIn('"frozen_Eprime8_protocol"',code)
+  self.assertIn('frozen_Eprime8_protocol=protocol_point',code)
   self.assertIn('"WITHDRAWN_UNRESOLVED"',code)
   self.assertIn("no_matched_compute_claim=True",code)
   self.assertIn('"PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN"',code)
