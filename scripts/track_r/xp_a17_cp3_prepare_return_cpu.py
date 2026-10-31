@@ -29,7 +29,9 @@ EXTERNAL={
   "PC_DAPS_REPRODUCED_DAPS":dict(PSNR=20.98,SSIM=.461,LPIPS=.387)},
 }
 def files_for(stage):
- d=BASE/("xp_a15_cp3_"+stage.replace(".","p")+"_"+PROTOCOL_STAMP)
+ # Stage input directories retain literal noise values (G2_0.02),
+ # while portable release filenames use a separate 0p02 tag.
+ d=BASE/("xp_a15_cp3_"+stage+"_"+PROTOCOL_STAMP)
  return d
 def latest_one(prefix,filename):
  matches=[]
