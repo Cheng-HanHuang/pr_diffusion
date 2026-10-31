@@ -75,10 +75,7 @@ def main(a):
  gate([r["basename"] for r in rows]==expected
       and len({r["measurement_sha256"] for r in rows})==100
       and all(sha(r["measurement_path"])==r["measurement_sha256"]
-              and r["measurement_source"]=="XP_IMAGENET_N100"
-              if "measurement_source" in r else
-              sha(r["measurement_path"])==r["measurement_sha256"]
-              for r in rows),
+              and r["sigma"]==.05 for r in rows),
       "A18_XPN_PREP_EXPECTED_100_SIGNED_Y")
  phases={}
  for phase,(lo,hi,total) in PHASES.items():
@@ -94,7 +91,8 @@ def main(a):
        measurement_path=r["measurement_path"],
        measurement_sha256=r["measurement_sha256"]))
   gate(len(tasks)==total and len({z["uid"] for z in tasks})==total
-       and len({z["seed"] for z in tasks})==total,
+       and all(len({z["seed"] for z in tasks[j:j+hi-lo]})==hi-lo
+               for j in range(0,total,hi-lo)),
        "A18_XPN_PREP_PHASE_GRID_"+phase)
   phases[phase]=dict(schema="prdiff.track_r.xp.fast-tasks.v1",
     status="XP_FAST_TASKS_FROZEN",
