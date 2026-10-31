@@ -12,7 +12,10 @@ ROOT=Path(cp2.__file__).resolve().parents[2]
 class A15Tests(unittest.TestCase):
  def test_python_syntax(self):
   for name in ("xp_a15_cp2_d4_cpu.py","xp_a15_cp2_audit_cpu.py",
-               "xp_a15_cp3_score_cpu.py","xp_a15_cp3_protocol_cpu.py"):
+               "xp_a15_cp3_score_cpu.py","xp_a15_cp3_protocol_cpu.py",
+               "xp_a17_cp3_a15_descriptive_cpu.py",
+               "xp_a17_cp3_clean_timing_cpu.py",
+               "xp_a17_cp3_prepare_return_cpu.py"):
    p=ROOT/"scripts/track_r"/name
    ast.parse(p.read_text(),filename=str(p))
  def test_frozen_sources(self):
