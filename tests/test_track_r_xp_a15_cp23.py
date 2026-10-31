@@ -61,6 +61,10 @@ class A15Tests(unittest.TestCase):
   self.assertIn('XP_I_matched_NFE',source)
   self.assertIn('WITHDRAWN_UNRESOLVED',source)
   self.assertIn('theory_inputs',source)
+  self.assertEqual(release.files_for("G2_0.02").name,
+                   "xp_a15_cp3_G2_0.02_20261030T210259Z")
+  self.assertEqual(release.files_for("G4").name,
+                   "xp_a15_cp3_G4_20261030T210259Z")
   pub=(ROOT/"scripts/track_r/xp_a17_cp3_publish.sh").read_text()
   self.assertIn('sha256sum -c SHA256SUMS',pub)
   self.assertIn('git@github.com:Cheng-HanHuang/pr_diffusion.git',pub)
@@ -71,6 +75,10 @@ class A15Tests(unittest.TestCase):
   self.assertIn("DAPS4K",code)
   self.assertIn("G6_prior_DAPS400x5_does_NOT_measure_DAPS4K_400x10",code)
   self.assertIn('and sha(pr["measurement_path"])==sha(drw["measurement_path"])',code)
+  self.assertIn('canonical="S1_b22_"+did',code)
+  self.assertIn('image_id=canonical',code)
+  self.assertIn('canonical_ffhq_id=canonical',code)
+  self.assertIn('r["image_id"]==job["image_id"]',code)
   self.assertIn("choose_gpu",code)
   self.assertIn("if rc!=0 or not entry[\"clean\"]",code)
   self.assertIn("STAGE_CAP_GPU_H=3.",code)
