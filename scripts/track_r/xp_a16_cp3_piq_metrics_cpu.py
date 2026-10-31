@@ -80,6 +80,10 @@ def weights_preflight():
  missing=[str(f) for f in need if not f.is_file()]
  gate(not missing,"CP3_PIQ_PRETRAINED_WEIGHTS_MISSING__"+
       "____".join(x.replace("/","_") for x in missing))
+ # Full VGG16 SHA-256 independently published with the official
+ # torchvision model filename, not merely an 8-character hash prefix.
+ expected_vgg="397923af8e79cdbb6a7127f12361acd7a2f83e06b05044ddf496e83de57a5bf0"
+ gate(sha(need[1])==expected_vgg,"CP3_PIQ_VGG16_PINNED_SHA256")
  return dict(torch_version=torch.__version__,
    torchvision_version=torchvision.__version__,
    piq_version=getattr(piq,"__version__","unknown"),
