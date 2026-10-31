@@ -53,7 +53,9 @@ cp -a "$OUT/theory_inputs/." "$PUBLISH/$T/"
 (cd "$PUBLISH/$R" && sha256sum -c SHA256SUMS)
 (cd "$PUBLISH/$T" && sha256sum -c SHA256SUMS)
 git -C "$PUBLISH" add -- "$R" "$T"
-git -C "$PUBLISH" diff --cached --check
+# The frozen CP3 CSVs are CRLF. Treat CR at EOL as a valid line ending
+# without rewriting any bytes (SHA256SUMS are scientific provenance).
+git -C "$PUBLISH" -c core.whitespace=cr-at-eol diff --cached --check
 git -C "$PUBLISH" commit -m "results(track-r): A15 CP3 confirmatory G2/G4/G5 and descriptive PC-DAPS, corrected 400x10 NFE"
 git -C "$PUBLISH" push -u origin "$BRANCH"
 LOCAL=$(git -C "$PUBLISH" rev-parse HEAD)
