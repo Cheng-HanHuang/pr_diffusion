@@ -57,9 +57,38 @@ class A18PlannerTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             rows_from_stage(d)
 
+    def test_xpn_isolated_noise_seed_namespace(self):
+        from scripts.track_r.xp_a18_xpn_decode_isolated import seed
+        from scripts.track_r.xp_t_imagenet_prepare_cpu import seed as d1_seed
+        name="ILSVRC2012_val_00048900.JPEG"
+        self.assertEqual(seed("XPMEAS|imagenet_n",name),
+                         d1_seed("XPMEAS|imagenet_n",name))
+        self.assertNotEqual(seed("XPMEAS|imagenet_n",name),
+                            d1_seed("XPMEAS|imagenet",name))
+
+    def test_xpn_cpu_stages_keep_raw_gt_out_of_gpu(self):
+        root=ROOT/"scripts"/"track_r"
+        helper=(root/"xp_a18_xpn_decode_isolated.py").read_text()
+        prep=(root/"xp_a18_xpn_prepare_y_cpu.py").read_text()
+        audit=(root/"xp_a18_xpn_audit_y_cpu.py").read_text()
+        self.assertIn("sys.flags.isolated==1",helper)
+        self.assertIn('source==Path.cwd()',helper)
+        self.assertIn('with Image.open(p) as im:',helper)
+        self.assertIn('torch.Generator(device="cpu").manual_seed(mseed)',helper)
+        self.assertIn('"XPMEAS|imagenet_n"',helper)
+        self.assertIn('gt_paths_supplied=False',helper)
+        self.assertIn('cmd=[str(PY),"-I","-B"',prep)
+        self.assertIn('PINNED_SOURCE="5fa348229a35899f39aa06326840e9a8592eea6e882450bbbd0068895cee371b"',prep)
+        self.assertIn('independent_GT_Y_reaudit_required=True',prep)
+        self.assertIn('torch.load(gp,map_location="cpu",weights_only=True)',audit)
+        self.assertIn('D1_two_root_replay_still_required=True',audit)
+
     def test_python_syntax_and_go_data_isolation(self):
         for filename in ("xp_a18_xpi_particle_metrics_cpu.py",
-                         "xp_a18_xpn_image_inventory_cpu.py"):
+                         "xp_a18_xpn_image_inventory_cpu.py",
+                         "xp_a18_xpn_decode_isolated.py",
+                         "xp_a18_xpn_prepare_y_cpu.py",
+                         "xp_a18_xpn_audit_y_cpu.py"):
             path=ROOT/"scripts"/"track_r"/filename
             ast.parse(path.read_text(),filename=str(path))
         inventory=(ROOT/"scripts/track_r/xp_a18_xpn_image_inventory_cpu.py").read_text()
