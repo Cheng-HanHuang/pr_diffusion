@@ -151,12 +151,12 @@ def prep(a):
  gate(0<charge_replay<1.
       and baseline+charge_replay+STAGE_CAP_H<=PROJECT_CAP_H,
       "A18_AUTOPILOT_PROJECT_CAP")
- # No parallel XP-N controller. Other live GPU jobs are checked at each
- # admission and cannot share a GPU with this one.
- for p in BASE.glob("xp_a18_xpn_prod_*/XP_N_FINAL_STATUS.json"):
-  result=jread(p)
-  gate(result.get("status")!="A18_XPN_ALL6400_NATIVE_GENERATION_COMPLETE_SEALED",
-       "A18_AUTOPILOT_ALREADY_PRODUCED")
+ # Strictly no second XP-N controller even if a first attempt crashed
+ # before writing a terminal receipt. Its GPU costs must be reconciled
+ # during explicit recovery, not silently omitted from the 20-h cap.
+ for p in sorted(BASE.glob("xp_a18_xpn_prod_*")):
+  if p.is_dir() and (p/"XP_N_CONTROLLER_STATE.json").exists():
+   gate(False,"A18_AUTOPILOT_PRIOR_CONTROLLER_REQUIRES_RECEIPT_RECOVERY_"+p.name)
  return wt,tasks,producer,manifests,jobs,baseline,charge_replay
 
 def v5_code_freeze(wt):
