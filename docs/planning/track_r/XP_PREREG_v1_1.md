@@ -402,7 +402,41 @@
 >    - The executor then certifies its signed-y adapter on CPU, runs the 2-id smoke, and launches.
 >    - **The G3 deadline moves to Nov 4, 12:00 ET.** If the code is not present by Oct 31, 12:00 ET, G3 leaves CP3 and joins Tier C with XP-I2.
 
-**Status:** FROZEN v1.1 with amendments A1–A14 (planner, 2026-10-29).
+> **Amendment A15 (planner, 2026-10-31 01:20 ET): CP2 accepted; CP3 disposition; tail reorder.** Written after CP2 (XP `ef1cf10`) and the CP3 stop/ask (XP `020fc68`). The planner had seen CP3 aggregates only; no CP3 per-image string existed.
+> 1. **CP2 accepted.** The planner reproduced both XP-D4 protocol outputs exactly from `c598176` (strings `7f162733…`, G1 `cbf2a1cc…`).
+>    - **The A12.4 hypotheses on XP-D4, as frozen:**
+>      - H1 **FAILS** at N_MAX = 32 (gain −0.0179) and at N_MAX = 64 (−0.0344);
+>      - H3 **FAILS** at 32 (1 of 3 flagged images unsolved) and is not evaluable at 64 (1 flag);
+>      - H4 **passes** at both (+0.131, +0.136).
+>    - **Mechanism (planner decomposition, descriptive).** 4–6 images whose runs almost never pass absorb 40–43% of all runs; the other 94–96 images stop after 2.6–3.0 runs, while fixed best-of-K gives every image 4.3–5.0 runs.
+>    - **v4 against XP-D4 (third ImageNet test).**
+>      - Race: E0 6/6, E1 12/12.
+>      - S2: E0 1/6, E1 0/12.
+>      - Race O_orbit 0/6, O_raw 2/6: forecasts 0.840 and 0.899 against observed 0.75 (K = 32) and 0.78 (K = 64).
+>      - 22 images have no orbit-GOOD run in 64.
+> 2. **CP3: option 1 (descriptive XP-I) is accepted.** **G2 (XP-G), G4 (E′8) and G5 (D2-8) are confirmatory as frozen:**
+>    - H-G1 **fails** at σ = 0.02 (scaled τ 9.9% below the labeled τ) and at σ = 0.10 (2.1% above);
+>    - H-G2 **passes** at both (at σ = 0.02 the rule never stops: 8.0/8 runs);
+>    - G4 H1 passes (+0.0393); G5 H1 passes (+0.0010).
+> 3. **XP-I: the planner's A12.4 matching rule was infeasible by construction.** Protocol v1 needs at least M = 2 runs, more than one PC-DAPS bag costs. That rule is **withdrawn and recorded as unresolved**, not satisfied. It is replaced by two descriptive analyses on the existing runs, defined here before any XP-I per-image data reach the planner:
+>    - **(a) Same particles.** PC-DAPS's native reporting (mean over its four particles), against E0 and E1 selection over the same particles: PSNR, SSIM, VGG-LPIPS and GOOD25 on the 180 paired images. No extra compute; this tests whether the GT-free selection composes with PC-DAPS.
+>    - **(b) Compute-labeled comparison.** Compare one PC-DAPS bag (its E1) with:
+>      - DAPS-4K run 0;
+>      - DAPS-4K fixed E1 at K = 1 and 2;
+>      - the frozen protocol's pooled point on E′8.
+>
+>      Report every policy with its compute per image in two units: nominal NFE and clean wall-clock seconds. For NFE, the executor states DAPS-4K's resolved annealing, ODE and Langevin steps **from the run receipts** (A2 defines 400 × 10; the CP3 note says 400 × 5), and PC-DAPS's logged lower bound. Wall-clock comes from G6, extended by one PC-DAPS bag on 3 ids on a clean GPU. **No matched-compute claim is made.**
+> 4. **The CP3 return is authorized** (≤ 20 lines), with:
+>    - every hypothesis outcome above;
+>    - the descriptive XP-I tables (a) and (b);
+>    - the A8.6 numbers (ImageNet GT/y identity; DAPS-4K per-metric best of 4/8 with VGG-LPIPS against DAPS Table 1 and PC-DAPS);
+>    - strings and orientation decisions for G2/G4/G5/XP-I copied to `theory_inputs/`.
+>
+>    The planner reproduces the protocol outputs.
+> 5. **Tail reorder.** T2 XP-I2 (PC-DAPS on ImageNet, one bag, analyses (a) and (b) in the same form, against DAPS-4K D2-8) now runs **before** T1 XP-K. It reaches the main paper only if it is scored by **Nov 5, 12:00 ET**. XP-K follows under the tail cap.
+> 6. **No protocol v2 is introduced before submission.** A budget cap or give-up rule motivated by item 1 would be post hoc; the paper may show it only as an exploratory frontier on panels already seen.
+
+**Status:** FROZEN v1.1 with amendments A1–A15 (planner, 2026-10-31).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

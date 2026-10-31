@@ -1,0 +1,71 @@
+\section{What the measurement cannot see}
+\label{sec:symmetry}
+
+Let $\pi$ be the prior density and assume the likelihood depends on $x$ only through $\cA(x)$, as for \cref{M-eq:operator}.
+Since every $g\in\cG$ is a permutation, it preserves Lebesgue measure, and \cref{lem:orbit} gives at once:
+
+\begin{proposition}
+\label{prop:ratio}
+For all $x$ and $g\in\cG$: $\pi(x)\,p(gx\mid y)=\pi(gx)\,p(x\mid y)$. Where $\pi(x)>0$ and $p(x\mid y)>0$, this reads $p(gx\mid y)/p(x\mid y)=\pi(gx)/\pi(x)$.
+\end{proposition}
+
+Within an orbit, the posterior therefore ranks images by the prior alone.
+
+\begin{corollary}[measurement-based selection is orientation-blind]
+\label{cor:blind}
+Let $S(\hat x_1,\dots,\hat x_K;y)$ select one of $K$ runs using only $\cA(\hat x_1),\dots,\cA(\hat x_K)$ and $y$; the residual rule $\Eo$ is an example.
+Then $S$ returns the same index when any run is replaced by any member of its orbit.
+The same holds for weights or resampling probabilities that depend on a particle only through its likelihood $p(y\mid\hat x)$, such as residual-based pruning~\cite{makris2026tgd} and likelihood-only potentials in sequential Monte Carlo.
+Full twisted-SMC weights~\cite{wu2023tds} also contain prior and proposal factors, which need not be invariant.
+\end{corollary}
+
+\Cref{cor:blind} needs no assumption on the prior, the noise or the solver\claim{C-T2}.
+It explains why the measurement residual can remove runs that do not fit $y$ but can never correct a rotated run, and why particle methods that prune by prior consistency rather than likelihood reduce orientation errors~\cite{kocabas2026pcdaps}.
+It concerns the measurement, not the quality of the runs: a solver may produce rotated runs that fit $y$ worse than its upright runs, and for two of our three solvers it does (\cref{M-sec:selection}).
+
+\paragraph{Where the preference for upright images comes from.}
+Consider a sampler with Gaussian transitions, $x_{i-1}=m_i(x_i)+s_i\xi_i$ with $\xi_i\sim\mathcal N(0,I)$ and state-independent $s_i>0$, started from a $\cG$-invariant law; $y$ is fixed and dropped from the notation.
+Deterministic steps, such as ODE denoising, are absorbed into the next mean map.
+DAPS and SITCOM-ODE have this form up to the Langevin iterate they return; FAST-DIPS returns a deterministic denoised estimate of its last state, so the results below cover that state, not its output\claim{C-T3}.
+Measurement gradients, projections in measurement space, isotropic noise and pixel-wise clipping commute with $\cG$; the denoiser need not \pending{per-solver source audit, supplement S1}.
+
+\begin{theorem}[equivariant samplers]
+\label{thm:equivariant}
+If every mean map is $\cG$-equivariant, $m_i(gx)=g\,m_i(x)$, the law of the output $x_0$ is $\cG$-invariant.
+If, moreover, the eight members of the orbit of $\xs$ are distinct and $B$ is a neighborhood of $\xs$ whose images $gB$ are pairwise disjoint, a run that lands in $\bigcup_g gB$ lands in each $gB$ with probability $1/8$.
+\end{theorem}
+
+The argument is the invariance of marginals under equivariant kernels used in equivariant generative models~\cite{xu2022geodiff,hoogeboom2022edm}, applied to an inverse problem with a symmetric forward operator.
+It is the diffusion counterpart of the classical observation that iterative algorithms reconstruct an object or its twin with equal probability~\cite{fienup1986stagnation}, and of the finding that guidance cannot select between modes its gradient does not distinguish~\cite{dandapanthula2026tilting}.
+A learned denoiser is not equivariant: an upside-down face is not a typical face.
+The next result bounds how much this matters.
+
+\begin{theorem}[orientation preference is bounded by the equivariance defect]
+\label{thm:tv}
+Let $\Delta^g_i(x)=m_i(x)-g\,m_i(g^{-1}x)$ and let $L$ be the law of $x_0$.
+For every $g\in\cG$ and every set $B$,
+\begin{align}
+\bigl|\Prob(x_0\in B)-\Prob(x_0\in gB)\bigr| &\le \TV(L,g_\#L)\notag\\
+&\le\Bigl(\sum_i\frac{\E\|\Delta^g_i(x_i)\|^2}{4s_i^2}\Bigr)^{1/2}.
+\label{eq:tv}
+\end{align}
+\end{theorem}
+
+The proof compares the chain with its conjugate by $g$, whose output law is $g_\#L$, and combines Pinsker's inequality with the chain rule for the KL divergence of Gaussian transitions (supplement)\claim{C-T4}.
+It requires neither an exact score nor log-concavity nor uniqueness, but it does require Gaussian transitions with positive, state-independent scales up to the returned state.
+Taking $B$ as a neighborhood of $\xs$, the left side of \cref{eq:tv} is the gap between the rates of \good runs and of orbit errors through $g$; the bound turns an observed orientation preference into a lower bound on the sampler's lack of equivariance along its own path.
+A preference for upright images is not a defect.
+If the posterior law $\Pi$ itself prefers upright images, then $\TV(\Pi,g_\#\Pi)\le2\,\TV(\Pi,L)+\TV(L,g_\#L)$ shows that a sampler with an invariant output law stays at least $\TV(\Pi,g_\#\Pi)/2$ away from it (supplement).
+
+\paragraph{Measurements.}
+\Cref{M-fig:teaser}b reports the relative equivariance defect $\tilde\delta(t)$ of the FFHQ and ImageNet denoisers on noised ground-truth images \pending{XP-C2}.
+This is a proxy: \cref{thm:tv} involves the defect of the whole transition along the sampler's own trajectory.
+On FFHQ, $59$ of the $1{,}960$ runs of the three solvers are orbit errors ($58$ global, $1$ partial): $7.5\%$ of the failed runs, from $3.4\%$ for FAST-DIPS to $13.0\%$ for DAPS\claim{C-A1}.
+On ImageNet the share is \pending{XP-D}.
+
+\paragraph{Correcting orientation without the ground truth.}
+By \cref{prop:ratio}, the Bayes rule within an orbit maximizes $\pi$, so any test with the same ordering of orbit members is admissible.
+On FFHQ, a zero-shot CLIP~\cite{radford2021clip} test with fixed upright-vs-upside-down face prompts \pending{quote the frozen N2 prompts} fixes all $58$ global orbit errors among the $1{,}960$ runs and flips none of the $1{,}171$ \good runs, at $8.5$\,ms per candidate.
+A score built from the solvers' shared denoiser at intermediate noise levels does the same and, since it compares all eight members, also fixes the one partial orbit error\claim{C-A2}.
+\pending{The generic real-vs-fake detector~\cite{ojha2023univfd}: recount on the three solvers (A7).}
+Orientation correction is therefore generic and cheap on faces; \pending{XP-C and XP-D test whether this holds on ImageNet, where orientation is less canonical}.

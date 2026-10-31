@@ -1,28 +1,8 @@
 \section{What survives without ground truth}
 \label{sec:audit}
 
-\paragraph{What is reported.}
-\Cref{tab:protocols} lists how phase-retrieval results are selected in recent work.
-In the reference code of DAPS, SITCOM and FAST-DIPS the reported PSNR, SSIM and LPIPS are each the best of four runs against the ground truth\claim{C-P1}.
-
-\begin{table}[t]
-\centering\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Method & Runs & Selected by & Per metric \\
-\midrule
-DPS~\cite{chung2023dps} & 4 & n/s & n/s \\
-DAPS~\cite{zhang2025daps} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
-SITCOM~\cite{alkhouri2025sitcom} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
-FAST-DIPS~\cite{kim2026fastdips} & 4 & GT$^\dagger$ & yes$^\dagger$ \\
-PC-DAPS~\cite{kocabas2026pcdaps} & 4 particles & GT for baselines & n/s \\
-TGD~\cite{makris2026tgd} & 4 & residual & no \\
-\bottomrule
-\end{tabular}
-\caption{\textbf{Selection protocols for phase retrieval.} n/s: not stated in the paper. $^\dagger$: what the reference code does\claim{C-P1}.}
-\label{tab:protocols}
-\end{table}
+In the reference code of DAPS, SITCOM and FAST-DIPS, the reported PSNR, SSIM and LPIPS are each the best of four runs against the ground truth (a table of selection protocols in recent work is in the supplement)\claim{C-P1}.
+We now measure what each layer of that protocol adds.
 
 \paragraph{FFHQ: nearly everything survives.}
 \Cref{tab:ffhq} decomposes the FFHQ results at the run counts of the original experiments.
@@ -31,7 +11,7 @@ Because $\Oraw$ cannot correct orientation, $\Eone$ exceeds it in mean PSNR in f
 At these run counts, the residual pick fails on $84$ of the $540$ image--solver pairs; the orientation test fixes $14$ and breaks none.
 Of the remaining $70$, $66$ are images with no \good run in any orientation, $3$ are selection misses, and $1$ is the only partial orbit error among the $1{,}960$ runs\claim{C-A4}.
 What does not survive is therefore not selection but coverage, and it differs by solver: $57\%$ of SITCOM's failed runs are \cons, against $10\%$ for DAPS and $8\%$ for FAST-DIPS\claim{C-A5}, which is why stopping helps the latter more (\cref{sec:protocol}).
-\pending{Per-metric oracle and SSIM/LPIPS columns (A7); protocol rows for SITCOM and DAPS (\cref{tab:protocol}).}
+\pending{Per-metric oracle and SSIM/LPIPS columns (A7).}
 
 \begin{table}[t]
 \centering\small
@@ -86,5 +66,9 @@ SITCOM & 14.85 / .228 & 16.31 / .270 & 18.24 / .317 & 20.02 / .359 \\
 \label{tab:imagenet}
 \end{table}
 
-\paragraph{PC-DAPS, compute and controls.}
-\pending{XP-I: PC-DAPS particles under the protocol on the same measurements; XP-T timings for the compute axis; supplement: $\sigma\in\{0.02,0.10\}$, the $512$ canvas, DPS.}
+\paragraph{PC-DAPS on the same measurements.}
+PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by four interacting particles pruned by prior consistency.
+On our $180$ FFHQ measurements, its four particles, scored by the mean over particles as it reports them, give $28.07$\,dB and a \good image for $79.0\%$ of the images; choosing among the same particles by residual and orientation test gives $29.10$\,dB and $84.4\%$ at no extra cost, against $25.22$\,dB and $68.3\%$ for one DAPS-4K run\claim{C-X1}.
+The ground-truth-free selection thus composes with a stronger sampler.
+A matched-compute comparison with the protocol is not possible: the protocol needs at least two runs, while one PC-DAPS bag costs about as much as one DAPS run (at least $1{,}928$ denoiser calls) \pending{resolved NFE and clean wall-clock per bag and per run (A15.3)}.
+\pending{XP-I2: the same on ImageNet; supplement: $\sigma\in\{0.02,0.10\}$, the $512$ canvas, DPS.}

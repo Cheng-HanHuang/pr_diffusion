@@ -1,0 +1,33 @@
+% Supplementary material, first integration build (planner, 2026-10-31).
+% Sources: theory branch @ 061c618 (S1 drop-in, S2 verbatim source + proofs, S3 complete draft), copied unchanged.
+% Build from this directory: latexmk -pdf supp.tex
+\documentclass[10pt,onecolumn,letterpaper]{article}
+\usepackage[review]{../cvpr}
+\input{../preamble}
+\usepackage{enumitem}
+\usepackage{xr}
+\externaldocument[M-]{../main}
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+\def\paperID{*****}\def\confName{CVPR}\def\confYear{2027}
+\title{Best-of-$K$ Without Ground Truth\\Supplementary Material}
+\author{Anonymous CVPR submission}
+\begin{document}
+\maketitle
+\appendix
+\renewcommand{\thesection}{S\arabic{section}}
+\input{TH_SUPPL_S1_PROTOCOL_THEORY_DROPIN_20261029}
+\section{Symmetry of the operator and orientation preference}
+\label{sec:suppl-symmetry}
+For $s\in\{0,1\}^3$ let $R_s$ rotate color channel $c$ by $180^\circ$ inside the $256\times256$ frame whenever $s_c=1$, and let $\cG=\{R_s\}$.
+\begin{lemma}[exact symmetry; classical]
+\label{lem:orbit}
+For the operator of \cref{M-eq:operator}, $\cA(R_s x)=\cA(x)$ for all $x$ and all $s$.
+\end{lemma}
+On the even canvas, a $180^\circ$ rotation of the centered frame is index negation followed by a one-pixel cyclic shift; both leave DFT magnitudes unchanged.
+This is the twin ambiguity of~\cite{hayes1982reconstruction,fienup1986stagnation}, applied per channel.
+\input{TH_SUPPL_S2_RELOCATED_SOURCE_VERBATIM_20261030}
+\input{TH_SUPPL_S2_PROOFS_AUDIT_20261030}
+\input{TH_SUPPL_S3_COMPLETE_DRAFT_20261030}
+{\small\bibliographystyle{../ieeenat_fullname}\bibliography{../main}}
+\end{document}

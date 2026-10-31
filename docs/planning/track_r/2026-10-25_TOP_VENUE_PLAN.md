@@ -1,6 +1,39 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-29)
 
-> **Twelfth update, 2026-10-29, 21:45 ET** (the newest; read it first).
+> **Thirteenth update, 2026-10-31, 01:20 ET** (the newest; read it first).
+> - **CP2 (XP-D4, ImageNet FAST at 32 and 64 runs).**
+>   - **Selection holds again:** v4 race 18/18 vs S2 1/18.
+>   - **Coverage is not predicted even from 16 pilot runs:** O_orbit 0/6; coverage plateaus at 75–78% vs a forecast of 84–90%.
+>   - **The protocol's H1 FAILS at N_max = 32 and 64** (−1.8 and −3.4 points): about 43% of the runs go to the 4–6 images whose runs almost never pass.
+> - **CP3 (aggregates).** DAPS-4K FFHQ +3.9 (H1 pass); DAPS-4K ImageNet +0.1 (H1 pass). XP-G: H-G1 fails at both σ, so τ must be calibrated per noise level.
+>   - **PC-DAPS (descriptive):** 84.4% GOOD with our selection over its particles, against 79.0% for its own mean over particles and 68.3% for one DAPS-4K run.
+>   - **The matched-NFE rule in A12.4 was a planner design error** (the protocol's minimum of 2 runs exceeds one bag). It is withdrawn and recorded as unresolved (A15). XP-I2 moves ahead of XP-K.
+> - **Scorecard of frozen protocol hypotheses** (nine held-out panels):
+>   - H1: 7/7 at 8–16 runs, 0/2 at 32–64 runs;
+>   - H2: pass;
+>   - H3: 0/3;
+>   - H4: 3/3;
+>   - H-G1: 0/2.
+>
+>   **Forecasts:** race 57/59 selection points over tests 2–5 vs S2 17/59; oracles overforecast in 4 of 5 tests.
+> - **Paper.** Rebuilt claims:
+>   - "Which run to keep is predictable; whether any run is good is not."
+>   - The protocol gains only where consistency predicts correctness, and loses at large budgets on ImageNet.
+>
+>   Sec. 5 now has a five-test table and a forecast-calibration figure (selected-run points on the diagonal, oracle points below it). Main text 8 pages; supplement first build at 10 pages.
+> - **Novelty, adversarially.** The novelty is in the science, not the method:
+>   - five registered prospective tests;
+>   - a falsifiable selection model that beats the standard verifier model 57 to 17;
+>   - a coverage limit backed by theory and data;
+>   - the ground-truth-free vs ground-truth-oracle gap in published numbers.
+>
+>   The protocol is simple. It wins on one solver family, loses at large budgets, and PC-DAPS (concurrent) is more compute-efficient than independent runs. A CVPR reviewer looking for a method will find this thin; one valuing evaluation science will find it unusually rigorous.
+>   - **CVPR odds:** low-moderate, about 1 in 5 (judgment, not a model).
+>   - **Natural fits:** TMLR, or ICCV 2027 after CVPR reviews.
+>   - **Cost of submitting to CVPR:** it blocks ICML 2027 (decision after ICML's deadline).
+> - **Nov 8 go/no-go (unchanged conditions, now met)** plus one question for Cheng: CVPR as an evaluation-science paper with a practical protocol, or skip to TMLR/ICML? The planner's lean: submit to CVPR; the draft is nearly complete and reviews are valuable.
+>
+> **Twelfth update, 2026-10-29, 21:45 ET.**
 > - **CP1 is in, and the protocol has its out-of-sample win.** On DAPS F8, the protocol gains **+3.4 points** over fixed best-of-K at equal compute and comes within 0.8 points of best-of-8 at 40% of its runs: 93.1% at 3.2 runs. H2 passes.
 >   - The gain falls inside a range (+2 to +4) that the theory chat committed from the four-run prefix about 5 h before CP1 existed.
 >   - That forecast's levels were too high by 3–6 points; the paper says so.

@@ -20,13 +20,13 @@ We study three published solvers (DAPS, SITCOM, FAST-DIPS) on common measurement
 Within an image, the residual ranks a correct run ahead of a wrong but measurement-consistent one in $200$ of $205$ pairs\claim{C-A7}: the noise shared by two runs of the same measurement cancels in the comparison.
 Residual selection followed by a zero-shot orientation test falls short of an orientation-aware ground-truth oracle by at most two images per solver and cohort on FFHQ\claim{C-A3}.
 For FAST-DIPS on ImageNet, where rotated runs are common, the same test closes $57$--$60\%$ of the gap between the residual pick and that oracle\claim{C-R4}.
-A residual-race model, fitted to four runs per image and frozen before more runs were scored, predicted the selected-run success of SITCOM and of FAST-DIPS on ImageNet at all $24$ registered points; the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} missed $22$\claim{C-R4}\claim{C-R5}; on DAPS, whose wrong runs rarely fit the measurement, the two models nearly coincide and both held\claim{C-R6}.
+A residual-race model, fitted to the runs already observed and frozen before more runs were scored, predicted the selected run's success at $57$ of $59$ registered points in four of five prospective tests; the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} held at $17$, and both missed in the fifth\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}.
 
-\emph{The bottleneck is images the solver never solves.}
-Our frozen forecasts for FAST-DIPS overestimated how many images eventually yield a correct run.
-FAST-DIPS never produced one for $7$ of $180$ FFHQ images in $64$ runs, against $2.2$ forecast, and six of the seven never produced even a measurement-consistent run\claim{C-F2}\claim{C-F5}; on ImageNet, $25$ of $100$ images had no correct run in any orientation among $16$\claim{C-R4}.
+\emph{The bottleneck is images the solver never solves, and they are not predictable.}
+Our frozen forecasts overestimated how many images eventually yield a correct run in four of five tests, including one fitted to sixteen runs per image\claim{C-R7}.
+FAST-DIPS never produced one for $7$ of $180$ FFHQ images in $64$ runs, against $2.2$ forecast, and six of the seven never produced even a measurement-consistent run\claim{C-F2}\claim{C-F5}; on ImageNet, $22$ of $100$ images had no correct run in any orientation among $64$\claim{C-R7}.
 No selection can repair these images.
-Four runs cannot reveal them, because they identify only four moments of the per-image success distribution\claim{C-T8}.
+A few runs cannot reveal them: $n$ runs identify only $n$ moments of the per-image success distribution, and its mass near zero is not among them\claim{C-T8}.
 And ground-truth best-of-$K$ reporting hides them.
 
 \emph{Measurement-based selection is orientation-blind, and a cheap test fixes it.}
@@ -35,14 +35,15 @@ The symmetry is classical; its consequence for selection is that the within-orbi
 \paragraph{A ground-truth-free protocol.}
 These findings define a procedure (\cref{fig:teaser}a, \cref{sec:protocol}).
 It draws runs until $M$ of them reach the solver's own consistency level, keeps the run with the smallest residual, and corrects its orientation; it flags images on which no run becomes consistent and outputs whose orientation the test is unsure of.
-Each component is simple; what we add is evidence for each, a calibration that transfers across datasets, and a mechanism that predicts where stopping saves compute: where failures are inconsistent rather than consistent-but-wrong.
-On development data the protocol beats fixed best-of-$K$ at every compute level we tested (\cref{fig:teaser}b).
-We froze it, with four falsifiable hypotheses, before its held-out evaluation on ImageNet FAST-DIPS ($16$ runs), SITCOM ($16$) and DAPS ($8$) on FFHQ\claim{C-G1}. It never fell more than half a point below fixed best-of-$K$ at equal compute; it gained $3.4$ points on DAPS, as a theory note had predicted before scoring, and nothing on SITCOM and ImageNet, whose failed runs often fit the measurement.
+Each component is simple; what we add is evidence for each, a calibration that transfers across datasets, an exact account of what stopping costs and buys, and a mechanism for where it helps: where failures are inconsistent rather than consistent-but-wrong.
+We froze it, with four falsifiable hypotheses, before evaluating it on nine held-out panels\claim{C-G1}.
+With $8$ to $16$ runs it never fell more than one point below fixed best-of-$K$ at equal compute, and gained $3.4$--$3.9$ points for DAPS on FFHQ, as a theory note had predicted before scoring; with $32$--$64$ runs on ImageNet it fell behind, because a few images that never produce a consistent run absorb the budget.
+The same selection also improves the concurrent PC-DAPS~\cite{kocabas2026pcdaps}: choosing among its particles instead of averaging them raises its share of good images from $79.0\%$ to $84.4\%$ at no extra cost\claim{C-X1}.
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
 \item \textbf{A ground-truth-free best-of-$K$ protocol} with sequential stopping, residual selection, orientation correction and two abstention flags; per-solver calibration; development results and a frozen held-out test (\cref{sec:protocol}).
-\item \textbf{Predictability of ground-truth-free selection.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and four prospective tests against forecasts registered before the data, including a failure (\cref{sec:selection}).
-\item \textbf{The coverage limit.} Unsolved images dominate what remains; we quantify them and bound what a few runs can identify about them (\cref{sec:selection,sec:audit}).
+\item \textbf{Predictability of ground-truth-free selection.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and five prospective tests against forecasts registered before the data, including a failure (\cref{sec:selection}).
+\item \textbf{The coverage limit.} Unsolved images dominate what remains, forecasts miss them even from sixteen pilot runs, and we bound what a few runs can identify about them (\cref{sec:selection,sec:audit}).
 \item \textbf{A re-evaluation} of three published solvers on two datasets that separates the solver, ground-truth-free selection and the ground-truth oracles, with reporting recommendations (\cref{sec:audit,sec:discussion}).
 \end{itemize}

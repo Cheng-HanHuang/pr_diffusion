@@ -3,7 +3,7 @@
 
 \paragraph{Reporting.}
 For phase retrieval with diffusion priors we recommend:
-(i)~report a ground-truth-free result as the headline, \eg the protocol of \cref{sec:protocol} with its $M$, $N_{\max}$ and $\tau_S$, together with the mean number of runs per image;
+(i)~report a ground-truth-free result as the headline, \eg the protocol of \cref{sec:protocol} with its $M$, a modest $N_{\max}$ and $\tau_S$ calibrated at the noise level used, together with the mean number of runs per image;
 (ii)~report the share of images with no consistent run, which ground-truth best-of-$K$ hides, as a marker of hard images rather than a certificate of failure;
 (iii)~report oracles only as ceilings, never mixing runs across metrics;
 (iv)~evaluate up to the orientation orbit when orientation is not the object of study, and report the share of orbit errors;
@@ -13,7 +13,7 @@ For phase retrieval with diffusion priors we recommend:
 \paragraph{Limitations.}
 The protocol's components are simple, and its development results are in-sample; its claims rest on the frozen held-out test.
 It needs a per-solver threshold from images with ground truth, or the label-free variant, and an orientation scorer whose ordering matches the prior; on ImageNet the generic test is imperfect.
-Stopping gains nothing at equal compute where failed runs fit the data, as for SITCOM and FAST-DIPS on ImageNet, and the no-consistent-run flag is not a reliable detector of unsolved images (H3 failed on both panels where it was tested).
+Stopping gains nothing at equal compute where failed runs fit the data, as for SITCOM and on ImageNet, and with large budgets it can lose (H1 failed at $32$ and $64$ runs on ImageNet); the no-consistent-run flag is not a reliable detector of unsolved images (H3 failed on all three panels where it was tested).
 We study one operator, one noise level in the main text and two datasets.
 The orbit ambiguity is a property of the benchmark operator: masks~\cite{candes2015cdp,shoushtari2022dolph} or known references~\cite{barmherzig2019holographic} remove it by changing the measurement, which we leave to future work.
 Uniqueness up to the orbit is assumed, not proven, on the standard canvas, and most images of cohort~B come from FFHQ's training split.

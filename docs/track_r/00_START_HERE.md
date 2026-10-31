@@ -14,6 +14,10 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-31, 01:20 (planner): CP2 accepted (H1 fails at N_max 32/64 on ImageNet; v4 selection 18/18, coverage 0/6); CP3 option 1 (XP-I descriptive); A15.**
+  - **Paper:** claims rebuilt around "selection predictable, coverage not"; five-test table and calibration figure.
+  - **Supplement:** first build `docs/paper/track_r_cvpr27/supp/` (S1–S3 from theory `061c618`).
+  - **Notes, round 11:** [`executors/xp/11_PLANNER_NOTES_20261031.md`](executors/xp/11_PLANNER_NOTES_20261031.md) and [`executors/theory/11_PLANNER_GUIDANCE_20261031.md`](executors/theory/11_PLANNER_GUIDANCE_20261031.md).
 - **2026-10-29, 21:45 (planner): CP1 accepted (H2 passes on DAPS, +3.4 points); A14.**
   - **Protocol held-out:** H1 3/3; H2 pass (as the theory pre-score note forecast); H3 fail ×2; H4 pass. F8 is reproduced exactly.
   - **A14:** G2 production-mode pilot, G2 ceiling 25 GPU-h; PC-DAPS clone by Cheng (G3 to Nov 4).
