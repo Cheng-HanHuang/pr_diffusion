@@ -8,15 +8,20 @@ BASE="$ROOT/outputs/pr_diffusion/track_r"
 PY="$ROOT/conda-envs/prdiff_track_r/bin/python"
 HEAD="$1"
 STAMP="$2"
-SSH_URL=git@github.com:Cheng-HanHuang/pr_diffusion.git
 export CUDA_VISIBLE_DEVICES=""
 export PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1
 export PYTHONPATH="$WT"
-export GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=12"
 [[ "$HEAD" =~ ^[0-9a-f]{40}$ ]] || { echo STOP_A17_HEAD;exit 8; }
 [[ "$STAMP" =~ ^[0-9]{8}T[0-9]{6}Z$ ]] || { echo STOP_A17_STAMP;exit 8; }
 test "$(git -C "$WT" rev-parse HEAD)" = "$HEAD"
 test -z "$(git -C "$WT" status --porcelain)"
+# Follow the established origin push workflow, rather than forcing SSH
+# when PAC's configured and working origin uses HTTPS credentials.
+ORIGIN_URL=$(git -C "$WT" remote get-url origin)
+case "$ORIGIN_URL" in
+ https://github.com/Cheng-HanHuang/pr_diffusion|https://github.com/Cheng-HanHuang/pr_diffusion.git|git@github.com:Cheng-HanHuang/pr_diffusion.git) ;;
+ *) echo STOP_CP3_WRONG_ORIGIN_URL;exit 8 ;;
+esac
 OUT="$BASE/xp_a17_cp3_return_$STAMP"
 "$PY" "$WT/scripts/track_r/xp_a17_cp3_prepare_return_cpu.py" \
  --expected-head "$HEAD" --out "$OUT" --preflight-only
@@ -50,9 +55,9 @@ cp -a "$OUT/theory_inputs/." "$PUBLISH/$T/"
 git -C "$PUBLISH" add -- "$R" "$T"
 git -C "$PUBLISH" diff --cached --check
 git -C "$PUBLISH" commit -m "results(track-r): A15 CP3 confirmatory G2/G4/G5 and descriptive PC-DAPS, corrected 400x10 NFE"
-git -C "$PUBLISH" push "$SSH_URL" "HEAD:refs/heads/$BRANCH"
+git -C "$PUBLISH" push -u origin "$BRANCH"
 LOCAL=$(git -C "$PUBLISH" rev-parse HEAD)
-REMOTE=$(git -C "$PUBLISH" ls-remote "$SSH_URL" "refs/heads/$BRANCH" | cut -f1)
+REMOTE=$(git -C "$PUBLISH" ls-remote origin "refs/heads/$BRANCH" | cut -f1)
 test "$LOCAL" = "$REMOTE"
 echo "A17_CP3_REMOTE_CHECKPOINT_PUBLISHED_AND_VERIFIED=$LOCAL"
 echo "CP3_BRANCH=$BRANCH"
