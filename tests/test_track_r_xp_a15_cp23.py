@@ -48,6 +48,20 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_joint_pc_daps_readout_keeps_unmatched_nfe_explicit(self):
+  from scripts.track_r import xp_a16_cp3_joint_readout_cpu as joint
+  src=inspect.getsource(joint)
+  self.assertIn('same_signed_measurements_verified=True',src)
+  self.assertIn('frozen_M2_protocol_applied_to_one_run=False',src)
+  self.assertIn('not_exact_NFE_matched=True',src)
+  self.assertIn('"exact_matched_NFE":False',src)
+  self.assertIn('"CP3_RETURN_AUTHORIZED":False',src)
+  self.assertIn('len(pgroup)==180',src)
+  self.assertIn('PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN',src)
+  self.assertIn('independently_spot_recompute',src)
+  self.assertIn('CP3_READOUT_METRIC_SUMMARY_KEYS_',src)
+  self.assertIn('CP3_READOUT_PC_DAPS_IDENTICAL_FROZEN_SIGNED_Y_',src)
+  self.assertEqual(joint.STAGE_ORDER,("G4","G5","G3"))
  def test_cp3_metric_dependency_isolation_and_native_cpu_launch(self):
   for name in ("xp_a16_cp3_piq_dependency_bootstrap.sh",
                "xp_a16_cp3_metric_weights_bootstrap.sh",
