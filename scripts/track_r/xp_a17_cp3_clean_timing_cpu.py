@@ -16,8 +16,10 @@ from scripts.track_r.xp_a15_cp3_score_cpu import G3_PREP,G3_MANIFEST_SHA,A14_HEA
 from scripts.track_r.xp_a12_g45_prepare_cpu import DAPS4K,DAPS_HEAD
 from prdiffusion.track_r.xp_gpu_telemetry import collect,choose_gpu
 
-PY_PC=ROOT/"conda-envs/prdiff_track_r/bin/python"
 PY_DAPS=ROOT/"conda-envs/daps/bin/python"
+# The accepted A14 G3 native campaign explicitly ran PC-DAPS under the
+# DAPS environment. prdiff_track_r lacks torchdiffeq and must not be used.
+PY_PC=PY_DAPS
 G6_F8_NOTE="G6_prior_DAPS400x5_does_NOT_measure_DAPS4K_400x10"
 STAGE_CAP_GPU_H=3.
 PROJECT_CAP_GPU_H=400.
@@ -108,7 +110,21 @@ def main(a):
       and not git("status","--porcelain"),"A17_TIMING_WT")
  dp,pc_source,dr,jobs=prepare()
  origin,project=budget()
- gate(PY_PC.is_file() and PY_DAPS.is_file(),"A17_TIMING_NATIVE_ENVS")
+ gate(PY_PC.is_file() and PY_DAPS.is_file()
+      and PY_PC==PY_DAPS,
+      "A17_TIMING_ACCEPTED_G3_PYTHON_ENV")
+ # Zero-GPU import probe: fail before creating an output directory or
+ # attempting a timed worker if the native sampler dependencies drift.
+ dep=subprocess.run([str(PY_PC),"-c",
+     "import torchdiffeq, yaml, torch, torchvision; "
+     "print('A17_ACCEPTED_G3_DEPENDENCY_PASS', "
+     "torchdiffeq.__file__, torch.__version__)"],
+     cwd=str(wt),
+     env=dict(os.environ,CUDA_VISIBLE_DEVICES="",PYTHONPATH=str(wt)),
+     capture_output=True,text=True,timeout=90)
+ gate(dep.returncode==0,"A17_TIMING_NATIVE_G3_DEP_IMPORT "+
+      dep.stderr[-400:])
+ print(dep.stdout.strip(),flush=True)
  if a.preflight_only:
   cards=collect()
   good=[x for x in cards if x.visibility=="known" and not x.foreign_pids and x.used_mib<=2048]
