@@ -73,7 +73,7 @@ def compute_same_particles(pc):
   chosen=cc[(iid,sel)]["face_choice"]=="111"
   values={
     "PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN":{
-      k:sum(t[k] for t in native)/4 for k in METRICS},
+      k:sum(t[k] for t in native)/4 for k in (*METRICS,"orbit_error")},
     "PC_E0":record(pc,(iid,sel)),
     "PC_E1_CLIP":record(pc,(iid,sel),flip=chosen)
   }
