@@ -83,12 +83,26 @@ class A18PlannerTests(unittest.TestCase):
         self.assertIn('torch.load(gp,map_location="cpu",weights_only=True)',audit)
         self.assertIn('D1_two_root_replay_still_required=True',audit)
 
+    def test_xpn_replay_pixel_exact_historical_and_budget(self):
+        src=(ROOT/"scripts/track_r/xp_a18_xpn_replay_cpu.py").read_text()
+        self.assertIn("A12_G1A_HISTORICAL_REPLAY2",src)
+        self.assertIn('old["status"]=="R0_5_CHUNK_PASS"',src)
+        self.assertIn("ImageChops.difference(im0,im1).getbbox() is None",src)
+        self.assertIn("choose_gpu(cards,8192",src)
+        self.assertIn('fraction=.80,clean_only=False',src)
+        self.assertIn("REPLAY_CAP=1.",src)
+        self.assertIn("XPN_CAP=20.",src)
+        self.assertIn("not unknown and nsamples>0",src)
+        self.assertIn('no_XPN_candidates_generated=True',src)
+        self.assertNotIn("GT_ONLY_CPU.json",src)
+
     def test_python_syntax_and_go_data_isolation(self):
         for filename in ("xp_a18_xpi_particle_metrics_cpu.py",
                          "xp_a18_xpn_image_inventory_cpu.py",
                          "xp_a18_xpn_decode_isolated.py",
                          "xp_a18_xpn_prepare_y_cpu.py",
-                         "xp_a18_xpn_audit_y_cpu.py"):
+                         "xp_a18_xpn_audit_y_cpu.py",
+                         "xp_a18_xpn_replay_cpu.py"):
             path=ROOT/"scripts"/"track_r"/filename
             ast.parse(path.read_text(),filename=str(path))
         inventory=(ROOT/"scripts/track_r/xp_a18_xpn_image_inventory_cpu.py").read_text()
