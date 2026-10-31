@@ -14,7 +14,7 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
-- **2026-10-31, 14:25 (planner): CP3 accepted (reproduction exact); A16.**
+- **2026-10-31, 14:24 (planner): CP3 accepted (reproduction exact); A16.**
   - **A16:** post-CP3 exploratory analyses (`planner_analysis/A16_cp3_and_exploratory/`); XP-N image-disjoint ImageNet panel, conditional on Cheng's GO, with hypotheses and planner forecasts registered at `21babef`; XP-C3 prior orientation test.
   - **Paper:** Table 1 complete with gain intervals; selection-first framing; supplement 15 pages with planner S4.
   - **Notes, round 12:** [`executors/xp/12_PLANNER_NOTES_20261031_PM.md`](executors/xp/12_PLANNER_NOTES_20261031_PM.md) and [`executors/theory/12_PLANNER_GUIDANCE_20261031_PM.md`](executors/theory/12_PLANNER_GUIDANCE_20261031_PM.md).

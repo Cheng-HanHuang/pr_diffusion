@@ -2,9 +2,9 @@
 Diffusion-prior solvers for Fourier phase retrieval are evaluated by running each method several times and reporting, for every metric separately, the run closest to the ground truth.
 We ask how much of this quality is available without the ground truth, and why the rest is not.
 For four solvers on FFHQ, keeping the run with the smallest measurement residual and correcting its orientation with a zero-shot test comes within about one point of an orientation-aware ground-truth oracle; applied to the particles of PC-DAPS, it raises the share of good images from $79.0\%$ to $84.4\%$ at no extra cost.
-On ImageNet, consistent-but-wrong runs and missed rotations leave FAST-DIPS $13$ points short of that oracle at $64$ runs.
+On ImageNet, consistent-but-wrong runs and orientation errors leave FAST-DIPS $13$ points short of that oracle at $64$ runs.
 Which run to keep is predictable: in four of five tests against forecasts registered before the runs were scored, a residual-race model's intervals for the selected run covered $57$ of $59$ points, which are correlated across $K$, against $17$ for the exchangeable-ranks model of best-of-$n$; in the fifth both overestimated generation.
 Whether any run is good is not: the forecasts overestimated coverage in four of the five tests, even when fitted to sixteen runs per image, and $22\%$ of ImageNet images had no good run in $64$.
 We turn these findings into a ground-truth-free protocol that samples until two runs are measurement-consistent, selects by residual, corrects orientation, and flags uncertain outputs.
-Frozen before its evaluation, it gained $3.4$--$3.9$ points over fixed best-of-$K$ at equal mean runs for DAPS on FFHQ, whose failed runs rarely fit the measurement, as predicted before scoring; it stayed within a point elsewhere with $8$ to $16$ runs, and with $32$--$64$ runs on ImageNet it fell $1.8$--$3.4$ points behind, spending its budget on images that never become consistent.
+Frozen before its evaluation, it gained $3.4$--$3.9$ points over fixed best-of-$K$ at equal mean runs for DAPS on FFHQ, whose failed runs rarely fit the measurement (the first gain as predicted before scoring); it stayed within a point elsewhere with $8$ to $16$ runs, and with $32$--$64$ runs on ImageNet it fell $1.8$--$3.4$ points behind, spending its budget on images that never become consistent.
 \end{abstract}

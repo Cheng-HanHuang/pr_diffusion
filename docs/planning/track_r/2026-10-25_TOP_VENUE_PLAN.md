@@ -1,6 +1,6 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-31)
 
-> **Fourteenth update, 2026-10-31, 14:25 ET** (the newest; read it first).
+> **Fourteenth update, 2026-10-31, 14:24 ET** (the newest; read it first).
 > - **CP3 accepted.** All 7 per-cohort protocol outputs were reproduced exactly (max diff 0); the XP-I GOOD25 shares were reproduced from strings. Table 1 is complete.
 > - **Two GPT adversarial reviews evaluated** (A16).
 >   - **Adopted:** selection-first positioning; gains reported with image-bootstrap intervals; "equal mean runs" wording; the noise cross-term stated exactly; correlated forecast points; PC-DAPS described as a random-particle readout; an image-disjoint test (XP-N, conditional).

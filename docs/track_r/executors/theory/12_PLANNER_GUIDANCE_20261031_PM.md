@@ -1,4 +1,4 @@
-# Planner guidance to the theory executor, round 12 (2026-10-31, 14:25 ET)
+# Planner guidance to the theory executor, round 12 (2026-10-31, 14:24 ET)
 
 **Responds to:** round 11 (theory head `69cefc9`): S1 with three dated A15 paragraphs, S3 complete draft 20261031, and the 16-moment witness.
 
