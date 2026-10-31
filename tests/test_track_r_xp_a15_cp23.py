@@ -48,6 +48,25 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_cp3_pending_science_outputs_are_fail_closed(self):
+  for name in ("xp_a16_cp3_nfe_ledger_cpu.py",
+               "xp_a16_cp3_piq_metrics_cpu.py",
+               "xp_a16_cp3_imagenet_gt_y_cpu.py"):
+   text=(ROOT/"scripts/track_r"/name).read_text()
+   ast.parse(text,filename=name)
+   self.assertIn("CP3_RETURN_AUTHORIZED=False",text)
+   self.assertIn('CUDA_VISIBLE_DEVICES',text)
+  nfe=(ROOT/"scripts/track_r/xp_a16_cp3_nfe_ledger_cpu.py").read_text()
+  self.assertIn("matched_nfe_certified=False",nfe)
+  self.assertIn("exact_pc_nfe_available=False",nfe)
+  self.assertIn("1920",nfe)
+  metrics=(ROOT/"scripts/track_r/xp_a16_cp3_piq_metrics_cpu.py").read_text()
+  self.assertIn("piq.LPIPS(replace_pooling=True,reduction=\"none\")",metrics)
+  self.assertIn("weights_only=True",metrics)
+  self.assertIn('GT_used_for_evaluation_only=True',metrics)
+  gt=(ROOT/"scripts/track_r/xp_a16_cp3_imagenet_gt_y_cpu.py").read_text()
+  self.assertIn('seed("XPMEAS|imagenet",iid)',gt)
+  self.assertIn("err<=1e-4",gt)
  def test_cp3_audit_consumes_exact_frozen_clip_slices(self):
   from scripts.track_r import xp_a15_cp3_independent_audit_cpu as ai
   auditor=inspect.getsource(ai.rerun_protocol)
