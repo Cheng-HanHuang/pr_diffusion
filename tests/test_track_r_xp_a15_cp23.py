@@ -61,6 +61,9 @@ class A15Tests(unittest.TestCase):
   self.assertIn('XP_I_matched_NFE',source)
   self.assertIn('WITHDRAWN_UNRESOLVED',source)
   self.assertIn('theory_inputs',source)
+  self.assertIn("def accepted_timing",source)
+  self.assertIn("A17_RELEASE_ONE_VALID_CLEAN_TIMING",source)
+  self.assertIn("failed_timing_attempts=failed_timing",source)
   self.assertEqual(release.files_for("G2_0.02").name,
                    "xp_a15_cp3_G2_0.02_20261030T210259Z")
   self.assertEqual(release.files_for("G4").name,
@@ -73,6 +76,12 @@ class A15Tests(unittest.TestCase):
   from scripts.track_r import xp_a17_cp3_clean_timing_cpu as t
   code=inspect.getsource(t)
   self.assertIn("DAPS4K",code)
+  self.assertEqual(t.PY_PC,t.PY_DAPS)
+  self.assertTrue(str(t.PY_PC).endswith("/conda-envs/daps/bin/python"))
+  self.assertIn("import torchdiffeq, yaml, torch, torchvision",code)
+  self.assertIn("A17_TIMING_NATIVE_G3_DEP_IMPORT",code)
+  self.assertIn("previous_A17_charged_gpu_hours=prior_charged",code)
+  self.assertIn("A17_TIMING_SUCCESS_EXISTS_DO_NOT_DUPLICATE",code)
   self.assertIn("G6_prior_DAPS400x5_does_NOT_measure_DAPS4K_400x10",code)
   self.assertIn('and sha(pr["measurement_path"])==sha(drw["measurement_path"])',code)
   self.assertIn('canonical="S1_b22_"+did',code)
