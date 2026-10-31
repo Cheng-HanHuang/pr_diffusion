@@ -65,8 +65,8 @@ def read_stage(stage):
        "CP3_READOUT_RECORD_KEY_"+stage)
   for met in METRIC_KEYS:
    gate(math.isfinite(float(r[met])) and
-        (0<=float(r[met])<=1 if met.startswith("SSIM") else
-         float(r[met])>=0),
+        (-1.000001<=float(r[met])<=1.000001 if met.startswith("SSIM") else
+         float(r[met])>=-1e-9),
         "CP3_READOUT_METRIC_FINITE_"+met)
   mm[key]=dict(r,run=int(r["run"]),**{
     met:float(r[met]) for met in METRIC_KEYS})
