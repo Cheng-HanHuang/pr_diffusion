@@ -178,8 +178,10 @@ def main(a):
          "CP3_PIQ_NUMERIC_FINITE")
     values.append(dict(image_id=iid,cohort=row["cohort"],
       run=int(row["run"]),uid=row["uid"],
-      candidate_pt_sha256=("G3_BAG_PT" if a.stage=="G3" else
-        sha(Path(row["reconstruction_path"]).with_suffix(".pt"))),
+      candidate_pt_sha256=sha(
+       Path(row["reconstruction_path"]).parent/"particles.pt"
+       if a.stage=="G3" else
+       Path(row["reconstruction_path"]).with_suffix(".pt")),
       SSIM_raw=vals[0],SSIM_111=vals[1],
       LPIPS_VGG_raw=vals[2],LPIPS_VGG_111=vals[3]))
    tensor_cache.clear()
