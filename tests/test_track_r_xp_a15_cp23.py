@@ -48,6 +48,20 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_a15_cp3_release_requires_clean_timing_and_no_matched_NFE(self):
+  from scripts.track_r import xp_a17_cp3_prepare_return_cpu as release
+  source=inspect.getsource(release)
+  self.assertIn('len(lines)<=20',source)
+  self.assertIn('A15_CP3_DESCRIPTIVE_EXTENSIONS_AUDITED_NOT_CHECKPOINT',source)
+  self.assertIn('A17_CP3_CLEAN_PAIRED_TIMING_PASS',source)
+  self.assertIn('DAPS4K_nominal_NFE_per_run',source)
+  self.assertIn('XP_I_matched_NFE',source)
+  self.assertIn('WITHDRAWN_UNRESOLVED',source)
+  self.assertIn('theory_inputs',source)
+  pub=(ROOT/"scripts/track_r/xp_a17_cp3_publish.sh").read_text()
+  self.assertIn('sha256sum -c SHA256SUMS',pub)
+  self.assertIn('git@github.com:Cheng-HanHuang/pr_diffusion.git',pub)
+  self.assertIn('A17_CP3_REMOTE_CHECKPOINT_PUBLISHED_AND_VERIFIED',pub)
  def test_a15_clean_timing_uses_real_DAPS4K_and_same_y(self):
   from scripts.track_r import xp_a17_cp3_clean_timing_cpu as t
   code=inspect.getsource(t)
