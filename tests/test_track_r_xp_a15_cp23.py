@@ -48,6 +48,16 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_a15_clean_timing_uses_real_DAPS4K_and_same_y(self):
+  from scripts.track_r import xp_a17_cp3_clean_timing_cpu as t
+  code=inspect.getsource(t)
+  self.assertIn("DAPS4K",code)
+  self.assertIn("G6_prior_DAPS400x5_does_NOT_measure_DAPS4K_400x10",code)
+  self.assertIn('and sha(pr["measurement_path"])==sha(drw["measurement_path"])',code)
+  self.assertIn("choose_gpu",code)
+  self.assertIn("if rc!=0 or not entry[\"clean\"]",code)
+  self.assertIn("STAGE_CAP_GPU_H=3.",code)
+  self.assertIn('"G4","--phase","PROD"',code)
  def test_a15_cp3_native_receipts_ci_and_fixed_e1(self):
   from scripts.track_r import xp_a17_cp3_a15_descriptive_cpu as a17
   code=inspect.getsource(a17)
