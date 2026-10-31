@@ -1,0 +1,95 @@
+{
+  "DAPS4K_config": "400_anneal_x10_ODE_100_Langevin",
+  "clean_physical_gpu": 0,
+  "clean_time_sample_size_per_native_family": 3,
+  "exact_matched_compute_claim": false,
+  "frozen_protocol_unchanged": true,
+  "matched_NFE_rule": "WITHDRAWN_UNRESOLVED",
+  "model_load_and_CLIP_time_excluded": true,
+  "native_sampling_only": true,
+  "note": "PC bag and one DAPS-4K run are directly timed on three images; multi-run times assume linear scaling and are not independent measurements of the frozen adaptive policy.",
+  "rows": [
+    {
+      "GOOD25": 0.7902777777777777,
+      "LPIPS_VGG": 0.18843253632593487,
+      "PSNR_db": 28.07115901711735,
+      "SSIM": 0.7971279231831432,
+      "exact_NFE_available": false,
+      "logged_mean_NFE_lower_bound": 1928.4,
+      "mean_native_sampling_seconds": 30.58387784395988,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 1920,
+      "policy": "PC_NATIVE_FOUR_PARTICLE_METRIC_MEAN",
+      "time_basis": "MEASURED_3_CLEAN_PC_BAGS_EXCLUDES_SELECTION_AND_CLIP"
+    },
+    {
+      "GOOD25": 0.8277777777777777,
+      "LPIPS_VGG": 0.17879049330949784,
+      "PSNR_db": 28.561536102551,
+      "SSIM": 0.8064489316195249,
+      "exact_NFE_available": false,
+      "logged_mean_NFE_lower_bound": 1928.4,
+      "mean_native_sampling_seconds": 30.58387784395988,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 1920,
+      "policy": "PC_E0_RESIDUAL_SELECTION",
+      "time_basis": "MEASURED_3_CLEAN_PC_BAGS_EXCLUDES_SELECTION_AND_CLIP"
+    },
+    {
+      "GOOD25": 0.8444444444444444,
+      "LPIPS_VGG": 0.16563984457817343,
+      "PSNR_db": 29.097130953459168,
+      "SSIM": 0.8225126536356078,
+      "exact_NFE_available": false,
+      "logged_mean_NFE_lower_bound": 1928.4,
+      "mean_native_sampling_seconds": 30.58387784395988,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 1920,
+      "policy": "PC_E1_CLIP_ORIENTATION",
+      "time_basis": "MEASURED_3_CLEAN_PC_BAGS_EXCLUDES_SELECTION_AND_CLIP"
+    },
+    {
+      "GOOD25": 0.6833333333333333,
+      "LPIPS_VGG": 0.2598460141983297,
+      "PSNR_db": 25.21712642871439,
+      "SSIM": 0.690127005883389,
+      "mean_native_sampling_seconds": 65.98228464089334,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 4000,
+      "policy": "DAPS_4K_ONE_RUN_RAW",
+      "time_basis": "MEASURED_3_CLEAN_SINGLE_RUNS_EXCLUDES_CLIP"
+    },
+    {
+      "GOOD25": 0.7166666666666667,
+      "LPIPS_VGG": 0.22848037824862533,
+      "PSNR_db": 26.468739940991444,
+      "SSIM": 0.7285753178927633,
+      "mean_native_sampling_seconds": 65.98228464089334,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 4000,
+      "policy": "DAPS_4K_FIXED_E1_K1",
+      "time_basis": "MEASURED_PER_RUN_EXTRAPOLATION_EXCLUDES_CLIP"
+    },
+    {
+      "GOOD25": 0.8444444444444444,
+      "LPIPS_VGG": 0.17685109852916664,
+      "PSNR_db": 28.695100812590944,
+      "SSIM": 0.7804838542309073,
+      "mean_native_sampling_seconds": 131.96456928178668,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 8000,
+      "policy": "DAPS_4K_FIXED_E1_K2",
+      "time_basis": "LINEAR_EXTRAPOLATION_NOT_DIRECT_POLICY_TIMING_EXCLUDES_CLIP"
+    },
+    {
+      "GOOD25": 0.9396138888888887,
+      "mean_native_sampling_seconds": 184.97290392104037,
+      "mean_runs": 2.8033722222222224,
+      "n_images": 180,
+      "nominal_denoiser_NFE": 11213.488888888889,
+      "policy": "DAPS_4K_FROZEN_EPRIME8_M2",
+      "time_basis": "LINEAR_EXTRAPOLATION_NOT_DIRECT_POLICY_TIMING_EXCLUDES_CLIP"
+    }
+  ],
+  "status": "A15_CP3_A12_PAIRED_DESCRIPTIVE_COMPUTE_LABELED"
+}

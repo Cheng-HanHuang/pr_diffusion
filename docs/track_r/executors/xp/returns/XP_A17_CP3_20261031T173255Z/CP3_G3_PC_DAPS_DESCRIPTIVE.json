@@ -1,0 +1,19 @@
+{
+  "DAPS_matched_NFE_comparison_status": "PENDING_AUTHENTICATED_PER_BAG_NFE",
+  "mean_over_images": {
+    "E0_GOOD25": 0.8277777777777777,
+    "E0_PSNR": 28.561536102551003,
+    "E1_GOOD25": 0.8444444444444444,
+    "E1_PSNR": 29.09713095345917,
+    "PC_DAPS_own_metric_mean_psnr_db": 28.071159017117367,
+    "first_GOOD25": 0.7944444444444444,
+    "first_psnr_db": 28.117946902631857,
+    "mean_GOOD25_per_particle": 0.7902777777777777,
+    "orbit_error_per_particle": 0.013888888888888888
+  },
+  "n_bags": 180,
+  "n_particles": 720,
+  "not_sufficient_for_CP3_release": true,
+  "own_estimate_is_mean_of_four_particle_METRICS_not_pixel_mean": true,
+  "status": "PC_DAPS_NATIVE_FOUR_PARTICLE_METRIC_MEAN_DESCRIPTIVE"
+}

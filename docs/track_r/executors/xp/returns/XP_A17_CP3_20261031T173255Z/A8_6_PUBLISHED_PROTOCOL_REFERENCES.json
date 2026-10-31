@@ -1,0 +1,58 @@
+{
+  "external_references": {
+    "FFHQ": {
+      "DAPS_TABLE1": {
+        "LPIPS": 0.139,
+        "PSNR": 30.63,
+        "SSIM": 0.851
+      },
+      "PC_DAPS_REPRODUCED_DAPS": {
+        "LPIPS": 0.177,
+        "PSNR": 29.66,
+        "SSIM": 0.77
+      }
+    },
+    "IMAGENET": {
+      "DAPS_TABLE1": {
+        "LPIPS": 0.254,
+        "PSNR": 25.78,
+        "SSIM": 0.743
+      },
+      "PC_DAPS_REPRODUCED_DAPS": {
+        "LPIPS": 0.387,
+        "PSNR": 20.98,
+        "SSIM": 0.461
+      }
+    }
+  },
+  "imagenet_gt_y_status": "100/100 exact reproduction, observed RMS zero",
+  "notes": "Our per-metric GT-oracle results are not GT-free outputs; the external paper values below use different data/evaluations and are contextual references, not same-id reproduction.",
+  "our_DAPS4K": {
+    "FFHQ": {
+      "best_4": {
+        "LPIPS_VGG_piq_float_raw": 0.1562773645338085,
+        "PSNR_rgb8_raw_db": 29.76435319547111,
+        "SSIM_piq_float_raw": 0.8009733099076483
+      },
+      "best_8": {
+        "LPIPS_VGG_piq_float_raw": 0.1463041199164258,
+        "PSNR_rgb8_raw_db": 30.262728056287223,
+        "SSIM_piq_float_raw": 0.8106879161463844
+      }
+    },
+    "IMAGENET": {
+      "best_4": {
+        "LPIPS_VGG_piq_float_raw": 0.33965946700423955,
+        "PSNR_rgb8_raw_db": 22.275778594358897,
+        "SSIM_piq_float_raw": 0.5181776053085924
+      },
+      "best_8": {
+        "LPIPS_VGG_piq_float_raw": 0.297717057839036,
+        "PSNR_rgb8_raw_db": 24.073938465006098,
+        "SSIM_piq_float_raw": 0.5645036567747593
+      }
+    }
+  },
+  "protocol": "raw 000 PSNR from scored RGB8; piq SSIM/LPIPS from original float tensors; independently optimize each metric",
+  "status": "A15_A8_6_EXACT_IDENTITY_AND_DAPS4K_ORACLES"
+}

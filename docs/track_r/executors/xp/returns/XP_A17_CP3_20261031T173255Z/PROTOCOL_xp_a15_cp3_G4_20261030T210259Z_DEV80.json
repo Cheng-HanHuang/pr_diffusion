@@ -1,0 +1,91 @@
+{
+ "tau": 0.04763032664805651,
+ "M": 2,
+ "N_MAX": 8,
+ "R": 4000,
+ "seed": 20261029,
+ "orientation_step": true,
+ "n_images": 80,
+ "n_runs_per_image_panel": 8,
+ "success_all": 0.8905375,
+ "success_all_e0_pick": 0.861928125,
+ "runs_mean": 3.192334375,
+ "runs_fraction_of_nmax": 0.399041796875,
+ "flag_c_rate": 0.05,
+ "flag_c_expected_count": 4.0,
+ "flag_c_on_never_good_panel": 2.0,
+ "flag_c_on_never_orbit_panel": 2.0,
+ "flag_c_precision_unsolved": 0.5,
+ "flag_c_recall_unsolved": 0.4,
+ "n_unsolved_panel": 5,
+ "n_never_good_panel": 5,
+ "n_never_orbit_panel": 5,
+ "success_given_not_flag_c": 0.9110921052631579,
+ "flag_o_cut_abs_margin": 0.0871749520302,
+ "qflag": 0.3,
+ "coverage_unflagged": 0.666325,
+ "success_unflagged": 0.9488331519903951,
+ "success_flag_o_only": 0.8224420551687671,
+ "fixed_curves": {
+  "E0": [
+   0.584375,
+   0.737054,
+   0.803795,
+   0.837857,
+   0.857366,
+   0.870089,
+   0.879687,
+   0.8875
+  ],
+  "E1": [
+   0.628125,
+   0.772768,
+   0.834821,
+   0.866964,
+   0.885714,
+   0.897768,
+   0.90625,
+   0.9125
+  ],
+  "O_raw": [
+   0.584375,
+   0.751339,
+   0.827679,
+   0.869286,
+   0.895089,
+   0.912946,
+   0.926562,
+   0.9375
+  ],
+  "O_orbit": [
+   0.628125,
+   0.776339,
+   0.841741,
+   0.876964,
+   0.898884,
+   0.914286,
+   0.926562,
+   0.9375
+  ]
+ },
+ "baseline": "E1",
+ "fixed_at_equal_mean_runs": 0.8410036049107141,
+ "fixed_at_nmax": 0.9125,
+ "oracle_orbit_at_nmax": 0.9375,
+ "oracle_raw_at_nmax": 0.9375,
+ "gain_vs_fixed_equal_runs": 0.04953389508928585,
+ "gap_vs_fixed_nmax": -0.021962499999999996,
+ "tau_rule": "self_mad3",
+ "run_range": null,
+ "inputs": {
+  "strings": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a15_cp3_G4_20261030T210259Z/CP3_A9_STRINGS.csv",
+  "strings_sha256": "018a646a3fa5c9c83772133d281fe1b81f42722a04b7f302155029d15408fb35",
+  "clip": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a15_cp3_protocol_20261030T210259Z/G4_CLIP_DEV80.csv",
+  "clip_sha256": "bf4891b21f534561429e2ee7e51b57f52f63f252f42780e8ddaef40c7e7a66c6",
+  "clip_cols": [
+   "face_chosen_good",
+   "face_margin"
+  ]
+ },
+ "protocol_version": "v1"
+}

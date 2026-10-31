@@ -1,0 +1,70 @@
+{
+ "tau": 0.1001658,
+ "M": 2,
+ "N_MAX": 8,
+ "R": 4000,
+ "seed": 20261029,
+ "orientation_step": false,
+ "n_images": 100,
+ "n_runs_per_image_panel": 8,
+ "success_all": 0.72044,
+ "success_all_e0_pick": 0.72044,
+ "runs_mean": 2.15802,
+ "runs_fraction_of_nmax": 0.2697525,
+ "flag_c_rate": 0.0,
+ "flag_c_expected_count": 0.0,
+ "flag_c_on_never_good_panel": 0.0,
+ "flag_c_on_never_orbit_panel": 0.0,
+ "flag_c_precision_unsolved": null,
+ "flag_c_recall_unsolved": 0.0,
+ "n_unsolved_panel": 15,
+ "n_never_good_panel": 15,
+ "n_never_orbit_panel": 15,
+ "success_given_not_flag_c": 0.72044,
+ "fixed_curves": {
+  "E0": [
+   0.5975,
+   0.705357,
+   0.736964,
+   0.748286,
+   0.752143,
+   0.7525,
+   0.75125,
+   0.75
+  ],
+  "O_raw": [
+   0.5975,
+   0.736429,
+   0.79125,
+   0.818286,
+   0.833571,
+   0.8425,
+   0.8475,
+   0.85
+  ],
+  "O_orbit": [
+   0.605,
+   0.74,
+   0.792143,
+   0.818429,
+   0.833571,
+   0.8425,
+   0.8475,
+   0.85
+  ]
+ },
+ "baseline": "E0",
+ "fixed_at_equal_mean_runs": 0.7103517035714286,
+ "fixed_at_nmax": 0.75,
+ "oracle_orbit_at_nmax": 0.85,
+ "oracle_raw_at_nmax": 0.85,
+ "gain_vs_fixed_equal_runs": 0.010088296428571342,
+ "gap_vs_fixed_nmax": -0.02956000000000003,
+ "tau_rule": "frozen",
+ "run_range": null,
+ "inputs": {
+  "strings": "/egr/research-pac/huang248/outputs/pr_diffusion/track_r/xp_a15_cp3_G2_0p10_20261030T210259Z/CP3_A9_STRINGS.csv",
+  "strings_sha256": "ef8f59e36b6d1058366a9c59916ac1e850dab42894f27ca48de7465c2c3bb463"
+ },
+ "protocol_version": "v1"
+}
