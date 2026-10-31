@@ -159,6 +159,28 @@ def aggregate(series):
  gate(bool(series),"CP3_READOUT_EMPTY_AGG")
  names=("PSNR_db","GOOD","SSIM","LPIPS_VGG","orbit_error")
  return dict(n_images=len(series),**{k:mean(z[k] for z in series) for k in names})
+def daps_native_per_metric_oracles(daps):
+ # PSNR follows the frozen scored RGB8 metric, while official SSIM/LPIPS
+ # come from native float tensors. All are separate per-metric GT oracles,
+ # NEVER GT-free selectors.
+ ag=defaultdict(list)
+ for (cohort,iid),rs in daps["image_groups"].items():
+  for k in (4,8):
+   scored=[daps["candidates"][(iid,j)] for j in range(k)]
+   mm=[daps["metrics"][(iid,j)] for j in range(k)]
+   ag[(cohort,k,"PSNR_rgb8_raw_db")].append(
+      max(float(row["psnr_raw"]) for row in scored))
+   ag[(cohort,k,"SSIM_piq_float_raw")].append(
+      max(float(row["SSIM_raw"]) for row in mm))
+   ag[(cohort,k,"LPIPS_VGG_piq_float_raw")].append(
+      min(float(row["LPIPS_VGG_raw"]) for row in mm))
+ result=[]
+ for (cohort,k,metric),vals in sorted(ag.items()):
+  result.append(dict(cohort=cohort,method=daps["stage"],
+      rule="GT_PER_METRIC_ORACLE_BEST_"+str(k),
+      metric=metric,n_images=len(vals),mean=mean(vals)))
+ return result
+
 def paired_pc_vs_daps(pc,daps):
  pgroup=pc["image_groups"];dgroup=daps["image_groups"]
  gate(set(pgroup)==set(dgroup) and len(pgroup)==180,
@@ -283,6 +305,10 @@ def main(a):
     "exact_matched_NFE":False
   },
   "pc_daps_vs_daps_same_180_frozen_y":paired,
+  "daps_GT_per_metric_oracles_not_GT_free":{
+    stage:daps_native_per_metric_oracles(data[stage])
+    for stage in ("G4","G5")
+  },
   "important_caveat":"DAPS one-run comparison is NOT the frozen M=2 stopping policy; PC-DAPS has unknown extra pruning forward calls; no exact compute matching",
   "GT_used_evaluation_only":True,"new_solver_calls":0,
   "new_CLIP_calls":0,"new_GPU_calls":0,"CP3_RETURN_AUTHORIZED":False,
@@ -312,6 +338,11 @@ def main(a):
        "LPIPS_VGG",round(z["LPIPS_VGG"],4),
        "GOOD25",round(z["GOOD"],4),
        "orbit",round(z["orbit_error"],4),flush=True)
+ for stage in ("G4","G5"):
+  for z in audit_summary["daps_GT_per_metric_oracles_not_GT_free"][stage]:
+   if z["rule"]=="GT_PER_METRIC_ORACLE_BEST_4":
+    print("CP3_DAPS_ORACLE_BEST4",stage,z["cohort"],z["metric"],
+          round(z["mean"],6),flush=True)
  print("CP3_JOINT_PC_NOT_EXACT_NFE_MATCHED__NO_PUBLICATION_GATE",flush=True)
  print("CP3_JOINT_READOUT_JSON",result,flush=True)
 if __name__=="__main__":
