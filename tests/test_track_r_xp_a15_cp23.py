@@ -48,6 +48,14 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_cp3_audit_consumes_exact_frozen_clip_slices(self):
+  from scripts.track_r import xp_a15_cp3_independent_audit_cpu as ai
+  auditor=inspect.getsource(ai.rerun_protocol)
+  producer=inspect.getsource(protocol.main)
+  self.assertIn('stage+"_CLIP_"+cohort+".csv"',auditor)
+  self.assertIn('stage+"_CLIP_"+cohort+".csv"',producer)
+  self.assertNotIn('stage+"_"+cohort+"_CLIP.csv"',auditor)
+  self.assertIn('CP3_AUDIT_CLIP_SLICE',auditor)
  def test_cp3_release_block(self):
   s=inspect.getsource(protocol.main)
   for x in ("CP3_RETURN_AUTHORIZED=False","NFE_matched_comparison_complete=False",
