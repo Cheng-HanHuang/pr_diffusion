@@ -65,7 +65,14 @@ class A15Tests(unittest.TestCase):
   self.assertIn("A17_RELEASE_ONE_VALID_CLEAN_TIMING",source)
   self.assertIn("failed_timing_attempts=failed_timing",source)
   self.assertEqual(release.files_for("G2_0.02").name,
-                   "xp_a15_cp3_G2_0.02_20261030T210259Z")
+                   "xp_a15_cp3_G2_0p02_20261030T210259Z")
+  self.assertEqual(release.files_for("G2_0.10").name,
+                   "xp_a15_cp3_G2_0p10_20261030T210259Z")
+  self.assertIn('checked[stage]=(len(strings),len(clips))',source)
+  self.assertIn('digest=build_digest(desc,summary,timing)',source)
+  self.assertIn('oracle=a86(summary)',source)
+  self.assertIn('safe_timing=json.loads(json.dumps(timing))',source)
+  self.assertIn('item["attempt_run"]=oldpath.parent.name',source)
   self.assertEqual(release.files_for("G4").name,
                    "xp_a15_cp3_G4_20261030T210259Z")
   pub=(ROOT/"scripts/track_r/xp_a17_cp3_publish.sh").read_text()
