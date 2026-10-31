@@ -210,7 +210,7 @@ explicit $s\to1$ hypothesis.
 \paragraph{Reading Proposition~1 against held-out protocol results (post-outcome).}
 The identities of Proposition~1 determine compute and the
 zero-consistency flag from the pass probability $s$, but \emph{do
-not} imply that early stopping beats equal-mean-runs fixed-$K$:
+not} imply that early stopping beats fixed-$K$ at equal mean runs:
 the accuracy comparison also depends on the passing-group winner
 qualities $H_j^+$. In the separately released ImageNet D1-P2 test,
 stop-at-two achieved $0.514$ at $3.36$ mean runs, compared with
@@ -229,7 +229,7 @@ is an \emph{interpretation after evaluation}, not a fit of
 $H_j^+$, a causal demonstration, or a new prospective prediction.
 
 \paragraph{H2: a correctly predicted gain with miscalibrated levels (post-outcome).}
-The DAPS F8 equal-mean-runs protocol gain, $+3.38$ percentage points,
+The DAPS F8 protocol gain at equal mean runs, $+3.38$ percentage points,
 falls inside the \emph{prospectively committed} historical-prefix
 prediction of $+2$ to $+4$ points (central $+3$), but this is
 \emph{not} an accurate prediction of its component success levels:
@@ -244,7 +244,7 @@ that GOOD always passes is false; and collapsing image-specific
 pass probabilities $s_i$ to a cohort average loses the nonlinear
 dependence of $\mathbb E T(s_i)$ and success on $s_i$.
 More generally, the rank-conditioned passing winner quality
-$H_j^+$ and the equal-mean-runs fixed-$K$ comparator can both
+$H_j^+$ and the fixed-$K$ at equal mean runs comparator can both
 be biased optimistically. Since the reported gain is the
 \emph{difference} between those two accuracies, their
 shared upward errors partly cancel even when each level
@@ -283,7 +283,7 @@ and fraction $1-\pi_0$ of ordinarily passing images (type $e$).
 Write $t_j(N)=\mathbb E[T\mid j]$, $S_j(N)$ for stopped
 success and $F_j(k)$ for fixed-$k$ success on type $j$.
 With $\bar K_N=\pi_0t_h(N)+(1-\pi_0)t_e(N)$,
-the exact equal-mean-runs advantage is
+the exact advantage at equal mean runs is
 \begin{equation}\label{eq:stop-mixture-large-N}
  \Delta_N =
  \pi_0\{S_h(N)-F_h(\bar K_N)\}
@@ -414,7 +414,7 @@ displacement divided by $\sigma$ has a fixed law.
 In the released exploratory $\texttt{self\_mad3}$ study the
 label-free threshold is within $3.5\%$ of the labeled threshold
 at $\sigma=.02$ and within $1.2\%$ at $\sigma=.10$;
-the cross-fitted equal-mean-runs protocol gains were $+4.06$
+the cross-fitted protocol gain at equal mean runss were $+4.06$
 and $+0.89$ percentage points, respectively.
 This alignment is conditional on the pilot's label
 composition and residual rank separation: it is \emph{not}
