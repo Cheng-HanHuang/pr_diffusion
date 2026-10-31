@@ -32,8 +32,8 @@ def prepare():
  matches=[]
  for p in BASE.glob("xp_a12_g45_prepare_*/XP_A12_G45_PREP_RECEIPT.json"):
   r=jread(p)
-  if r.get("head")==A14_HEAD and
-     r.get("status")=="XP_A12_G45_INPUTS_FROZEN_CPU_PASS":
+  if (r.get("head")==A14_HEAD and
+      r.get("status")=="XP_A12_G45_INPUTS_FROZEN_CPU_PASS"):
    matches.append((p.parent,r))
  gate(len(matches)==1,"A17_TIMING_G4_PREP_UNIQUE")
  dp,dr=matches[0]
