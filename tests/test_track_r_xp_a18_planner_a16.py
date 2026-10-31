@@ -141,6 +141,8 @@ class A18PlannerTests(unittest.TestCase):
         self.assertIn("no_GT_scoring_or_prediction_access=True",code)
         self.assertIn("outcomes_4_to_63_still_sealed=True",code)
         self.assertIn("A18_XPN_NATIVE_GPU_ATTEMPT_CHARGED",code)
+        self.assertIn("XP_N_NEW_COHORT_20_ROOT_NATIVE_SMOKE_PASS",code)
+        self.assertIn("first_new_image_native_smoke_pass",code)
         self.assertIn("XP_A12_CAMPAIGN_CONTROLLER.lock",code)
         self.assertIn("fraction=.80,clean_only=False",code)
         self.assertIn("RUNNING",code)
