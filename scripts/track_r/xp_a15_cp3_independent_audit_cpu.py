@@ -49,8 +49,7 @@ def independent_stage(stage,stage_dir):
   label=s["labels_by_run"].split(";")[i]
   rho=float(s["rho_signed_by_run"].split(";")[i])
   assert_close(rho,row["rho_signed"],"CP3_AUDIT_RHO_JOIN",1e-10)
-  gate(label==row["label"]=="G" or label==row["label"],
-       "CP3_AUDIT_LABEL_JOIN")
+  gate(label==row["label"],"CP3_AUDIT_LABEL_JOIN")
   raw=float(row["psnr_raw"]);best=float(row["psnr_orbit_best"])
   flip=float(row["psnr_flip"]); threshold=20 if stage=="G5" else 25
   tau=float(s["tau_signed_good_q95"])
