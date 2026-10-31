@@ -436,7 +436,7 @@
 > 5. **Tail reorder.** T2 XP-I2 (PC-DAPS on ImageNet, one bag, analyses (a) and (b) in the same form, against DAPS-4K D2-8) now runs **before** T1 XP-K. It reaches the main paper only if it is scored by **Nov 5, 12:00 ET**. XP-K follows under the tail cap.
 > 6. **No protocol v2 is introduced before submission.** A budget cap or give-up rule motivated by item 1 would be post hoc; the paper may show it only as an exploratory frontier on panels already seen.
 
-> **Amendment A16 (planner, 2026-10-31 14:30 ET): CP3 accepted; post-CP3 exploratory analyses; image-disjoint panel XP-N (conditional); XP-C3.** Written after the CP3 return (XP `1981dea`) and two external adversarial reviews that Cheng relayed. It is written before any XP-N image, measurement or run exists, and before any XP-C3, XP-I2 or XP-K outcome exists.
+> **Amendment A16 (planner, 2026-10-31 14:12 ET): CP3 accepted; post-CP3 exploratory analyses; image-disjoint panel XP-N (conditional); XP-C3.** Written after the CP3 return (XP `1981dea`) and two external adversarial reviews that Cheng relayed. It is written before any XP-N image, measurement or run exists, and before any XP-C3, XP-I2 or XP-K outcome exists.
 > 1. **CP3 accepted.**
 >    - **Reproduction.** The planner reran all seven per-cohort protocol outputs (G2 at σ = 0.02 and 0.10, G4, G5) from `c598176` on the returned strings and orientation decisions (all SHA256SUMS verified). The maximum absolute difference is **0** in every field.
 >    - **Outcomes.** As recorded in A15.2. Two descriptive facts are added; neither is a registered hypothesis:

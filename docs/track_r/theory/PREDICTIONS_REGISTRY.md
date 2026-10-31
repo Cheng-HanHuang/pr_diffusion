@@ -26,7 +26,7 @@
 |---|---|---|---|---|---|---|
 | protocol v1 | `claude/prdiff-track-r-planner-20261021` | `c598176c2a3ede944cb7296323d9e6aab2989dd3` | `docs/track_r/protocol/GTFREE_PROTOCOL_v1.md` (spec); `docs/track_r/protocol/gtfree_protocol.py` (code) | spec `7e9a5fd8b817a97351d07ae371b947688c8430cd5b9268fc99b954a493223919`; code `d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658` | 2026-10-29T07:49:32Z (pushed the same minute) | GT-free best-of-K: stop at M = 2 consistent runs, residual pick, zero-shot orientation test, FLAG_C/FLAG_O. Frozen per-solver τ (FAST τ transferred FFHQ → ImageNet). Held-out D1-P2, B16 and F8 with hypotheses H1–H4. Dev data: FAST FFHQ 64, A8b prefixes, D1 phase 1. At freeze, the planner had seen D1-P2 aggregates only, and no B16, F8, E′ or D2/D3 per-image data. **FROZEN** |
 
-**Embargo status (updated 2026-10-31 14:30 ET, prereg A8–A16):**
+**Embargo status (updated 2026-10-31 14:12 ET, prereg A8–A16):**
 - **XP-N (image-disjoint ImageNet, A16.5; conditional on Cheng's GO): runs 4–63 SEALED** until `v5` is registered here or declined, or Nov 4, 12:00 ET.
 - **XP-D4 (FAST ImageNet, run index ≥ 16): UNSEALED** by the registration of `v4` (this commit, A12.3). Compare with v2 (n = 16 panel only, where defined) and v4 (n = 32 primary; n = 64 secondary) under the frozen rule.
 - FFHQ K > 4 outcomes (XP-A, XP-B, XP-F; B22 DAPS K > 2): lifted by the registration of v1 (planner `19945af`) for the XP analysis; results go to `xp/returns/`. v1 is not refitted.
@@ -61,7 +61,7 @@
 
 | Freeze | Branch | Commit | Path | SHA-256 | Commit time (UTC) | Covers |
 |---|---|---|---|---|---|---|
-| planner XP-N | `claude/prdiff-track-r-planner-20261021` | the A16 commit (hash recorded in the next registry update) | `docs/track_r/planner_analysis/A16_cp3_and_exploratory/out/XP_N_PLANNER_FORECAST.json` | `9fb8abc26b930cd4f8b5aa0598169732f7ae2e931b3048bd16f1940e357555dd` | the A16 commit | XP-N (image-disjoint ImageNet FAST, 100 images, 64 runs). Protocol v1 gain at N_MAX = 16: +0.3 [−3.6, +4.2]; at 64: −3.4 [−7.8, +0.9]; with the D1 label-free τ at 16: +0.3 [−2.0, +2.6]. No orbit-GOOD run: 25% [13, 37] at K = 16, 22% [11, 33] at K = 64. Partial-orbit share of O_orbit − E1 at K = 64 below 1 point. Hypotheses N-H1a, N-H1b and N-H4 in A16.5. **REGISTERED** |
+| planner XP-N | `claude/prdiff-track-r-planner-20261021` | `21babefccfcd88f7cd889a4c05d529542d8a4fee` | `docs/track_r/planner_analysis/A16_cp3_and_exploratory/out/XP_N_PLANNER_FORECAST.json` | `9fb8abc26b930cd4f8b5aa0598169732f7ae2e931b3048bd16f1940e357555dd` (planner-verified with `git show` at the commit) | 2026-10-31T18:12:44Z (pushed the same minute) | XP-N (image-disjoint ImageNet FAST, 100 images, 64 runs). Protocol v1 gain at N_MAX = 16: +0.3 [−3.6, +4.2]; at 64: −3.4 [−7.8, +0.9]; with the D1 label-free τ at 16: +0.3 [−2.0, +2.6]. No orbit-GOOD run: 25% [13, 37] at K = 16, 22% [11, 33] at K = 64. Partial-orbit share of O_orbit − E1 at K = 64 below 1 point. Hypotheses N-H1a, N-H1b and N-H4 in A16.5. **REGISTERED** |
 
 **Registry keys for parsers.** The first column is the key: `v1`, `v1 companion`, `v2`, `mech v1`, `mech v1.1` (and `v2 E1`, `v3` and `v4`). The commit, path and SHA cells are wrapped in backticks; strip them before comparing.
 
