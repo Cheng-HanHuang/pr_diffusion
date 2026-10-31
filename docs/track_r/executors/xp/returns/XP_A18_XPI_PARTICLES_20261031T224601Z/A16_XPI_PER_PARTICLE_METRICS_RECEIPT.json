@@ -1,0 +1,27 @@
+{
+  "columns": [
+    "image_id",
+    "particle",
+    "label",
+    "PSNR",
+    "SSIM",
+    "VGG_LPIPS",
+    "rho",
+    "face_choice",
+    "face_margin"
+  ],
+  "expected_head": "97b8265685307115af2f8f5d39bf8336b38429d1",
+  "face_columns_are_gt_free_decisions": true,
+  "metric_source": "CP3 frozen RGB8 raw PSNR; independent original float piq SSIM/LPIPS",
+  "n_images": 180,
+  "n_particles": 720,
+  "no_gpu_calls": true,
+  "no_matched_compute_claim": true,
+  "no_native_tensor_or_path": true,
+  "per_image_particles": 4,
+  "score_columns_are_gt_evaluation_only": true,
+  "sha256": "1e16f70ebd36abf81c9662edef2eef813d061ce98296d1c3bfbaba2a4cc17f02",
+  "source_candidate_metrics_receipt_sha256": "becdf4f4e46a4242b14f2b378ddf24cf6a6cdc512a38a71a56da7feddab89599",
+  "status": "A16_XPI_PER_PARTICLE_METRIC_TABLE_PASS",
+  "unchanged_frozen_data": true
+}
