@@ -122,6 +122,25 @@ def prep(a):
  gate(FAST.is_file(),"A18_AUTOPILOT_NATIVE_FAST_ENV")
  gate(sha(ROOT/"models/imagenet256.pt")==MODEL_SHA,
       "A18_AUTOPILOT_NATIVE_CHECKPOINT_SHA")
+ # Exercise the REAL native source/config/measurement integrity gate for
+ # every phase before scheduling GPUs. --preflight-only does not load CUDA
+ # or produce a candidate, and cannot invalidate a v5 forecast.
+ for phase,(mf,digest,rows) in manifests.items():
+  e=dict(os.environ,CUDA_VISIBLE_DEVICES="0",PYTHONPATH=str(wt),
+         PYTHONDONTWRITEBYTECODE="1",PYTHONNOUSERSITE="1")
+  cmd=[str(FAST),str(wt/"scripts/track_r/xp_a12_campaign_fast_gpu.py"),
+    "--expected-head",a.expected_head,
+    "--roots",str(mf),"--roots-sha",digest,
+    "--roots-source-head",producer,
+    "--out",str(BASE/"xp_a18_xpn_uncreated_native_preflight"),
+    "--start","0","--count",str(PHASE_BATCH[phase]),
+    "--physical-gpu","0","--dataset","imagenet","--oversample","2.0",
+    "--preflight-only"]
+  native=subprocess.run(cmd,cwd=str(wt),env=e,
+      capture_output=True,text=True,timeout=180)
+  gate(native.returncode==0 and "XP_FAST_PREFLIGHT_PASS" in native.stdout,
+      "A18_AUTOPILOT_NATIVE_PHASE_PREFLIGHT_"+phase+"_"+
+      (native.stderr[-260:]+native.stdout[-260:]))
  b=jread(BASE_STATE);t=jread(A17_RECEIPT)
  gate(b["status"]=="A12_CAMPAIGN_SEQUENCED_STAGE_STOP_OR_COMPLETE"
       and not b.get("active")
@@ -289,9 +308,21 @@ def main(a):
  emit(run,"V5_PROSPECTIVE_GATE_PASS",v5_gate=state["v5_gate"])
  lock=BASE/"XP_A12_CAMPAIGN_CONTROLLER.lock"
  with lock.open("a+") as h:
-  fcntl.flock(h,fcntl.LOCK_EX|fcntl.LOCK_NB)
+  # An existing A12/Tail controller may own the lock when v5 becomes
+  # available. Wait without spawning anything; never preempt the other
+  # controller or silently bypass the shared project budget.
+  while True:
+   try:
+    fcntl.flock(h,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    break
+   except BlockingIOError:
+    if STOP or (run/"STOP_XPN").exists():
+     state["status"]="STOP_WHILE_WAITING_PROJECT_GPU_LOCK"
+     persist()
+     print("A18_XPN_OPERATOR_STOP_WHILE_WAITING_LOCK",flush=True)
+     return
+    time.sleep(30)
   active={}
-  max_attempts=1
   def charge(jobid,proc,rc):
    v=active[jobid]
    elapsed=(time.monotonic()-v["start"])/3600
