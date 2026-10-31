@@ -121,7 +121,9 @@ def rerun_protocol(out,original_script,existing_file,stage,cohort,
   gate(prior.get("tau_rule")=="frozen","CP3_AUDIT_TAU_RULE")
   command+=["--tau",repr(float(prior["tau"]))]
  if mode:
-  p=out/(stage+"_"+cohort+"_CLIP.csv")
+  # Protocol producer writes stage_CLIP_cohort; reuse the hashed slice
+  # exactly as frozen, not an invented cohort_CLIP path.
+  p=out/(stage+"_CLIP_"+cohort+".csv")
   # These files are already present in the provisional protocol output
   # and are hashed in its gate; they do not contain GT image content.
   gate(p.is_file(),"CP3_AUDIT_CLIP_SLICE")
