@@ -29,10 +29,11 @@ EXTERNAL={
   "PC_DAPS_REPRODUCED_DAPS":dict(PSNR=20.98,SSIM=.461,LPIPS=.387)},
 }
 def files_for(stage):
- # Stage input directories retain literal noise values (G2_0.02),
- # while portable release filenames use a separate 0p02 tag.
- d=BASE/("xp_a15_cp3_"+stage+"_"+PROTOCOL_STAMP)
- return d
+ # Producer A15 scored G2 noise directories as G2_0p02/G2_0p10,
+ # whereas the actual frozen stage argument is G2_0.02/G2_0.10.
+ # Match xp_a15_cp3_protocol_cpu.verify's exact path contract.
+ gate(stage in STAGES,"A17_RELEASE_RECOGNIZED_STAGE")
+ return BASE/("xp_a15_cp3_"+stage.replace(".","p")+"_"+PROTOCOL_STAMP)
 def latest_one(prefix,filename):
  matches=[]
  for d in BASE.glob(prefix+"*"):
@@ -182,8 +183,18 @@ def main(a):
                  ret/"CP3_G3_PC_DAPS_DESCRIPTIVE.json")
  shutil.copyfile(descdir/"XP_A17_CP3_A15_DESCRIPTIVE.json",
                  ret/"XP_A17_CP3_A15_DESCRIPTIVE.json")
- shutil.copyfile(timingdir/"A17_CP3_CLEAN_TIMING_RECEIPT.json",
-                 ret/"A17_CP3_CLEAN_TIMING_RECEIPT.json")
+ # Preserve the original immutable receipt by SHA in staging metadata,
+ # but do not publish PAC's local absolute paths to failed-run receipts.
+ safe_timing=json.loads(json.dumps(timing))
+ for item in safe_timing.get("previous_A17_attempts",[]):
+  oldpath=Path(item.pop("path"))
+  gate(oldpath.name=="A17_CP3_CLEAN_TIMING_RECEIPT.json"
+       and oldpath.parent.parent==BASE
+       and oldpath.parent.name.startswith(TIMING_PREFIX)
+       and sha(oldpath)==item["sha256"],
+       "A17_RELEASE_TIMING_FAILED_PRIOR_SHA")
+  item["attempt_run"]=oldpath.parent.name
+ write(ret/"A17_CP3_CLEAN_TIMING_RECEIPT.json",safe_timing)
  write(ret/"A8_6_PUBLISHED_PROTOCOL_REFERENCES.json",a86(summary))
  (ret/"CP3_DIGEST.md").write_text(build_digest(desc,summary,timing))
  (ret/"README.md").write_text(
