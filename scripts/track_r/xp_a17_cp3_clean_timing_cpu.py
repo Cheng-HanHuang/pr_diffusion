@@ -44,25 +44,49 @@ def prepare():
       and daps["source_head"]==DAPS_HEAD
       and daps["n_roots"]==720,
       "A17_TIMING_DAPS4K_SOURCE")
+ # Original G3 PC manifest: image_id="60044", cohort="S1_b22".
+ # Frozen G4 EPRIME manifest: image_id="S1_b22_60044".
+ # Use the exact source-provenance key, never a suffix-only match.
  pcfirst=sorted(((i,r) for i,r in enumerate(pc["rows"])
                  if r["cohort"]=="S1_b22"),
                 key=lambda z:z[1]["image_id"])[:3]
- gate(len(pcfirst)==3,"A17_TIMING_FIRST3_B22")
+ gate(len(pcfirst)==3 and
+      all(str(r["image_id"]).isdigit() and len(str(r["image_id"]))==5
+          for _,r in pcfirst),"A17_TIMING_FIRST3_B22")
  by_d={}
  for i,r in enumerate(daps["rows"]):
-  if r["rep"]==4 and r["image_id"] not in by_d:
-   by_d[r["image_id"]]=(i,r)
+  if r["rep"]!=4:continue
+  key=str(r["image_id"])
+  gate((key.startswith("S1_b22_") and r["measurement_source"]=="S1_b22")
+       or (key.startswith("S2_b24_dev80_") and
+           r["measurement_source"]=="S2_b24_dev80"),
+       "A17_TIMING_DAPS_EPRIME_COHORT_ID")
+  gate(key not in by_d,"A17_TIMING_DAPS_EPRIME_DUPLICATE_"+key)
+  by_d[key]=(i,r)
+ gate(len(by_d)==180,"A17_TIMING_DAPS_EPRIME_FULL180")
  jobs=[]
  for i,pr in pcfirst:
-  did=pr["image_id"]
-  gate(did in by_d,"A17_TIMING_PAIR_ID_"+did)
-  j,drw=by_d[did]
-  gate(pr["measurement_sha256"]==drw["measurement_sha256"]
+  did=str(pr["image_id"])
+  canonical="S1_b22_"+did
+  gate(canonical in by_d,"A17_TIMING_PAIR_ID_"+canonical)
+  j,drw=by_d[canonical]
+  gate(drw["image_id"]==canonical and
+       pr["cohort"]==drw["measurement_source"] and
+       pr["measurement_sha256"]==drw["measurement_sha256"]
        and sha(pr["measurement_path"])==sha(drw["measurement_path"])
-       ==pr["measurement_sha256"],"A17_TIMING_SAME_Y_"+did)
-  jobs.extend([dict(stage="PC",index=i,image_id=did),
-               dict(stage="DAPS4K",index=j,image_id=did)])
- gate(len(jobs)==6,"A17_TIMING_3PAIRS")
+       ==pr["measurement_sha256"],"A17_TIMING_SAME_Y_"+canonical)
+  # Preserve each native worker's original manifest image_id in its
+  # receipt check. canonical_ffhq_id is only the join key.
+  jobs.extend([
+     dict(stage="PC",index=i,image_id=did,
+          canonical_ffhq_id=canonical,measurement_sha256=pr["measurement_sha256"]),
+     dict(stage="DAPS4K",index=j,image_id=canonical,
+          canonical_ffhq_id=canonical,measurement_sha256=drw["measurement_sha256"])])
+ gate(len(jobs)==6 and
+      len({x["canonical_ffhq_id"] for x in jobs})==3 and
+      all(jobs[2*k]["canonical_ffhq_id"]==jobs[2*k+1]["canonical_ffhq_id"]
+          and jobs[2*k]["measurement_sha256"]==jobs[2*k+1]["measurement_sha256"]
+          for k in range(3)),"A17_TIMING_3PAIRS")
  return dp,pcrec,dr,jobs
 
 def budget():
@@ -90,7 +114,9 @@ def main(a):
   good=[x for x in cards if x.visibility=="known" and not x.foreign_pids and x.used_mib<=2048]
   print("A17_CP3_CLEAN_TIMING_PREFLIGHT_PASS",len(jobs),
         "GPU_CANDIDATES",len(good),
-        "FROZEN_Y_HASH_PAIR_PASS",flush=True)
+        "FROZEN_Y_HASH_PAIR_PASS",
+        "PAIRED_IDS",",".join(jobs[2*k]["canonical_ffhq_id"]
+                            for k in range(3)),flush=True)
   return
  out=Path(a.out)
  gate(out.parent==BASE and out.name.startswith("xp_a17_cp3_timing_")
@@ -162,6 +188,8 @@ def main(a):
    rc=proc.wait()
   elapsed=time.monotonic()-t;cost+=elapsed
   entry=dict(stage=stage,index=idx,image_id=job["image_id"],
+             canonical_ffhq_id=job["canonical_ffhq_id"],
+             measurement_sha256=job["measurement_sha256"],
              process_wall_seconds=elapsed,rc=rc,
              gpu_physical=chosen,clean=(not unknown and not seen),
              visibility_unknown=unknown,foreign_pids_seen=sorted(seen),
