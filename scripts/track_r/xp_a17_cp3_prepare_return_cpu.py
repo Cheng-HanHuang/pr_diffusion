@@ -40,6 +40,25 @@ def latest_one(prefix,filename):
    matches.append(d)
  gate(len(matches)==1,"A17_RELEASE_UNIQUE_"+prefix)
  return matches[0]
+def accepted_timing():
+ # An earlier A17 attempt failed its native import; it is not
+ # an alternative valid result. Preserve and account for its receipt.
+ ok=[];failed=[]
+ for d in sorted(BASE.glob(TIMING_PREFIX+"*")):
+  p=d/"A17_CP3_CLEAN_TIMING_RECEIPT.json"
+  if not d.is_dir() or d.is_symlink() or not p.is_file():continue
+  x=jread(p)
+  gate(x.get("status") in ("A17_CP3_CLEAN_PAIRED_TIMING_PASS",
+                          "A17_CP3_TIMING_PARTIAL_OR_DIRTY"),
+       "A17_RELEASE_TIMING_STATUS_UNKNOWN")
+  if x["status"]=="A17_CP3_CLEAN_PAIRED_TIMING_PASS":ok.append(d)
+  else:failed.append(dict(path=str(p),sha256=sha(p),
+       charged_gpu_h=float(x["additional_charged_gpu_hours"]),
+       status=x["status"]))
+ gate(len(ok)==1,"A17_RELEASE_ONE_VALID_CLEAN_TIMING")
+ gate(all(0<=f["charged_gpu_h"]<=3 for f in failed),
+      "A17_RELEASE_FAILED_ATTEMPT_COSTS")
+ return ok[0],failed
 
 def build_digest(desc,summary,timing):
  boot=desc["E1_minus_native_bootstrap"]["metrics"]
@@ -105,7 +124,7 @@ def main(a):
  gate(git("rev-parse","HEAD")==a.expected_head
       and not git("status","--porcelain"),"A17_RELEASE_EXECUTOR_HEAD")
  descdir=latest_one(A17_PREFIX,"XP_A17_CP3_A15_DESCRIPTIVE.json")
- timingdir=latest_one(TIMING_PREFIX,"A17_CP3_CLEAN_TIMING_RECEIPT.json")
+ timingdir,failed_timing=accepted_timing()
  desc=jread(descdir/"XP_A17_CP3_A15_DESCRIPTIVE.json")
  timing=jread(timingdir/"A17_CP3_CLEAN_TIMING_RECEIPT.json")
  gate(desc["status"]=="A15_CP3_DESCRIPTIVE_EXTENSIONS_AUDITED_NOT_CHECKPOINT"
@@ -194,6 +213,7 @@ def main(a):
    counts=dict(scorings=5840,piq=2960,images=280),
    A15_authorized=True,XP_I_matched_NFE="WITHDRAWN_UNRESOLVED",
    no_matched_NFE_claim=True,
+   failed_timing_attempts=failed_timing,
    hashes=hashes,
    paths_are_local_only=dict(returns=str(ret),theory_inputs=str(ti))))
  print("A17_CP3_SANITIZED_RETURN_STAGED",out,flush=True)
