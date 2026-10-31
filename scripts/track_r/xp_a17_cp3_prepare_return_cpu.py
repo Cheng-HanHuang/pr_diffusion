@@ -156,8 +156,34 @@ def main(a):
  gate(out.parent==BASE and out.name.startswith("xp_a17_cp3_return_")
       and not out.exists() and not out.is_symlink(),
       "A17_RELEASE_NEW_OUTPUT")
+ # Exercise every stage path, frozen CSV receipt, digest and A8.6
+ # table before creating a release directory. This catches deterministic
+ # publication errors at the CPU preflight gate instead of mid-commit.
+ checked={}
+ for stage in STAGES:
+  rec,S,C,R,strings,clips,runs=verify(files_for(stage),stage)
+  gate(S.is_file() and C.is_file() and
+       len(strings)==rec["n_images"] and
+       len(clips)==rec["n_candidates"],
+       "A17_RELEASE_FROZEN_PANEL_"+stage)
+  checked[stage]=(len(strings),len(clips))
+ for stage in ("G2_0p02","G2_0p10","G4","G5"):
+  gate((ORIG/("CP3_"+stage+"_PROTOCOL.json")).is_file(),
+       "A17_RELEASE_FROZEN_PROTOCOL_"+stage)
+ gate((ORIG/"CP3_G3_PC_DAPS_DESCRIPTIVE.json").is_file(),
+      "A17_RELEASE_G3_DESCRIPTIVE")
+ digest=build_digest(desc,summary,timing)
+ oracle=a86(summary)
+ gate(len(digest.splitlines())<=20 and
+      set(oracle["our_DAPS4K"])=={"FFHQ","IMAGENET"} and
+      all(set(oracle["our_DAPS4K"][ds])=={"best_4","best_8"}
+          for ds in ("FFHQ","IMAGENET")),
+      "A17_RELEASE_DIGEST_ORACLE_REPRODUCED")
  if a.preflight_only:
-  print("A17_CP3_RETURN_PREFLIGHT_PASS",flush=True)
+  print("A17_CP3_RETURN_PREFLIGHT_PASS",
+        "FROZEN_PANELS",checked,
+        "DIGEST_LINES",len(digest.splitlines()),
+        "A8_6_DAPS4K_4AND8",flush=True)
   return
  out.mkdir(mode=0o700)
  ret=out/"returns";ret.mkdir()
@@ -195,8 +221,8 @@ def main(a):
        "A17_RELEASE_TIMING_FAILED_PRIOR_SHA")
   item["attempt_run"]=oldpath.parent.name
  write(ret/"A17_CP3_CLEAN_TIMING_RECEIPT.json",safe_timing)
- write(ret/"A8_6_PUBLISHED_PROTOCOL_REFERENCES.json",a86(summary))
- (ret/"CP3_DIGEST.md").write_text(build_digest(desc,summary,timing))
+ write(ret/"A8_6_PUBLISHED_PROTOCOL_REFERENCES.json",oracle)
+ (ret/"CP3_DIGEST.md").write_text(digest)
  (ret/"README.md").write_text(
    "# A15 CP3 — released under planner disposition\n\n"
    "Planner prereg A15 withdraws XP-I exact matched-NFE hypothesis as "
