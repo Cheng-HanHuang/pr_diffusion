@@ -397,6 +397,12 @@ def main(a):
        failed=True
        break
       state["done"][jobid]=receiptsha
+      if (phase=="A18_XPN_PILOT_0_3" and
+          not state.get("first_new_image_native_smoke_pass",False)):
+       state["first_new_image_native_smoke_pass"]=True
+       emit(run,"XP_N_NEW_COHORT_20_ROOT_NATIVE_SMOKE_PASS",
+            first_chunk_sha256=receiptsha,job=jobid)
+       print("A18_XPN_NEW_IMAGE_NATIVE_SMOKE_PASS",jobid,flush=True)
       state["phase_counts"][phase]=sum(
        z["phase"]==phase and z["key"] in state["done"] for z in these)
       if len(state["done"])%10==0:
@@ -414,6 +420,12 @@ def main(a):
      unused=[c for c in available(cards) if c.index not in
              {v["gpu"] for v in active.values()}]
      while len(active)<4 and budget_allows(1):
+      # One 20-root new-image native smoke completes and passes before
+      # distributing the other 380 prefix roots across four GPUs.
+      if (phase=="A18_XPN_PILOT_0_3" and
+          not state.get("first_new_image_native_smoke_pass",False)
+          and active):
+       break
       gpu,_=choose_gpu(unused,REQUEST_MIB,safety_margin_mib=RESERVE_MIB,
                       fraction=.80,clean_only=False)
       if gpu is None:break
