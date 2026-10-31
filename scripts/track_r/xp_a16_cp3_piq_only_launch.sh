@@ -18,7 +18,7 @@ test -d "$VENDOR/piq"
 test ! -e "$BASE/XP_A16_CP3_PIQ_LATEST_LOG.txt" || {
   echo "STOP_CP3_PIQ_ALREADY_LAUNCHED";exit 8;
 }
-if pgrep -af '[x]p_a16_cp3_piq_metrics_cpu.py|[x]p_a16_cp3_piq_only_launch.sh'; then
+if pgrep -af '[x]p_a16_cp3_piq_metrics_cpu.py'; then
  echo "STOP_CP3_COMPETING_METRICS";exit 8
 fi
 cd "$WT"
