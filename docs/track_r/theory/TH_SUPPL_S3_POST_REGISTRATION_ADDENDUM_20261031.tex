@@ -1,0 +1,106 @@
+% Theory-owned S3 dated addendum, 2026-10-31. Do not refit forecasts.
+\subsection{Outcomes registered after October 29}
+\label{app:s3-post-registration-20261031}
+
+\paragraph{Prospective tests 2--5: selection versus generation.}
+Under the unchanged model-specific 95\% predictive-interval rule,
+the class-sensitive race covers \textbf{57/59} E0/E1 selection
+points across tests 2--5, compared with \textbf{17/59}
+for exchangeable ranks S2. By test, these counts are ImageNet
+FAST with a four-run prefix (9/9 vs 0/9), SITCOM B16
+(18/18 vs 2/18), DAPS F8 (12/14 vs 14/14), and
+ImageNet FAST with a sixteen-run prefix (18/18 vs 1/18).
+Test 1, FFHQ FAST64, is excluded from this four-test tally,
+not from the overall reported results: that test's class
+generation miss spoiled unconditional race coverage.
+The DAPS exception (12/14 vs 14/14) precludes claiming
+that race wins in every family. The planner also reports
+that generation-oracle forecasts were optimistic in
+\textbf{four of five} tests. These are distinct,
+precommitted observables: successful E0/E1 interval coverage
+does not prove that generation and ranking are each calibrated.
+
+\paragraph{Third prospective test: registered v4 and ImageNet XP-D4.}
+Before XP-D4 runs 16--63 were opened, v4 was registered
+(theory freeze 149331c) after refitting on only
+100 fixed ImageNet images' first sixteen runs.
+It used the original five-class Dirichlet and four
+rank variants, with \emph{no structural-zero spike}.
+The primary completed panel has $n_{\max}=32$,
+$K=16,24,32$; the secondary has $n_{\max}=64$,
+$K=32,48,64$. Race covers \textbf{18/18} E0/E1
+points against S2's \textbf{1/18}, but the raw oracle
+covers only \textbf{2/6}, and the correct-orbit oracle
+covers \textbf{0/6}. At full-panel $K=32$,
+the observed orbit oracle is $.750$ versus $.840$
+forecast; at $K=64$ it is $.780$ versus $.899$.
+There are 25 images with no correct-orbit candidate
+among 16 runs and still 22 among 64. The observed
+long tail remains an out-of-sample failure of the
+registered generator, not a reason to revise v4.
+Errors in the orbit oracle and the unconditional
+selector--oracle loss may cancel in the well-covered E1.
+
+\paragraph{DAPS F8: an important counterpoint.}
+On the held eight-run FFHQ DAPS panel (100 B22 plus
+80 DEV80 images), v1 race covers \textbf{21/28}
+reported E0/E1/oracle points (E0 7/7, E1 5/7,
+raw oracle 5/7, orbit oracle 4/7); S2 covers
+\textbf{22/28}, including all 14 E0/E1 points;
+the separately frozen FAST-informed v3 covers
+\textbf{17/28}. At pooled $K=8$, the observed
+$(E0,E1,O_{\rm raw},O_{\rm orbit})$ is
+$(.928,.939,.939,.944)$ against v1 race
+$(.943,.963,.962,.968)$. The orbit forecast
+$.9685$ has a lower 95\% endpoint $.94475$,
+slightly above observed $.944$. DAPS has relatively
+few historically passing-but-wrong CONSISTENT candidates,
+so repaired E1 is less discriminating between
+S2 and race than on SITCOM; their E0 predictions
+remain different. V3 better centers this one
+orbit-oracle value but has worse total coverage.
+Neither v3 nor S2 is retrospectively promoted as
+the registered primary v1 race.
+
+\paragraph{Sixteen moments still do not identify the rare tail.}
+Under the idealized Bernoulli-mixture model, the entire
+sixteen-run count law determines only integrals of
+polynomials of degree at most sixteen against the
+unknown image-success-rate distribution $\mu$.
+The population oracle
+$O_{64}=\int[1-(1-p)^{64}]\mu(dp)$ instead
+requires a degree-64 functional. Distinct
+mixing laws can therefore match all sixteen-run
+count probabilities yet disagree on this oracle
+and on the structural-zero mass, except in
+special degenerate moment cases.
+For an explicit witness, let $\mu_A$ be uniform on
+$[0,1]$ and let $\mu_B$ be its classical nine-node
+left Gauss--Radau quadrature (node 0 and the eight
+shifted roots of $P_8^{(0,1)}$). The quadrature
+is exact through degree sixteen, so both produce
+the same sixteen-run Binomial count law; nevertheless
+$\mu_B(\{0\})=1/81$ and $\mu_A(\{0\})=0$.
+They differ in $O_{64}$ by approximately
+$9.39\times10^{-4}$ and in the infinite-run
+oracle ceiling by $1/81$. This witness proves
+\emph{nonidentification}, not the magnitude of
+v4's actual $0.09$--$0.12$ orbit forecast errors.
+With only 100 finite images, moment estimation
+is additionally noisy; rank/orbit categories
+introduce further uncertainty. Even a positive
+$p=.002$ gives a sixteen-failure probability
+$(1-.002)^{16}\simeq.968$.
+A rare near-zero-success component \emph{influences}
+low-order moments but is generally \emph{not uniquely
+identified} by them. Sixteen observed runs thus
+cannot guarantee accurate sixty-four-run coverage.
+
+\paragraph{Registration and scope.}
+All outcomes above were released only after their
+respective forecast freezes. This dated addendum
+preserves the earlier S3 text and does not revise
+the Dirichlet model, rank rates, or historical
+Clopper--Pearson/LP bounds. The quadrature identity
+is classical; none of these observations proves that
+a specific real image is mathematically unsolvable.
