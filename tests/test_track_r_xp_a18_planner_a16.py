@@ -114,6 +114,38 @@ class A18PlannerTests(unittest.TestCase):
         self.assertIn("CUBLAS_WORKSPACE_CONFIG",(
             ROOT/"scripts/track_r/xp_a18_xpn_replay_cpu.py").read_text())
 
+    def test_xpn_autopilot_90_jobs_v5_forecast_freeze_and_costs(self):
+        from scripts.track_r.xp_a18_xpn_autopilot import (
+            PHASES,PHASE_BATCH,PHASE_FILES,STAGE_CAP_H,PROJECT_CAP_H,
+            v5_gate,V5_CODE_CUTOFF)
+        from unittest.mock import patch
+        import datetime
+        from zoneinfo import ZoneInfo
+        self.assertEqual(sum(PHASES[z][2]//PHASE_BATCH[z]
+                             for z in PHASES),90)
+        self.assertEqual(sum(PHASES[z][2] for z in PHASES),6400)
+        self.assertEqual(STAGE_CAP_H,20.)
+        self.assertEqual(PROJECT_CAP_H,400.)
+        self.assertEqual(len(PHASE_FILES),3)
+        with patch("scripts.track_r.xp_a18_xpn_autopilot.v5_code_freeze",
+                   return_value=None):
+            with patch("scripts.track_r.xp_a18_xpn_autopilot.localnow",
+                       return_value=datetime.datetime(
+                           2026,11,1,10,0,tzinfo=ZoneInfo("America/Detroit"))):
+                self.assertIsNone(v5_gate(ROOT))
+            with patch("scripts.track_r.xp_a18_xpn_autopilot.localnow",
+                       return_value=V5_CODE_CUTOFF):
+                self.assertEqual(v5_gate(ROOT)["status"],
+                    "V5_FORECAST_CODE_LAPSED_NO_OPTIONAL_V5_TEST")
+        code=(ROOT/"scripts/track_r/xp_a18_xpn_autopilot.py").read_text()
+        self.assertIn("no_GT_scoring_or_prediction_access=True",code)
+        self.assertIn("outcomes_4_to_63_still_sealed=True",code)
+        self.assertIn("A18_XPN_NATIVE_GPU_ATTEMPT_CHARGED",code)
+        self.assertIn("XP_A12_CAMPAIGN_CONTROLLER.lock",code)
+        self.assertIn("fraction=.80,clean_only=False",code)
+        self.assertIn("RUNNING",code)
+        self.assertNotIn("gt_path",code)
+
     def test_python_syntax_and_go_data_isolation(self):
         for filename in ("xp_a18_xpi_particle_metrics_cpu.py",
                          "xp_a18_xpn_image_inventory_cpu.py",
@@ -123,7 +155,8 @@ class A18PlannerTests(unittest.TestCase):
                          "xp_a18_xpn_replay_cpu.py",
                          "xp_a18_xpn_contract.py",
                          "xp_a18_xpn_prepare_tasks_cpu.py",
-                         "xp_a12_campaign_fast_gpu.py"):
+                         "xp_a12_campaign_fast_gpu.py",
+                         "xp_a18_xpn_autopilot.py"):
             path=ROOT/"scripts"/"track_r"/filename
             ast.parse(path.read_text(),filename=str(path))
         inventory=(ROOT/"scripts/track_r/xp_a18_xpn_image_inventory_cpu.py").read_text()
