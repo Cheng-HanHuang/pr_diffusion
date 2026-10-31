@@ -31,11 +31,8 @@ def source_rows(source):
  source=Path(source)
  gate(source.is_dir() and not source.is_symlink()
       and (source==root or root in source.parents)
-      and root.resolve() in source.resolve().parents+[source.resolve()]
-      if False else source.is_dir() and not source.is_symlink() and
-      (source==root or root in source.parents) and
-      (source.resolve()==root.resolve() or
-       root.resolve() in source.resolve().parents),
+      and (source.resolve()==root.resolve() or
+           root.resolve() in source.resolve().parents),
       "A18_XPN_SOURCE_WITHIN_IMAGENET")
  gate(not any(b in str(source).lower() for b in EXCLUDED),
       "A18_XPN_NO_PROTECTED_PATH")
