@@ -80,6 +80,8 @@ class A15Tests(unittest.TestCase):
                    "xp_a15_cp3_G4_20261030T210259Z")
   pub=(ROOT/"scripts/track_r/xp_a17_cp3_publish.sh").read_text()
   self.assertIn('sha256sum -c SHA256SUMS',pub)
+  self.assertIn('core.whitespace=cr-at-eol diff --cached --check',pub)
+  self.assertNotIn('sed -i',pub)
   self.assertIn('STOP_CP3_WRONG_ORIGIN_URL',pub)
   self.assertIn('git -C "$PUBLISH" push -u origin "$BRANCH"',pub)
   self.assertIn('A17_CP3_REMOTE_CHECKPOINT_PUBLISHED_AND_VERIFIED',pub)
