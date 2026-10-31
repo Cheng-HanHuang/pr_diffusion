@@ -48,6 +48,25 @@ class A15Tests(unittest.TestCase):
   self.assertEqual(cp3.ff_key(None,"S2_b24_dev80_60044"),
                    "S2_b24_dev80_60044")
   self.assertIn("shared_tau=float(np.quantile",inspect.getsource(cp3.score))
+ def test_cp3_metric_dependency_isolation_and_native_cpu_launch(self):
+  for name in ("xp_a16_cp3_piq_dependency_bootstrap.sh",
+               "xp_a16_cp3_metric_weights_bootstrap.sh",
+               "xp_a16_cp3_piq_only_launch.sh"):
+   script=(ROOT/"scripts/track_r"/name).read_text()
+   self.assertIn("CUDA_VISIBLE_DEVICES",script)
+   self.assertNotIn("conda install",script)
+  setup=(ROOT/"scripts/track_r/xp_a16_cp3_piq_dependency_bootstrap.sh").read_text()
+  self.assertIn("bad83f8e68bad6c09df09c2bdf50d1e8ccf5e852d7b64562317c27ed5eb63159",setup)
+  self.assertIn("--no-deps",setup)
+  self.assertIn("--target",setup)
+  self.assertIn("xp_a16_cp3_metric_weights_bootstrap.sh",setup)
+  weight=(ROOT/"scripts/track_r/xp_a16_cp3_metric_weights_bootstrap.sh").read_text()
+  self.assertIn("397923af8e79cdbb6a7127f12361acd7a2f83e06b05044ddf496e83de57a5bf0",weight)
+  self.assertIn("lpips_weights.pt",weight)
+  launch=(ROOT/"scripts/track_r/xp_a16_cp3_piq_only_launch.sh").read_text()
+  self.assertIn("for stage in G4 G5 G3",launch)
+  self.assertIn("XP_A16_CP3_PIQ_LATEST_LOG.txt",launch)
+  self.assertNotIn("xp_a15_cp2_d4_cpu.py",launch)
  def test_cp3_pending_science_outputs_are_fail_closed(self):
   for name in ("xp_a16_cp3_nfe_ledger_cpu.py",
                "xp_a16_cp3_piq_metrics_cpu.py",
