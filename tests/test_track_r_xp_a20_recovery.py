@@ -4,10 +4,15 @@ import ast,json,tempfile,unittest
 from pathlib import Path
 from unittest.mock import patch
 from scripts.track_r.xp_a20_xpn_recover_gpu import check_chunk,path_for,job_id
+from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT as PAC_ROOT
 from scripts.track_r.xp_a12_campaign_fast_gpu import root_folder,sha
 from prdiffusion.track_r.xp_gpu_telemetry import GPU,choose_gpu
 
 ROOT=Path(__file__).resolve().parents[1]
+# Production JSON readers deliberately reject sources outside PAC_ROOT.
+# Synthetic fixtures MUST use a private temp directory under that root;
+# do not weaken the same safe() check used on native GPU receipts.
+SAFE_TEST_TMP=PAC_ROOT/"tmp"
 SRC=ROOT/"scripts/track_r/xp_a20_xpn_recover_gpu.py"
 
 class RecoveryTests(unittest.TestCase):
@@ -57,7 +62,8 @@ class RecoveryTests(unittest.TestCase):
   (p/"R0_FAST_ROOT_COMPLETE.json").write_text(json.dumps(receipt))
 
  def test_partial_and_complete_resume_sha(self):
-  with tempfile.TemporaryDirectory() as td:
+  SAFE_TEST_TMP.mkdir(parents=True,exist_ok=True)
+  with tempfile.TemporaryDirectory(prefix="xp_a20_receipt_test_", dir=SAFE_TEST_TMP) as td:
    root=Path(td)
    job,head,digest,rows,chunk,manifest=self.fixture(root)
    self.add_root(chunk,rows[0],head,digest)
@@ -77,11 +83,12 @@ class RecoveryTests(unittest.TestCase):
    self.assertEqual(r["chunk_sha256"],sha(chunk/"R0_5_CHUNK_COMPLETE.json"))
 
  def test_orphan_unreceipted_root_fails_closed(self):
-  with tempfile.TemporaryDirectory() as td:
+  SAFE_TEST_TMP.mkdir(parents=True,exist_ok=True)
+  with tempfile.TemporaryDirectory(prefix="xp_a20_receipt_test_", dir=SAFE_TEST_TMP) as td:
    root=Path(td)
    job,head,digest,rows,chunk,manifest=self.fixture(root)
    root_folder(chunk,rows[0]).mkdir()
-   with self.assertRaises(RuntimeError):
+   with self.assertRaisesRegex(RuntimeError, "STOP_R05_PROTECTED_OR_MISSING_SOURCE"):
     check_chunk(root,job,manifest,head)
    self.assertTrue(root_folder(chunk,rows[0]).exists())
 
