@@ -162,7 +162,7 @@ PY
   (cd "$PUBV/$VREL" && sha256sum XP_N_V5_DECLINED_PRODUCTION_FAILED.json > SHA256SUMS && sha256sum -c SHA256SUMS)
   git -C "$PUBV" add "$VREL"
   git -C "$PUBV" commit -m "results(track-r): explicitly decline unmodified prospective XP-N v5 production after native fit failure"
-  GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=10" \\
+  GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=10" \
     git -C "$PUBV" push git@github.com:Cheng-HanHuang/pr_diffusion.git "HEAD:refs/heads/$VBR"
   VLOCAL=$(git -C "$PUBV" rev-parse HEAD)
   VREMOTE=$(git -C "$PUBV" ls-remote git@github.com:Cheng-HanHuang/pr_diffusion.git "refs/heads/$VBR" | cut -f1)
