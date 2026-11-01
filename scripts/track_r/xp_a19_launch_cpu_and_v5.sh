@@ -35,9 +35,12 @@ root=Path(sys.argv[1])
 valid=[]
 for f in root.glob("xp_a18_xpn_prod_*/XP_N_CONTROLLER_STATE.json"):
  doc=json.loads(f.read_text())
- if doc["status"] in ("WAIT_V5_CODE_FREEZE_OR_NOV2_CUTOFF",
-                      "V5_PROSPECTIVE_GATE_PASS","A18_XPN_RUNNING",
-                      "A18_XPN_ALL6400_NATIVE_GENERATION_COMPLETE_SEALED"):
+ if (doc.get("expected_head") and
+     doc.get("GT_Y_independent_sha256")==
+       "ab7cf74b0bacd4f9944e9b5a22078f596641b8c2384ec7c26e306f0931ba4d98"
+     and doc.get("phase_manifests_sha256",{}).get(
+       "A18_XPN_PILOT_0_3")==
+       "93ac0c8e683f95fed72fd9c834995b25f23947a511db31c239cc1ac021caded0"):
   valid.append(f.parent)
 assert len(valid)==1, f"expected exactly one XP-N controller; found {valid}"
 print(valid[0])
