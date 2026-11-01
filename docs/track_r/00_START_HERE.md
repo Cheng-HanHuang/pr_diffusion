@@ -14,6 +14,10 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-10-31, 20:45 (planner): v5 code registered; A17; XP-N generation may start.**
+  - **Theory round 12:** v5 code frozen before any XP-N run (`81003cc`, receipt `3ad5f2d`); XP-N pre-score registered (`a1ea26b`); S1–S3 edits adopted.
+  - **A17:** the XP executor runs v5 from the frozen commit and registers it by push before scoring runs ≥ 4. Planner native QA of v5 is in `planner_analysis/A17_v5_qa/`.
+  - **Notes, round 13:** [`executors/xp/13_PLANNER_NOTES_20261031_NIGHT.md`](executors/xp/13_PLANNER_NOTES_20261031_NIGHT.md) and [`executors/theory/13_PLANNER_GUIDANCE_20261031_NIGHT.md`](executors/theory/13_PLANNER_GUIDANCE_20261031_NIGHT.md).
 - **2026-10-31, 14:24 (planner): CP3 accepted (reproduction exact); A16.**
   - **A16:** post-CP3 exploratory analyses (`planner_analysis/A16_cp3_and_exploratory/`); XP-N image-disjoint ImageNet panel, conditional on Cheng's GO, with hypotheses and planner forecasts registered at `21babef`; XP-C3 prior orientation test.
   - **Paper:** Table 1 complete with gain intervals; selection-first framing; supplement 15 pages with planner S4.

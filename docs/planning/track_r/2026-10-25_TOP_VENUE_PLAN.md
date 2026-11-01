@@ -1,6 +1,13 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-10-31)
 
-> **Fourteenth update, 2026-10-31, 14:24 ET** (the newest; read it first).
+> **Fifteenth update, 2026-10-31, 20:45 ET** (the newest; read it first).
+> - **XP-N is live.** Cheng gave GO. The executor passed the GT/y identity checks, the D1 replay and the 6,400-root manifest freeze.
+> - **The v5 code was frozen before any XP-N run** (theory `81003cc`) and is registered. So is a theory pre-score: N_max = 16 passes with +0.2, N_max = 64 fails H1 with −2.7. The planner's A16 forecast is +0.3 / −3.4.
+> - **The executor runs v5 itself** right after runs 0–3 (A17), so test 6, the first prospective test on new images, needs no relay.
+> - **Planner QA of v5.** On D1's released runs it reproduces v2's E1 forecast (0.578 / 0.599 vs 0.578 / 0.603) and again overforecasts O_orbit. Expect the same split on XP-N: selection forecast holds, coverage forecast misses. A different outcome would be informative either way.
+> - **XP-I per-particle table:** native and E0 metrics reproduced exactly; the E1 metric columns are requested.
+>
+> **Fourteenth update, 2026-10-31, 14:24 ET.**
 > - **CP3 accepted.** All 7 per-cohort protocol outputs were reproduced exactly (max diff 0); the XP-I GOOD25 shares were reproduced from strings. Table 1 is complete.
 > - **Two GPT adversarial reviews evaluated** (A16).
 >   - **Adopted:** selection-first positioning; gains reported with image-bootstrap intervals; "equal mean runs" wording; the noise cross-term stated exactly; correlated forecast points; PC-DAPS described as a random-particle readout; an image-disjoint test (XP-N, conditional).

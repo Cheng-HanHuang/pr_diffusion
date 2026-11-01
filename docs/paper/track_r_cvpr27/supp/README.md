@@ -1,4 +1,4 @@
-# Supplement: second integration build (planner, 2026-10-31 PM)
+# Supplement: third integration build (planner, 2026-10-31 evening)
 
 **Build.** Run from this folder, after building the main paper once (the cross-references read `../main.aux`):
 ```
@@ -11,7 +11,7 @@ pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 
 | File | Source | Planner integration edits |
 |---|---|---|
-| `TH_SUPPL_S1_PROTOCOL_THEORY_DROPIN_20261029.tex` | Theory `69cefc9` (adds three dated A15 paragraphs) | <ul><li>Paragraph title `FLAG_C` set in math (it broke compilation).</li><li>"In the planner's post-hoc" → "In a post-hoc" (double-blind).</li></ul> |
+| `TH_SUPPL_S1_PROTOCOL_THEORY_DROPIN_20261029.tex` | Theory `4f5fad0` (round 12: the earlier integration edits adopted upstream; "equal mean runs" wording; H-G1 denominators named; a post-hoc label-free τ paragraph) | One typo fixed: "equal mean runss were" → "gains at equal mean runs were". |
 | `TH_SUPPL_S2_RELOCATED_SOURCE_VERBATIM_20261030.tex` | Theory `061c618` | References to main-paper labels prefixed `M-` (`\externaldocument[M-]{../main}`). |
 | `TH_SUPPL_S2_PROOFS_AUDIT_20261030.tex` | Theory `061c618` | <ul><li>"planner-confirmed" → "in the pinned source".</li><li>An internal code path replaced by "the lightweight SITCOM reimplementation in our code base" (overfull line, double-blind).</li><li>The internal paragraph "Remaining source/figure checks for paper integration" commented out.</li></ul> |
 | `TH_SUPPL_S3_COMPLETE_DRAFT_20261031.tex` | Theory `69cefc9`; replaces the 20261030 copy, whose text is its verbatim prefix | <ul><li>Two literal `\n` sequences in the A15 addendum replaced by line breaks; they would have been undefined control sequences.</li><li>"The planner also reports" → "We also report" (double-blind).</li></ul> |
@@ -29,7 +29,7 @@ pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 
 ## Open items (before Nov 23)
 
-1. **Theory: adopt the integration edits upstream**, so the next theory copy needs none. Also replace "equal-compute" with "equal-mean-runs" in S1. Its H-G1 paragraph gives +11.0% relative to the scaled value; the main text gives 10% relative to the calibrated one. Both are correct; S1 should name its denominator.
+1. **Done (theory `4f5fad0`):** the integration edits are adopted upstream; S1 uses "equal mean runs" and names its H-G1 denominators. S2 audit and S3 at `4f5fad0` match the integrated copies.
 2. **S2, stale empirical sentences** (from the old main-text Sec. 4). Resolve or delete:
    - "Fig. 1b reports the equivariance defect": the teaser no longer has that panel; XP-C2 is in G7.
    - The ImageNet orbit-error share: D1 has 279 O_g and 14 O_p among 1,600 runs (XP `5f6b213`).
