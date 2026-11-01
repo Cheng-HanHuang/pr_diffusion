@@ -517,7 +517,37 @@
 >    - Item 2's analyses are labeled exploratory.
 >    - No matched-compute claim is made.
 
-**Status:** FROZEN v1.1 with amendments A1–A16 (planner, 2026-10-31).
+> **Amendment A17 (planner, 2026-10-31 20:43 ET): v5 code registered; the executor runs v5; XP-N seal order.** Written after three things existed: the theory executor's v5 code freeze (theory `3ad5f2d`, code commit `81003cc`, pushed 22:06Z), its XP-N pre-score note (`a1ea26b`, pushed 22:04Z), and the executor's XP-N preparation (GT/y identity, two-root D1 replay, 6,400-root manifest; XP `474546c`). It is written before any XP-N run exists.
+> 1. **v5 code verified and registered** (registry row `v5 code`).
+>    - **SHAs.** The five code files match the SHA-256 values in the freeze receipt byte for byte, and are unchanged through theory head `4f5fad0`.
+>    - **Native QA by the planner:**
+>      - the synthetic test passes;
+>      - a production-parameter dry run (250 / 60 / 3) on the released D1 runs 0–3 passes the contract 100/20/4 in 41 s, with an oracle-anchor shift of at most 0.0033;
+>      - its race E1 points at K = 8 and 16 (0.578, 0.599) match the registered v2 E1 forecast for the same images (0.578, 0.603).
+>
+>      So the generalization keeps v2's model. The dry run is not a forecast: those images' later runs are known. As in every earlier test on them, it overforecasts O_orbit (0.944 against 0.780 observed at K = 64). Output in `planner_analysis/A17_v5_qa/`.
+>    - **The Nov 2 code deadline is met.** XP-N generation may start now.
+> 2. **The executor runs v5.** This replaces "the planner then runs it" in A16.5, so XP-N needs no relay.
+>    - **(a) Inputs.** When runs 0–3 of all 100 images are generated and scored (labels and G1 decisions, nothing from runs ≥ 4), write two files in the D1 phase-1 schemas (`XP_D1_P1_K4_A8_STYLE_PER_IMAGE.csv`, `XP_D1_P1_K4_CLIP_DECISIONS.csv`):
+>      - **PREFIX4,** 100 rows: `family` = FAST, `n_runs` = 4, single-letter labels G/O/P/C/I (O = O_g, P = O_p), `e0_rank_order` = stable ascending order of ρ, with its counts.
+>      - **CLIP4,** 400 rows: `image_id, run, label, g1_choice, g1_margin, g1_chosen_good`, runs 0–3, with labels identical to PREFIX4.
+>
+>      Commit both to `theory_inputs/` and push.
+>    - **(b) Production.** From a detached, read-only checkout of `81003cc`, after verifying the five SHAs, run the frozen `fit` (point reps 250, bootstrap 60, boot reps 3), then `check`, then `seal` with `--code-commit 81003cc5a9167def74a04281501b4eae2837f44c`. Write outputs to a new directory; never commit to the theory branch.
+>    - **(c) Registration by push.** Commit and push the sealed `TH1_PREDICTIONS_v5_XP_N.json`, its SHA-256, the draft and a receipt (UTC, Python, NumPy and SciPy versions) to `returns/` **before any run with index ≥ 4 is scored**. That push registers v5.
+>      - The planner then records it in the registry and reproduces it. Agreement within Monte Carlo tolerance is required: points within 0.01, interval ends within 0.02. NumPy versions may differ.
+>      - A reproduction failure beyond tolerance is investigated. It voids v5 only if the frozen code or the inputs were not used as specified.
+>    - **(d) Failure.** If `fit` or `check` fails, the executor may correct the input formatting only, never the code, seed or parameters, and retry once. If it still fails, commit `XP_N_V5_DECLINED_PRODUCTION_FAILED` with the error; v5 is declined.
+>    - **(e) Then** unseal runs 4–63 and continue (protocol, CP-N). The Nov 4, 12:00 ET fallback stays: if neither (c) nor (d) has happened by then, v5 lapses and runs 4–63 unseal.
+> 3. **Seal order.** No label, PSNR, class or orientation decision of any run with index ≥ 4 is computed or read before (c) or (d) is pushed. Generation of runs 4–63 continues meanwhile.
+> 4. **Scoring v5.** Use the comparison rule inside the file:
+>    - primary: race, with E0 and E1 (beta_class) coverage at K = 4, 8, 16, 32, 64;
+>    - S2, tail, race_tau1, the oracles and the image-cluster E1 intervals are disclosed beside it.
+>
+>    It becomes **test 6**, the first on new images.
+> 5. **Theory pre-score** (`a1ea26b`, registered): N-H1a predicted to pass (+0.2 points), N-H1b predicted to pass (−2.7). It is scored beside the planner's A16.5 forecast; neither changes the frozen hypotheses.
+
+**Status:** FROZEN v1.1 with amendments A1–A17 (planner, 2026-10-31).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

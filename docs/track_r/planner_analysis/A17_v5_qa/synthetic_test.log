@@ -1,0 +1,6 @@
+XP_N_V5_CONTRACT_PASS 100 20 4
+XP_N_V5_SYNTHETIC_PASS 100 20 4 using ONLY fabricated 100-image four-run input
+
+real	0m7.696s
+user	0m6.770s
+sys	0m0.310s
