@@ -1,0 +1,43 @@
+{
+  "aggregate_E0_raw": {
+    "PSNR": 28.561536102551,
+    "SSIM": 0.8064489316195249,
+    "VGG_LPIPS": 0.17879049330949784
+  },
+  "aggregate_E1_chosen": {
+    "PSNR_chosen": 29.097130953459168,
+    "SSIM_chosen": 0.8225126536356078,
+    "VGG_LPIPS_chosen": 0.16563984457817343
+  },
+  "aggregate_native": {
+    "PSNR": 28.07115901711735,
+    "SSIM": 0.7971279231831432,
+    "VGG_LPIPS": 0.18843253632593487
+  },
+  "augmented_csv_sha256": "3840610e38a6cfc72d6a0d90282740475ec745cc99cf2a9853d3c3dfa4ac5439",
+  "chosen_metrics_use_GT_evaluation_only": true,
+  "columns": [
+    "image_id",
+    "particle",
+    "label",
+    "PSNR",
+    "SSIM",
+    "VGG_LPIPS",
+    "rho",
+    "face_choice",
+    "face_margin",
+    "PSNR_chosen",
+    "SSIM_chosen",
+    "VGG_LPIPS_chosen"
+  ],
+  "exactly_7_E0_flips_verified": true,
+  "expected_head": "885b99ebad50784e3388db619a518411f2e9fd8c",
+  "face_decisions_frozen_GT_free": true,
+  "n_images": 180,
+  "n_particles": 720,
+  "no_matched_compute_claim": true,
+  "no_new_gpu_or_clips": true,
+  "raw_columns_unchanged": true,
+  "source_accepted_A16_csv_sha256": "1e16f70ebd36abf81c9662edef2eef813d061ce98296d1c3bfbaba2a4cc17f02",
+  "status": "A17_XPI_FULL_720_RAW_AND_FACE_CHOSEN_PASS"
+}
