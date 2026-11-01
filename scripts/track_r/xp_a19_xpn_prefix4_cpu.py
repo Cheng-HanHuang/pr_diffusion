@@ -36,6 +36,23 @@ def csv_x(p,rs,columns):
   w=csv.DictWriter(f,fieldnames=columns,lineterminator="\n")
   w.writeheader();w.writerows(rs)
 
+def pilot_chunk_receipt_valid(meta,complete,start,digest,uids,meta_sha):
+ """Native acceptance: 20 validated roots, including SIGTERM-safe reuse."""
+ return (meta.get("start")==start and meta.get("count")==20
+     and meta.get("root_sha256")==digest
+     and meta.get("uids")==uids
+     and complete.get("status")=="R0_5_CHUNK_PASS"
+     and complete.get("start")==start and complete.get("count")==20
+     and isinstance(complete.get("new"),int)
+     and isinstance(complete.get("reused"),int)
+     and not isinstance(complete.get("new"),bool)
+     and not isinstance(complete.get("reused"),bool)
+     and 0<=complete["new"]<=20
+     and 0<=complete["reused"]<=20
+     and complete["new"]+complete["reused"]==20
+     and complete.get("head")==meta.get("head")
+     and complete.get("meta_sha256")==meta_sha)
+
 def inputs(a):
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","A19_XPN_P4_CPU_ONLY")
  wt=Path(__file__).resolve().parents[2]
@@ -65,18 +82,10 @@ def inputs(a):
        "A19_XPN_ONLY_PILOT_CHUNK_MISSING_"+str(st))
   meta=jread(dest/"R0_5_CHUNK_META.json")
   complete=jread(dest/"R0_5_CHUNK_COMPLETE.json")
-  gate(meta["start"]==st and meta["count"]==20
-       and meta["root_sha256"]==digest
-       and complete["status"]=="R0_5_CHUNK_PASS"
-       and complete["start"]==st and complete["count"]==20
-       and isinstance(complete.get("new"),int)
-       and isinstance(complete.get("reused"),int)
-       and 0<=complete["new"]<=20
-       and 0<=complete["reused"]<=20
-       and complete["new"]+complete["reused"]==20
-       and complete["head"]==meta["head"]
-       and complete["meta_sha256"]==sha(dest/"R0_5_CHUNK_META.json")
-       and meta["uids"]==[r["uid"] for r in rows[st:st+20]],
+  gate(pilot_chunk_receipt_valid(
+       meta,complete,st,digest,
+       [r["uid"] for r in rows[st:st+20]],
+       sha(dest/"R0_5_CHUNK_META.json")),
        "A19_XPN_P4_NATIVE_COMPLETE_"+str(st))
  gate(sha(GT_FILE)==GT_SHA and sha(FROZEN_Y)==Y_SHA,
       "A19_XPN_P4_PINNED_GT_Y_MANIFEST_SHA")
