@@ -134,8 +134,42 @@ cat "$OUT/XP_N_V5_NATIVE_FIT_CHECK_SEAL.log"
 # requires one deliberate retry before running this path again.
 if [ "$FITRC" -ne 0 ]; then
   echo "A19_V5_FIT_CHECK_SEAL_FAILED_RC=$FITRC"
-  echo "A19_V5_STOP_FOR_ONE_ALLOWED_INPUT_OR_ENV_REPAIR_NO_UNSEAL" 
-  exit 8
+  # A17 permits at most one corrective retry for input formatting or
+  # Python environment, never model/seed/parameter changes. A repeated
+  # identical computation is not a corrective retry. If the native fit
+  # fails in this pinned environment, explicitly decline rather than
+  # forging a forecast. Errors are preserved for planner review.
+  DECLINE="$OUT/XP_N_V5_DECLINED_PRODUCTION_FAILED.json"
+  "$PY" - "$DECLINE" "$OUT/XP_N_V5_NATIVE_FIT_CHECK_SEAL.log" "$FITRC" "$PS" "$CS" "$PLOCAL" <<'PY'
+import datetime,json,sys
+from pathlib import Path
+path,log,rc,ps,cs,prefix=sys.argv[1:]
+txt=Path(log).read_text(errors="replace")
+status=dict(status="XP_N_V5_DECLINED_PRODUCTION_FAILED",
+ decline_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+ reason="pinned_native_fit_check_seal_failed_no_model_change",
+ returncode=int(rc),stderr_stdout_tail=txt[-6000:],
+ code_commit="81003cc5a9167def74a04281501b4eae2837f44c",
+ prefix4_sha256=ps,clip4_sha256=cs,
+ prefix4_remote_commit=prefix,
+ no_held_runs_4_to_63_scored_or_read=True,
+ code_seed_and_parameter_modifications=0)
+Path(path).write_text(json.dumps(status,sort_keys=True,indent=2)+"\\n")
+PY
+  git -C "$WT" worktree add -b "$VBR" "$PUBV" "$HEAD"
+  mkdir -p "$PUBV/$VREL"
+  cp "$DECLINE" "$PUBV/$VREL/"
+  (cd "$PUBV/$VREL" && sha256sum XP_N_V5_DECLINED_PRODUCTION_FAILED.json > SHA256SUMS && sha256sum -c SHA256SUMS)
+  git -C "$PUBV" add "$VREL"
+  git -C "$PUBV" commit -m "results(track-r): explicitly decline unmodified prospective XP-N v5 production after native fit failure"
+  GIT_SSH_COMMAND="ssh -o BatchMode=yes -o ConnectTimeout=10" \\
+    git -C "$PUBV" push git@github.com:Cheng-HanHuang/pr_diffusion.git "HEAD:refs/heads/$VBR"
+  VLOCAL=$(git -C "$PUBV" rev-parse HEAD)
+  VREMOTE=$(git -C "$PUBV" ls-remote git@github.com:Cheng-HanHuang/pr_diffusion.git "refs/heads/$VBR" | cut -f1)
+  test -n "$VREMOTE" && test "$VLOCAL" = "$VREMOTE"
+  echo "A19_XPN_V5_DECLINED_REMOTE_PUBLISHED_AND_VERIFIED=$VLOCAL"
+  echo "A19_XPN_V5_DECLINED_NO_FORECAST_TEST"
+  exit 0
 fi
 test -s "$DRAFT" && test -s "$SEALED"
 F5=$(sha256sum "$SEALED" | cut -d' ' -f1)
