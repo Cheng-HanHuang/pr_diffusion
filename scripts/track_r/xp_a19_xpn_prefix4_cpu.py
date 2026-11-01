@@ -184,7 +184,10 @@ def main(a):
  sc,tau=score_prefix(rows,digest,run,gt,ym)
  clip,info=clip_new(sc,mode="g1",threshold=20)
  gate(len(clip)==400
-      and all(x["g1_chosen_good"] in (0,1)
+      and len({(x["image_id"],int(x["run"])) for x in clip})==400
+      and all(x["g1_choice"] in ("000","111")
+              and math.isfinite(float(x["g1_margin"]))
+              and x["g1_chosen_good"] in (0,1)
               and (x["label"] not in ("C","I") or
                   x["g1_chosen_good"]==0) for x in clip),
       "A19_XPN_P4_CLIP_400_GOOD")
