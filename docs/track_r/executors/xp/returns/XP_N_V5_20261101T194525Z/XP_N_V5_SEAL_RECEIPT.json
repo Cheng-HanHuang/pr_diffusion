@@ -1,0 +1,25 @@
+{
+  "boot_reps": 3,
+  "bootstrap": 60,
+  "clip4_sha256": "e03b6ce2dbdf3a8da64b9d2a2ab71259d8267654cfc699ac9772a12dddbc0d20",
+  "code_commit": "81003cc5a9167def74a04281501b4eae2837f44c",
+  "code_sha256": {
+    "check": "7313d46ddb5df33e2b3dfb7bae8c301e66584b0d503b6da117560e41bde4d33c",
+    "fit": "5ac8811f0948ee143f0b2cd90406626a01bc9421121472fccb241292e2745292",
+    "launcher": "e795ff2233f5d57cac6c4ec12649e5e31271c00fb864a74ff2b586088dcaec8e",
+    "seal": "6f70c8638eda541ce10786b905403a3ac82c2fe2eefef9bfcf25647819ff3f71",
+    "synthetic_test": "8fba9cf6ba1cdfdaea2f93933d6168490eec8dd58495e971eeeebd69095c25b6"
+  },
+  "freeze_utc": "2026-11-01T19:53:55.595601+00:00",
+  "held_runs_4_to_63_read": false,
+  "held_runs_4_to_63_scored": false,
+  "no_model_seed_or_parameter_changes": true,
+  "numpy": "2.4.6",
+  "point_reps": 250,
+  "prefix4_remote_commit": "cadf55af3e60264f5333121bb92d01468d066411",
+  "prefix4_sha256": "d1e316952a4ecf19481055f98d4169addae92a9b5f3ffb5f7394c4a9289941e0",
+  "python": "3.11.15",
+  "scipy": "1.17.1",
+  "sealed_v5_sha256": "a09f553292947f4cf9c0f95294a9afd205938f0dc18dd75f4d6ff655916a3ee3",
+  "status": "A17_XPN_V5_NATIVE_FIT_CHECK_SEAL_PASS_PENDING_REMOTE_REGISTRATION"
+}
