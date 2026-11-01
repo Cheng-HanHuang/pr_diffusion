@@ -343,6 +343,14 @@ def main(a):
        print("A20_RECOVERY_CHUNKS",len(state["done"]),"/90",
              "STAGE_CHARGED_H",round(used_h(),6),flush=True)
       record_active(active)
+     # Hard wall-charge watchdog, not just an admission gate. If
+     # co-tenancy slows active native jobs, signal ONLY our group
+     # before the GPU-hour ceiling is crossed.
+     if (used_h()>STAGE_CAP_H-.05 or
+         project+used_h()-prior>PROJECT_CAP_H-.05):
+      stop_reason="STOP_RECOVERY_GPU_HARD_CAP"
+      emit(out,"HARD_GPU_H_CAP_STOP_OWN",charged_live_h=used_h())
+      break
      if STOP or (out/"STOP_XPN_RECOVERY").exists():
       stop_reason="STOP_RECOVERY_OPERATOR";break
      if not safe_budget(1):
