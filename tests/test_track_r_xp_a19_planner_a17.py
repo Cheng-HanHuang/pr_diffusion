@@ -55,6 +55,29 @@ class A19Tests(unittest.TestCase):
         self.assertIn("XP_N_V5_DECLINED_PRODUCTION_FAILED",runner)
         self.assertIn('worktree add --detach "$CODEWT" "$CODE"',runner)
 
+    def test_prefix4_accepts_native_resumed_chunk_without_rewriting_metadata(self):
+        from scripts.track_r.xp_a19_xpn_prefix4_cpu import pilot_chunk_receipt_valid
+        head="7"*40
+        digest="a"*64
+        uids=[f"root-{i}" for i in range(20)]
+        meta=dict(start=180,count=20,root_sha256=digest,
+                  head=head,gpu=3,uids=uids)
+        complete=dict(status="R0_5_CHUNK_PASS",start=180,count=20,
+                      head=head,meta_sha256="b"*64,new=20,reused=0)
+        self.assertTrue(pilot_chunk_receipt_valid(
+                        meta,complete,180,digest,uids,"b"*64))
+        complete.update(new=10,reused=10)
+        self.assertTrue(pilot_chunk_receipt_valid(
+                        meta,complete,180,digest,uids,"b"*64))
+        self.assertEqual(meta["gpu"],3)
+        for fields in (dict(new=10,reused=9),dict(new=20,reused=1),
+                       dict(new=-1,reused=21),dict(new=True,reused=19)):
+            bad=dict(complete,**fields)
+            self.assertFalse(pilot_chunk_receipt_valid(
+                             meta,bad,180,digest,uids,"b"*64))
+        self.assertFalse(pilot_chunk_receipt_valid(
+                         meta,complete,180,digest,uids,"c"*64))
+
     def test_xpi_raw_and_chosen_are_evaluation_only(self):
         src=(ROOT/"scripts/track_r/xp_a19_xpi_chosen_cpu.py").read_text()
         self.assertIn("PSNR_chosen",src)
