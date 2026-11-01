@@ -95,7 +95,8 @@ def check_chunk(run,job,manifest,head,require_complete=False):
   return dict(status="COMPLETE",reused=got,original_gpu=meta["gpu"],
               chunk_sha256=sha(complete))
  gate(not require_complete,"A20_MISSING_CHUNK_COMPLETE_"+job_id(job))
- gate(got<job["count"],"A20_COMPLETE_ROOTS_MISSING_CHUNK_FINAL_"+job_id(job))
+ # A native worker may finish every root but receive SIGTERM before
+ # writing its final chunk receipt. --resume can finalize that chunk.
  return dict(status="PARTIAL",reused=got,original_gpu=meta["gpu"])
 
 def reconstruct(a):
