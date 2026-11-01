@@ -76,8 +76,28 @@ def main(a):
  gate(git("rev-parse","HEAD")==a.expected_head
       and not git("status","--porcelain"),"A19_XPI_CLEAN_HEAD")
  rows=checked_table()
+ perimage={}
+ for rr in rows:perimage.setdefault(rr["image_id"],[]).append(rr)
+ from statistics import mean
+ native={k:mean(r[k] for r in rows) for k in
+         ("PSNR","SSIM","VGG_LPIPS")}
+ e0=[];e1=[]
+ for iid,part in perimage.items():
+  chosen=min(part,key=lambda r:(float(r["rho"]),int(r["particle"])))
+  e0.append(chosen);e1.append(chosen)
+ agg0={k:mean(r[k] for r in e0) for k in
+       ("PSNR","SSIM","VGG_LPIPS")}
+ agg1={k:mean(r[k] for r in e1) for k in
+       ("PSNR_chosen","SSIM_chosen","VGG_LPIPS_chosen")}
+ gate(abs(native["PSNR"]-28.0712)<.0001
+      and abs(native["SSIM"]-.7971)<.0001
+      and abs(native["VGG_LPIPS"]-.1884)<.0001
+      and abs(agg0["PSNR"]-28.5615)<.0001
+      and abs(agg0["SSIM"]-.8064)<.0001
+      and abs(agg0["VGG_LPIPS"]-.1788)<.0001,
+      "A19_XPI_PLANNER_NATIVE_E0_REPRODUCTION")
  if a.preflight_only:
-  print("A19_XPI_CHOSEN_720_PREFLIGHT_PASS",flush=True)
+  print("A19_XPI_CHOSEN_720_PREFLIGHT_PASS",native,agg0,agg1,flush=True)
   return
  out=Path(a.out)
  gate(out.parent==BASE and out.name.startswith("xp_a19_xpi_chosen_")
@@ -94,6 +114,8 @@ def main(a):
   source_accepted_A16_csv_sha256=SOURCE_SHA,
   augmented_csv_sha256=sha(path),raw_columns_unchanged=True,
   exactly_7_E0_flips_verified=True,
+  aggregate_native=native,aggregate_E0_raw=agg0,
+  aggregate_E1_chosen=agg1,
   face_decisions_frozen_GT_free=True,
   chosen_metrics_use_GT_evaluation_only=True,no_new_gpu_or_clips=True,
   no_matched_compute_claim=True,
