@@ -154,7 +154,7 @@ status=dict(status="XP_N_V5_DECLINED_PRODUCTION_FAILED",
  prefix4_remote_commit=prefix,
  no_held_runs_4_to_63_scored_or_read=True,
  code_seed_and_parameter_modifications=0)
-Path(path).write_text(json.dumps(status,sort_keys=True,indent=2)+"\\n")
+Path(path).write_text(json.dumps(status,sort_keys=True,indent=2)+"\n")
 PY
   git -C "$WT" worktree add -b "$VBR" "$PUBV" "$HEAD"
   mkdir -p "$PUBV/$VREL"
