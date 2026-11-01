@@ -69,7 +69,12 @@ def inputs(a):
        and meta["root_sha256"]==digest
        and complete["status"]=="R0_5_CHUNK_PASS"
        and complete["start"]==st and complete["count"]==20
-       and complete["new"]==20 and complete["head"]==meta["head"]
+       and isinstance(complete.get("new"),int)
+       and isinstance(complete.get("reused"),int)
+       and 0<=complete["new"]<=20
+       and 0<=complete["reused"]<=20
+       and complete["new"]+complete["reused"]==20
+       and complete["head"]==meta["head"]
        and complete["meta_sha256"]==sha(dest/"R0_5_CHUNK_META.json")
        and meta["uids"]==[r["uid"] for r in rows[st:st+20]],
        "A19_XPN_P4_NATIVE_COMPLETE_"+str(st))
