@@ -1,4 +1,4 @@
-"""Fig. calibration: registered forecasts against outcomes, five prospective tests (primary variant = race; S2 reference).
+"""Fig. calibration: registered forecasts against outcomes, six prospective tests (primary variant = race; S2 reference).
 
 Sources (committed comparison JSONs; aggregates only):
   test 1  FAST-DIPS FFHQ vs v1      XP 07d5460  A8_FAST_V1_COMPARISON.json              (forecast_comparison rows)
@@ -6,8 +6,10 @@ Sources (committed comparison JSONs; aggregates only):
   test 5  FAST-DIPS ImageNet vs v4  XP ef1cf10  CP2_V2_V2E1_V4_FORECAST_COMPARISON.json  (keys 'v2', 'v2 E1', 'v4')
   test 3  SITCOM FFHQ vs v1         XP 8798462  XP_B16_V1_V3_PROSPECTIVE_COMPARISON.json (forecast_source == v1)
   test 4  DAPS FFHQ vs v1           XP 29ef1f5  XP_A13_F8_PROSPECTIVE_V1_V3.json         (version == v1)
+  test 6  FAST-DIPS ImageNet, new images, vs v5 (XP 55ba86b), scored by the planner on the complete 64-run panel (XP 2d791c5):
+          planner_analysis/A19_xpn_scoring/V5_SCORING_PLANNER.json (variants.<v>.rows), saved here as test6_imagenet_new_v5.json
 E1 rows use the primary decision model (beta_class) where two are registered. Primary panels only, except test 5 (both panels).
-Usage: python3 make_fig_forecast_calibration.py <dir with the four JSONs> <out.pdf>
+Usage: python3 make_fig_forecast_calibration.py <dir with the five JSONs> <out.pdf>
 """
 import json, os, sys
 import matplotlib
@@ -33,10 +35,15 @@ for r in J("test3_sitcom_b16.json")["forecast_comparisons"]:
 for r in J("test4_daps_f8.json")["comparisons"]:
     if r["version"] == "v1":
         pts.append((4, r["model_variant"], r["policy"], r["point"], r["lo95"], r["hi95"], r["observed"]))
+t6 = J("test6_imagenet_new_v5.json")["variants"]
+for var in ("race", "S2"):
+    for r in t6[var]["rows"]:
+        if r["decision_model"] in (None, "beta_class"):
+            pts.append((6, var, r["policy"], r["point"], r["lo95"], r["hi95"], r["observed"]))
 
-COL = {1: "#2a78d6", 2: "#eb6834", 3: "#1baf7a", 4: "#eda100", 5: "#e87ba4"}  # validated (dataviz), shapes as secondary encoding
-MK = {1: "o", 2: "s", 3: "^", 4: "D", 5: "v"}
-NAME = {1: "1 FAST-DIPS, FFHQ", 2: "2 FAST-DIPS, ImageNet", 3: "3 SITCOM, FFHQ", 4: "4 DAPS, FFHQ", 5: "5 FAST-DIPS, ImageNet (16 runs seen)"}
+COL = {1: "#2a78d6", 2: "#eb6834", 3: "#1baf7a", 4: "#eda100", 5: "#e87ba4", 6: "#008300"}  # categorical slots 1-6, validated (dataviz), shapes as secondary encoding
+MK = {1: "o", 2: "s", 3: "^", 4: "D", 5: "v", 6: "P"}
+NAME = {1: "1 FAST-DIPS, FFHQ", 2: "2 FAST-DIPS, ImageNet", 3: "3 SITCOM, FFHQ", 4: "4 DAPS, FFHQ", 5: "5 FAST-DIPS, ImageNet (16 runs seen)", 6: "6 FAST-DIPS, ImageNet, new images"}
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 plt.rcParams.update({"font.family": "serif", "font.serif": ["STIXGeneral", "DejaVu Serif"], "mathtext.fontset": "stix",
                      "font.size": 7, "axes.labelsize": 7, "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "legend.fontsize": 6,

@@ -23,14 +23,14 @@ Heterogeneity across images enters through a Dirichlet mixture over the class pr
 Given $n$ runs of an image, the average of a policy over all $\binom nK$ subsets is an unbiased estimate of its $K$-run value with a closed form: for an argmin rule, the run ranked $r$-th by residual is selected with probability $\binom{n-r}{K-1}/\binom nK$, and success probabilities take the pass@$k$ form $1-\binom{n-g}{K}/\binom nK$~\cite{chen2021codex}\claim{C-T7}.
 Comparing these model-free estimates with frozen forecasts tests the model.
 
-\paragraph{Five prospective tests.}
+\paragraph{Six prospective tests.}
 For each test we fitted the models to the runs already observed, registered forecasts with predictive intervals under (S2), the race and two variants, and only then scored the remaining runs (registry, hashes and every comparison in the supplement)\claim{C-R1}\claim{C-R2}\claim{C-R3}.
 \Cref{tab:forecasts} and \cref{fig:calib} summarize the primary variant against the exchangeable reference.
-Where wrong runs often fit the measurement (tests 2, 3 and 5) the race forecast of the selected run holds at all $45$ points and (S2) at $3$; on SITCOM, $\Eone$ reaches $91.1\%$ at $K{=}16$ against $92.2\%$ for the orbit oracle\claim{C-R5}.
+Where wrong runs often fit the measurement (tests 2, 3, 5 and 6) the race forecast of the selected run holds at all $55$ points and (S2) at $3$, including all $10$ against none on test 6, whose $100$ ImageNet images no earlier experiment had touched\claim{C-N3}; on SITCOM, $\Eone$ reaches $91.1\%$ at $K{=}16$ against $92.2\%$ for the orbit oracle\claim{C-R5}.
 Where they rarely do (DAPS) the two models nearly coincide and both hold\claim{C-R6}.
 The forecasts fail on generation.
-They overestimate coverage in four of five tests, including test 5, which was fitted to sixteen runs per image: between $16$ and $64$ runs the share of ImageNet images with a \good run in some orientation rises only from $75\%$ to $78\%$, against $84$--$90\%$ forecast, and $22$ images never yield one\claim{C-R7}.
-A second SITCOM forecast that imported FAST-DIPS's per-image difficulty did worse than the first ($17$ against $31$ of $36$ points)\claim{C-R5}.
+They overestimate coverage in five of six tests, including test 5, which was fitted to sixteen runs per image: between $16$ and $64$ runs the share of ImageNet images with a \good run in some orientation rises only from $75\%$ to $78\%$, against $84$--$90\%$ forecast, and $22$ images never yield one\claim{C-R7}.
+On the new images of test 6 it is $75\%$ at $64$ runs against $88\%$ forecast, with $25$ images never solved: the model expected many images to be rescued only by an orbit error, but there an image with an orbit error usually also has a \good run\claim{C-N3}.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -46,9 +46,10 @@ A second SITCOM forecast that imported FAST-DIPS's per-image difficulty did wors
 3 & SITCOM, FFHQ & $4\to16$ & 18/18 & 2/18 & 13/18 \\
 4 & DAPS, FFHQ & $2$--$4\to8$ & 12/14 & 14/14 & 9/14 \\
 5 & FAST-DIPS, ImageNet & $16\to64$ & 18/18 & 1/18 & 2/12 \\
+6 & FAST-DIPS, ImageNet$'$ & $4\to64$ & 10/10 & 0/10 & 3/10 \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Registered forecasts against outcomes.} Points covered by the $95\%$ predictive interval for the selected run ($\Eo$, and $\Eone$ where registered) and for the oracles ($\Oraw$, $\Oorb$), over cohorts and $K$. Points within a test are correlated across $K$, so the tests, not the points, are the units of evidence. Test~1 is analyzed below\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}.}
+\caption{\textbf{Registered forecasts against outcomes.} ImageNet$'$: $100$ new images. Points covered by the $95\%$ predictive interval for the selected run ($\Eo$, and $\Eone$ where registered) and for the oracles ($\Oraw$, $\Oorb$), over cohorts and $K$. Points within a test are correlated across $K$, so the tests, not the points, are the units of evidence. Test~1 is analyzed below\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}\claim{C-N3}.}
 \label{tab:forecasts}
 \end{table}
 
@@ -70,6 +71,6 @@ Nor does the protocol's $\textsc{flag}_C$ isolate unsolved images (\cref{sec:pro
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig/forecast_calibration.pdf}
-\caption{\textbf{Registered forecasts against outcomes, five prospective tests.} Each point is one cohort, $K$ and policy; filled points with bars are the race model's forecasts and $95\%$ predictive intervals, hollow points the exchangeable-ranks reference (S2). Left: the selected run. Right: the oracles, i.e.\ whether any run is good; most fall below the diagonal, where coverage was overestimated\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}. Best-of-$K$ curves per test are in the supplement.}
+\caption{\textbf{Registered forecasts against outcomes, six prospective tests.} Each point is one cohort, $K$ and policy; filled points with bars are the race model's forecasts and $95\%$ predictive intervals, hollow points the exchangeable-ranks reference (S2). Left: the selected run. Right: the oracles, i.e.\ whether any run is good; most fall below the diagonal, where coverage was overestimated\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}. Best-of-$K$ curves per test are in the supplement.}
 \label{fig:calib}
 \end{figure}

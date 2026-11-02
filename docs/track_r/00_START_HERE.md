@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-11-01 by the planner (Claude).
+**Updated:** 2026-11-02 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,12 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-02, 03:01 (planner): XP-N complete and reproduced; A19.**
+  - **Test 6 (new images):** race 10/10 vs S2 0/10; coverage overforecast again.
+  - **Protocol:** N-H1a **fails** (−1.5 at N_max = 16); N-H1b holds (H1 fails at 64, −3.1, as registered).
+  - **Paper:** updated, still 8 pages; supplement 16 pages.
+  - **Next:** XP-C3, extended to the XP-N candidates, then XP-I2. No new selector before submission.
+  - **Notes, round 15:** [`executors/xp/15_PLANNER_NOTES_20261102.md`](executors/xp/15_PLANNER_NOTES_20261102.md) and [`executors/theory/15_PLANNER_GUIDANCE_20261102.md`](executors/theory/15_PLANNER_GUIDANCE_20261102.md).
 - **2026-11-01, 19:15 (planner): v5 registered (bit-identical); XP-N cap 28 GPU-h; A18.**
   - **v5** (XP `55ba86b`) was pushed before any held-run scoring; the planner rerun is bit-identical. Runs 4–63 are unsealed.
   - **XP-N** stopped at 72/90 chunks on a reservation artifact. The cap is raised to 28 GPU-h. An incomplete-panel rule is declared. CP-N part 1 (n = 16) is due now and by Nov 5; part 2 (n = 64 and v5) by Nov 8.

@@ -582,7 +582,28 @@
 >    - Each part is a checkpoint return of at most 20 lines, which the planner reproduces.
 > 6. **XP-I accepted in full.** From the chosen-orientation table, the planner reproduces native, E0 and E1 PSNR, SSIM and VGG-LPIPS exactly. The paired intervals of E1 − native match within Monte Carlo error: PSNR [+0.54, +1.61] dB, SSIM [+0.013, +0.040], LPIPS [−0.035, −0.013].
 
-**Status:** FROZEN v1.1 with amendments A1–A18 (planner, 2026-11-01).
+> **Amendment A19 (planner, 2026-11-02 03:02 ET): CP-N accepted; XP-N outcomes recorded; what runs next.** Written after CP-N part 1 (XP `9b77718`) and part 2 (`2d791c5`). XP-N: 6,400/6,400 roots, 23.06 GPU-h of the 28 cap.
+> 1. **CP-N accepted; planner reproduction exact.**
+>    - **Inputs.** Every SHA256SUMS line verifies. Runs 0–15 of the 64-run files equal the 16-run files, and runs 0–3 equal the v5 inputs.
+>    - **Protocol.** Part 2's two protocol JSONs match field for field (392 and 287 fields, maximum difference 0), and part 1's values match.
+>    - **v5.** The planner rescored v5 against the complete panel with the frozen comparison rule; every count and standardized error matches the executor's file.
+> 2. **Outcomes, as registered (A16.5).**
+>    - **N-H1a FAILS.** Gain −1.52 points at N_MAX = 16; image-bootstrap 95% interval [−3.60, +0.47], so not resolved.
+>    - **N-H1b holds.** H1 fails again at N_MAX = 64, as predicted: −3.10 [−5.96, −0.10].
+>    - **N-H4 holds** at both budgets (+11.6 and +10.7 points).
+>    - **Planner forecasts.** P-N1 to P-N4 are inside their intervals and P-N5 holds.
+>    - **Theory pre-score.** Both values fall inside its ranges. Its pass/fail call is wrong for N-H1a and right for N-H1b.
+>    - **Test 6.** Race 10/10 selection points, S2 0/10; the race wins under the frozen rule. O_orbit is overforecast at every K (0.880 against 0.750 at K = 64).
+>    - **Coverage.** 25 images have no orbit-GOOD run in 64 runs, 34 in 16.
+> 3. **No new selection or stopping method before submission.** A15.6 extends to selection: any rule tuned on panels already seen would be post hoc, and no fresh panel remains. Two items specified before their data stay in the queue and take priority:
+>    - **XP-C3, extended to the 6,400 XP-N candidates.** It applies the prior orientation test specified in v1.1's XP-C row. On the new images orientation costs 7–9 points, and E1 − E0 at K = 16 is only 7.9 points, against 17.0 on D1. The ceiling rises to 3 GPU-h inside G7. The result is reported as exploratory, E1-prior beside E1-CLIP on D4, G5 and XP-N, by **Nov 5, 12:00 ET**.
+>    - **XP-I2** (PC-DAPS on ImageNet), as in A15.5.
+> 4. **Paper.** Updated with the outcomes:
+>    - two rows in Tab. 1, test 6 in Tab. 2 and Fig. 2;
+>    - H1 reported as failed on the new images;
+>    - the ImageNet four-run PSNR table moved to the supplement to keep 8 pages.
+
+**Status:** FROZEN v1.1 with amendments A1–A19 (planner, 2026-11-02).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

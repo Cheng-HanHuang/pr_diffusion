@@ -1,6 +1,16 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-01)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-02)
 
-> **Sixteenth update, 2026-11-01, 19:15 ET** (the newest; read it first).
+> **Seventeenth update, 2026-11-02, 03:01 ET** (the newest; read it first).
+> - **XP-N is complete** (100 new ImageNet images × 64 runs, 23.06 GPU-h). The planner reproduced every number exactly.
+> - **Test 6 (first prospective test on new images).** Race 10/10 selection points vs S2 0/10. Coverage overforecast again (O_orbit 0.880 vs 0.750 at K = 64). Cumulative over tests 2–6: race 67/69 vs S2 17/69; coverage overforecast in 5 of 6 tests. The paper's spine, "which run to keep is predictable; whether any run is good is not", now holds on images no earlier experiment touched.
+> - **The protocol on new images.**
+>   - **N-H1a FAILS:** −1.5 points at N_max = 16, interval [−3.6, +0.5].
+>   - **N-H1b holds:** H1 fails at 64, −3.1, as registered.
+>   - **Reading:** on FAST-DIPS ImageNet, stopping is neutral to harmful at every budget. It pays only for DAPS on FFHQ (+3.4 / +3.9, intervals above +2). The paper says so plainly.
+> - **Orientation is the growing loss on new images:** 7–9 of the 13–14-point gap; CLIP adds only 7.9 points at K = 16 (17.0 on D1). XP-C3 (the prior test, specified in v1.1) is extended to XP-N and prioritized.
+> - **Publication image.** Stronger as evaluation science: six registered tests, one image-disjoint, all reproduced. Weaker as a method: stopping is now conditional at best. CVPR odds still about 1 in 5; TMLR remains the natural fit.
+>
+> **Sixteenth update, 2026-11-01, 19:15 ET.**
 > - **v5, test 6 (first on new images), is registered.** The executor ran the frozen code on XP-N runs 0–3 and pushed the sealed forecast before any later run was scored. The planner's rerun is bit-identical.
 >   - Race primary at K = 64: E1 0.626 [0.534, 0.711]; O_orbit 0.880 [0.821, 0.931].
 >   - On D1 the same model overforecast O_orbit (0.944 against 0.780), so a coverage miss is the likely outcome.

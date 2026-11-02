@@ -15,6 +15,7 @@ Their half-widths, $1$ to $3$ points, exceed H1's one-point margin, so H1's outc
 \begin{table}[h]
 \centering\small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}llcll@{}}
 \toprule
 Solver, data & $N_{\max}$ & $\tau_S$ & H1: gain [95\% interval], points & Other registered hypotheses \\
@@ -28,10 +29,13 @@ DAPS-4K, FFHQ & 8 & label-free & $+3.93$ $[+2.83,+5.09]$ \quad pass & -- \\
 DAPS-4K, ImageNet & 8 & label-free & $+0.10$ $[-1.61,+1.80]$ \quad pass & -- \\
 FAST-DIPS, FFHQ, $\sigma{=}0.02$ & 8 & scaled & $0.00$ (never stops) \quad pass & H-G1 fail: scaled $0.02003$, labeled $0.02223$ \\
 FAST-DIPS, FFHQ, $\sigma{=}0.10$ & 8 & scaled & $+0.78$ $[+0.29,+1.28]$ \quad pass & H-G1 fail: scaled $0.10017$, labeled $0.09809$ \\
+FAST-DIPS, ImageNet$'$ & 16 & FFHQ value & $-1.52$ $[-3.60,+0.47]$ \quad \textbf{fail} & H4 pass ($+11.6$) \\
+FAST-DIPS, ImageNet$'$ & 64 & FFHQ value & $-3.10$ $[-5.96,-0.10]$ \quad fail, \textbf{as registered} & H4 pass ($+10.7$) \\
 \midrule
 \multicolumn{5}{@{}l}{\footnotesize Development (in-sample): FAST-DIPS, FFHQ, $N_{\max}=64$, no orientation step: $+2.20$ $[+0.65,+4.06]$.}\\
+\multicolumn{5}{@{}l}{\footnotesize ImageNet$'$: $100$ ImageNet images disjoint from all others; at $N_{\max}=64$ the registered hypothesis was that H1 fails (gain $<-1$).}\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{\textbf{Every registered protocol hypothesis (H1--H4, H-G1, H-G2) and its outcome.} H1: gain $\ge-1$ point; H2: gain on DAPS $\ge2$ points and larger than on SITCOM and FAST-DIPS ImageNet; H3: at least half of the flagged images unsolved (registered where at least two images are flagged); H4: unflagged outputs \good at least $5$ points more often than all answered outputs; H-G1: the threshold scaled with $\sigma$ lies within $1\%$ of the labeled one; H-G2: H1 with the scaled threshold. At $\sigma=0.02$ the scaled threshold rejects every run, so the rule uses all $8$ runs and flags all $180$ images, $13$ of them unsolved.}
 \label{tab:s4-hyp}
 \end{table}
@@ -107,6 +111,7 @@ For each panel we split $\Oorb(K)-\Eone(K)$ with the exact subset weights of \cr
 The selection loss is the probability that the residual pick is \cons or \incons although the $K$ runs contain an orbit-\good one; the orientation loss is the probability that the pick is orbit-\good but the output is not \good (\cref{tab:s4-decomp}).
 On FFHQ the remaining gap is at most $1.1$ points for every solver.
 On ImageNet, consistent-but-wrong runs that outrank a \good one cost FAST-DIPS $8$ points at $K=64$, and the generic orientation test costs $4$ to $5$ points, mostly rotations it leaves in place.
+On the new ImageNet images (ImageNet$'$) the split is $7$ and $7$ points at $K=64$: the generic test breaks more \good picks there and adds only $7.9$ points over the residual pick at $K=16$, against $17.0$ on the first image set.
 Partial orbit errors, the only kind a channel-wise correction could repair, cost at most $0.6$ points on any panel.
 
 \begin{table}[h]
@@ -126,6 +131,8 @@ PC-DAPS, FFHQ (particles) & 4 & 85.0 & 84.4 & 84.4 & 0.6 & 0.0 & 0.0 & 0.0 & 0.0
 DAPS-4K, ImageNet & 8 & 82.0 & 81.0 & 77.0 & 0.0 & 1.0 & 3.0 & 1.0 & 0.0 \\
 FAST-DIPS, ImageNet & 16 & 71.9 & 65.4 & 60.6 & 6.4 & 0.1 & 1.5 & 3.1 & 0.2 \\
 FAST-DIPS, ImageNet & 64 & 78.0 & 70.0 & 65.0 & 8.0 & 0.0 & 1.0 & 4.0 & 0.0 \\
+FAST-DIPS, ImageNet$'$ & 16 & 66.9 & 63.3 & 54.2 & 3.6 & 0.0 & 4.5 & 4.3 & 0.3 \\
+FAST-DIPS, ImageNet$'$ & 64 & 75.0 & 68.0 & 61.0 & 7.0 & 0.0 & 3.0 & 4.0 & 0.0 \\
 \bottomrule
 \end{tabular}}
 \caption{\textbf{Decomposition of the gap between $\Eone$ and the orbit oracle} (exploratory; points). ``Pick orbit-\good'': the residual pick is \good or an orbit error. Columns 6--10 sum to $\Oorb-\Eone$ up to rounding.}
@@ -170,6 +177,26 @@ DAPS-4K's per-metric best of four (eight) runs gives $22.28$ ($24.07$)\,dB, SSIM
 On our $180$ FFHQ images it gives $29.76$ ($30.26$)\,dB, $0.801$ ($0.811$) and $0.156$ ($0.146$), against $30.63$, $0.851$ and $0.139$ in the DAPS paper (on other images) and $29.66$, $0.770$ and $0.177$ in the PC-DAPS rerun.
 These are ground-truth oracles, not ground-truth-free outputs.
 
+\paragraph{ImageNet, four runs per image.}
+\Cref{tab:s4-imagenet} gives the layers of the published protocol on the $100$ ImageNet images of the main text: the first run, the residual pick, the per-metric oracle that the published numbers use, and the orbit oracle.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{2.2pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Solver & First & $\Eo$ & Per-metric & $\Oorb$ \\
+\midrule
+DAPS-4K & 18.04 / .386 & 19.94 / .447 & 22.28 / .518 & 24.37 / .570 \\
+SITCOM & 14.85 / .228 & 16.31 / .270 & 18.24 / .317 & 20.02 / .359 \\
+\midrule
+\multicolumn{5}{@{}l}{\footnotesize DAPS paper~\cite{zhang2025daps}: 25.78 / .743; DAPS-4K rerun in~\cite{kocabas2026pcdaps}: 20.98 / .461.}\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{ImageNet, $100$ images, four runs each: mean PSNR (dB) / SSIM.} ``Per-metric'' is the published protocol. $\Oorb$ also searches each run's orientation orbit.}
+\label{tab:s4-imagenet}
+\end{table}
+
 \paragraph{Registration record.}
 \Cref{tab:s4-registry} lists every frozen forecast and protocol with the time it was committed.
 Each was verified to precede the first commit containing the outcomes it predicts; the repository with the full registry will be released.
@@ -177,6 +204,7 @@ Each was verified to precede the first commit containing the outcomes it predict
 \begin{table}[h]
 \centering\small
 \setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
 \begin{tabular}{@{}lp{0.42\linewidth}ll@{}}
 \toprule
 Freeze & What it predicts & SHA-256 (prefix) & Committed (UTC) \\
@@ -188,8 +216,12 @@ v3 & FFHQ SITCOM and DAPS, second forecast & \texttt{9feeef5f} & 2026-10-29 06:3
 protocol v1 & the rule, its parameters and H1--H4 & \texttt{7e9a5fd8} (spec), \texttt{d5f973fe} (code) & 2026-10-29 07:49 \\
 v4 & ImageNet FAST-DIPS, runs 0--15 $\to$ 32, 64 & \texttt{b0ff25bc} & 2026-10-29 20:02 \\
 H2 pre-score & the DAPS gain, from historical runs only & (note) & 2026-10-29 20:12 \\
+ImageNet$'$ forecast & the protocol gains and coverage on new images (population transfer) & \texttt{9fb8abc2} & 2026-10-31 18:12 \\
+ImageNet$'$ pre-score & the protocol gains on new images, from the mechanism & \texttt{38df92dc} & 2026-10-31 22:04 \\
+v5 code & the forecasting code for new images, frozen before any of their runs & \texttt{0208b753} (receipt) & 2026-10-31 22:06 \\
+v5 & ImageNet$'$, runs 0--3 $\to$ 64 (test 6) & \texttt{a09f5532} & 2026-11-01 19:53 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \caption{\textbf{Registered forecasts and protocol.} The hypotheses for panels added later were registered before those panels were generated.}
 \label{tab:s4-registry}
 \end{table}

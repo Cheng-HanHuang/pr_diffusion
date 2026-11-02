@@ -1,0 +1,1092 @@
+{
+ "observed": {
+  "4": {
+   "E0": 0.3589707511772558,
+   "E1_CLIP": 0.45585070887159723,
+   "O_raw": 0.46967509002543373,
+   "O_orbit": 0.5690537256679509
+  },
+  "8": {
+   "E0": 0.4148262938037609,
+   "E1_CLIP": 0.49833502123005197,
+   "O_raw": 0.5641720873724029,
+   "O_orbit": 0.6240355354996758
+  },
+  "16": {
+   "E0": 0.46317931295847103,
+   "E1_CLIP": 0.5418488133617656,
+   "O_raw": 0.633787027475917,
+   "O_orbit": 0.669452430982497
+  },
+  "32": {
+   "E0": 0.5006511823467693,
+   "E1_CLIP": 0.5849045499260999,
+   "O_raw": 0.6900983087031275,
+   "O_orbit": 0.710560622705988
+  },
+  "64": {
+   "E0": 0.52,
+   "E1_CLIP": 0.61,
+   "O_raw": 0.73,
+   "O_orbit": 0.75
+  }
+ },
+ "variants": {
+  "race": {
+   "primary_coverage": 10,
+   "primary_n": 10,
+   "mean_abs_std_error": 1.2363661104258785,
+   "coverage_by_policy": {
+    "E0|None": "5/5",
+    "E1_CLIP|beta_class": "5/5",
+    "E1_CLIP|beta_image_cluster": "5/5",
+    "O_raw|None": "3/5",
+    "O_orbit|None": "0/5"
+   },
+   "rows": [
+    {
+     "K": 4,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.34625586779947665,
+     "lo95": 0.3078169998378289,
+     "hi95": 0.3841303261202191,
+     "observed": 0.3589707511772558,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.49088654379334945,
+     "lo95": 0.4488464119344186,
+     "hi95": 0.53916615685711,
+     "observed": 0.45585070887159723,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.49088654379334945,
+     "lo95": 0.43482313280521007,
+     "hi95": 0.5542077220090829,
+     "observed": 0.45585070887159723,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.4169701302834233,
+     "lo95": 0.38015137074576383,
+     "hi95": 0.4619023969097989,
+     "observed": 0.46967509002543373,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.6153540928981313,
+     "lo95": 0.5799527068684419,
+     "hi95": 0.6536091433721813,
+     "observed": 0.5690537256679509,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.39319301644798244,
+     "lo95": 0.350553135798399,
+     "hi95": 0.43592418047538356,
+     "observed": 0.4148262938037609,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5468462473171402,
+     "lo95": 0.4974711736324215,
+     "hi95": 0.5976763807416762,
+     "observed": 0.49833502123005197,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5468462473171402,
+     "lo95": 0.4760773432454906,
+     "hi95": 0.6200633913422933,
+     "observed": 0.49833502123005197,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5104735534534585,
+     "lo95": 0.4674814248066351,
+     "hi95": 0.5616266845495602,
+     "observed": 0.5641720873724029,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7011452903233437,
+     "lo95": 0.6579095331963858,
+     "hi95": 0.7507539203816842,
+     "observed": 0.6240355354996758,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.4272206776675982,
+     "lo95": 0.37969646092208037,
+     "hi95": 0.47590411645350517,
+     "observed": 0.46317931295847103,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5868386266002168,
+     "lo95": 0.5299898023314318,
+     "hi95": 0.641528054235911,
+     "observed": 0.5418488133617656,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5868386266002168,
+     "lo95": 0.5048969812575338,
+     "hi95": 0.6713795296376861,
+     "observed": 0.5418488133617656,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5913559399225461,
+     "lo95": 0.5385490965700329,
+     "hi95": 0.6481311117797707,
+     "observed": 0.633787027475917,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7741884625480216,
+     "lo95": 0.7293787306960756,
+     "hi95": 0.8238897831933046,
+     "observed": 0.669452430982497,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.4493556692600818,
+     "lo95": 0.38902755603670525,
+     "hi95": 0.5047903298070912,
+     "observed": 0.5006511823467693,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.6122995617082744,
+     "lo95": 0.54326329547303,
+     "hi95": 0.6796373095941272,
+     "observed": 0.5849045499260999,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.6122995617082744,
+     "lo95": 0.5127496570576681,
+     "hi95": 0.7064975711566034,
+     "observed": 0.5849045499260999,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.6593699488509667,
+     "lo95": 0.5953554063172019,
+     "hi95": 0.7283814906836503,
+     "observed": 0.6900983087031275,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.833587900958415,
+     "lo95": 0.7830471880347432,
+     "hi95": 0.8823258522834115,
+     "observed": 0.710560622705988,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.46192626838741796,
+     "lo95": 0.378456268387418,
+     "hi95": 0.5439562683874181,
+     "observed": 0.52,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.6259873488763242,
+     "lo95": 0.5335573488763239,
+     "hi95": 0.7113073488763239,
+     "observed": 0.61,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.6259873488763242,
+     "lo95": 0.5213073488763239,
+     "hi95": 0.7313073488763239,
+     "observed": 0.61,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.7160862683874174,
+     "lo95": 0.638456268387418,
+     "hi95": 0.786206268387418,
+     "observed": 0.73,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.8795073488763236,
+     "lo95": 0.8213073488763238,
+     "hi95": 0.9313073488763239,
+     "observed": 0.75,
+     "inside": false
+    }
+   ]
+  },
+  "S2": {
+   "primary_coverage": 0,
+   "primary_n": 10,
+   "mean_abs_std_error": 7.440898258417387,
+   "coverage_by_policy": {
+    "E0|None": "0/5",
+    "E1_CLIP|beta_class": "0/5",
+    "E1_CLIP|beta_image_cluster": "0/5",
+    "O_raw|None": "3/5",
+    "O_orbit|None": "0/5"
+   },
+   "rows": [
+    {
+     "K": 4,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.2459441357227219,
+     "lo95": 0.21287780921684213,
+     "hi95": 0.2752225743637786,
+     "observed": 0.3589707511772558,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.3743814372737453,
+     "lo95": 0.34219455177602415,
+     "hi95": 0.4084910706876607,
+     "observed": 0.45585070887159723,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.3743814372737453,
+     "lo95": 0.3275542407633325,
+     "hi95": 0.41714857270221556,
+     "observed": 0.45585070887159723,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.4169701302834233,
+     "lo95": 0.3788654732142232,
+     "hi95": 0.45906155396011217,
+     "observed": 0.46967509002543373,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.6153540928981313,
+     "lo95": 0.5749317632854296,
+     "hi95": 0.6583315183123742,
+     "observed": 0.5690537256679509,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.2528984782087685,
+     "lo95": 0.21709347878709515,
+     "hi95": 0.2869232440040258,
+     "observed": 0.4148262938037609,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.38388803727289283,
+     "lo95": 0.34736241900167764,
+     "hi95": 0.4211166542675775,
+     "observed": 0.49833502123005197,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.38388803727289283,
+     "lo95": 0.3363537110297548,
+     "hi95": 0.4309477632712865,
+     "observed": 0.49833502123005197,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5104735534534585,
+     "lo95": 0.4610028006172506,
+     "hi95": 0.5544213497973476,
+     "observed": 0.5641720873724029,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7011452903233437,
+     "lo95": 0.6516831121081221,
+     "hi95": 0.7493531058343367,
+     "observed": 0.6240355354996758,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.25674930313733274,
+     "lo95": 0.21722342427223024,
+     "hi95": 0.2922514005260145,
+     "observed": 0.46317931295847103,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.38994756885958376,
+     "lo95": 0.3461541484762374,
+     "hi95": 0.43198911014702446,
+     "observed": 0.5418488133617656,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.38994756885958376,
+     "lo95": 0.3351551876411415,
+     "hi95": 0.4395645702622094,
+     "observed": 0.5418488133617656,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5913559399225461,
+     "lo95": 0.5350134989974068,
+     "hi95": 0.6414458665638135,
+     "observed": 0.633787027475917,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7741884625480216,
+     "lo95": 0.7161682804748223,
+     "hi95": 0.8276751595478378,
+     "observed": 0.669452430982497,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.25893897408438216,
+     "lo95": 0.21270558215206736,
+     "hi95": 0.30675329493568093,
+     "observed": 0.5006511823467693,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.3948676127841864,
+     "lo95": 0.33877637699734336,
+     "hi95": 0.44491310586894844,
+     "observed": 0.5849045499260999,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.3948676127841864,
+     "lo95": 0.32964769845425757,
+     "hi95": 0.4525049022292551,
+     "observed": 0.5849045499260999,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.6593699488509667,
+     "lo95": 0.5975460912427297,
+     "hi95": 0.7199017528023508,
+     "observed": 0.6900983087031275,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.833587900958415,
+     "lo95": 0.7779553684588312,
+     "hi95": 0.8885796521928222,
+     "observed": 0.710560622705988,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.2614462683874181,
+     "lo95": 0.19712626838741815,
+     "hi95": 0.33487626838741824,
+     "observed": 0.52,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.4002673488763246,
+     "lo95": 0.3183473488763244,
+     "hi95": 0.47834734887632435,
+     "observed": 0.61,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.4002673488763246,
+     "lo95": 0.30834734887632437,
+     "hi95": 0.47834734887632435,
+     "observed": 0.61,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.7160862683874174,
+     "lo95": 0.6471262683874182,
+     "hi95": 0.7848762683874182,
+     "observed": 0.73,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.8795073488763236,
+     "lo95": 0.8205973488763243,
+     "hi95": 0.9383473488763243,
+     "observed": 0.75,
+     "inside": false
+    }
+   ]
+  },
+  "tail": {
+   "primary_coverage": 5,
+   "primary_n": 10,
+   "mean_abs_std_error": 2.2576704551975455,
+   "coverage_by_policy": {
+    "E0|None": "2/5",
+    "E1_CLIP|beta_class": "3/5",
+    "E1_CLIP|beta_image_cluster": "4/5",
+    "O_raw|None": "3/5",
+    "O_orbit|None": "0/5"
+   },
+   "rows": [
+    {
+     "K": 4,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.3467308502350738,
+     "lo95": 0.30616949809083166,
+     "hi95": 0.38499519224673306,
+     "observed": 0.3589707511772558,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.4944794512371299,
+     "lo95": 0.4460848910397035,
+     "hi95": 0.5393144488133683,
+     "observed": 0.45585070887159723,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.4944794512371299,
+     "lo95": 0.4373346718781363,
+     "hi95": 0.5587831464821501,
+     "observed": 0.45585070887159723,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.4169701302834233,
+     "lo95": 0.3760402391953115,
+     "hi95": 0.4578888024869689,
+     "observed": 0.46967509002543373,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.6153540928981313,
+     "lo95": 0.5779098671168609,
+     "hi95": 0.6555587356608411,
+     "observed": 0.5690537256679509,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.38804426665581254,
+     "lo95": 0.33967958780212604,
+     "hi95": 0.4332583032528677,
+     "observed": 0.4148262938037609,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5440301747364467,
+     "lo95": 0.4886826089084429,
+     "hi95": 0.5922384710957865,
+     "observed": 0.49833502123005197,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5440301747364467,
+     "lo95": 0.47643501590685206,
+     "hi95": 0.6180630613997066,
+     "observed": 0.49833502123005197,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5104735534534585,
+     "lo95": 0.4600510755392626,
+     "hi95": 0.5600629563625884,
+     "observed": 0.5641720873724029,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7011452903233437,
+     "lo95": 0.6599275032914762,
+     "hi95": 0.7484696154052367,
+     "observed": 0.6240355354996758,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.4041154598647216,
+     "lo95": 0.35121233912585925,
+     "hi95": 0.45491756000399003,
+     "observed": 0.46317931295847103,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5589608267621263,
+     "lo95": 0.4981070586900453,
+     "hi95": 0.6101545827051558,
+     "observed": 0.5418488133617656,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5589608267621263,
+     "lo95": 0.4865485987828858,
+     "hi95": 0.6368564984824823,
+     "observed": 0.5418488133617656,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5913559399225461,
+     "lo95": 0.5348695671354838,
+     "hi95": 0.6449842472266055,
+     "observed": 0.633787027475917,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7741884625480216,
+     "lo95": 0.7251923521738184,
+     "hi95": 0.8255045924011727,
+     "observed": 0.669452430982497,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.3852847743196232,
+     "lo95": 0.3298320610377433,
+     "hi95": 0.44304625128769637,
+     "observed": 0.5006511823467693,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5256948047448115,
+     "lo95": 0.45961827775797864,
+     "hi95": 0.582977053476692,
+     "observed": 0.5849045499260999,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5256948047448115,
+     "lo95": 0.44973726299616507,
+     "hi95": 0.5960023435576072,
+     "observed": 0.5849045499260999,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.6593699488509667,
+     "lo95": 0.6003324577589431,
+     "hi95": 0.719558255782719,
+     "observed": 0.6900983087031275,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.833587900958415,
+     "lo95": 0.7831265515880564,
+     "hi95": 0.885555834823118,
+     "observed": 0.710560622705988,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.33096626838741744,
+     "lo95": 0.2511762683874173,
+     "hi95": 0.3966762683874174,
+     "observed": 0.52,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.4447073488763229,
+     "lo95": 0.35427734887632295,
+     "hi95": 0.529777348876323,
+     "observed": 0.61,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.4447073488763229,
+     "lo95": 0.3520273488763229,
+     "hi95": 0.5347773488763228,
+     "observed": 0.61,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.7160862683874174,
+     "lo95": 0.6589262683874173,
+     "hi95": 0.7889262683874173,
+     "observed": 0.73,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.8795073488763236,
+     "lo95": 0.8320273488763229,
+     "hi95": 0.932027348876323,
+     "observed": 0.75,
+     "inside": false
+    }
+   ]
+  },
+  "race_tau1": {
+   "primary_coverage": 7,
+   "primary_n": 10,
+   "mean_abs_std_error": 1.3291204053628993,
+   "coverage_by_policy": {
+    "E0|None": "2/5",
+    "E1_CLIP|beta_class": "5/5",
+    "E1_CLIP|beta_image_cluster": "5/5",
+    "O_raw|None": "3/5",
+    "O_orbit|None": "0/5"
+   },
+   "rows": [
+    {
+     "K": 4,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.3370367104501275,
+     "lo95": 0.30076651011205996,
+     "hi95": 0.3737167934875728,
+     "observed": 0.3589707511772558,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.48054363496455993,
+     "lo95": 0.43943284818633765,
+     "hi95": 0.5209153306061962,
+     "observed": 0.45585070887159723,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.48054363496455993,
+     "lo95": 0.42276768141894333,
+     "hi95": 0.533103922085887,
+     "observed": 0.45585070887159723,
+     "inside": true
+    },
+    {
+     "K": 4,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.4169701302834233,
+     "lo95": 0.37378378492256575,
+     "hi95": 0.4535322413483671,
+     "observed": 0.46967509002543373,
+     "inside": false
+    },
+    {
+     "K": 4,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.6153540928981313,
+     "lo95": 0.5801438551334053,
+     "hi95": 0.6551436737447471,
+     "observed": 0.5690537256679509,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.3773908660356125,
+     "lo95": 0.3355013875939337,
+     "hi95": 0.42364358485407233,
+     "observed": 0.4148262938037609,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5288554768358151,
+     "lo95": 0.48128342860115203,
+     "hi95": 0.5754078976099771,
+     "observed": 0.49833502123005197,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5288554768358151,
+     "lo95": 0.46658290321677187,
+     "hi95": 0.5952073294834068,
+     "observed": 0.49833502123005197,
+     "inside": true
+    },
+    {
+     "K": 8,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5104735534534585,
+     "lo95": 0.4592276660161073,
+     "hi95": 0.5563047914657615,
+     "observed": 0.5641720873724029,
+     "inside": false
+    },
+    {
+     "K": 8,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7011452903233437,
+     "lo95": 0.6533730362712852,
+     "hi95": 0.7486608490410497,
+     "observed": 0.6240355354996758,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.40471436989728465,
+     "lo95": 0.35325227980086055,
+     "hi95": 0.4581088581740366,
+     "observed": 0.46317931295847103,
+     "inside": false
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5609552164817265,
+     "lo95": 0.5094315532822166,
+     "hi95": 0.6155045668855703,
+     "observed": 0.5418488133617656,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5609552164817265,
+     "lo95": 0.4920601801483148,
+     "hi95": 0.6303292367101674,
+     "observed": 0.5418488133617656,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.5913559399225461,
+     "lo95": 0.5408586125431476,
+     "hi95": 0.6491453973513684,
+     "observed": 0.633787027475917,
+     "inside": true
+    },
+    {
+     "K": 16,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.7741884625480216,
+     "lo95": 0.717884992625276,
+     "hi95": 0.8289534726860182,
+     "observed": 0.669452430982497,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.42138261521271897,
+     "lo95": 0.3574178198275967,
+     "hi95": 0.48421416702801084,
+     "observed": 0.5006511823467693,
+     "inside": false
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5799050639458236,
+     "lo95": 0.5176055561897074,
+     "hi95": 0.6492297245330405,
+     "observed": 0.5849045499260999,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5799050639458236,
+     "lo95": 0.49874262359095844,
+     "hi95": 0.6580057238671204,
+     "observed": 0.5849045499260999,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.6593699488509667,
+     "lo95": 0.6010433666047018,
+     "hi95": 0.7259248186510289,
+     "observed": 0.6900983087031275,
+     "inside": true
+    },
+    {
+     "K": 32,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.833587900958415,
+     "lo95": 0.7738952914468425,
+     "hi95": 0.8921313726260774,
+     "observed": 0.710560622705988,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E0",
+     "decision_model": null,
+     "point": 0.43104626838741816,
+     "lo95": 0.3480962683874183,
+     "hi95": 0.5158462683874183,
+     "observed": 0.52,
+     "inside": false
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_class",
+     "point": 0.5899473488763238,
+     "lo95": 0.4919973488763238,
+     "hi95": 0.6797473488763238,
+     "observed": 0.61,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "E1_CLIP",
+     "decision_model": "beta_image_cluster",
+     "point": 0.5899473488763238,
+     "lo95": 0.4769973488763238,
+     "hi95": 0.6897473488763237,
+     "observed": 0.61,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "O_raw",
+     "decision_model": null,
+     "point": 0.7160862683874174,
+     "lo95": 0.6458462683874183,
+     "hi95": 0.7935962683874184,
+     "observed": 0.73,
+     "inside": true
+    },
+    {
+     "K": 64,
+     "policy": "O_orbit",
+     "decision_model": null,
+     "point": 0.8795073488763236,
+     "lo95": 0.8197473488763237,
+     "hi95": 0.9297473488763238,
+     "observed": 0.75,
+     "inside": false
+    }
+   ]
+  }
+ }
+}

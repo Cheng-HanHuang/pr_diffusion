@@ -5,7 +5,7 @@
 pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 ```
 
-**Result.** 15 pages. No LaTeX errors, no undefined references, no overfull boxes.
+**Result.** 16 pages (S4 now includes the ImageNet four-run table and the image-disjoint panel). No LaTeX errors, no undefined references, no overfull boxes.
 
 ## Sources
 
