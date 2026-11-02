@@ -32,7 +32,11 @@ class PlannerA18Tests(unittest.TestCase):
   proj=225.
   self.assertTrue(may_admit_new(old,4,proj,old))
   self.assertTrue(may_admit_new(27.0,1,proj,old))
-  self.assertFalse(may_admit_new(27.5,1,proj,old))
+  # With one active worker, the admission gate reserves 2 x 0.25h:
+  # exactly 27.5 + 0.5 = 28.0 is allowed by A18's <= cap rule.
+  self.assertTrue(may_admit_new(27.5,1,proj,old))
+  self.assertFalse(may_admit_new(27.500001,1,proj,old))
+  # The reservation must never itself trigger the hard watchdog.
   self.assertFalse(hard_watchdog_triggered(27.5,proj+27.5-old))
   self.assertTrue(hard_watchdog_triggered(27.999,proj+27.999-old))
   self.assertTrue(hard_watchdog_triggered(19.,399.999))
