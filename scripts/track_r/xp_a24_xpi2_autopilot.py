@@ -140,7 +140,7 @@ def spawn(wt, run, prep, head, roots_head, i, gpu, replay, proof, attempt):
         CUBLAS_WORKSPACE_CONFIG=":4096:8", TMPDIR=str(ROOT / "tmp"),
         OMP_NUM_THREADS="2", MKL_NUM_THREADS="2", OPENBLAS_NUM_THREADS="2",
         NUMEXPR_NUM_THREADS="2")
-    command = [str(ROOT / "conda-envs/prdiff_track_r/bin/python"),
+    command = [str(ROOT / "conda-envs/daps/bin/python"),
         str(wt / "scripts/track_r/xp_a24_xpi2_pcdaps_gpu.py"),
         "--run", str(run), "--prep", str(prep),
         "--expected-head", head, "--roots-source-head", roots_head,
@@ -167,8 +167,18 @@ def kill_ours(active):
 
 def choose(cards, active, preferred=None):
     occupied = {v["gpu"] for v in active.values()}
+    # A10.1: never share a GPU with another Track R worker.
+    # Foreign non-Track-R compute can coexist subject to the 80% limit.
+    def is_track_r(pid):
+        try:
+            p = subprocess.run(["ps", "-p", str(pid), "-o", "args="],
+                capture_output=True, text=True, timeout=2)
+            return p.returncode == 0 and "scripts/track_r/" in p.stdout
+        except (OSError, subprocess.SubprocessError):
+            return True
     available = [c for c in cards
-                 if c.index not in occupied and c.visibility == "known"]
+                 if c.index not in occupied and c.visibility == "known"
+                 and not any(is_track_r(p) for p in c.foreign_pids)]
     if preferred is not None:
         available = [c for c in available if c.index == preferred]
     return choose_gpu(available, REQUEST_MIB, safety_margin_mib=MARGIN_MIB,
