@@ -127,10 +127,11 @@ def fix_exact_native_timestep(model,alpha,torch):
              "NATIVE_TIME_MAP_TOO_DIFFERENT_"+str(t))
     def exact_index(sigma):
         v=torch.as_tensor(sigma)
-        gate(v.numel()==1,"ONE_SIGMA_PER_A20_CALL")
-        z=float(v.detach().cpu())
+        gate(v.numel()>=1,"SIGMA_NONEMPTY")
+        z=[float(x) for x in v.detach().cpu().flatten()]
         choices=[t for t,sv in witness.items()
-                 if abs(z-sv)<=max(5e-6,abs(sv)*2e-6)]
+                 if all(abs(x-sv)<=max(5e-6,abs(sv)*2e-6)
+                        for x in z)]
         gate(len(choices)==1,
              "SIGMA_NOT_ONE_OF_A20_FROZEN_TIMESTEPS")
         return torch.full_like(v,choices[0]/999.)
