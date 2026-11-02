@@ -274,11 +274,32 @@ def main(a):
                   "charged_gpu_h",round(state["charged_gpu_h"],5),
                   "project_gpu_h",round(state["project_gpu_h"],5),
                   flush=True)
+            # Only after ALL scoring processes have terminated, copy
+            # complete panels into theory_inputs and returns and push.
+            if (state["completed_panels"]
+                and state["status"] in (
+                "A20_XPC3_ALL_THREE_PANELS_COMPLETE",
+                "A20_XPC3_COMPLETE_PANELS_BUDGET_STOP")):
+                pubenv=os.environ.copy()
+                pubenv.update(CUDA_VISIBLE_DEVICES="",
+                    PYTHONPATH=str(WT),PYTHONNOUSERSITE="1",
+                    PYTHONDONTWRITEBYTECODE="1")
+                publog=run/"logs"/"A20_XPC3_PUBLICATION.log"
+                with publog.open("x") as handle:
+                    subprocess.run([sys.executable,
+                       str(WT/"scripts/track_r/xp_a25_xpc3_publish_cpu.py"),
+                       "--expected-head",a.expected_head,
+                       "--run",str(run),"--branch",a.branch],
+                       cwd=str(WT),env=pubenv,
+                       stdout=handle,stderr=subprocess.STDOUT,
+                       check=True)
+                print("A20_XPC3_PUBLICATION_LOG",publog,flush=True)
 
 if __name__=="__main__":
     ap=argparse.ArgumentParser()
     ap.add_argument("--expected-head",required=True)
     ap.add_argument("--run",required=True)
+    ap.add_argument("--branch",required=True)
     ap.add_argument("--preflight-only",action="store_true")
     try:main(ap.parse_args())
     except Exception as e:
