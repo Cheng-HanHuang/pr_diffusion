@@ -53,3 +53,40 @@ The A19 readiness script only audits local files, code support and resource clas
 - No extra GT-based method selection. GT only for offline quality scoring and labels, never for inverse reconstruction or prior orientation choice.
 - Each real stage must use its own checkpointed controller, **not** a single shared mutable cost counter. Coordinate GPU lock and cumulative project ledger across parallel stages. Do not double-charge prior history or silently reset costs.
 - Time cutoff does not authorize changing the method. If a deadline is missed, record main-text downgrade and preserve supplemental value.
+
+
+## A24 XP-I2 supervisor implementation checkpoint (post-green 08:39Z PAC preflight)
+
+- PAC confirmed the initial seven tests PASS, 100 D1 ImageNet signed-y frozen under
+  \`xp_a24_xpi2_prepare_20261102T083920Z\` at producer HEAD
+  \`a8c379fb6ca49448a71480cab65b49c6936b9473\`.
+  Original Y manifest SHA256 \`26619959e3a17aeb2c0ad413f87b1764ecd8bc7aabfc0415c862cbaf27873b78\`.
+  Original prep manifest SHA256 \`fd89323b0e7bcf3de2a0acfcf8c99857c500509bcae3d94c81268a8efb03f7ed\`.
+- Follow-on code adds \`scripts/track_r/xp_a24_xpi2_autopilot.py\`,
+  \`scripts/track_r/xp_a24_xpi2_launch.sh\`, and
+  \`tests/test_track_r_xp_a24_i2_autopilot.py\`. It is designed to carry
+  two replay bags through exact repeatability and only then generate
+  100 ImageNet four-particle native PC-DAPS bags. Supervisor locks the
+  Track R shared campaign ledger, admits co-tenant GPUs below 80%,
+  excludes other Track R workers, accounts every child process attempt,
+  cleans up owned children on failures and forbids duplicate production.
+- **This new supervisor has NOT been PAC-tested or GPU-launched.**
+  No native replay, 100-bag output, or XP-I2 main-text score is claimed.
+  Its source unit test and CPU preflight must pass *on PAC* before launch.
+- Project baseline is read from the unique accepted terminal A22 XP-N
+  \`XP_N_CONTINUATION_FINAL_STATUS.json\`. A19's approximately 230h
+  must not replace receipt-derived charged values. XP-I2 uses 40 GPU-h
+  stage and 60 GPU-h tail ceilings, the global 400 GPU-h cap, and a
+  0.2-hour worker admission reservation; all retries are charged.
+- After successful XP-I2 generation, **offline scoring, G1 orientation
+  decisions, descriptive (a)/(b) analyses and the theory_inputs export
+  are not yet implemented** by this A24 checkpoint.
+- XP-C3 exact native test and mandatory prospective SHA freeze,
+  Nov4 panels and face-CLIP 11,520, A7 ZIP Table 3, and XP-K/G7/CP4
+  remain staged engineering work; do not report them as running.
+  The current launch is an XP-I2 component launch, not a complete
+  five-stage A19 campaign launcher.
+- Stop/ask at A13.4 only for frozen-rule ambiguity, protected data,
+  irreconcilable SHA/receipt, cap conflict, or operator-required
+  resources. Other blocked stages may be parked with precise receipts,
+  but no frozen science may be changed to make a stage run.
