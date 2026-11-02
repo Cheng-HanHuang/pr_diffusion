@@ -56,7 +56,9 @@ def source(a):
       and p4receipt["n_pilot_roots"]==400
       and p4receipt["prefix4_sha256"]==sha(P4FILE)
       and p4receipt["clip4_sha256"]==sha(C4FILE)
-      and p4receipt["source_gt_y_audit_sha256"]==AUDIT_SHA,
+      and p4receipt["source_gt_y_audit_sha256"]==AUDIT_SHA
+      and math.isfinite(float(p4receipt["frozen_good_q95_tau"]))
+      and .0<float(p4receipt["frozen_good_q95_tau"])<.2,
       "A22_CPN_FROZEN_REGISTERED_PREFIX")
  # Published input commits were accepted by planner (A18); never refit
  # the tau or use a K=16 panel to test the v5 64-run forecast.
@@ -107,7 +109,7 @@ def source(a):
       "A22_CPN_EXACT_100_GT")
  return wt,p4,c4,manifests,gt,ym,p4receipt
 
-def new_scores(manifests,gt,ym):
+def new_scores(manifests,gt,ym,label_tau):
  import torch
  torch.set_num_threads(4)
  rows,manifest_sha,step=manifests["A18_XPN_MAIN_4_15"]
@@ -147,7 +149,7 @@ def new_scores(manifests,gt,ym):
     lab=("G" if raw>=GOOD else
          "O_g" if orbest>=GOOD and best=="111" else
          "O_p" if orbest>=GOOD else
-         "C" if rho<=TAU_MAIN else "I")
+         "C" if rho<=label_tau else "I")
     gate(math.isfinite(rho) and rho>=0
          and math.isfinite(raw) and math.isfinite(orbest),
          "A22_CPN_NATIVE_METRIC_FINITE")
@@ -162,7 +164,7 @@ def new_scores(manifests,gt,ym):
  gate(len(result)==1200,"A22_CPN_EXACT_1200_NEW_SCORES")
  return result
 
-def merge(p4,c4,new,clip):
+def merge(p4,c4,new,clip,label_tau):
  byp={r["image_id"]:r for r in p4}
  byc={(r["image_id"],int(r["run"])):r for r in c4}
  cn={(r["image_id"],int(r["run"])):r for r in clip}
@@ -194,7 +196,7 @@ def merge(p4,c4,new,clip):
   strings.append(dict(image_id=iid,cohort="IN_NEW",
     labels_by_run=";".join(labs),
     rho_signed_by_run=";".join(format(v,".15g") for v in rho),
-    tau_signed_good_q95=format(TAU_MAIN,".10g"),
+    tau_signed_good_q95=format(label_tau,".17g"),
     n_G=count["G"],n_O_g=count["O_g"],n_O_p=count["O_p"],
     n_C=count["C"],n_I=count["I"]))
  gate(len(strings)==100 and len(allclip)==1600
@@ -261,6 +263,7 @@ def summary(results,strings,out,head):
    expected_head=head,n_images=100,n_runs=1600,
    protocol_source_sha256=PROTO[2],protocol_v1_unmodified=True,
    primary_tau=TAU_MAIN,secondary_tau=TAU_SECONDARY,
+   label_CI_tau_from_run0_3=float(jread(P4/"XP_N_PREFIX4_RECEIPT.json")["frozen_good_q95_tau"]),
    N_H1a=bool(h1),N_H4_at_16=bool(h4),
    N_H1a_gain_pp=gain,N_H4_unflagged_success=unflagged,
    N_H4_answered_success=answered,
@@ -312,10 +315,11 @@ def main(a):
       and not out.exists() and not out.is_symlink(),
       "A22_CPN_NEW_OUT")
  out.mkdir(mode=0o700)
- new=new_scores(manifests,gt,ym)
+ label_tau=float(prec["frozen_good_q95_tau"])
+ new=new_scores(manifests,gt,ym,label_tau)
  clips,clipmeta=clip_new(new,mode="g1",threshold=20)
  gate(len(clips)==1200,"A22_CPN_1200_FROZEN_G1")
- strings,allclip=merge(p4,c4,new,clips)
+ strings,allclip=merge(p4,c4,new,clips,label_tau)
  sp=out/"XP_N_CPN16_STRINGS.csv";cp=out/"XP_N_CPN16_G1_DECISIONS.csv"
  csvwrite(sp,strings,NAMES);csvwrite(cp,allclip,CLIP_NAMES)
  # Keep GT-local raw scores separate, never publish those paths.
