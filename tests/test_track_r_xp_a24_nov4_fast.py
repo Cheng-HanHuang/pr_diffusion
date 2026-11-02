@@ -35,6 +35,32 @@ class Nov4FastTests(unittest.TestCase):
                            "killpg", "subprocess.Popen"):
             self.assertNotIn(disallowed,s)
 
+    def test_exact_subset_weighting_frozen_e0_vs_face(self):
+        from scripts.track_r.xp_a24_nov4_fast_cpu import e1_face_summary
+        # One raw-GOOD root per image, but every face choice is GOOD.
+        # At K=1, the exact E0 chance is 1/n; at K=n it is 1.
+        table={}
+        rows=[]
+        for cohort,count,key_prefix in (("B22",100,"S1_b22"),
+                                        ("DEV80",80,"S2_b24_dev80")):
+            for index in range(count):
+                iid=f"{cohort}_{index:03d}"
+                labels=["G"]+["I"]*63
+                table[(key_prefix,iid)]=dict(
+                    cohort=cohort,labels=labels,
+                    rhos=[float(j)/1000 for j in range(64)])
+                for j,label in enumerate(labels):
+                    rows.append(dict(cohort=cohort,image_id=iid,run=j,
+                                     label=label,face_chosen_good=1))
+        answer=e1_face_summary(rows,table)
+        point=lambda n,k:next(x for x in answer if
+                 x["cohort"]=="POOLED" and x["n"]==n and x["K"]==k)
+        self.assertAlmostEqual(point(64,1)["exact_subset_E0"],1/64)
+        self.assertAlmostEqual(point(64,1)["exact_subset_E1_face"],1.)
+        self.assertAlmostEqual(point(64,64)["exact_subset_E0"],1.)
+        self.assertAlmostEqual(point(64,64)["exact_subset_E1_face"],1.)
+        self.assertAlmostEqual(point(16,1)["exact_subset_E0"],1/16)
+
     def test_launcher_parses_and_avoids_gpu(self):
         p=ROOT/"scripts/track_r/xp_a24_nov4_fast_launch.sh"
         s=p.read_text()
