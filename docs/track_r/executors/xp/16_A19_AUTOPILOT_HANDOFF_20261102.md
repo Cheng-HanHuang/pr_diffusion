@@ -37,6 +37,15 @@ A dirty GPU is NOT automatically admissible: admission must check observed VRAM,
 
 The A19 readiness script only audits local files, code support and resource classes; it is safe to run CPU-only while existing GPU jobs are active. No user intervention should be needed until a true A13.4 stop condition.
 
+## A24 implementation checkpoint (same branch, CPU/bootstrap only)
+
+- `scripts/track_r/xp_a24_round15_preflight.sh` provides the first safe CPU kickoff with A24 unit tests, readiness receipt and original D1 ImageNet source freeze for XP-I2. It **does not start any GPU process**.
+- `scripts/track_r/xp_a24_xpi2_prepare_cpu.py` freezes the D1 `XP_IMAGENET100_Y_MANIFEST.json` 100-image, 4-particle-bag manifest, native PC-DAPS source SHAs and ImageNet checkpoint SHA; GT-free inputs.
+- `scripts/track_r/xp_a24_xpi2_pcdaps_gpu.py` is an ImageNet adapter with strict weights, one bag/four particles, and **mandatory two-bag exact replay receipt** before ordinary generation. It is not yet attached to a replay-checking / 40 GPU-h stage / 60 GPU-h shared-tail supervisor, so **no production launch is authorized** by this checkpoint.
+- `scripts/track_r/xp_a24_a19_readiness_cpu.py` reports status and explicitly blocks XP-C3 until a candidate worker and pre-scoring code-freeze artifact both exist. It does not inspect candidate images or GT metrics.
+- XP-C3 exact 2-forward/S_mid global2 worker, Nov4 image panel/face-CLIP production, A7 ZIP Table3 E1 evaluator, and XP-K/G7/CP4 tail controllers still require implementations or verified existing artifacts. Do not silently equate A12 G7-C2 or generic prior_score.py with the approved XP-C3 test.
+- This is **partial work-in-progress code**, not a claim that A19 autopilot is currently executing. Complete, CPU-test, replay/smoke, checkpoint and push each stage before its GPU work.
+
 ## Operational rules
 
 - Do not modify committed results in prior run directories; separate stage worktrees / outputs and immutable Git HEADs.
