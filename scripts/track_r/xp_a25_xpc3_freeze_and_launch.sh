@@ -92,7 +92,7 @@ LOG="$BASE/XP_C3_A20_SUPERVISOR_$(basename "$RUN").log"
 nohup env CUDA_VISIBLE_DEVICES="" PYTHONPATH="$WT" \
     PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 \
     "$PY" -u scripts/track_r/xp_a25_xpc3_autopilot.py \
-    --expected-head "$FROZEN_HEAD" --run "$RUN" \
+    --expected-head "$FROZEN_HEAD" --run "$RUN" --branch "$BRANCH" \
     > "$LOG" 2>&1 < /dev/null &
 PID=$!
 echo "A20_XPC3_FROZEN_COMMIT=$FROZEN_HEAD"
