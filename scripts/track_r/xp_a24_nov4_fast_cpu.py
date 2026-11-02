@@ -259,7 +259,7 @@ def e1_face_summary(rows,table):
         gate(len(subset)==(180 if cohort=="POOLED" else
                           100 if cohort=="B22" else 80),"SUMMARY_COHORT")
         for n in (16,64):
-            for k in (1,2,4,8,16,32,64):
+            for k in (1,2,4,8,12,16,24,32,48,64):
                 if k>n:continue
                 e0=[];e1=[];fixed_e0=[];fixed_e1=[]
                 for raw,face,rhos in subset:
