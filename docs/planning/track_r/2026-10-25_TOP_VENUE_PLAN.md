@@ -1,6 +1,14 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-10-31)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-01)
 
-> **Fifteenth update, 2026-10-31, 20:45 ET** (the newest; read it first).
+> **Sixteenth update, 2026-11-01, 19:15 ET** (the newest; read it first).
+> - **v5, test 6 (first on new images), is registered.** The executor ran the frozen code on XP-N runs 0–3 and pushed the sealed forecast before any later run was scored. The planner's rerun is bit-identical.
+>   - Race primary at K = 64: E1 0.626 [0.534, 0.711]; O_orbit 0.880 [0.821, 0.931].
+>   - On D1 the same model overforecast O_orbit (0.944 against 0.780), so a coverage miss is the likely outcome.
+> - **XP-N budget.** Generation stopped at 72/90 chunks (18.76 GPU-h) because of a reservation artifact in the controller, not the hard cap. The planner raised the stage cap to **28 GPU-h** (expected about 24.3) rather than the 26 requested, because a partial 64-run panel would leave v5 unscorable. The incomplete-panel rule is declared before any late outcome.
+> - **Order.** CP-N part 1 (n = 16: N-H1a, H4, coverage) now, by Nov 5. Part 2 (n = 64: N-H1b, v5, coverage at 64) by Nov 8.
+> - **XP-I fully reproduced.** The PC-DAPS E1 metrics and intervals are now VERIFIED.
+>
+> **Fifteenth update, 2026-10-31, 20:45 ET.**
 > - **XP-N is live.** Cheng gave GO. The executor passed the GT/y identity checks, the D1 replay and the 6,400-root manifest freeze.
 > - **The v5 code was frozen before any XP-N run** (theory `81003cc`) and is registered. So is a theory pre-score: N_max = 16 passes with +0.2, N_max = 64 fails H1 with −2.7. The planner's A16 forecast is +0.3 / −3.4.
 > - **The executor runs v5 itself** right after runs 0–3 (A17), so test 6, the first prospective test on new images, needs no relay.

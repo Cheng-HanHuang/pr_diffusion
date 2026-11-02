@@ -11,7 +11,7 @@ pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 
 | File | Source | Planner integration edits |
 |---|---|---|
-| `TH_SUPPL_S1_PROTOCOL_THEORY_DROPIN_20261029.tex` | Theory `4f5fad0` (round 12: the earlier integration edits adopted upstream; "equal mean runs" wording; H-G1 denominators named; a post-hoc label-free τ paragraph) | One typo fixed: "equal mean runss were" → "gains at equal mean runs were". |
+| `TH_SUPPL_S1_PROTOCOL_THEORY_DROPIN_20261029.tex` | Theory `c3cae12` (round 12: the earlier integration edits adopted upstream; "equal mean runs" wording; H-G1 denominators named; a post-hoc label-free τ paragraph; round 13: typo fixed upstream) | None: identical to the theory file. |
 | `TH_SUPPL_S2_RELOCATED_SOURCE_VERBATIM_20261030.tex` | Theory `061c618` | References to main-paper labels prefixed `M-` (`\externaldocument[M-]{../main}`). |
 | `TH_SUPPL_S2_PROOFS_AUDIT_20261030.tex` | Theory `061c618` | <ul><li>"planner-confirmed" → "in the pinned source".</li><li>An internal code path replaced by "the lightweight SITCOM reimplementation in our code base" (overfull line, double-blind).</li><li>The internal paragraph "Remaining source/figure checks for paper integration" commented out.</li></ul> |
 | `TH_SUPPL_S3_COMPLETE_DRAFT_20261031.tex` | Theory `69cefc9`; replaces the 20261030 copy, whose text is its verbatim prefix | <ul><li>Two literal `\n` sequences in the A15 addendum replaced by line breaks; they would have been undefined control sequences.</li><li>"The planner also reports" → "We also report" (double-blind).</li></ul> |

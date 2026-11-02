@@ -547,7 +547,42 @@
 >    It becomes **test 6**, the first on new images.
 > 5. **Theory pre-score** (`a1ea26b`, registered): N-H1a predicted to pass (+0.2 points), N-H1b predicted to pass (−2.7). It is scored beside the planner's A16.5 forecast; neither changes the frozen hypotheses.
 
-**Status:** FROZEN v1.1 with amendments A1–A17 (planner, 2026-10-31).
+> **Amendment A18 (planner, 2026-11-01 19:16 ET): v5 registered; XP-N cap raised to 28 GPU-h; incomplete-panel rule; scoring order.** Written after the v5 push (XP `55ba86b`, 19:53:58Z), the XP-I chosen-orientation metrics (`82d1e4a`) and the A20 budget-reservation stop (`d278b66`). The stop left 72/90 chunks (4,672/6,400 roots; 18.7562 GPU-h charged), and all 100 images have runs 0–15. No XP-N run with index ≥ 4 had been scored when this was written.
+> 1. **v5 registered** (registry row `v5`).
+>    - The planner's rerun of the frozen code on the committed runs 0–3 is **bit-identical** to the executor's sealed file: the maximum difference is 0 across all 100 records.
+>    - Runs 4–63 are unsealed (A17.2c).
+> 2. **XP-N cap: 20 → 28 GPU-h in total.** 18.7562 is already charged, so at most 9.24 more. It is accounted separately; the 400 GPU-h project cap is unchanged (about 225 spent).
+>    - **Why.** The stop was an infrastructure artifact. A reservation of 0.25 GPU-h per active and next worker ended the run with 1.24 GPU-h unused. The remaining 1,728 roots project to about 5.5 GPU-h, and the extra headroom covers co-tenancy. A partial 64-run panel would make test 6 unscorable (item 4), so the margin is worth more than the hours.
+>    - **Conditions for the continuation controller:**
+>      - it reuses the original native execution HEAD and the frozen manifests and seeds;
+>      - it reconciles every earlier attempt's cost and every completed or partial root by hash, and regenerates nothing that exists;
+>      - **the reservation applies only to admitting a new worker and never stops an active one;**
+>      - a hard watchdog stops our workers at 28.0 GPU-h total;
+>      - co-tenancy follows A10.1;
+>      - it passes a one-chunk smoke on PAC before fan-out.
+> 3. **Rule for an incomplete 64-run panel**, declared now, before any late-phase outcome is scored. It applies if the cap is reached before 90/90.
+>    - The n = 16 analyses are unaffected; that panel is complete.
+>    - The n = 64 analyses (N-H1b, H4 at 64, P-N2, P-N4 and P-N5 at K = 64, the decomposition) use the images with all 64 runs. These are fixed by the frozen chunk order, independent of any outcome. They are reported as a deviation on m < 100 images, with m stated.
+>    - **v5 needs the 100-image, 64-run panel.** On fewer images it is reported descriptively, not scored.
+> 4. **Scoring order.**
+>    - **CP-N part 1, now, on the complete n = 16 panel (runs 0–15):**
+>      - N-H1a; H4 at N_MAX = 16; the label-free secondary at 16;
+>      - P-N1, P-N3, and P-N4 at K = 16;
+>      - the theory pre-score for N-H1a;
+>      - the K = 16 decomposition.
+>    - **v5 waits for the complete 64-run panel.** Its intervals are for averages over K-subsets of 64 runs; averages over a 16-run panel are noisier, so scoring v5 there would be unfair to it.
+>    - **CP-N part 2, after the late phase:**
+>      - N-H1b, and H4 at 64;
+>      - v5 at every K, under the comparison rule in the file (race primary: E0 and E1 beta_class coverage);
+>      - P-N2, P-N4 at K = 64, and P-N5;
+>      - the decomposition and frontier at 64;
+>      - the theory pre-score for N-H1b.
+> 5. **Deadlines and returns.**
+>    - Part 1 is due **Nov 5, 12:00 ET** at the latest (sooner helps the Nov 6 cut). Part 2 is due **Nov 8, 12:00 ET**, main text if in time.
+>    - Each part is a checkpoint return of at most 20 lines, which the planner reproduces.
+> 6. **XP-I accepted in full.** From the chosen-orientation table, the planner reproduces native, E0 and E1 PSNR, SSIM and VGG-LPIPS exactly. The paired intervals of E1 − native match within Monte Carlo error: PSNR [+0.54, +1.61] dB, SSIM [+0.013, +0.040], LPIPS [−0.035, −0.013].
+
+**Status:** FROZEN v1.1 with amendments A1–A18 (planner, 2026-11-01).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

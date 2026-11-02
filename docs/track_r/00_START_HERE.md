@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-10-31 by the planner (Claude).
+**Updated:** 2026-11-01 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,11 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-01, 19:15 (planner): v5 registered (bit-identical); XP-N cap 28 GPU-h; A18.**
+  - **v5** (XP `55ba86b`) was pushed before any held-run scoring; the planner rerun is bit-identical. Runs 4–63 are unsealed.
+  - **XP-N** stopped at 72/90 chunks on a reservation artifact. The cap is raised to 28 GPU-h. An incomplete-panel rule is declared. CP-N part 1 (n = 16) is due now and by Nov 5; part 2 (n = 64 and v5) by Nov 8.
+  - **XP-I** is reproduced in full (E1 PSNR/SSIM/LPIPS and intervals).
+  - **Notes, round 14:** [`executors/xp/14_PLANNER_NOTES_20261101.md`](executors/xp/14_PLANNER_NOTES_20261101.md) and [`executors/theory/14_PLANNER_GUIDANCE_20261101.md`](executors/theory/14_PLANNER_GUIDANCE_20261101.md).
 - **2026-10-31, 20:45 (planner): v5 code registered; A17; XP-N generation may start.**
   - **Theory round 12:** v5 code frozen before any XP-N run (`81003cc`, receipt `3ad5f2d`); XP-N pre-score registered (`a1ea26b`); S1–S3 edits adopted.
   - **A17:** the XP executor runs v5 from the frozen commit and registers it by push before scoring runs ≥ 4. Planner native QA of v5 is in `planner_analysis/A17_v5_qa/`.
