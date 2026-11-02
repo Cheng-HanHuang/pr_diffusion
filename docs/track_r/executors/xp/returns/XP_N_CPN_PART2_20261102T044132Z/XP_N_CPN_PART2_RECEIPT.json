@@ -1,0 +1,74 @@
+{
+  "GT_free_G1_orientations": true,
+  "K64_fixed": {
+    "E0": 0.52,
+    "E1": 0.61,
+    "O_orbit": 0.75,
+    "O_raw": 0.73
+  },
+  "K64_generation_failure_pct": 25.0,
+  "K64_selection_loss_E0_pp": 20.999999999999996,
+  "K64_selection_loss_E1_pp": 14.000000000000002,
+  "N_H1b": true,
+  "N_H4_answered_success": 0.43635858585858583,
+  "N_H4_at64": true,
+  "N_H4_unflagged_success": 0.5435615213173403,
+  "P_N2": {
+    "hi95_pp": 0.9,
+    "inside": true,
+    "lo95_pp": -7.8,
+    "observed_pp": -3.102010544118472,
+    "point_pp": -3.4
+  },
+  "P_N4_K64": {
+    "hi95_pct": 33.0,
+    "inside": true,
+    "lo95_pct": 11.0,
+    "observed_pct": 25.0,
+    "point_pct": 22.0
+  },
+  "P_N5_partial_only_diagnostic_not_full_gap_attribution": true,
+  "P_N5_partial_orbit_only_absolute_pp": 0.0,
+  "P_N5_partial_orbit_only_images": 0,
+  "full100_K64": true,
+  "local_GT_only_for_offline_labels": true,
+  "n_images": 100,
+  "n_native_roots": 6400,
+  "no_matched_compute_claim": true,
+  "no_missingness_deviation": true,
+  "panel": "100 disjoint ImageNet images x 64 native runs",
+  "primary_gain_pp": -3.102010544118472,
+  "protocol_v1_unmodified": true,
+  "secondary_gain_pp": 0.10211164342517898,
+  "stage_cap_gpu_h": 28.0,
+  "status": "A18_XPN_CPN_PART2_ALL100_N64_SCORED",
+  "theory_pre_score_H1b_abs_error_pp": 0.4020105441184718,
+  "theory_pre_score_H1b_direction_pass": true,
+  "theory_pre_score_H1b_point_pp": -2.7,
+  "v5_all_K_prediction_rows": 100,
+  "v5_primary_variant": "race",
+  "v5_primary_winner": "race",
+  "v5_registered_sha256": "a09f553292947f4cf9c0f95294a9afd205938f0dc18dd75f4d6ff655916a3ee3",
+  "v5_variant_scores": {
+    "S2": {
+      "mean_abs_standardized_residual": 7.440899901643503,
+      "n": 10,
+      "primary_e0_e1_coverage": 0
+    },
+    "race": {
+      "mean_abs_standardized_residual": 1.236361016730983,
+      "n": 10,
+      "primary_e0_e1_coverage": 10
+    },
+    "race_tau1": {
+      "mean_abs_standardized_residual": 1.3291180405591847,
+      "n": 10,
+      "primary_e0_e1_coverage": 7
+    },
+    "tail": {
+      "mean_abs_standardized_residual": 2.2576682810348614,
+      "n": 10,
+      "primary_e0_e1_coverage": 5
+    }
+  }
+}
