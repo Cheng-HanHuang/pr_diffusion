@@ -211,6 +211,12 @@ def main(a):
     with PROJECT_LOCK.open("a+") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
         state_path = out / "XP_A24_XPI2_CONTROLLER_STATE.json"
+        # A second supervisor must never rerun the panel or reuse an old
+        # historical project baseline, even if it was waiting on this lock.
+        other = [p for p in BASE.glob(
+            "xp_a24_xpi2_prod_*/XP_A24_XPI2_CONTROLLER_STATE.json")
+            if p.parent != out]
+        gate(not other, "I2_PRIOR_PRODUCTION_RUN_MUST_RECONCILE")
         if a.resume:
             state = load(state_path)
             gate(state["runner_head"] == a.expected_head
