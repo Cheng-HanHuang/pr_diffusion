@@ -41,6 +41,17 @@ def on_stop(*_):
 signal.signal(signal.SIGTERM,on_stop)
 signal.signal(signal.SIGINT,on_stop)
 
+def may_admit_new(used_h,active_count,project_used_at_start,stage_used_at_start,
+                  reserve_h=RESERVATION_PER_NEW_WORKER_H):
+ """Only controls spawning a NEW worker; never signals active workers."""
+ projected=used_h+(active_count+1)*reserve_h
+ return projected<=STAGE_CAP_H and (
+    project_used_at_start+projected-stage_used_at_start<=PROJECT_CAP_H)
+
+def hard_watchdog_triggered(used_h,project_total):
+ return (used_h>=STAGE_CAP_H-STAGE_HARD_STOP_MARGIN_H or
+         project_total>=PROJECT_CAP_H-STAGE_HARD_STOP_MARGIN_H)
+
 def verify_sources(a):
  wt=Path(__file__).resolve().parents[2]
  gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","A22_XPN_CPU_ORCHESTRATOR_ONLY")
@@ -212,10 +223,7 @@ def main(a):
        (time.monotonic()-v["start"])/3600 for v in active.values())
   def project_total():return project+used()-prior
   def can_admit():
-   # Reservation applies ONLY to new workers, never stops an active one.
-   projected=used()+(len(active)+1)*RESERVATION_PER_NEW_WORKER_H
-   return projected<=STAGE_CAP_H and (
-       project+projected-prior<=PROJECT_CAP_H)
+   return may_admit_new(used(),len(active),project,prior)
   def kill_ours():
    for v in active.values():
     if v["proc"].poll() is None:
@@ -244,8 +252,7 @@ def main(a):
     cards=collect(own_roots=[v["proc"].pid for v in active.values()])
     # HARD watchdog: must stop all own workers at cap, even if
     # co-tenancy makes a single chunk take much longer than expected.
-    if (used()>=STAGE_CAP_H-STAGE_HARD_STOP_MARGIN_H or
-        project_total()>=PROJECT_CAP_H-STAGE_HARD_STOP_MARGIN_H):
+    if hard_watchdog_triggered(used(),project_total()):
      stopped="STOP_A22_28H_HARD_WATCHDOG"
      emit(out,"HARD_28H_WATCHDOG_STOP_OWN",charged_live_h=used())
      break
