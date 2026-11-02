@@ -1,6 +1,13 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-11-02)
 
-> **Seventeenth update, 2026-11-02, 03:01 ET** (the newest; read it first).
+> **Eighteenth update, 2026-11-02, 16:50 ET** (the newest; read it first).
+> - **XP-C3 is defined** (A20): the prior's own orientation test (S_mid global2, from v1.1's XP-C row) on the 13,600 ImageNet candidates, XP-N included.
+>   - The executor rightly stopped on the planner's ambiguous wording. The decision used no data.
+>   - The ceiling rises to 8 GPU-h because the test costs 32 forward passes per candidate. Due Nov 5.
+> - **Theory round 15 integrated:** the S3 test-6 addendum diagnoses the coverage miss as misspecification (orbit errors co-occur with GOOD runs, correlation +0.37). Supplement 17 pages, clean.
+> - **Nov 4 CPU items** (unsolved-images panels, FAST FFHQ face-CLIP) finished on PAC; the files are not yet committed.
+>
+> **Seventeenth update, 2026-11-02, 03:01 ET.**
 > - **XP-N is complete** (100 new ImageNet images × 64 runs, 23.06 GPU-h). The planner reproduced every number exactly.
 > - **Test 6 (first prospective test on new images).** Race 10/10 selection points vs S2 0/10. Coverage overforecast again (O_orbit 0.880 vs 0.750 at K = 64). Cumulative over tests 2–6: race 67/69 vs S2 17/69; coverage overforecast in 5 of 6 tests. The paper's spine, "which run to keep is predictable; whether any run is good is not", now holds on images no earlier experiment touched.
 > - **The protocol on new images.**

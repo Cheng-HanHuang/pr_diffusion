@@ -14,6 +14,9 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-02, 16:50 (planner): XP-C3 defined (A20: S_mid global2, ceiling 8 GPU-h); theory round 15 integrated (supplement 17 pages).**
+  - The Nov 4 CPU items are finished on PAC; publication is requested.
+  - **Notes, round 16:** [`executors/xp/16_PLANNER_NOTES_20261102_PM.md`](executors/xp/16_PLANNER_NOTES_20261102_PM.md) and [`executors/theory/16_PLANNER_GUIDANCE_20261102_PM.md`](executors/theory/16_PLANNER_GUIDANCE_20261102_PM.md).
 - **2026-11-02, 03:01 (planner): XP-N complete and reproduced; A19.**
   - **Test 6 (new images):** race 10/10 vs S2 0/10; coverage overforecast again.
   - **Protocol:** N-H1a **fails** (−1.5 at N_max = 16); N-H1b holds (H1 fails at 64, −3.1, as registered).

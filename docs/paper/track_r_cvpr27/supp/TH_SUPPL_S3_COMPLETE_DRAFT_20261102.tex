@@ -394,3 +394,167 @@ the Dirichlet model, rank rates, or historical
 Clopper--Pearson/LP bounds. The quadrature identity
 is classical; none of these observations proves that
 a specific real image is mathematically unsolvable.
+
+% ===== DATED A19 TEST-6 ADDENDUM (older S3 above unchanged) =====
+% DATED POST-REGISTRATION ADDENDUM: 2026-11-02.
+% Theory-owned; do not edit any frozen v5 forecast or its comparison rule.
+\subsection{Test 6: first prospective test on image-disjoint ImageNet images}
+\label{app:s3-test6-xpn-20261102}
+
+\paragraph{Registration and scoring.}
+The v5 code was frozen before the new ImageNet images' outcomes
+were available (code commit \texttt{81003cc}), and the numerical
+v5 forecast was sealed and pushed on 2026-11-01 at 19:53:58 UTC
+(XP commit \texttt{55ba86b}), before any run with index
+$4$--$63$ was scored. The model was fitted only on runs
+$0$--$3$ of the 100 \emph{image-disjoint} test images.
+The registered primary comparison is race-model predictive-interval
+coverage for E0 and E1 (class-Beta decision model), across
+$K\in\{4,8,16,32,64\}$ from the \emph{complete}
+64-run panel. Neither its intervals nor its model-selection
+rule is revised in light of the results.
+
+On the ten predeclared selection points, race covers
+\textbf{10/10}, followed by the stronger-regularization
+race variant \textbf{7/10}, the transferred tail variant
+\textbf{5/10}, and exchangeable ranks S2 \textbf{0/10}.
+Their mean absolute standardized errors are
+$1.236$, $1.329$, $2.258$, and $7.441$, respectively.
+Race is the winner under the frozen rule.
+The five $K$-points share the \emph{same} images, candidate panels,
+and nested subset evaluations; the ten coverage indicators are
+correlated, not ten independent Bernoulli trials.
+Combining the prospectively scored tests 2--6 gives
+race \textbf{67/69} versus S2 \textbf{17/69}
+selection-coverage points; this pooled descriptive tally
+is likewise correlated and does not establish exact calibration
+of a standalone generative mechanism.
+
+\paragraph{Observed reconstruction and oracle curves.}
+The complete-panel successes are
+\[
+\begin{array}{c|ccccc}
+K&4&8&16&32&64\\ \hline
+E0&.359&.415&.463&.501&.520\\
+E1&.456&.498&.542&.585&.610\\
+O_{\rm raw}&.470&.564&.634&.690&.730\\
+O_{\rm orbit}&.569&.624&.669&.711&.750
+\end{array}
+\]
+For race at $K=64$, the frozen E0 forecast is
+$.462\ [ .378,.544]$ versus $.520$ observed,
+and E1 is $.626\ [ .534,.711]$ versus $.610$.
+By contrast, the correct-orbit oracle forecast
+$.880\ [ .821,.931]$ misses the observed $.750$,
+and the registered orbit-oracle interval misses at
+\emph{all five} $K$-values (\textbf{0/5}).
+The raw-GOOD oracle covers \textbf{3/5} values and
+is \emph{underpredicted} at $K=4,8$:
+$.417$ versus $.470$ and $.510$ versus $.564$.
+The orbit-generation miss is therefore not a simple
+uniform downward shift in all oracle success rates.
+The correct-orbit oracle was optimistic in five
+of the six prospectively reported tests.
+
+\paragraph{Which image-level dependency was missed?}
+Let $G_K$ mean that a uniform $K$-subset includes at
+least one raw-GOOD run, and let $O_K$ mean that it includes
+a correct-orbit but non-GOOD run. Then, exactly,
+\begin{equation}\label{eq:s3-test6-orbit-only}
+ O_{\rm orbit}(K)-O_{\rm raw}(K)
+ =\Pr(O_K\cap G_K^c).
+\end{equation}
+At $K=64$, the registered v5 difference is
+$.164$, but its observed value is \emph{only}
+$.750-.730=.020$. Thus the model expected about
+$16.4$ of 100 images to be rescued \emph{only} by
+an orientation-orbit candidate, compared with
+two actually observed. Independent inspection
+of the authorized 64-run class strings gives
+\textbf{67} images with both a GOOD and a non-GOOD
+correct-orbit run, \textbf{6} with GOOD only,
+\textbf{2} with orbit-only, and \textbf{25} with
+neither. Across the 100 images, the respective
+64-run GOOD and non-GOOD correct-orbit class counts
+have descriptive Pearson correlation approximately
+$+0.369$. In particular, $67/69$ images containing
+an orbit-error run also contain a raw-GOOD run.
+The low increment in
+\eqref{eq:s3-test6-orbit-only} therefore reflects
+\emph{co-occurrence across images}, not the absence
+of orbit-error candidates.
+
+The v5 hierarchical five-class Dirichlet model
+and its observed-prefix conditioning did not
+represent this image-level overlap adequately
+when extrapolated to 64 runs. A single Dirichlet
+distribution for a new image's class probabilities
+also imposes negative covariance between its
+distinct class-probability coordinates, whereas
+the observed long-run class counts are positively
+associated across images. This is evidence of
+a shared easy/hard propensity or other dependence
+outside that simple prior, although the observed
+count correlation alone does not identify a unique
+alternative joint mixing law or causal mechanism.
+It is a \emph{model-misspecification diagnosis}:
+the primary selector's accurate coverage can coexist
+with offsetting errors in the oracle and
+oracle-to-selector selection-loss models.
+
+\paragraph{Relation to finite-moment non-identifiability.}
+If a fixed image has per-run class probabilities
+$\theta_G$ (raw GOOD) and
+$\theta_O$ (other correct-orbit), then the
+idealized population increment is the joint
+mixing functional
+\begin{equation}\label{eq:s3-test6-joint-functional}
+ D_K=\mathbb E\!\left[
+ (1-\theta_G)^K-
+ (1-\theta_G-\theta_O)^K
+ \right].
+\end{equation}
+Even the \emph{complete distribution} of
+four-run five-class counts determines only
+polynomial moments of total degree at most four
+of the joint law of $(\theta_G,\theta_O,\ldots)$,
+not the degree-$64$ functional
+\eqref{eq:s3-test6-joint-functional}.
+The C-T8 truncated-moment obstruction is
+therefore a reason why correct long-run
+coverage cannot be guaranteed from short-run
+counts, and applies more broadly to the
+\emph{joint} orbit-only event.
+However, it neither predicts the sign nor
+explains the magnitude of v5's $14.4$-point
+orbit-only excess. The concrete, independently
+released 64-run overlap table demonstrates
+that the \emph{particular registered Dirichlet
+extrapolation} fails on the true new-image
+joint dependence. Non-identifiability is a
+limitation of available calibration information;
+misspecification describes this model's
+actual out-of-sample prediction error.
+Neither statement implies mathematical
+unsolvability for an individual image:
+$25/100$ images simply have no correct-orbit
+candidate in the observed 64-run panel.
+
+\paragraph{Separate stopping pre-score (not v5 fitting).}
+The independently frozen stopping prediction
+called N-H1a a pass at $N_{\max}=16$
+(central gain $+0.2$ points, stated range
+$[-1.8,+2.2]$), but the observed
+equal-mean-runs gain was $-1.516$ points,
+so the \emph{binary prospective call failed}
+despite the observation lying inside its
+informal range.
+N-H1b at $N_{\max}=64$ was correctly called
+to pass its negative-gain criterion
+(predicted $-2.7$, observed $-3.102$ points).
+Image-bootstrap intervals are
+$[-3.60,+0.47]$ and $[-5.96,-0.10]$
+points, respectively, on the same 100 images.
+These stopping observations are distinct from
+the v5 E0/E1 predictive-interval scoring,
+and are not used to refit any forecast.

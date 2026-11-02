@@ -603,7 +603,26 @@
 >    - H1 reported as failed on the new images;
 >    - the ImageNet four-run PSNR table moved to the supplement to keep 8 pages.
 
-**Status:** FROZEN v1.1 with amendments A1–A19 (planner, 2026-11-02).
+> **Amendment A20 (planner, 2026-11-02 16:49 ET): XP-C3 uses S_mid global2.** Answers the executor's A13.4 gate (XP `a27ef76`). Written before any XP-C3 code freeze or score; no XP-C3 outcome exists. The decision uses no data.
+> 1. **The ambiguity was the planner's.** A16.4 and A19.3 wrote "2-forward S_mid, global2", merging two tests that v1.1's XP-C row lists separately: the 2-forward test (t = 300, J = 1) and S_mid (t ∈ {300, 400, 500, 600}, J = 4).
+> 2. **Decision: S_mid global2 (the executor's option B) is the sole XP-C3 prior test.** Reasons:
+>    - **What it estimates.** Sec. 3 argues that the within-orbit choice should follow the prior. S_mid averages the paired-noise denoising loss over four noise levels and four draws, the lower-variance estimate of the prior's ordering. The 2-forward test is a single-draw screen at one level; a null result from it would not test the claim.
+>    - **It is already frozen.** It is the estimator the R0 scorer defines (`prdiffusion/track_r/prior_score.py`, the `mid` average).
+>    - **One test only.** The 2-forward test is not run as a secondary. A single prespecified test avoids choosing between two afterwards.
+> 3. **Definition.** For a candidate x and p ∈ {000, 111}:
+>    - **L_p** is the mean over t ∈ {300, 400, 500, 600} and j ∈ {0, 1, 2, 3} of the per-pixel mean of (ε̂(√ᾱ_t R_p x + √(1−ᾱ_t) R_p ε_tj, t) − R_p ε_tj)².
+>    - **Noise:** ε_tj ~ N(0, I) from the frozen `prior_seed(uid, t, j)`, rotated with the image (paired noise).
+>    - **Schedule:** `frozen_alpha_schedule()` (DDPM-1000, linear).
+>    - **Denoiser:** the ImageNet checkpoint of the D1 FAST-DIPS runs, for all three panels.
+>    - **uid** = `XPC3|<panel>|<image_id>|<run>`.
+>    - **Outputs:** `prior_margin` = L_000 − L_111 (positive favours 111). `prior_choice` = 111 if `prior_margin` > 1e-7, else 000. `prior_chosen_good` comes from the frozen labels (ground truth used for evaluation only).
+> 4. **Budget and order.**
+>    - The cost is 32 forward passes per candidate, 435,200 in total. The XP-C3 ceiling rises from 3 to **8 GPU-h** inside G7; the 400 GPU-h project cap binds.
+>    - After a smoke, project the cost. If the projection exceeds 8 GPU-h, score in this order and stop at the cap with complete panels only: XP-N (6,400), G5 (800), XP-D4 (6,400).
+> 5. **Freeze before scoring.** Push the code, the uid and seed rule, the checkpoint SHA-256 and a source manifest before scoring any candidate.
+> 6. **Report.** E1-prior beside E1-CLIP on every scored panel, with the exact estimator, labeled exploratory. Due **Nov 5, 12:00 ET** for the main text, otherwise the supplement.
+
+**Status:** FROZEN v1.1 with amendments A1–A20 (planner, 2026-11-02).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
