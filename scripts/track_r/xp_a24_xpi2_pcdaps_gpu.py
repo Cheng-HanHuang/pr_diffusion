@@ -28,7 +28,7 @@ def check(a):
       and not cmd(PC,"status","--porcelain","--untracked-files=no"),
       "A24_I2_PC_SOURCE")
  run=Path(a.run);prep=Path(a.prep)
- gate(run.parent==BASE and run.name.startswith("xp_a24_xpi2_prod_")
+ gate(run.parent==BASE and run.name.startswith(("xp_a24_xpi2_prod_","xp_a24_xpi2_replay_"))
       and run.is_dir() and not run.is_symlink(),"A24_I2_RUN")
  gate(prep.parent==BASE and prep.name.startswith("xp_a24_xpi2_prepare_")
       and prep.is_dir() and not prep.is_symlink(),"A24_I2_PREP")
@@ -164,6 +164,25 @@ def main(a):
   print("A24_XPI2_NATIVE_PREFLIGHT_PASS",a.index,
         row["image_id"],flush=True)
   return
+ # An unverified D1 replay never authorizes production, even on an
+ # available co-tenant GPU. Pilots are explicitly limited to two bags,
+ # in a separate scratch namespace, before production is registered.
+ if a.replay_only:
+  gate(a.index in (0,1) and "replay" in run.name,
+       "A24_I2_ONLY_TWO_REPLAY_BAGS")
+ else:
+  receipt=Path(a.replay_receipt) if a.replay_receipt else None
+  gate(receipt is not None and receipt.is_file()
+       and receipt.parent==BASE
+       and not receipt.is_symlink(),
+       "A24_I2_REPLAY_GATE_REQUIRED")
+  proof=json.loads(receipt.read_text())
+  gate(proof.get("status")=="A24_XPI2_TWO_BAG_EXACT_REPLAY_PASS"
+       and proof.get("n_bags")==2
+       and proof.get("manifest_sha256")==digest
+       and proof.get("model_sha256")==IMAGE_MODEL_SHA
+       and proof.get("native_pc_head")==mf["source_head"],
+       "A24_I2_NATIVE_REPLAY_NOT_ACCEPTED")
  native(a,run,mf,row,digest)
 if __name__=="__main__":
  ap=argparse.ArgumentParser()
@@ -172,6 +191,8 @@ if __name__=="__main__":
  ap.add_argument("--index",type=int,required=True)
  ap.add_argument("--gpu",type=int,required=True)
  ap.add_argument("--preflight-only",action="store_true")
+ ap.add_argument("--replay-only",action="store_true")
+ ap.add_argument("--replay-receipt")
  try:main(ap.parse_args())
  except Exception as e:
   traceback.print_exc()
