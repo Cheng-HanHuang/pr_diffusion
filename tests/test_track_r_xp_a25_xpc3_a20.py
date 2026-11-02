@@ -42,7 +42,7 @@ class A20XPCTest(unittest.TestCase):
         for term in (
              "CAP_H=8.", "PROJECT_H=400.", "LOCK_EX",
              "A24_XPI2_COMPLETE","no_secondary_prior=True",
-             "limit_images","STOP_XPC3","charged_gpu_h",
+             "--limit-images","STOP_XPC3","charged_gpu_h",
              "one-worker", "clean_only=False",
              "len(accepted)==100"):
             if term=="one-worker":continue
