@@ -362,10 +362,20 @@ def main(a):
                  "I2_REPLAY_PROOF_SHA")
             state["status"]="A24_XPI2_PRODUCTION"
             save()
-            for i in state["completed"]:
-                gate(verify_bag(out,mf["rows"][i],mf,
-                                prep_rec["manifest_sha256"],a.expected_head)
-                     is not None,"I2_RESUME_COMPLETED_BAG")
+            gate(len(state["completed"]) == len(set(state["completed"])),
+                 "I2_DUPLICATE_COMPLETED")
+            # A controller interrupted between a successful worker receipt
+            # and state checkpoint may have additional *fully receipted*
+            # bags. Reconcile their hashes; never regenerate existing bytes.
+            for i in range(100):
+                if i in state["completed"] or bagdir(out,mf["rows"][i]).exists():
+                    verified=verify_bag(out,mf["rows"][i],mf,
+                                        prep_rec["manifest_sha256"],
+                                        a.expected_head)
+                    gate(verified is not None,"I2_EXISTING_BAG_NO_RECEIPT")
+                    if i not in state["completed"]:
+                        state["completed"].append(i)
+            save()
             pending=[i for i in range(100) if i not in state["completed"]]
             if pending:
                 execute(pending,out,False,None,proofpath,False)
