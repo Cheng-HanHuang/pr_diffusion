@@ -84,18 +84,15 @@ def source(a):
    chunk=PROD/"production"/phase/f"chunk_{start:05d}_{step:03d}"
    m=jread(chunk/"R0_5_CHUNK_META.json")
    c=jread(chunk/"R0_5_CHUNK_COMPLETE.json")
-   gate(m["head"]==c["head"] and m["root_sha256"]==digest
-        and pilot_chunk_receipt_valid(
-          m,{**c,"count":20,"start":start,"new":c["new"],"reused":c["reused"]},
-          start,digest,[r["uid"] for r in d["rows"][start:start+step]],
-          sha(chunk/"R0_5_CHUNK_META.json")) if step==20 else
-        m["head"]==c["head"] and m["root_sha256"]==digest
-        and m["count"]==c["count"]==step and m["start"]==c["start"]==start
-        and m["uids"]==[r["uid"] for r in d["rows"][start:start+step]]
-        and c["status"]=="R0_5_CHUNK_PASS"
-        and c["new"]+c["reused"]==step
-        and c["meta_sha256"]==sha(chunk/"R0_5_CHUNK_META.json"),
-        "A22_CPN_ALL_NATIVE_CHUNKS_"+phase+"_"+str(start))
+   ok=(m["head"]==c["head"] and m["root_sha256"]==digest
+       and m["start"]==c["start"]==start
+       and m["count"]==c["count"]==step
+       and c["status"]=="R0_5_CHUNK_PASS"
+       and c["new"]>=0 and c["reused"]>=0
+       and c["new"]+c["reused"]==step
+       and m["uids"]==[r["uid"] for r in d["rows"][start:start+step]]
+       and c["meta_sha256"]==sha(chunk/"R0_5_CHUNK_META.json"))
+   gate(ok,"A22_CPN_ALL_NATIVE_CHUNKS_"+phase+"_"+str(start))
    for row in d["rows"][start:start+step]:
     native=root_folder(chunk,row)
     rc=validate_complete(native,row,m["head"],digest)
@@ -282,7 +279,9 @@ def summary(results,strings,out,head):
   "XP-N CP-N PART1 / A18 / 100 disjoint ImageNet images, runs 0-15, v1 c598176.",
   "Status: ALL100_N16; v5 not scored on n16; GT evaluation only; no matched NFE.",
   f"N-H1a: {'HELD' if h1 else 'FAILED'} gain {gain:+.3f} pp (criterion >= -1.0 pp).",
-  f"N-H4(K16): {'HELD' if h4 else 'FAILED'} unflagged {unflagged:.5f}; answered {answered:.5f}; margin {(unflagged-answered)*100:+.3f} pp.",
+  (f"N-H4(K16): {'HELD' if h4 else 'FAILED'} unflagged {unflagged:.5f}; answered {answered:.5f}; margin {(unflagged-answered)*100:+.3f} pp."
+   if unflagged is not None and answered is not None else
+   "N-H4(K16): FAILED / undefined answered or unflagged rate."),
   f"Secondary tau {TAU_SECONDARY}: gain {gain_secondary:+.3f} pp.",
   f"Orbit never-GOOD at K16: {int(p['n_never_orbit_panel'])}/100 ({coverage:.1f}%).",
  ]
