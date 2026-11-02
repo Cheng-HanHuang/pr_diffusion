@@ -103,6 +103,45 @@ def source(a):
     gate(chunk.is_dir(),"PANEL_OUTPUT_DIR")
     return spec,mf,groups,chunk,NATIVE,torch,frozen_alpha_schedule,prior_seed
 
+
+def fix_exact_native_timestep(model,alpha,torch):
+    """Force A20 discrete DDPM time while retaining frozen alpha_t.
+
+    Native VPPrecond sigma_inv maps the frozen beta-product sigma through
+    a continuous approximation. Exact t conditioning is required by A20.
+    Only the sigma -> timestep embedding mapping is specialized; pretrained
+    weights and Tweedie input/output scaling stay untouched.
+    """
+    native=model.model
+    gate(native.M==1000 and abs(float(native.beta_min)-.1)<1e-6
+         and abs(float(native.beta_d)-19.9)<1e-6,
+         "NATIVE_DDPM_1000_CONTRACT")
+    witness={}
+    for t in T:
+        at=float(alpha[t])
+        sig=math.sqrt((1-at)/at)
+        witness[t]=sig
+        mapped=float(native.sigma_inv(
+           torch.as_tensor(sig,dtype=torch.float32,device="cuda:0")))*999.
+        gate(abs(mapped-t)<3.0,
+             "NATIVE_TIME_MAP_TOO_DIFFERENT_"+str(t))
+    def exact_index(sigma):
+        v=torch.as_tensor(sigma)
+        gate(v.numel()==1,"ONE_SIGMA_PER_A20_CALL")
+        z=float(v.detach().cpu())
+        choices=[t for t,sv in witness.items()
+                 if abs(z-sv)<=max(5e-6,abs(sv)*2e-6)]
+        gate(len(choices)==1,
+             "SIGMA_NOT_ONE_OF_A20_FROZEN_TIMESTEPS")
+        return torch.full_like(v,choices[0]/999.)
+    native.sigma_inv=exact_index
+    for t,sigma in witness.items():
+        tick=native.sigma_inv(torch.tensor(
+             sigma,device="cuda:0",dtype=torch.float32))
+        gate(abs(float(tick)*999.-t)<1e-4,
+             "A20_EXACT_MODEL_TIME_WITNESS")
+    return {str(t):dict(frozen_sigma=witness[t],model_t=t) for t in T}
+
 def orient_sm(x,uid,model,torch,alpha,seed_fn):
     from prdiffusion.track_r.physics import apply_orbit
     # Gaussian eps on CPU; rotate the SAME eps to both orbit members.
@@ -165,6 +204,9 @@ def run(a):
         validate_weight_trace(trace)
         model.eval()
         alpha=schedule()
+        mapping=fix_exact_native_timestep(model,alpha,torch)
+        print("A20_XPC3_FROZEN_DISCRETE_T_MAPPING",
+              json.dumps(mapping,sort_keys=True),flush=True)
         done=0
         selected=sorted(groups)[:a.limit_images] if a.limit_images else sorted(groups)
         for idx,iid in enumerate(selected):
