@@ -20,6 +20,7 @@ echo "=== A19 ROUND15 CODE QA ==="
 "$PY" -m unittest discover -s tests -p 'test_track_r_xp_a24_round15.py' -v
 "$PY" -m unittest discover -s tests -p 'test_track_r_xp_a24_xpi2_prep.py' -v
 "$PY" -m unittest discover -s tests -p 'test_track_r_xp_a24_i2_native.py' -v
+"$PY" -m unittest discover -s tests -p 'test_track_r_xp_a24_i2_autopilot.py' -v
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="$BASE/XP_A24_A19_READINESS_$STAMP.json"
 echo "=== INVENTORY SOURCE/FILE/CODE READINESS, CPU ONLY ==="
