@@ -239,6 +239,26 @@ def main(a):
                 gate(len(accepted)==100
                      and sum(x[1] for x in accepted)==SIZES[panel],
                      "COMPLETE_PANEL_"+panel)
+                # GT-free scorer is already final for this entire panel.
+                # Only NOW a separate CPU process may open GT for
+                # prior_chosen_good, with the choice and margin immutable.
+                cpu_env=os.environ.copy()
+                cpu_env.update(CUDA_VISIBLE_DEVICES="",
+                    PYTHONPATH=str(WT),PYTHONNOUSERSITE="1",
+                    PYTHONDONTWRITEBYTECODE="1",OMP_NUM_THREADS="4",
+                    MKL_NUM_THREADS="4",OPENBLAS_NUM_THREADS="4")
+                offline_log=run/"logs"/f"{panel}_offline_eval.log"
+                with offline_log.open("x") as handle:
+                    subprocess.run([sys.executable,
+                       str(WT/"scripts/track_r/xp_a25_xpc3_offline_final_cpu.py"),
+                       "--expected-head",a.expected_head,
+                       "--panel",panel,"--run",str(run)],
+                       cwd=str(WT),env=cpu_env,
+                       stdout=handle,stderr=subprocess.STDOUT,
+                       check=True)
+                outcsv=run/"final"/f"XP_C3_A20_{panel}_{SIZES[panel]}_PRIOR_DECISIONS.csv"
+                gate(outcsv.is_file(),"OFFLINE_MISSING_"+panel)
+                state.setdefault("final_csv_sha256",{})[panel]=sha(outcsv)
                 state["completed_panels"].append(panel)
                 save()
             else:state["status"]="A20_XPC3_ALL_THREE_PANELS_COMPLETE"
