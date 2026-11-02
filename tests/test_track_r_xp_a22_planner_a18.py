@@ -67,9 +67,10 @@ class PlannerA18Tests(unittest.TestCase):
     new.append(dict(image_id=iid,run=rep,label="I",rho_signed=".06"))
     cnew.append(dict(image_id=iid,run=rep,label="I",
                      g1_choice="000",g1_margin=".1",g1_chosen_good=0))
-  strings,clips=merge(p4,c4,new,cnew)
+  strings,clips=merge(p4,c4,new,cnew,.050434426327793)
   self.assertEqual(len(strings),100)
   self.assertEqual(len(clips),1600)
+  self.assertAlmostEqual(float(strings[0]["tau_signed_good_q95"]),.050434426327793)
   self.assertEqual(strings[0]["labels_by_run"].split(";")[:4],
                    ["G","O_g","O_p","C"])
   self.assertEqual(set(strings[0]["labels_by_run"].split(";")[4:]),{"I"})
