@@ -16,7 +16,11 @@ class A24I2PrepTests(unittest.TestCase):
   self.assertNotIn("xp_a18_xpn_measurements",s)
   self.assertNotIn("torch.load",s)
   self.assertNotIn("sampler.sample(",s)
-  self.assertNotIn("gt_path",s)
+  # Reject actual GT-path access, not the negative manifest guard:
+  # ym.get("gt_paths_supplied") is False is required to exclude GT.
+  self.assertIn('ym.get("gt_paths_supplied") is False',s)
+  self.assertNotIn('r["gt_path"]',s)
+  self.assertNotIn('row["gt_path"]',s)
  def test_prep_seed_rule_frozen(self):
   from scripts.track_r.xp_a24_xpi2_prepare_cpu import seed
   n=[f"ILSVRC2012_val_{i:08d}.JPEG" for i in range(49000,49100)]
