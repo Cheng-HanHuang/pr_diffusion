@@ -156,6 +156,79 @@ def score_image(key,entry,ident,hist,new16,new64,model,clip,preprocess,torch,up,
                   face_chosen_good=good))
     return rows
 
+
+def fast_seven_panels(out,identities,table,hist,new16,new64,cases):
+    """Anonymized GT / lowest signed-rho / orbit-oracle panels; CPU only."""
+    from PIL import Image,ImageDraw,ImageFont
+    from scripts.track_r.r0_2_g0_cpu import gt_source
+    from prdiffusion.track_r.physics import to_rgb8,apply_orbit
+    from prdiffusion.track_r.r0_7_stats import orbit_psnr_channel_mse
+    never=sorted([c for c in cases["cases"]
+                  if c["category"]=="NEVER_GOOD"],
+                 key=lambda r:(r["cohort"],r["image_id"]))
+    gate(len(never)==7,"SEVEN_FROZEN_CASES")
+    dest=out/"FAST7_PANELS"
+    if not dest.exists():dest.mkdir()
+    receipt=dest/"FAST7_PANEL_RECEIPT.json"
+    if receipt.exists():
+        data=load_json(receipt)
+        gate(data["status"]=="A19_FAST7_NEVER_GOOD_PANELS_PASS"
+             and len(data["panels"])==7
+             and all(sha(dest/r["filename"])==r["sha256"]
+                     for r in data["panels"]),
+             "FAST7_EXISTING_PANEL_RECEIPT")
+        return
+    outputs=[]
+    mapping={"B22":"S1_b22","DEV80":"S2_b24_dev80"}
+    for z,case in enumerate(never,1):
+        key=(mapping[case["cohort"]],str(case["image_id"]))
+        gate(key in identities and key in table,"NEVER_GOOD_ID")
+        item=table[key]
+        gate(not any(t=="G" for t in item["labels"]),"CASE_NEVER_GOOD")
+        gtpath,fmt,_,_=identities[key]
+        g8=to_rgb8(gt_source({"gt_path":gtpath,
+                              "gt_format":fmt}).float())
+        lowest=min(range(64),key=lambda j:(float(item["rhos"][j]),j))
+        xlow=candidate(*key,lowest,hist,new16,new64)
+        best=None
+        for j in range(64):
+            x=candidate(*key,j,hist,new16,new64)
+            scores=orbit_psnr_channel_mse(x,g8)
+            for code,val in scores.items():
+                if best is None or (-val,j,code)<(-best[0],best[1],best[2]):
+                    best=(float(val),j,code,x)
+        gate(best is not None and best[0]<25.,
+             "NEVER_ORBIT_GOOD_EXPECTATION")
+        xbest=apply_orbit(best[3],best[2])
+        views=[g8,xlow,xbest]
+        titles=("Reference","Min residual","Orbit oracle")
+        width=3*192+4*8
+        image=Image.new("RGB",(width,224),(255,255,255))
+        draw=ImageDraw.Draw(image)
+        for index,(x,title) in enumerate(zip(views,titles)):
+            panel=Image.fromarray(x[0].permute(1,2,0).numpy(),"RGB")
+            panel=panel.resize((192,192),Image.Resampling.BILINEAR)
+            ox=8+index*200
+            image.paste(panel,(ox,24))
+            draw.text((ox,7),title,fill=(0,0,0))
+        filename=f"FAST_never_good_{z:02d}.png"
+        dst=dest/filename
+        image.save(dst,optimize=True)
+        gate(dst.stat().st_size<2_000_000,"PANEL_OVER_2MB")
+        outputs.append(dict(filename=filename,sha256=sha(dst),
+            cohort=case["cohort"],image_id=case["image_id"],
+            min_rho_run=lowest,orbit_oracle_run=best[1],
+            orbit_oracle_orientation=best[2],
+            orbit_oracle_psnr=best[0],anonymized=True))
+    emit(receipt,dict(status="A19_FAST7_NEVER_GOOD_PANELS_PASS",
+        n_cases=7,source_census_sha256=sha(A9_CASE),
+        source_A9_sha256=A9_SHA,panels=outputs,
+        no_model_inference=True,GT_offline_only=True,
+        no_new_selector=True))
+    print("A24_FAST7_PANELS_PASS",7,"MAX_BYTES",
+          max((dest/r["filename"]).stat().st_size for r in outputs),
+          flush=True)
+
 def main(a):
     gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
     gate(subprocess.check_output(
@@ -177,6 +250,9 @@ def main(a):
     else:
         gate(a.resume and (out/"image_chunks").is_dir(),
              "EXPLICIT_RESUME_REQUIRED")
+    fast_seven_panels(out,identities,table,hist,new16,new64,cases)
+    if a.panels_only:
+        return
     from scripts.track_r.xp_a8_d1p1_clip_cpu import model_source
     import torch
     torch.set_num_threads(4)
@@ -234,6 +310,7 @@ if __name__=="__main__":
     p.add_argument("--out",required=True)
     p.add_argument("--preflight-only",action="store_true")
     p.add_argument("--resume",action="store_true")
+    p.add_argument("--panels-only",action="store_true")
     try:main(p.parse_args())
     except Exception as exc:
         traceback.print_exc()
