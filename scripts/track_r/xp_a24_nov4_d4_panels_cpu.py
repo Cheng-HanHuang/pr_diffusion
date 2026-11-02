@@ -60,7 +60,7 @@ def provenance(a):
     from scripts.track_r import xp_a10_d1p2_compare_cpu as d1
     p=cp2(a)
     wt,arts,source,initial,clip0,grouped,gtmap,ymap,g1brun,old,new=p
-    a10=d1.ARGS
+    a10=getattr(d1,"ARGS",None)
     d1.ARGS=a
     try:
         p1,p2,inputs,sources=d1.source_contract()
@@ -91,7 +91,13 @@ def reconstruct(iid,rep,p1,p2,grouped):
     from prdiffusion.track_r.physics import to_rgb8
     import torch
     if rep<16:
-        _,pt=(p1 if rep<4 else p2)[iid,rep]
+        from scripts.track_r.xp_fast_gpu import validate_complete
+        from scripts.track_r.xp_a10_d1p2_compare_cpu import (
+            P1_HEAD,P1_SHA,A6_HEAD,D1_SHA)
+        row,pt=(p1 if rep<4 else p2)[iid,rep]
+        validate_complete(pt.parent,row,
+                          P1_HEAD if rep<4 else A6_HEAD,
+                          P1_SHA["D1_P1"] if rep<4 else D1_SHA)
     else:
         folder,row,rec=grouped[iid][rep]
         pt=folder/"reconstruction.pt"
