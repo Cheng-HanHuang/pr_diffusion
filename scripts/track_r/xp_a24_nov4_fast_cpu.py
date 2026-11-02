@@ -47,7 +47,7 @@ def frozen():
     from scripts.track_r.xp_a8_fast_v1_cpu import (
         historical,future_inputs,R07_CATALOG,R07_RECEIPT,R07_SCORES)
     gate(sha(A9_STR)==A9_SHA,"A9_SOURCE_SHA")
-    case_digest=sha(A9_CASE)  # exact local source bytes, recorded in receipt
+    sha(A9_CASE)  # exact local source bytes; receipt records digest
     cases=load_json(A9_CASE)
     gate(cases.get("status")=="A9_FAST_11_CASES_POSTHOC_PASS" and
          cases["n_never_good"]==7 and cases["n_selection_losses"]==4 and
@@ -221,7 +221,7 @@ def main(a):
        n_images=180,n_candidates=11520,
        prompt_model="N2_FFHQ_FACE",model_sha256=sha(clipfile),
        native_clip_head=source_head,A9_source_sha256=A9_SHA,
-       source_census_sha256=case_digest,
+       source_census_sha256=sha(A9_CASE),
        decisions_sha256=sha(output),
        GT_solely_offline_metric_evaluation=True,
        no_method_change=True,clean_gpu_required=False,
