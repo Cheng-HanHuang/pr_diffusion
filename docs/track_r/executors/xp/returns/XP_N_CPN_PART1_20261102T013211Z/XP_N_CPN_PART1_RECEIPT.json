@@ -1,0 +1,63 @@
+{
+  "N_H1a": false,
+  "N_H1a_gain_pp": -1.5158793303571283,
+  "N_H4_answered_success": 0.42173177083333335,
+  "N_H4_at_16": true,
+  "N_H4_unflagged_success": 0.5379791865578931,
+  "P_N1_N3_N4_and_theory_pre_score": {
+    "P_N1": {
+      "forecast_point": 0.3,
+      "hi95": 4.2,
+      "inside": true,
+      "lo95": -3.6,
+      "observed": -1.5158793303571283
+    },
+    "P_N3": {
+      "forecast_point": 0.3,
+      "hi95": 2.6,
+      "inside": true,
+      "lo95": -2.0,
+      "observed": -0.1741120431547616
+    },
+    "P_N4": {
+      "forecast_point": 25.0,
+      "hi95": 37.0,
+      "inside": true,
+      "lo95": 13.0,
+      "observed": 34.0
+    },
+    "theory_N_H1a": {
+      "forecast_point": 0.2,
+      "hi95": 2.2,
+      "inside": true,
+      "lo95": -1.8,
+      "observed": -1.5158793303571283
+    }
+  },
+  "clip_sha256": "3420633a0961574d627d640c4d8c5125e48b60462a0a238d66766301188b70d8",
+  "expected_head": "2616499408735b8a0d7ca83173f572565aa654c2",
+  "fixed_K16": {
+    "E0": 0.43,
+    "E1": 0.5,
+    "O_orbit": 0.66,
+    "O_raw": 0.61
+  },
+  "full_64_run_panel_not_scored": true,
+  "label_CI_tau_from_run0_3": 0.05014467891305685,
+  "label_free_secondary_gain_pp": -0.1741120431547616,
+  "n_images": 100,
+  "n_runs": 1600,
+  "never_orbit_good_count": 34,
+  "no_held_16_to_63_outcomes_read": true,
+  "no_matched_compute_claim": true,
+  "primary_protocol_sha256": "56be9143f35185a908a83baceb60e215b690e8f84195a2eb69836385c1850671",
+  "primary_tau": 0.0500829,
+  "protocol_source_sha256": "d5f973fe4ef82243d6b687981dd4c193822e30634254853adfe8d483b3920658",
+  "protocol_v1_unmodified": true,
+  "secondary_protocol_sha256": "68cef3a346f6ea1fcad1cca93934e30f1622c0aeb84449410246f7c72f5ac757",
+  "secondary_tau": 0.050434426327793,
+  "status": "A18_CPN_PART1_100_IMAGE_16RUN_PASS",
+  "strings_sha256": "b0ef31bccce5bafe293d97b1ec15e395ab0ba9abb3b7a968b7035fb7a8a227d1",
+  "theoretical_pre_score_N_H1a_point_pp": 0.2,
+  "v5_not_scored_at_K16": true
+}

@@ -1,0 +1,13 @@
+XP-N CP-N PART1 / A18 / 100 disjoint ImageNet images, runs 0-15, v1 c598176.
+Status: ALL100_N16; v5 not scored on n16; GT evaluation only; no matched NFE.
+N-H1a: FAILED gain -1.516 pp (criterion >= -1.0 pp).
+N-H4(K16): HELD unflagged 0.53798; answered 0.42173; margin +11.625 pp.
+Secondary tau 0.050434426327793: gain -0.174 pp.
+Orbit never-GOOD at K16: 34/100 (34.0%).
+Planner P-N1 gain16: -1.516 vs +0.30 [-3.60, +4.20] pp; INSIDE.
+Planner P-N3 secondary gain16: -0.174 vs +0.30 [-2.00, +2.60] pp; INSIDE.
+Planner P-N4 never-orbit K16: +34.000 vs +25.00 [+13.00, +37.00] pp; INSIDE.
+Theory pre-score N-H1a: -1.516 vs +0.20 [-1.80, +2.20] pp; INSIDE.
+K16 exact fixed/oracle: E0=0.430000, E1=0.500000, O_raw=0.610000, O_orbit=0.660000
+Protocol SHAs: primary 56be9143f35185a908a83baceb60e215b690e8f84195a2eb69836385c1850671; secondary 68cef3a346f6ea1fcad1cca93934e30f1622c0aeb84449410246f7c72f5ac757.
+Inputs: strings b0ef31bccce5bafe293d97b1ec15e395ab0ba9abb3b7a968b7035fb7a8a227d1; G1 3420633a0961574d627d640c4d8c5125e48b60462a0a238d66766301188b70d8.
