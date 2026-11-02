@@ -240,6 +240,7 @@ def main(a):
             state["attempts"].append(record)
             dump(out/"cost"/("attempt_%04d.json" % len(state["attempts"])),record)
             save()
+        live = {}
         def execute(indices, run, replay=False, selected_gpu=None,
                     proof=None, one_at_time=False):
             active = {}
@@ -263,6 +264,7 @@ def main(a):
                     v["handle"].close()
                     v["replay"] = replay
                     del active[i]
+                    live.pop((str(run), i), None)
                     state["active"] = [
                         dict(index=j, pid=x["proc"].pid, gpu=x["gpu"])
                         for j,x in active.items()]
@@ -296,6 +298,7 @@ def main(a):
                     worker = spawn(wt, run, prep, a.expected_head,
                         a.roots_source_head, i, gpu, replay, proof, attempt)
                     active[i] = worker
+                    live[(str(run), i)] = worker
                     state["active"] = [
                         dict(index=j, pid=x["proc"].pid, gpu=x["gpu"])
                         for j,x in active.items()]
@@ -367,13 +370,13 @@ def main(a):
             # Active workers are always ours. Charge interrupted attempts
             # before exiting, never kill or charge foreign compute PIDs.
             # Every state update is atomic; no partial run is discarded.
-            leftover=locals().get("active",{})
-            kill_ours(leftover)
-            for v in leftover.values():
+            kill_ours(live)
+            for (run_path, _),v in list(live.items()):
                 v["proc"].wait()
                 v["handle"].close()
-                v["replay"]=False
+                v["replay"]="replay" in Path(run_path).name
                 charge(v, v["proc"].returncode)
+                live.pop((run_path, v["i"]))
             state["active"]=[]
             save()
             final=dict(state)
