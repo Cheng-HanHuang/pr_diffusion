@@ -286,7 +286,17 @@ def main(a):
                         for j,x in active.items()]
                     charge(v, rc)
                     if rc != 0 or v["unknown"] or v["pressure"]:
-                        raise RuntimeError("STOP_A24_I2_NATIVE_RC_OR_TELEMETRY_%03d_%d" % (i,rc))
+                        # A13.3 allows one retry for pure infrastructure
+                        # failures only. No science-code retry or partial
+                        # root deletion; leave frozen settings untouched.
+                        infra = v["unknown"] or v["pressure"]
+                        if (infra and v["attempt"] == 1 and
+                            not bagdir(run,mf["rows"][i]).exists()):
+                            print("A24_I2_INFRA_RETRY_ONCE",i,rc,flush=True)
+                            save()
+                            continue
+                        raise RuntimeError(
+                            "STOP_A24_I2_NATIVE_RC_OR_TELEMETRY_%03d_%d" % (i,rc))
                     r = verify_bag(run, mf["rows"][i], mf,
                                    prep_rec["manifest_sha256"], a.expected_head)
                     gate(r is not None, "I2_NATIVE_NO_RECEIPT")
