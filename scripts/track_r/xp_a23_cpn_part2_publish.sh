@@ -36,7 +36,7 @@ assert r["status"]=="A18_XPN_CPN_PART2_ALL100_N64_SCORED"
 assert r["full100_K64"] and r["n_images"]==100
 assert r["v5_all_K_prediction_rows"]==100
 assert r["protocol_v1_unmodified"]
-assert not r["no_matched_compute_claim"] is False
+assert r["no_matched_compute_claim"] is True
 v=json.loads((p/"XP_N_V5_PREDICTION_COMPARISON.json").read_text())
 assert v["n_predictions"]==100
 assert v["original_registration_commit"]=="55ba86b71cafbd8eb066c777ac141823d9cd9a1d"
