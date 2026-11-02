@@ -48,6 +48,35 @@ class A20XPCTest(unittest.TestCase):
             if term=="one-worker":continue
             self.assertIn(term,s)
 
+    def test_final_scoring_is_offline_and_complete_only(self):
+        script=WT/"scripts/track_r/xp_a25_xpc3_offline_final_cpu.py"
+        src=script.read_text()
+        ast.parse(src)
+        for word in ("PANEL_MUST_BE_COMPLETE_100",
+                     "source_manifest_sha256",
+                     "no_GT_in_model_inputs=True",
+                     "GT_for_offline_chosen_good_only=True",
+                     "prior_chosen_good=int(chosen>=20.)",
+                     "prior_choice","prior_margin"):
+            self.assertIn(word,src)
+        self.assertNotIn("model.tweedie(",src)
+        pub=(WT/"scripts/track_r/xp_a25_xpc3_publish_cpu.py").read_text()
+        ast.parse(pub)
+        for word in ("only_S_mid_global2=True",
+                     "GT_only_after_frozen_selection=True",
+                     "PUBLICATION_FILES_ONLY",
+                     "A20_XPC3_COMPLETE_PANELS_PUBLISHED",
+                     "no_matched_compute_claim=True",
+                     "source_manifest_sha256"):
+            self.assertIn(word,pub)
+
+    def test_exact_native_discrete_time_adapter(self):
+        source=(WT/"scripts/track_r/xp_a25_xpc3_mid_gpu.py").read_text()
+        self.assertIn("def fix_exact_native_timestep(",source)
+        self.assertIn("native.sigma_inv=exact_index",source)
+        self.assertIn("choices[0]/999.",source)
+        self.assertIn("schedule()",source)
+
     def test_orientation_seed_and_mid_policy(self):
         from prdiffusion.track_r.prior_score import prior_seed
         uid="XPC3|XP_N|ILSVRC2012_val_00048900.JPEG|0"
