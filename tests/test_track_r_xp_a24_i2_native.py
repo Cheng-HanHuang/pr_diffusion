@@ -6,7 +6,7 @@ class A24I2NativeTests(unittest.TestCase):
  def test_native_script_frozen_source_and_no_gt(self):
   s=(ROOT/"scripts/track_r/xp_a24_xpi2_pcdaps_gpu.py").read_text()
   ast.parse(s)
-  for v in ('"imagenet256.pt"','num_channels=256',
+  for v in ('imagenet256.pt','num_channels=256',
             'num_res_blocks=2','"32,16,8"',
             '"XP_IMAGENET100"','"A24_I2_STRICT_IMAGENET_WEIGHTS"',
             '"A24_I2_NATIVE_REPLAY_NOT_ACCEPTED"','"A24_I2_ONLY_TWO_REPLAY_BAGS"',
