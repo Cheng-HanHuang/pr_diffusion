@@ -106,9 +106,11 @@ def inventory(a):
  i2prep=wt/"scripts/track_r/xp_a24_xpi2_prepare_cpu.py"
  d1=one("xp_t_imagenet_*","XP_T_IMAGENET_IMAGES.json")
  data["XP_I2"]=stage("XP_I2",
-   ready=i2worker.is_file() and i2prep.is_file() and\n         (wt/"scripts/track_r/xp_a24_xpi2_autopilot.py").is_file(),
+   ready=i2worker.is_file() and i2prep.is_file() and
+         (wt/"scripts/track_r/xp_a24_xpi2_autopilot.py").is_file(),
    details=dict(native_ffhq_g3_source_available=g3.is_file(),
-       native_imagenet_adapter=i2worker.is_file(),\n       native_supervisor_registered=(wt/"scripts/track_r/xp_a24_xpi2_autopilot.py").is_file(),
+       native_imagenet_adapter=i2worker.is_file(),
+       native_supervisor_registered=(wt/"scripts/track_r/xp_a24_xpi2_autopilot.py").is_file(),
        d1_original_images_need_sha=True,
        n_bags=100,particles_per_bag=4,
        source_image_catalog_candidates=len(d1)),
