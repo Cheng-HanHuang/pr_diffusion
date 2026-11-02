@@ -90,3 +90,36 @@ The A19 readiness script only audits local files, code support and resource clas
   irreconcilable SHA/receipt, cap conflict, or operator-required
   resources. Other blocked stages may be parked with precise receipts,
   but no frozen science may be changed to make a stage run.
+
+
+## Nov4 CPU implementation checkpoint (subsequent to XP-I2 PAC detach)
+
+- Confirmed by Cheng's PAC output at 2026-11-02 08:56Z: A24 XP-I2
+  previous HEAD \`81ae297\`, all 9 CPU QA tests PASS, project baseline
+  **229.02681142068252 GPU-h**, eligible GPU indices 0–3, supervisor
+  detached PID 3899225, run
+  \`xp_a24_xpi2_prod_20261102T085625Z\`. This is **LAUNCHED, NOT
+  NATIVE REPLAY VERIFIED OR FINISHED**. Do not start another XP-I2.
+- Follow-on A19 CPU-only scripts (GitHub, not PAC-tested):
+  \`xp_a24_nov4_fast_cpu.py\` renders the seven frozen A9 FAST FFHQ
+  never-GOOD panels, each anonymized under 2 MB with reference, lowest
+  signed-rho and orbit oracle. It also evaluates all existing 180x64 FAST
+  candidates against the *frozen* face CLIP prompt set, writes resuming
+  64-row image chunks, 11,520 G1-style decision rows, and exact E0/E1
+  subset U-statistics with fixed-first-K summaries. Candidate choice is
+  GT-free; GOOD25 is evaluated offline only.
+- \`xp_a24_nov4_d4_panels_cpu.py\` collects the frozen 22 never-orbit-GOOD
+  XP-D4 ImageNet IDs, chooses eight via ascending
+  SHA256(image_id UTF-8), and renders the matching anonymized panels
+  using original D1/G1a/G1b candidate receipts. Offline oracle labels
+  are diagnostic, never fed into any selector. See its local figure
+  selection receipt for the exact ordering.
+- \`xp_a24_nov4_launch.sh\` is a one-shot detached CPU launcher after
+  two static/behavioral QA sets and full frozen-input preflight; it
+  refuses any existing incomplete Nov4 run rather than overwriting.
+  No GPU is requested or charged. The XP-I2 controller is unaffected.
+- These scripts must PASS on PAC before claiming completion. They
+  should **not** be used as evidence of scientific results merely
+  because GitHub source code is present. Neither XP-C3's required
+  prospective prior-code freeze nor XP-I2 native replay have been
+  validated by this checkpoint.
