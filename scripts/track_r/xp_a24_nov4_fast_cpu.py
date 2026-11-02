@@ -229,6 +229,55 @@ def fast_seven_panels(out,identities,table,hist,new16,new64,cases):
           max((dest/r["filename"]).stat().st_size for r in outputs),
           flush=True)
 
+
+def e1_face_summary(rows,table):
+    """Frozen exact subset U-statistics, not another fitted selector."""
+    from collections import defaultdict
+    groups=defaultdict(list)
+    for row in rows:
+        key=("S1_b22" if row["cohort"]=="B22"
+             else "S2_b24_dev80",row["image_id"])
+        gate(key in table,"SUMMARY_KEY")
+        groups[key].append(row)
+    gate(len(groups)==180,"SUMMARY_180_GROUPS")
+    prepared={}
+    for key,items in groups.items():
+        items=sorted(items,key=lambda r:int(r["run"]))
+        gate(len(items)==64 and [int(r["run"]) for r in items]==list(range(64)),
+             "SUMMARY_RUNS_64")
+        vals=table[key]
+        gate([r["label"] for r in items]==vals["labels"],
+             "SUMMARY_LABELS_MATCH")
+        prepared[key]=([int(r["label"]=="G") for r in items],
+                       [int(r["face_chosen_good"]) for r in items],
+                       [float(z) for z in vals["rhos"]])
+    summary=[]
+    for cohort in ("B22","DEV80","POOLED"):
+        subset=[v for key,v in prepared.items()
+                if cohort=="POOLED" or table[key]["cohort"]==cohort]
+        gate(len(subset)==(180 if cohort=="POOLED" else
+                          100 if cohort=="B22" else 80),"SUMMARY_COHORT")
+        for n in (16,64):
+            for k in (1,2,4,8,16,32,64):
+                if k>n:continue
+                e0=[];e1=[];fixed_e0=[];fixed_e1=[]
+                for raw,face,rhos in subset:
+                    order=sorted(range(n),key=lambda j:(rhos[j],j))
+                    den=math.comb(n,k)
+                    weights=[math.comb(n-r-1,k-1)/den
+                             if n-r>=k else 0. for r in range(n)]
+                    e0.append(sum(weights[r]*raw[j] for r,j in enumerate(order)))
+                    e1.append(sum(weights[r]*face[j] for r,j in enumerate(order)))
+                    chosen=min(range(k),key=lambda j:(rhos[j],j))
+                    fixed_e0.append(raw[chosen]);fixed_e1.append(face[chosen])
+                summary.append(dict(cohort=cohort,n=n,K=k,n_images=len(subset),
+                   exact_subset_E0=sum(e0)/len(e0),
+                   exact_subset_E1_face=sum(e1)/len(e1),
+                   exact_subset_gain=sum(e1)/len(e1)-sum(e0)/len(e0),
+                   fixed_first_K_E0=sum(fixed_e0)/len(fixed_e0),
+                   fixed_first_K_E1_face=sum(fixed_e1)/len(fixed_e1)))
+    return summary
+
 def main(a):
     gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
     gate(subprocess.check_output(
@@ -291,6 +340,12 @@ def main(a):
     with output.open("x",newline="") as f:
         writer=csv.DictWriter(f,fieldnames=CSV_FIELDS)
         writer.writeheader();writer.writerows(results)
+    summary=out/"A24_FAST_FACECLIP_E1_EXACT_SUMMARY.json"
+    emit(summary,dict(status="A19_A9_2D_FAST_FACE_E1_USTATISTICS_PASS",
+                      n_images=180,n_candidates=11520,
+                      comparisons=e1_face_summary(results,table),
+                      source_csv_sha256=sha(output),
+                      no_new_selector=True,no_timing_claim=True))
     receipt=out/"A24_FAST_FACECLIP_RECEIPT.json"
     emit(receipt,dict(status="A19_A9_2D_FAST11520_FACECLIP_E1_SCORED",
        expected_head=a.expected_head,
@@ -299,6 +354,7 @@ def main(a):
        native_clip_head=source_head,A9_source_sha256=A9_SHA,
        source_census_sha256=sha(A9_CASE),
        decisions_sha256=sha(output),
+       exact_e1_summary_sha256=sha(summary),
        GT_solely_offline_metric_evaluation=True,
        no_method_change=True,clean_gpu_required=False,
        no_GPU_used=True))
