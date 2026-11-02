@@ -18,7 +18,7 @@ class PlannerA18Tests(unittest.TestCase):
   self.assertIn("check_chunk(",continuation)
   self.assertIn("A22_XPN_ONE_CHUNK_SMOKE_PASS",continuation)
   self.assertIn("A22_28H_ATTEMPT_CHARGED",continuation)
-  self.assertIn("project+projected-stage_used_at_start",continuation)
+  self.assertIn("project_used_at_start+projected-stage_used_at_start",continuation)
   self.assertIn('if not active and not can_admit()',continuation)
   self.assertIn("git(wt,\"rev-parse\",\"HEAD\")",continuation)
   self.assertIn("all_held_GT_outcomes_unread=True",continuation)
