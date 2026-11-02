@@ -117,12 +117,20 @@ def inventory(a):
    reason="Existing G3 worker is FFHQ-only; prepare original D1 ImageNet native GT-free adapter, seed/y SHA and replay before GPU run")
  # Other CPU / supplementary tasks.
  a9=one("xp_a9_exchange_*","A9_FAST_EXCHANGEABILITY.json")
+ fast_worker=(wt/"scripts/track_r/xp_a24_nov4_fast_cpu.py").is_file()
+ d4_worker=(wt/"scripts/track_r/xp_a24_nov4_d4_panels_cpu.py").is_file()
+ nov4launcher=(wt/"scripts/track_r/xp_a24_nov4_launch.sh").is_file()
  data["NOV4"]=stage("NOV4_CPU",
-    ready=(wt/"scripts/track_r/xp_a24_nov4_cpu.py").is_file(),
+    ready=bool(fast_worker and d4_worker and nov4launcher and len(a9)==1),
     details=dict(confirmed_fast_a9_source=len(a9),
-      FFHQ_NEVER_GOOD_EXPECTED=7,D4_NEVER_ORBIT_PANEL_UP_TO=8,
-      A9_2D_FACECLIP_11520=True),
-    reason="Nov4 exact frozen PNG panel/FFHQ A9.2d production code not yet present; must use historical SHA-selected panels and native face CLIP")
+      FFHQ_NEVER_GOOD_EXPECTED=7,D4_NEVER_ORBIT_EXPECTED=22,
+      D4_NEVER_ORBIT_PANEL_SELECTED=8,
+      A9_2D_FACECLIP_11520=True,
+      fast_worker_present=fast_worker,d4_worker_present=d4_worker,
+      detached_cpu_launcher_present=nov4launcher,
+      code_ready_is_not_completed_experiment=True,
+      PAC_source_preflight_and_figure_receipts_still_required=True),
+    reason="Nov4 FAST/D4 CPU code or frozen A9 source absent; must pass PAC SHA and native-input preflight before launch")
  # A7 ZIP remains a user/PAC private artifact, must not infer location.
  zips=sorted((p for p in BASE.glob("**/*A7*.zip")
              if p.is_file() and not p.is_symlink() and
