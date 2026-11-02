@@ -213,6 +213,7 @@ def fast_seven_panels(out,identities,table,hist,new16,new64,cases):
             draw.text((ox,7),title,fill=(0,0,0))
         filename=f"FAST_never_good_{z:02d}.png"
         dst=dest/filename
+        gate(not dst.exists(),"NO_OVERWRITE_PARTIAL_PANEL")
         image.save(dst,optimize=True)
         gate(dst.stat().st_size<2_000_000,"PANEL_OVER_2MB")
         outputs.append(dict(filename=filename,sha256=sha(dst),
