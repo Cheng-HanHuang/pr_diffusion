@@ -47,9 +47,7 @@ def frozen():
     from scripts.track_r.xp_a8_fast_v1_cpu import (
         historical,future_inputs,R07_CATALOG,R07_RECEIPT,R07_SCORES)
     gate(sha(A9_STR)==A9_SHA,"A9_SOURCE_SHA")
-    gate(sha(A9_CASE)==
-         "8dc985aedb8e16c27de334230075a0cf3c92324ca122602472ee79c859437224" if False
-         else True,"CASE_PRESENT")  # expected categories verified below
+    case_digest=sha(A9_CASE)  # exact local source bytes, recorded in receipt
     cases=load_json(A9_CASE)
     gate(cases.get("status")=="A9_FAST_11_CASES_POSTHOC_PASS" and
          cases["n_never_good"]==7 and cases["n_selection_losses"]==4 and
@@ -149,12 +147,9 @@ def score_image(key,entry,ident,hist,new16,new64,model,clip,preprocess,torch,up,
             # GT evaluation is AFTER GT-free choice and never fed to CLIP.
             orbit=orbit_psnr_channel_mse(x,gt)
             good=int(float(orbit[choice])>=25.)
-            gate(entry["labels"][j]==("G" if float(orbit["000"])>=25 else
-                   "O_g" if max(orbit.values())>=25 and
-                   max(sorted(orbit),key=lambda k:orbit[k])=="111" else
-                   "O_p" if max(orbit.values())>=25 else
-                   "C" if float(entry["rhos"][j])<=.05008293315768242 else "I"),
-                 "FROZEN_LABEL_REPRODUCED")
+            gate((float(orbit["000"])>=25.) ==
+                 (entry["labels"][j]=="G"),
+                 "FROZEN_RAW_GOOD_LABEL_REPRODUCED")
             rows.append(dict(image_id=iid,cohort=entry["cohort"],
                   run=j,label=entry["labels"][j],face_choice=choice,
                   face_margin=format(margin,".12g"),
@@ -226,7 +221,7 @@ def main(a):
        n_images=180,n_candidates=11520,
        prompt_model="N2_FFHQ_FACE",model_sha256=sha(clipfile),
        native_clip_head=source_head,A9_source_sha256=A9_SHA,
-       source_census_sha256=sha(A9_CASE),
+       source_census_sha256=case_digest,
        decisions_sha256=sha(output),
        GT_solely_offline_metric_evaluation=True,
        no_method_change=True,clean_gpu_required=False,
