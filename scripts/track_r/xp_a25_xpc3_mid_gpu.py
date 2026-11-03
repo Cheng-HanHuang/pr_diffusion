@@ -22,6 +22,9 @@ T=(300,400,500,600)
 J=range(4)
 COLUMNS=("image_id","run","label","prior_choice","prior_margin","prior_chosen_good")
 DAPS_PY=ROOT/"conda-envs/daps/bin/python"
+RECOVERY_REL="docs/track_r/executors/xp/XP_C3_A20_RECOVERY_R1.json"
+ORIGINAL_HEAD="25152a3d6ffcc4611f45d12bf24d891331976d91"
+ALLOWED_PHYSICAL_GPUS=(1,2,3)
 
 def gate(x,s):
     if not x:raise RuntimeError("STOP_A20_XPC3_"+s)
@@ -50,7 +53,7 @@ def source(a):
          os.environ.get("PYTHONDONTWRITEBYTECODE")=="1" and
          os.environ.get("CUDA_VISIBLE_DEVICES")==str(a.gpu),
          "NATIVE_ENV_GPU")
-    gate(a.gpu in range(4),"GPU_RANGE")
+    gate(a.gpu in ALLOWED_PHYSICAL_GPUS,"GPU1_2_3_ONLY")
     gate(verify_clean_sparse(NATIVE),"NATIVE_SOURCE_DRIFT")
     import torch
     gate(torch.cuda.is_available(),"GPU_UNAVAILABLE")
@@ -69,8 +72,23 @@ def source(a):
          and spec["draws"]==list(J)
          and spec["decision_threshold_exclusive"]==1e-7,
          "FROZEN_SPEC_SCHEMA")
-    gate(sha(WT/spec["scorer_script"])==spec["scorer_script_sha256"],
-         "FROZEN_CODE_SHA")
+    # A20 freeze is immutable. Recovery R1 is a separate, pushed SHA
+    # registration after a verified zero-output four-second Python failure.
+    gate(git("ls-files","--error-unmatch",RECOVERY_REL)==RECOVERY_REL,
+         "R1_REGISTRATION_MUST_BE_COMMITTED")
+    recovery=jread(WT/RECOVERY_REL)
+    original=subprocess.check_output(["git","-C",str(WT),"show",
+             ORIGINAL_HEAD+":"+spec["scorer_script"]],timeout=60)
+    gate(hashlib.sha256(original).hexdigest()==spec["scorer_script_sha256"],
+         "ORIGINAL_A20_REGISTERED_CODE_UNCHANGED")
+    gate(recovery["status"]=="A20_XPC3_ZERO_OUTPUT_R1_CODE_RECOVERY"
+         and recovery["source_manifest_sha256"]==spec["source_manifest_sha256"]
+         and recovery["original_scorer_sha256"]==spec["scorer_script_sha256"]
+         and recovery["corrected_scorer_sha256"]==sha(WT/spec["scorer_script"])
+         and recovery["original_freeze_sha256"]==sha(frozen)
+         and recovery["allowed_physical_gpus"]==[1,2,3]
+         and recovery["scientific_definition_unchanged"] is True,
+         "R1_CODE_SHA_AND_SCIENCE_UNCHANGED")
     gate(sha(WT/"prdiffusion/track_r/prior_score.py")==
          spec["original_prior_score_sha256"],
          "ORIGINAL_R0_PRIOR_SHA")
@@ -225,11 +243,11 @@ def run(a):
             for row in expected:
                 pt=Path(row["pt_path"])
                 gate(sha(pt)==row["pt_sha256"],"NATIVE_RECON_HASH")
-                source=torch.load(pt,map_location="cpu",weights_only=True)
-                gate(isinstance(source,dict) and
-                     isinstance(source.get("reconstruction"),torch.Tensor),
+                saved_reconstruction=torch.load(pt,map_location="cpu",weights_only=True)
+                gate(isinstance(saved_reconstruction,dict) and
+                     isinstance(saved_reconstruction.get("reconstruction"),torch.Tensor),
                      "NATIVE_RECON_FORMAT")
-                x=source["reconstruction"].float().to("cuda:0")
+                x=saved_reconstruction["reconstruction"].float().to("cuda:0")
                 vals=orient_sm(x,row["uid"],model,torch,alpha,seed_fn)
                 values.append(dict(image_id=iid,run=row["run"],
                                    label=row["label"],**vals))
