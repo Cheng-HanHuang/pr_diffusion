@@ -41,7 +41,7 @@ On the new images of test 6 it is $75\%$ at $64$ runs against $88\%$ forecast, w
 \cmidrule(lr){4-5}\cmidrule(l){6-6}
 \# & Solver, data & $\to$ scored & Race & (S2) & Race \\
 \midrule
-1 & FAST-DIPS, FFHQ & $4\to64$ & 6/21 & 15/21 & 10/42 \\
+1 & FAST-DIPS, FFHQ & $4\to64$ & 9/42 & 36/42 & 10/42 \\
 2 & FAST-DIPS, ImageNet & $4\to16$ & 9/9 & 0/9 & 3/6 \\
 3 & SITCOM, FFHQ & $4\to16$ & 18/18 & 2/18 & 13/18 \\
 4 & DAPS, FFHQ & $2$--$4\to8$ & 12/14 & 14/14 & 9/14 \\
@@ -55,8 +55,8 @@ On the new images of test 6 it is $75\%$ at $64$ runs against $88\%$ forecast, w
 
 \paragraph{Selection is predictable; generation is not.}
 Holding generation fixed separates the two.
-Given each FFHQ image's realized $64$ classes, the frozen race weights predict the observed $\Eo$ within $1.4$ points at every $K$, and the weights of the weaker-prior variant within $0.3$, whereas (S2) falls $4$--$8$ points short at every $K$ (exploratory, with frozen parameters)\claim{C-F3}; for SITCOM the race is $1.5$--$2.8$ points high and (S2) $12.8$ points low\claim{C-R5}.
-By the frozen comparison rule, (S2) nevertheless covers more FFHQ $\Eo$ points ($15$ of $21$ against $6$), because its pessimistic selection offsets the optimistic generation that all variants share\claim{C-F1}.
+Given each FFHQ image's realized $64$ classes, the frozen race weights predict the observed $\Eo$ within $1.4$ points at every $K$, and the weights of the weaker-prior variant within $0.3$, whereas (S2) falls $4$--$7$ points short at every $K$; likewise for $\Eone$ given each run's realized orientation decision ($0.8$ against $2.5$--$4.7$; exploratory, with frozen parameters)\claim{C-F3}; for SITCOM the race is $1.5$--$2.8$ points high and (S2) $12.8$ points low\claim{C-R5}.
+By the frozen comparison rule, (S2) nevertheless covers more of test~1's selected-run points ($36$ of $42$ against $9$), because its pessimistic selection offsets the optimistic generation that all variants share\claim{C-F1}.
 The generation miss has a simple anatomy.
 Of the $25$ FFHQ images without a \good run among their first four, $18$ produced one later and $7$ never did in $64$ runs, against $2.2$ forecast: the mixture shrinks an image with four failures toward its cohort's success rate\claim{C-F2}.
 Six of the seven never produced a measurement-consistent run\claim{C-F5}; on ImageNet, $25$ of $100$ images have no \good run in any orientation among $16$\claim{C-R4}.

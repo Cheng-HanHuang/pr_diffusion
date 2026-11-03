@@ -1,11 +1,11 @@
-# Supplement: fourth integration build (planner, 2026-11-02)
+# Supplement: fifth integration build (planner, 2026-11-03)
 
 **Build.** Run from this folder, after building the main paper once (the cross-references read `../main.aux`):
 ```
 pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 ```
 
-**Result.** 17 pages (S3 has the dated test-6 addendum; S4 includes the ImageNet four-run table and the image-disjoint panel). No LaTeX errors, no undefined references, no overfull boxes.
+**Result.** 20 pages: S3 has the dated test-6 addendum; S4 includes the ImageNet four-run table and the image-disjoint panel; **new S6 shows all 15 images without a good run** (two float pages). No LaTeX errors, no undefined references, no overfull boxes.
 
 ## Sources
 
@@ -16,6 +16,7 @@ pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 | `TH_SUPPL_S2_PROOFS_AUDIT_20261030.tex` | Theory `061c618` | <ul><li>"planner-confirmed" → "in the pinned source".</li><li>An internal code path replaced by "the lightweight SITCOM reimplementation in our code base" (overfull line, double-blind).</li><li>The internal paragraph "Remaining source/figure checks for paper integration" commented out.</li></ul> |
 | `TH_SUPPL_S3_COMPLETE_DRAFT_20261102.tex` | Theory `7e5c4b8`. Its prefix is byte-identical to the integrated 20261031 copy (whose `\n` and double-blind fixes the theory executor adopted); a dated test-6 addendum follows | None: identical to the theory file. |
 | `S4_PROTOCOL_EMPIRICAL.tex` | **Planner** (new), generated from `docs/track_r/planner_analysis/A16_cp3_and_exploratory/out/` | — |
+| `SUPP_UNSOLVED_IMAGES.tex` (renders as S6) | **Planner** (new, 2026-11-03), from the 15 Nov 4 panels (XP `953e2f0`; SHA-256 checked against the receipt; tiles cropped losslessly by `../fig/unsolved/crop_tiles.py`) | — |
 | `supp.tex` (wrapper) | Planner | Restates the orbit lemma (`lem:orbit`), since the main text no longer contains it; inputs S4. |
 
 **S4 contents:**

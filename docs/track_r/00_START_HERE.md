@@ -18,7 +18,9 @@
   - Ceiling 56 GPU-h; GPUs 0–3; up to 8 workers per GPU; batching at fixed t, with an equivalence test fixed in advance; 8 GiB of free memory kept per GPU; GPU-occupancy-hour accounting; skip rule so G5 can run when XP-N cannot.
   - Main text if returned by Nov 6, 12:00 ET; hard stop Nov 15.
   - XP-I2 scoring requested for Nov 5, 12:00 ET.
-  - **Notes, round 17:** [`executors/xp/17_PLANNER_NOTES_20261103.md`](executors/xp/17_PLANNER_NOTES_20261103.md).
+  - **Nov 4 outputs reproduced** (A9.2(d) exact; 120/120 comparisons). Test 1's E1 points: race 3/21, S2 21/21; selection-only check shows the miss is generation. Tab. 2 row 1 is now 9/42 vs 36/42.
+  - **Fig. 3** built: one unsolved image per dataset. Supplement S6 shows all 15 (20 pages). On FFHQ, 5 of 7 unsolved images are near misses.
+  - **Notes, round 17:** [`executors/xp/17_PLANNER_NOTES_20261103.md`](executors/xp/17_PLANNER_NOTES_20261103.md) and [`executors/theory/17_PLANNER_GUIDANCE_20261103.md`](executors/theory/17_PLANNER_GUIDANCE_20261103.md).
 - **2026-11-02, 16:50 (planner): XP-C3 defined (A20: S_mid global2, ceiling 8 GPU-h); theory round 15 integrated (supplement 17 pages).**
   - The Nov 4 CPU items are finished on PAC; publication is requested.
   - **Notes, round 16:** [`executors/xp/16_PLANNER_NOTES_20261102_PM.md`](executors/xp/16_PLANNER_NOTES_20261102_PM.md) and [`executors/theory/16_PLANNER_GUIDANCE_20261102_PM.md`](executors/theory/16_PLANNER_GUIDANCE_20261102_PM.md).

@@ -9,7 +9,9 @@
 >   - G5 may run when XP-N cannot;
 >   - main text if returned by Nov 6, 12:00 ET.
 > - **XP-I2** (PC-DAPS on ImageNet) finished production; its scoring is requested for Nov 5.
-> - **Nov 4 items published** (`953e2f0`); the planner reproduces A9.2(d) and builds Fig. 3.
+> - **Nov 4 items published** (`953e2f0`) and reproduced exactly.
+>   - **Test 1's registered E1 points:** race 3/21, S2 21/21. A selection-only check (frozen parameters) attributes the race's miss to generation, as for E0. Tab. 2, Sec. 5, abstract and intro are updated.
+>   - **Fig. 3 is built.** The supplement's new S6 shows all 15 unsolved images. On FFHQ, 5 of 7 are near misses (22.8–24.7 dB); on ImageNet they are real failures.
 >
 > **Eighteenth update, 2026-11-02, 16:50 ET**.
 > - **XP-C3 is defined** (A20): the prior's own orientation test (S_mid global2, from v1.1's XP-C row) on the 13,600 ImageNet candidates, XP-N included.

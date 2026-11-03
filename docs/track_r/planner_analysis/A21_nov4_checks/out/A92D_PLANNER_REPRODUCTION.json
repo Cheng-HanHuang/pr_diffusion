@@ -1,0 +1,1701 @@
+{
+ "status": "PLANNER_A92D_REPRODUCTION",
+ "inputs": {
+  "v1_sha256_prefix": "c19798f9",
+  "strings64_sha256_prefix": "d616dd50",
+  "face_csv_sha256_prefix": "1be37fa9",
+  "exec_curves_sha256_prefix": "6e470cc7",
+  "exec_coverage_sha256_prefix": "1b55c007"
+ },
+ "consistency": "labels and cohorts of all 11,520 face rows equal the frozen 64-run strings; f_chosen_good follows from label and choice in every row",
+ "curves_max_abs_diff_vs_executor": 6.661338147750939e-16,
+ "comparisons": 120,
+ "comparison_mismatches_vs_executor": 0,
+ "coverage_counts_match_executor": true,
+ "coverage": {
+  "primary|B22|S2": "7/7",
+  "primary|B22|race": "3/7",
+  "primary|B22|race_tau1": "7/7",
+  "primary|B22|tail": "7/7",
+  "primary|DEV80|S2": "7/7",
+  "primary|DEV80|race": "0/7",
+  "primary|DEV80|race_tau1": "1/7",
+  "primary|DEV80|tail": "2/7",
+  "primary|POOLED|S2": "7/7",
+  "primary|POOLED|race": "0/7",
+  "primary|POOLED|race_tau1": "2/7",
+  "primary|POOLED|tail": "3/7",
+  "secondary|B22|S2": "3/3",
+  "secondary|B22|race": "3/3",
+  "secondary|B22|race_tau1": "3/3",
+  "secondary|B22|tail": "3/3",
+  "secondary|DEV80|S2": "3/3",
+  "secondary|DEV80|race": "1/3",
+  "secondary|DEV80|race_tau1": "3/3",
+  "secondary|DEV80|tail": "1/3",
+  "secondary|POOLED|S2": "3/3",
+  "secondary|POOLED|race": "0/3",
+  "secondary|POOLED|race_tau1": "1/3",
+  "secondary|POOLED|tail": "0/3"
+ },
+ "primary_totals": {
+  "race": "3/21",
+  "S2": "21/21",
+  "race_tau1": "10/21",
+  "tail": "12/21"
+ },
+ "primary_forecast_minus_observed": {
+  "race": [
+   0.0076,
+   0.0796
+  ],
+  "S2": [
+   -0.0234,
+   0.0307
+  ],
+  "tail": [
+   -0.0195,
+   0.0707
+  ],
+  "race_tau1": [
+   0.0046,
+   0.0689
+  ]
+ },
+ "observed_E0_E1": {
+  "B22|n16|K1": [
+   0.665625,
+   0.68
+  ],
+  "B22|n16|K2": [
+   0.843667,
+   0.853417
+  ],
+  "B22|n16|K4": [
+   0.94272,
+   0.94822
+  ],
+  "B22|n16|K8": [
+   0.974776,
+   0.976398
+  ],
+  "B22|n16|K12": [
+   0.979643,
+   0.97978
+  ],
+  "B22|n16|K16": [
+   0.98,
+   0.98
+  ],
+  "B22|n64|K1": [
+   0.674219,
+   0.688281
+  ],
+  "B22|n64|K2": [
+   0.842371,
+   0.851071
+  ],
+  "B22|n64|K4": [
+   0.935601,
+   0.938691
+  ],
+  "B22|n64|K8": [
+   0.969125,
+   0.969529
+  ],
+  "B22|n64|K12": [
+   0.976711,
+   0.976765
+  ],
+  "B22|n64|K16": [
+   0.980421,
+   0.980429
+  ],
+  "B22|n64|K24": [
+   0.984825,
+   0.984825
+  ],
+  "B22|n64|K32": [
+   0.987468,
+   0.987468
+  ],
+  "B22|n64|K48": [
+   0.989727,
+   0.989727
+  ],
+  "B22|n64|K64": [
+   0.99,
+   0.99
+  ],
+  "DEV80|n16|K1": [
+   0.449219,
+   0.46875
+  ],
+  "DEV80|n16|K2": [
+   0.5975,
+   0.616667
+  ],
+  "DEV80|n16|K4": [
+   0.71033,
+   0.728249
+  ],
+  "DEV80|n16|K8": [
+   0.777749,
+   0.796073
+  ],
+  "DEV80|n16|K12": [
+   0.800941,
+   0.82237
+  ],
+  "DEV80|n16|K16": [
+   0.8125,
+   0.8375
+  ],
+  "DEV80|n64|K1": [
+   0.443945,
+   0.465625
+  ],
+  "DEV80|n64|K2": [
+   0.594847,
+   0.614503
+  ],
+  "DEV80|n64|K4": [
+   0.716483,
+   0.732792
+  ],
+  "DEV80|n64|K8": [
+   0.788983,
+   0.803487
+  ],
+  "DEV80|n64|K12": [
+   0.813785,
+   0.828435
+  ],
+  "DEV80|n64|K16": [
+   0.827397,
+   0.842777
+  ],
+  "DEV80|n64|K24": [
+   0.844094,
+   0.86119
+  ],
+  "DEV80|n64|K32": [
+   0.854749,
+   0.873482
+  ],
+  "DEV80|n64|K48": [
+   0.867575,
+   0.88945
+  ],
+  "DEV80|n64|K64": [
+   0.875,
+   0.9
+  ],
+  "POOLED|n16|K1": [
+   0.569444,
+   0.586111
+  ],
+  "POOLED|n16|K2": [
+   0.734259,
+   0.748194
+  ],
+  "POOLED|n16|K4": [
+   0.839435,
+   0.850455
+  ],
+  "POOLED|n16|K8": [
+   0.887208,
+   0.896254
+  ],
+  "POOLED|n16|K12": [
+   0.90022,
+   0.90982
+  ],
+  "POOLED|n16|K16": [
+   0.905556,
+   0.916667
+  ],
+  "POOLED|n64|K1": [
+   0.571875,
+   0.589323
+  ],
+  "POOLED|n64|K2": [
+   0.732361,
+   0.74593
+  ],
+  "POOLED|n64|K4": [
+   0.838215,
+   0.84718
+  ],
+  "POOLED|n64|K8": [
+   0.889062,
+   0.895732
+  ],
+  "POOLED|n64|K12": [
+   0.904299,
+   0.910841
+  ],
+  "POOLED|n64|K16": [
+   0.912411,
+   0.91925
+  ],
+  "POOLED|n64|K24": [
+   0.922278,
+   0.929876
+  ],
+  "POOLED|n64|K32": [
+   0.928482,
+   0.936808
+  ],
+  "POOLED|n64|K48": [
+   0.935437,
+   0.945159
+  ],
+  "POOLED|n64|K64": [
+   0.938889,
+   0.95
+  ]
+ },
+ "comparisons_detail": [
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "race",
+   "point": 0.9854898799784437,
+   "lo95": 0.9644818091319903,
+   "hi95": 0.9991175246638082,
+   "observed": 0.9695285076298578,
+   "inside": true,
+   "std_err": 1.8064757330905656
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "race",
+   "point": 0.993062834110467,
+   "lo95": 0.9788671350879874,
+   "hi95": 1.0,
+   "observed": 0.9767653784795266,
+   "inside": false,
+   "std_err": 3.0230650855564587
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "race",
+   "point": 0.9955655089327181,
+   "lo95": 0.9842987642236589,
+   "hi95": 1.0,
+   "observed": 0.9804285105130568,
+   "inside": false,
+   "std_err": 3.0273996839322637
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 24,
+   "variant": "race",
+   "point": 0.9971203406804329,
+   "lo95": 0.9884509829992083,
+   "hi95": 1.0,
+   "observed": 0.9848253196151967,
+   "inside": false,
+   "std_err": 2.4590042130472334
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 32,
+   "variant": "race",
+   "point": 0.9975239896483731,
+   "lo95": 0.9890710870225309,
+   "hi95": 1.0,
+   "observed": 0.9874680250844854,
+   "inside": false,
+   "std_err": 2.0111929127775374
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 48,
+   "variant": "race",
+   "point": 0.9976504329183656,
+   "lo95": 0.9874689924954895,
+   "hi95": 1.0,
+   "observed": 0.9897265183188643,
+   "inside": true,
+   "std_err": 1.5847829199002739
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 64,
+   "variant": "race",
+   "point": 0.9976043686433805,
+   "lo95": 0.984877701976713,
+   "hi95": 1.0,
+   "observed": 0.99,
+   "inside": true,
+   "std_err": 1.5208737286761087
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "S2",
+   "point": 0.957570875184072,
+   "lo95": 0.9335445911041589,
+   "hi95": 0.9776621273413604,
+   "observed": 0.9695285076298578,
+   "inside": true,
+   "std_err": 1.0624781704821114
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "S2",
+   "point": 0.9636236733919725,
+   "lo95": 0.9411519518137104,
+   "hi95": 0.9813592266173518,
+   "observed": 0.9767653784795266,
+   "inside": true,
+   "std_err": 1.2812478387256043
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "S2",
+   "point": 0.9655195564963159,
+   "lo95": 0.9422948876918092,
+   "hi95": 0.9850179291174046,
+   "observed": 0.9804285105130568,
+   "inside": true,
+   "std_err": 1.3679526970804783
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 24,
+   "variant": "S2",
+   "point": 0.9665954406832725,
+   "lo95": 0.940948425423517,
+   "hi95": 0.9894275588321061,
+   "observed": 0.9848253196151967,
+   "inside": true,
+   "std_err": 1.4740594641174407
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 32,
+   "variant": "S2",
+   "point": 0.9668265615336894,
+   "lo95": 0.9378063562254835,
+   "hi95": 0.991941503028588,
+   "observed": 0.9874680250844854,
+   "inside": true,
+   "std_err": 1.4946765991679192
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 48,
+   "variant": "S2",
+   "point": 0.9668412934719188,
+   "lo95": 0.9311103613101483,
+   "hi95": 0.997330700468377,
+   "observed": 0.9897265183188643,
+   "inside": true,
+   "std_err": 1.3547209594573417
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 64,
+   "variant": "S2",
+   "point": 0.9666443686433794,
+   "lo95": 0.9255754797544914,
+   "hi95": 1.0,
+   "observed": 0.99,
+   "inside": true,
+   "std_err": 1.2301600953010872
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "tail",
+   "point": 0.9828160920202802,
+   "lo95": 0.9682318532608535,
+   "hi95": 0.9973750899481335,
+   "observed": 0.9695285076298578,
+   "inside": true,
+   "std_err": 1.7872870940649563
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "tail",
+   "point": 0.988355041763545,
+   "lo95": 0.9760256875527148,
+   "hi95": 0.9993247829249069,
+   "observed": 0.9767653784795266,
+   "inside": true,
+   "std_err": 1.9499246364550111
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "tail",
+   "point": 0.9888866506405283,
+   "lo95": 0.9758922827074095,
+   "hi95": 1.0,
+   "observed": 0.9804285105130568,
+   "inside": true,
+   "std_err": 1.3753234658131077
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 24,
+   "variant": "tail",
+   "point": 0.9866535993108027,
+   "lo95": 0.9680104045539768,
+   "hi95": 1.0,
+   "observed": 0.9848253196151967,
+   "inside": true,
+   "std_err": 0.2240371066545099
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 32,
+   "variant": "tail",
+   "point": 0.9834421024079563,
+   "lo95": 0.9592360057662855,
+   "hi95": 1.0,
+   "observed": 0.9874680250844854,
+   "inside": true,
+   "std_err": 0.3871459897063216
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 48,
+   "variant": "tail",
+   "point": 0.9767997694033644,
+   "lo95": 0.9419092911559888,
+   "hi95": 1.0,
+   "observed": 0.9897265183188643,
+   "inside": true,
+   "std_err": 0.8723056880718949
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 64,
+   "variant": "tail",
+   "point": 0.970524368643379,
+   "lo95": 0.9271710353100464,
+   "hi95": 1.0,
+   "observed": 0.99,
+   "inside": true,
+   "std_err": 1.0482707703311027
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "race_tau1",
+   "point": 0.9818978197697621,
+   "lo95": 0.9633479004477234,
+   "hi95": 0.9962317420504985,
+   "observed": 0.9695285076298578,
+   "inside": true,
+   "std_err": 1.474514570838134
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "race_tau1",
+   "point": 0.9894479125621046,
+   "lo95": 0.9744726354106868,
+   "hi95": 1.0,
+   "observed": 0.9767653784795266,
+   "inside": true,
+   "std_err": 1.9475388236715552
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "race_tau1",
+   "point": 0.9920106840024031,
+   "lo95": 0.9799448547408073,
+   "hi95": 1.0,
+   "observed": 0.9804285105130568,
+   "inside": true,
+   "std_err": 2.2638639357362162
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 24,
+   "variant": "race_tau1",
+   "point": 0.9937046129040688,
+   "lo95": 0.9813051652542135,
+   "hi95": 1.0,
+   "observed": 0.9848253196151967,
+   "inside": true,
+   "std_err": 1.7758586577744095
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 32,
+   "variant": "race_tau1",
+   "point": 0.9942333948386028,
+   "lo95": 0.9801625220771831,
+   "hi95": 1.0,
+   "observed": 0.9874680250844854,
+   "inside": true,
+   "std_err": 1.3368760655626035
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 48,
+   "variant": "race_tau1",
+   "point": 0.9945546553819187,
+   "lo95": 0.9778223005212788,
+   "hi95": 1.0,
+   "observed": 0.9897265183188643,
+   "inside": true,
+   "std_err": 0.8533931711597263
+  },
+  {
+   "panel": "primary",
+   "cohort": "B22",
+   "K": 64,
+   "variant": "race_tau1",
+   "point": 0.9946043686433808,
+   "lo95": 0.9758621464211574,
+   "hi95": 1.0,
+   "observed": 0.99,
+   "inside": true,
+   "std_err": 0.7477518671284465
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "race",
+   "point": 0.86831765615663,
+   "lo95": 0.8086606855457621,
+   "hi95": 0.9351961134593179,
+   "observed": 0.8034868052912296,
+   "inside": false,
+   "std_err": 2.008425146876544
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "race",
+   "point": 0.90197308089964,
+   "lo95": 0.8478066715010987,
+   "hi95": 0.9647271499620689,
+   "observed": 0.8284347771623276,
+   "inside": false,
+   "std_err": 2.465523186740067
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "race",
+   "point": 0.9205835029470796,
+   "lo95": 0.8686719265609394,
+   "hi95": 0.9813222501862116,
+   "observed": 0.8427771594210259,
+   "inside": false,
+   "std_err": 2.7075010244684807
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 24,
+   "variant": "race",
+   "point": 0.9408118903312087,
+   "lo95": 0.8921739103747376,
+   "hi95": 0.9954060691781521,
+   "observed": 0.8611903827849362,
+   "inside": false,
+   "std_err": 3.0234406913426346
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 32,
+   "variant": "race",
+   "point": 0.9516895828454365,
+   "lo95": 0.9052743491025379,
+   "hi95": 1.0,
+   "observed": 0.8734824433841334,
+   "inside": false,
+   "std_err": 3.236419953663489
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 48,
+   "variant": "race",
+   "point": 0.9631677838232119,
+   "lo95": 0.9187048703133224,
+   "hi95": 1.0,
+   "observed": 0.8894503621128157,
+   "inside": false,
+   "std_err": 3.554607689519547
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 64,
+   "variant": "race",
+   "point": 0.9690909411544386,
+   "lo95": 0.9255520522655493,
+   "hi95": 1.0,
+   "observed": 0.9,
+   "inside": false,
+   "std_err": 3.637930897591014
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "S2",
+   "point": 0.8296075247982263,
+   "lo95": 0.7664002664397219,
+   "hi95": 0.8855915414130215,
+   "observed": 0.8034868052912296,
+   "inside": true,
+   "std_err": 0.8590664080937501
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "S2",
+   "point": 0.8578871089347804,
+   "lo95": 0.7973981288448146,
+   "hi95": 0.9127029888720098,
+   "observed": 0.8284347771623276,
+   "inside": true,
+   "std_err": 1.0012859867379802
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "S2",
+   "point": 0.8734498084045976,
+   "lo95": 0.8154233615888936,
+   "hi95": 0.9270104697063366,
+   "observed": 0.8427771594210259,
+   "inside": true,
+   "std_err": 1.077515010865363
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 24,
+   "variant": "S2",
+   "point": 0.8902507102304709,
+   "lo95": 0.8317834151192435,
+   "hi95": 0.94217507085187,
+   "observed": 0.8611903827849362,
+   "inside": true,
+   "std_err": 1.0319302018841587
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 32,
+   "variant": "S2",
+   "point": 0.8992062728521096,
+   "lo95": 0.8437227402136933,
+   "hi95": 0.9498591646245512,
+   "observed": 0.8734824433841334,
+   "inside": true,
+   "std_err": 0.9500735687507395
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 48,
+   "variant": "S2",
+   "point": 0.9087089752010168,
+   "lo95": 0.8534811944831989,
+   "hi95": 0.9587012641094916,
+   "observed": 0.8894503621128157,
+   "inside": true,
+   "std_err": 0.7174844454473129
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 64,
+   "variant": "S2",
+   "point": 0.9140409411544392,
+   "lo95": 0.8492534411544392,
+   "hi95": 0.9723784411544393,
+   "observed": 0.9,
+   "inside": true,
+   "std_err": 0.4470293549271203
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "tail",
+   "point": 0.8663151047405941,
+   "lo95": 0.804513623162531,
+   "hi95": 0.9239846721232919,
+   "observed": 0.8034868052912296,
+   "inside": false,
+   "std_err": 2.061477956240256
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "tail",
+   "point": 0.8974656730032337,
+   "lo95": 0.8360286271521978,
+   "hi95": 0.9491794582115235,
+   "observed": 0.8284347771623276,
+   "inside": false,
+   "std_err": 2.3915079470735296
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "tail",
+   "point": 0.9134285195748669,
+   "lo95": 0.8552366611625807,
+   "hi95": 0.9614322139812859,
+   "observed": 0.8427771594210259,
+   "inside": false,
+   "std_err": 2.607956025012324
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 24,
+   "variant": "tail",
+   "point": 0.9283310382023943,
+   "lo95": 0.8711973931374168,
+   "hi95": 0.9731345540840454,
+   "observed": 0.8611903827849362,
+   "inside": false,
+   "std_err": 2.581898169346067
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 32,
+   "variant": "tail",
+   "point": 0.9340520783720156,
+   "lo95": 0.8817263552558541,
+   "hi95": 0.9768154433487076,
+   "observed": 0.8734824433841334,
+   "inside": false,
+   "std_err": 2.4969528461630377
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 48,
+   "variant": "tail",
+   "point": 0.9359868263990937,
+   "lo95": 0.8824882354210712,
+   "hi95": 0.9856522000189153,
+   "observed": 0.8894503621128157,
+   "inside": true,
+   "std_err": 1.768281596324208
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 64,
+   "variant": "tail",
+   "point": 0.9334409411544377,
+   "lo95": 0.8748562189322161,
+   "hi95": 0.9864187189322162,
+   "observed": 0.9,
+   "inside": true,
+   "std_err": 1.1750228735049446
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "race_tau1",
+   "point": 0.8610631270880159,
+   "lo95": 0.8029426357116214,
+   "hi95": 0.9260125632690541,
+   "observed": 0.8034868052912296,
+   "inside": true,
+   "std_err": 1.8339100861018691
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "race_tau1",
+   "point": 0.8931916009957801,
+   "lo95": 0.8374612851685856,
+   "hi95": 0.9570663345173941,
+   "observed": 0.8284347771623276,
+   "inside": false,
+   "std_err": 2.1223748563225913
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "race_tau1",
+   "point": 0.9108807882500993,
+   "lo95": 0.8577117560460235,
+   "hi95": 0.9715103090971937,
+   "observed": 0.8427771594210259,
+   "inside": false,
+   "std_err": 2.3459544770303413
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 24,
+   "variant": "race_tau1",
+   "point": 0.9300918600885854,
+   "lo95": 0.8777039682189354,
+   "hi95": 0.9878444578168762,
+   "observed": 0.8611903827849362,
+   "inside": false,
+   "std_err": 2.4522661195375166
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 32,
+   "variant": "race_tau1",
+   "point": 0.9404594724120988,
+   "lo95": 0.891411820918461,
+   "hi95": 0.9927104736260165,
+   "observed": 0.8734824433841334,
+   "inside": false,
+   "std_err": 2.59184053066919
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 48,
+   "variant": "race_tau1",
+   "point": 0.9515256862961852,
+   "lo95": 0.9007596983862259,
+   "hi95": 1.0,
+   "observed": 0.8894503621128157,
+   "inside": false,
+   "std_err": 2.4519803632381807
+  },
+  {
+   "panel": "primary",
+   "cohort": "DEV80",
+   "K": 64,
+   "variant": "race_tau1",
+   "point": 0.957490941154439,
+   "lo95": 0.9038020522655498,
+   "hi95": 1.0,
+   "observed": 0.9,
+   "inside": false,
+   "std_err": 2.3427161871218765
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "race",
+   "point": 0.933413336057639,
+   "lo95": 0.9014420017766039,
+   "hi95": 0.9635539605301335,
+   "observed": 0.8957321954793565,
+   "inside": false,
+   "std_err": 2.3781261134108687
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "race",
+   "point": 0.9525784993500996,
+   "lo95": 0.9215327935686952,
+   "hi95": 0.9823016376181987,
+   "observed": 0.9108406667829938,
+   "inside": false,
+   "std_err": 2.6923714976341038
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "race",
+   "point": 0.9622401729391015,
+   "lo95": 0.9336889901156405,
+   "hi95": 0.9903323452105686,
+   "observed": 0.919250132249932,
+   "inside": false,
+   "std_err": 2.9751231935170805
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 24,
+   "variant": "race",
+   "point": 0.9720943627474445,
+   "lo95": 0.9456086126585552,
+   "hi95": 0.9971746679673384,
+   "observed": 0.9298764588017476,
+   "inside": false,
+   "std_err": 3.2093628740095492
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 32,
+   "variant": "race",
+   "point": 0.9771531421804007,
+   "lo95": 0.952399632440453,
+   "hi95": 0.9991085395642583,
+   "observed": 0.9368077665509956,
+   "inside": false,
+   "std_err": 3.385946754182665
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 48,
+   "variant": "race",
+   "point": 0.9823248110982964,
+   "lo95": 0.9577158646695519,
+   "hi95": 1.0,
+   "observed": 0.9451593377828428,
+   "inside": false,
+   "std_err": 3.4454684779061884
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 64,
+   "variant": "race",
+   "point": 0.9849317342038514,
+   "lo95": 0.9574922280310139,
+   "hi95": 1.0,
+   "observed": 0.95,
+   "inside": false,
+   "std_err": 3.221349690569623
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "S2",
+   "point": 0.9006982750125847,
+   "lo95": 0.8716882962846396,
+   "hi95": 0.9373297452224003,
+   "observed": 0.8957321954793565,
+   "inside": true,
+   "std_err": 0.2965661496703526
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "S2",
+   "point": 0.91662964474433,
+   "lo95": 0.8879406466285417,
+   "hi95": 0.9521002605999601,
+   "observed": 0.9108406667829938,
+   "inside": true,
+   "std_err": 0.3536928014957633
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "S2",
+   "point": 0.9245996684555527,
+   "lo95": 0.8953026340404705,
+   "hi95": 0.9589942011252833,
+   "observed": 0.919250132249932,
+   "inside": true,
+   "std_err": 0.32924581519730856
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 24,
+   "variant": "S2",
+   "point": 0.9326644493709157,
+   "lo95": 0.9034021608024627,
+   "hi95": 0.967427324417502,
+   "observed": 0.9298764588017476,
+   "inside": true,
+   "std_err": 0.17069730734076347
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 32,
+   "variant": "S2",
+   "point": 0.9367730998974308,
+   "lo95": 0.9052698540320492,
+   "hi95": 0.970977865963719,
+   "observed": 0.9368077665509956,
+   "inside": true,
+   "std_err": 0.0020681386938815284
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 48,
+   "variant": "S2",
+   "point": 0.9410047075737403,
+   "lo95": 0.9063043204227447,
+   "hi95": 0.9742384477188154,
+   "observed": 0.9451593377828428,
+   "inside": true,
+   "std_err": 0.23973444670457383
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 64,
+   "variant": "S2",
+   "point": 0.9432650675371869,
+   "lo95": 0.9027656848211374,
+   "hi95": 0.9797101292655818,
+   "observed": 0.95,
+   "inside": true,
+   "std_err": 0.3431168480693807
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "tail",
+   "point": 0.931037875451531,
+   "lo95": 0.9026258234933857,
+   "hi95": 0.9637316314464386,
+   "observed": 0.8957321954793565,
+   "inside": false,
+   "std_err": 2.264895435099308
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "tail",
+   "point": 0.9479597667589627,
+   "lo95": 0.9186649249724663,
+   "hi95": 0.9790908118956491,
+   "observed": 0.9108406667829938,
+   "inside": false,
+   "std_err": 2.4080221129526085
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "tail",
+   "point": 0.9553497035002336,
+   "lo95": 0.9263093535325837,
+   "hi95": 0.9850242062194294,
+   "observed": 0.919250132249932,
+   "inside": false,
+   "std_err": 2.41012815029826
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 24,
+   "variant": "tail",
+   "point": 0.9607324610403977,
+   "lo95": 0.9330390695963007,
+   "hi95": 0.9877798388068112,
+   "observed": 0.9298764588017476,
+   "inside": false,
+   "std_err": 2.2096059394116816
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 32,
+   "variant": "tail",
+   "point": 0.9614909806142048,
+   "lo95": 0.9332458283599433,
+   "hi95": 0.9884011592368346,
+   "observed": 0.9368077665509956,
+   "inside": true,
+   "std_err": 1.7542855348605881
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 48,
+   "variant": "tail",
+   "point": 0.9586606836236888,
+   "lo95": 0.9256421262363614,
+   "hi95": 0.988354189509746,
+   "observed": 0.9451593377828428,
+   "inside": true,
+   "std_err": 0.8439409091899299
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 64,
+   "variant": "tail",
+   "point": 0.9540428453149647,
+   "lo95": 0.9164663021050886,
+   "hi95": 0.988688524327311,
+   "observed": 0.95,
+   "inside": true,
+   "std_err": 0.21943320417224238
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "race_tau1",
+   "point": 0.9281935119112082,
+   "lo95": 0.8992828979585981,
+   "hi95": 0.9553694329619832,
+   "observed": 0.8957321954793565,
+   "inside": false,
+   "std_err": 2.2687862675984336
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "race_tau1",
+   "point": 0.9466673296437379,
+   "lo95": 0.9182192965080102,
+   "hi95": 0.9735577155414833,
+   "observed": 0.9108406667829938,
+   "inside": false,
+   "std_err": 2.537848403821712
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "race_tau1",
+   "point": 0.9559529525569357,
+   "lo95": 0.9285617400559669,
+   "hi95": 0.981927454100211,
+   "observed": 0.919250132249932,
+   "inside": false,
+   "std_err": 2.696020435221226
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 24,
+   "variant": "race_tau1",
+   "point": 0.9654322783194097,
+   "lo95": 0.937828629245921,
+   "hi95": 0.9891532797648143,
+   "observed": 0.9298764588017476,
+   "inside": false,
+   "std_err": 2.7156310096632468
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 32,
+   "variant": "race_tau1",
+   "point": 0.9703338737601558,
+   "lo95": 0.9411032441219356,
+   "hi95": 0.9935568384898832,
+   "observed": 0.9368077665509956,
+   "inside": false,
+   "std_err": 2.5054973227957666
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 48,
+   "variant": "race_tau1",
+   "point": 0.9754306691215927,
+   "lo95": 0.9428767631801465,
+   "hi95": 0.9986979029321849,
+   "observed": 0.9451593377828428,
+   "inside": true,
+   "std_err": 2.1257828015517464
+  },
+  {
+   "panel": "primary",
+   "cohort": "POOLED",
+   "K": 64,
+   "variant": "race_tau1",
+   "point": 0.978109511981631,
+   "lo95": 0.9442521045742237,
+   "hi95": 1.0,
+   "observed": 0.95,
+   "inside": true,
+   "std_err": 1.976564068049915
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "race",
+   "point": 0.9842381045245981,
+   "lo95": 0.9639876170861105,
+   "hi95": 0.9988629019863956,
+   "observed": 0.9763978243978244,
+   "inside": true,
+   "std_err": 0.8812515276886461
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "race",
+   "point": 0.9917035234657507,
+   "lo95": 0.9752154477636759,
+   "hi95": 1.0,
+   "observed": 0.9797802197802197,
+   "inside": true,
+   "std_err": 1.885825896776977
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "race",
+   "point": 0.9942272519767695,
+   "lo95": 0.9758739186434352,
+   "hi95": 1.0,
+   "observed": 0.98,
+   "inside": true,
+   "std_err": 2.311640540570472
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "S2",
+   "point": 0.9610894331959269,
+   "lo95": 0.9337704363902629,
+   "hi95": 0.986210756255583,
+   "observed": 0.9763978243978244,
+   "inside": true,
+   "std_err": 1.14432737377568
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "S2",
+   "point": 0.9673849080811359,
+   "lo95": 0.9380483915976194,
+   "hi95": 0.9935149209016488,
+   "observed": 0.9797802197802197,
+   "inside": true,
+   "std_err": 0.8760169866420453
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "S2",
+   "point": 0.9695472519767674,
+   "lo95": 0.9297716964212127,
+   "hi95": 0.9997716964212128,
+   "observed": 0.98,
+   "inside": true,
+   "std_err": 0.5853538893010247
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "tail",
+   "point": 0.9820859895284841,
+   "lo95": 0.9619727022971966,
+   "hi95": 0.998819516594011,
+   "observed": 0.9763978243978244,
+   "inside": true,
+   "std_err": 0.6051434225105815
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "tail",
+   "point": 0.9877970179712448,
+   "lo95": 0.9673239318906592,
+   "hi95": 1.0,
+   "observed": 0.9797802197802197,
+   "inside": true,
+   "std_err": 0.9617389951465709
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "tail",
+   "point": 0.9885872519767686,
+   "lo95": 0.9640739186434353,
+   "hi95": 1.0,
+   "observed": 0.98,
+   "inside": true,
+   "std_err": 0.9369802237777818
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 8,
+   "variant": "race_tau1",
+   "point": 0.9809139864204802,
+   "lo95": 0.9601742036353639,
+   "hi95": 0.9978531533893138,
+   "observed": 0.9763978243978244,
+   "inside": true,
+   "std_err": 0.46984736157501106
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 12,
+   "variant": "race_tau1",
+   "point": 0.9880458311580588,
+   "lo95": 0.9654836516708797,
+   "hi95": 1.0,
+   "observed": 0.9797802197802197,
+   "inside": true,
+   "std_err": 0.9387202925459365
+  },
+  {
+   "panel": "secondary",
+   "cohort": "B22",
+   "K": 16,
+   "variant": "race_tau1",
+   "point": 0.9901872519767692,
+   "lo95": 0.9638083630878792,
+   "hi95": 1.0,
+   "observed": 0.98,
+   "inside": true,
+   "std_err": 1.1034048513998276
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "race",
+   "point": 0.8649950268016693,
+   "lo95": 0.7958414683539443,
+   "hi95": 0.9257182651682414,
+   "observed": 0.7960732323232322,
+   "inside": true,
+   "std_err": 2.0802286550212483
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "race",
+   "point": 0.8987400291890776,
+   "lo95": 0.82457474225379,
+   "hi95": 0.9640336479314457,
+   "observed": 0.8223695054945054,
+   "inside": false,
+   "std_err": 2.1466714615894826
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "race",
+   "point": 0.9177347517950932,
+   "lo95": 0.841490307350648,
+   "hi95": 0.9831569740173146,
+   "observed": 0.8375,
+   "inside": false,
+   "std_err": 2.2201427790830506
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "S2",
+   "point": 0.8319852715569137,
+   "lo95": 0.7662271107825029,
+   "hi95": 0.9072941675683096,
+   "observed": 0.7960732323232322,
+   "inside": true,
+   "std_err": 0.9979310336769948
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "S2",
+   "point": 0.8613704138044622,
+   "lo95": 0.7857378748850484,
+   "hi95": 0.9394820369729607,
+   "observed": 0.8223695054945054,
+   "inside": true,
+   "std_err": 0.9944023792435813
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "S2",
+   "point": 0.8781347517950924,
+   "lo95": 0.7988361406839816,
+   "hi95": 0.9603986406839817,
+   "observed": 0.8375,
+   "inside": true,
+   "std_err": 0.9859232621230907
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "tail",
+   "point": 0.8635244518210936,
+   "lo95": 0.7983197856076772,
+   "hi95": 0.9229290756232171,
+   "observed": 0.7960732323232322,
+   "inside": false,
+   "std_err": 2.1219026318073273
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "tail",
+   "point": 0.8950465127055615,
+   "lo95": 0.8216457617898103,
+   "hi95": 0.9614208877055611,
+   "observed": 0.8223695054945054,
+   "inside": true,
+   "std_err": 2.038230095668517
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "tail",
+   "point": 0.911634751795093,
+   "lo95": 0.8398944740173145,
+   "hi95": 0.9912486406839812,
+   "observed": 0.8375,
+   "inside": false,
+   "std_err": 1.9200543561961039
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 8,
+   "variant": "race_tau1",
+   "point": 0.8595032785499206,
+   "lo95": 0.7907632277211193,
+   "hi95": 0.931182201108843,
+   "observed": 0.7960732323232322,
+   "inside": true,
+   "std_err": 1.770742052942231
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 12,
+   "variant": "race_tau1",
+   "point": 0.8920846445736929,
+   "lo95": 0.8186242698789434,
+   "hi95": 0.9595814585236319,
+   "observed": 0.8223695054945054,
+   "inside": true,
+   "std_err": 1.938768414850283
+  },
+  {
+   "panel": "secondary",
+   "cohort": "DEV80",
+   "K": 16,
+   "variant": "race_tau1",
+   "point": 0.9100847517950932,
+   "lo95": 0.832686140683982,
+   "hi95": 0.9775819740173152,
+   "observed": 0.8375,
+   "inside": true,
+   "std_err": 1.9637019263500703
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "race",
+   "point": 0.9312411810921852,
+   "lo95": 0.8994204318140289,
+   "hi95": 0.9630943001267861,
+   "observed": 0.8962535612535613,
+   "inside": false,
+   "std_err": 2.1539679212473306
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "race",
+   "point": 0.9503864148983412,
+   "lo95": 0.9185522556933479,
+   "hi95": 0.980123557077149,
+   "observed": 0.9098199023199023,
+   "inside": false,
+   "std_err": 2.5827085952956215
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "race",
+   "point": 0.9602305852293569,
+   "lo95": 0.9285089802910855,
+   "hi95": 0.9920737951059004,
+   "observed": 0.9166666666666666,
+   "inside": false,
+   "std_err": 2.686557984370069
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "S2",
+   "point": 0.903709805800809,
+   "lo95": 0.8704407903375346,
+   "hi95": 0.9351101225485335,
+   "observed": 0.8962535612535613,
+   "inside": true,
+   "std_err": 0.45196815284633163
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "S2",
+   "point": 0.9202673550692809,
+   "lo95": 0.8856787246256502,
+   "hi95": 0.9548415756635011,
+   "observed": 0.9098199023199023,
+   "inside": true,
+   "std_err": 0.5921389035155775
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "S2",
+   "point": 0.9289194741182469,
+   "lo95": 0.8863929309083698,
+   "hi95": 0.9693095975750365,
+   "observed": 0.9166666666666666,
+   "inside": true,
+   "std_err": 0.5792684045450623
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "tail",
+   "point": 0.9293919727696435,
+   "lo95": 0.9017545227710826,
+   "hi95": 0.9582518500322986,
+   "observed": 0.8962535612535613,
+   "inside": false,
+   "std_err": 2.2992693537950255
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "tail",
+   "point": 0.9465745711864972,
+   "lo95": 0.9163241356960611,
+   "hi95": 0.9779998326842583,
+   "observed": 0.9098199023199023,
+   "inside": false,
+   "std_err": 2.3360628090611493
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "tail",
+   "point": 0.9543861407849134,
+   "lo95": 0.9232812025133077,
+   "hi95": 0.989531202513308,
+   "observed": 0.9166666666666666,
+   "inside": false,
+   "std_err": 2.231854166694741
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 8,
+   "variant": "race_tau1",
+   "point": 0.9269536718113421,
+   "lo95": 0.8952219607788909,
+   "hi95": 0.9548699218712963,
+   "observed": 0.8962535612535613,
+   "inside": true,
+   "std_err": 2.017578324262686
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 12,
+   "variant": "race_tau1",
+   "point": 0.9453964148983401,
+   "lo95": 0.91223509859119,
+   "hi95": 0.9729824530885446,
+   "observed": 0.9098199023199023,
+   "inside": false,
+   "std_err": 2.2957366697104415
+  },
+  {
+   "panel": "secondary",
+   "cohort": "POOLED",
+   "K": 16,
+   "variant": "race_tau1",
+   "point": 0.9545861407849123,
+   "lo95": 0.9221984864639252,
+   "hi95": 0.9861799679454066,
+   "observed": 0.9166666666666666,
+   "inside": false,
+   "std_err": 2.3232400235456607
+  }
+ ]
+}

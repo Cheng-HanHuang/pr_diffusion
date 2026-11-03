@@ -1,7 +1,9 @@
 """Fig. calibration: registered forecasts against outcomes, six prospective tests (primary variant = race; S2 reference).
 
 Sources (committed comparison JSONs; aggregates only):
-  test 1  FAST-DIPS FFHQ vs v1      XP 07d5460  A8_FAST_V1_COMPARISON.json              (forecast_comparison rows)
+  test 1  FAST-DIPS FFHQ vs v1      XP 07d5460  A8_FAST_V1_COMPARISON.json              (forecast_comparison rows: E0, oracles)
+          test 1 E1_CLIP (frozen face test, A9.2(d), XP 953e2f0), scored by the planner:
+          planner_analysis/A21_nov4_checks/out/A92D_PLANNER_REPRODUCTION.json (comparisons_detail), saved here as test1_fast_ffhq_e1_a92d.json
   test 2  FAST-DIPS ImageNet vs v2/v2 E1, and
   test 5  FAST-DIPS ImageNet vs v4  XP ef1cf10  CP2_V2_V2E1_V4_FORECAST_COMPARISON.json  (keys 'v2', 'v2 E1', 'v4')
   test 3  SITCOM FFHQ vs v1         XP 8798462  XP_B16_V1_V3_PROSPECTIVE_COMPARISON.json (forecast_source == v1)
@@ -9,7 +11,7 @@ Sources (committed comparison JSONs; aggregates only):
   test 6  FAST-DIPS ImageNet, new images, vs v5 (XP 55ba86b), scored by the planner on the complete 64-run panel (XP 2d791c5):
           planner_analysis/A19_xpn_scoring/V5_SCORING_PLANNER.json (variants.<v>.rows), saved here as test6_imagenet_new_v5.json
 E1 rows use the primary decision model (beta_class) where two are registered. Primary panels only, except test 5 (both panels).
-Usage: python3 make_fig_forecast_calibration.py <dir with the five JSONs> <out.pdf>
+Usage: python3 make_fig_forecast_calibration.py <dir with the six JSONs> <out.pdf>
 """
 import json, os, sys
 import matplotlib
@@ -23,6 +25,9 @@ pts = []  # (test, variant, policy, point, lo, hi, observed)
 for r in J("test1_fast_ffhq_v1.json")["forecast_comparison"]:
     if r["panel"] == "primary":
         pts.append((1, r["model_variant"], r["policy"], r["point"], r["lo95"], r["hi95"], r["observed"]))
+for r in J("test1_fast_ffhq_e1_a92d.json")["comparisons_detail"]:
+    if r["panel"] == "primary":
+        pts.append((1, r["variant"], "E1_CLIP", r["point"], r["lo95"], r["hi95"], r["observed"]))
 cp2 = J("test2_5_imagenet_cp2.json")
 for key, test in (("v2", 2), ("v2 E1", 2), ("v4", 5)):
     for r in cp2[key]["comparisons"]:
