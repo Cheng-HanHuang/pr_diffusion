@@ -136,7 +136,7 @@ def main(a):
         fcntl.flock(handle,fcntl.LOCK_EX)
         gate(not run.exists(),"RUN_RACE")
         run.mkdir(mode=0o700)
-        for d in ("logs","pilot","final",*S.PANELS):
+        for d in ("logs","pilot","replicate","final",*S.PANELS):
             (run/d).mkdir()
         before=float(r2["charged_gpu_h"])
         project_base=float(r2["project_gpu_h"])-before
@@ -170,13 +170,16 @@ def main(a):
             state["execution_intervals"]=list(intervals)
             return used
         def save():snapshot();write(run/"XP_C3_A21_CONTROLLER_STATE.json",state)
-        def spawn(gpu,panel,mode,pilot=False):
+        def spawn(gpu,panel,mode,pilot=False,replicate_task=None,replicate_output=None):
             args=[str(ROOT/"conda-envs/daps/bin/python"),
                 str(WT/"scripts/track_r/xp_a29_a21_gpu_worker.py"),
                 "--expected-head",a.expected_head,
                 "--run",str(run),"--panel",panel,
                 "--gpu",str(gpu),"--mode",mode]
             if pilot:args+=["--pilot"]
+            if replicate_task:
+                args+=["--replicate-task",str(replicate_task),
+                       "--replicate-output",str(replicate_output)]
             env=dict(os.environ,CUDA_VISIBLE_DEVICES=str(gpu),
                 PYTHONPATH=str(WT),PYTHONNOUSERSITE="1",
                 PYTHONDONTWRITEBYTECODE="1",
@@ -194,6 +197,7 @@ def main(a):
             finally:out.close()
             v=dict(proc=proc,start=time.monotonic(),gpu=gpu,
                    panel=panel,mode=mode,log=str(log),pilot=pilot,
+                   replicate=bool(replicate_task),
                    signal_sent=False)
             active[proc.pid]=v
             print("A21_WORKER_START",proc.pid,"gpu",gpu,
@@ -419,6 +423,72 @@ def main(a):
             else:
                 state["status"]="A21_XPC3_PRODUCTION_PANELS_DONE"
 
+            # A21.10 independent 32-candidate SHA-smallest UID replication,
+            # on DIFFERENT physical GPU(s); informational, not selection.
+            # Each child uses the same frozen source and scoring path.
+            import hashlib as _hash
+            for panel in list(state["completed_panels"]):
+                all_candidates=[]
+                for chunk in sorted((run/panel).glob("[0-9][0-9][0-9].json")):
+                    doc=read(chunk)
+                    for row in doc["rows"]:
+                        uid=f'XPC3|{panel}|{row["image_id"]}|{row["run"]}'
+                        all_candidates.append((_hash.sha256(uid.encode()).hexdigest(),
+                            uid,int(doc["physical_gpu"]),row))
+                gate(len(all_candidates)==S.SIZES[panel],"REPL_SOURCE_GRID")
+                selection=sorted(all_candidates)[:32]
+                bygpu=defaultdict(list)
+                for _,uid,original,row in selection:
+                    bygpu[(original+1)%4].append((uid,original,row))
+                replication={}
+                for target,selected in sorted(bygpu.items()):
+                    if not can_run(extra=.2):
+                        state.setdefault("replication_pending",[]).append(panel)
+                        break
+                    task=run/"replicate"/f"{panel}_gpu{target}_task.json"
+                    output=run/"replicate"/f"{panel}_gpu{target}_result.json"
+                    write(task,dict(panel=panel,
+                         destination_physical_gpu=target,
+                         source_physical_gpu_by_uid={u:p for u,p,_ in selected},
+                         uids=[u for u,_,_ in selected]))
+                    wait=time.monotonic()
+                    while not ready(cards()[target],peak):
+                        gate(time.monotonic()-wait<900 and can_run(extra=.2),
+                             "REPLICATION_ADMISSION_WAIT")
+                        time.sleep(10)
+                    pid=spawn(target,panel,mode,replicate_task=task,
+                              replicate_output=output)
+                    while pid in active:
+                        finish();time.sleep(2)
+                    r=read(output)
+                    gate(r["status"]=="A21_DIFFERENT_GPU_REPLICATION_PASS"
+                         and r["physical_gpu"]==target
+                         and len(r["rows"])==len(selected),
+                         "REPLICATION_OUTPUT")
+                    replication.update({(x["image_id"],int(x["run"])):x
+                        for x in r["rows"]})
+                if len(replication)==32:
+                    dmax=0.;agree=0
+                    for _,uid,original,row in selection:
+                        key=(row["image_id"],int(row["run"]))
+                        v=replication[key]
+                        dmax=max(dmax,abs(float(row["prior_margin"])-
+                                         float(v["prior_margin"])))
+                        agree+=row["prior_choice"]==v["prior_choice"]
+                    state.setdefault("cross_gpu_replication",{})[panel]=dict(
+                        status="A21_INFORMATIONAL_32_SHA_SMALLEST_PASS",
+                        n=32,max_abs_margin_diff=dmax,
+                        agreeing_choices=agree,
+                        all_choices_agree=agree==32,
+                        SHA256_source_uid_list=[
+                            _hash.sha256(uid.encode()).hexdigest()
+                            for _,uid,_,_ in selection],
+                        different_gpu_for_each=True,
+                        target_gpus=sorted(bygpu))
+                    print("A21_32_UID_DIFFERENT_GPU_REPLICATION",panel,
+                        "max_margin_diff",dmax,
+                        "choice_agreement",agree,"/32",flush=True)
+                    save()
             # Publication of complete panels is independent of later work.
             for panel,p,log in post:
                 rc=p.wait()
