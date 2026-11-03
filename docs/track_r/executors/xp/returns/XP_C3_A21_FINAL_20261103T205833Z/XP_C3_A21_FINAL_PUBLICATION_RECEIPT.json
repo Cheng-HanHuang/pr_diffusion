@@ -1,0 +1,7892 @@
+{
+  "A21_freeze_sha256": "7c53cf3248c53fb0e1a17d003da93f7c7af2fd657d297a29964fcf7345de13f7",
+  "charged_cumulative_gpu_h": 9.75221990668784,
+  "complete_panels": [
+    "XP_N",
+    "G5"
+  ],
+  "configurations": [
+    {
+      "candidates_per_worker_hour": 650.8256663001752,
+      "choice_disagreements_away_from_tie": 0,
+      "eligible_choice_count": 42,
+      "foreign_count": 6,
+      "gpu": 2,
+      "max_abs_dL000": 4.77884895995484e-08,
+      "max_abs_dL111": 4.508183340003191e-08,
+      "measured_peak_mib": 11336,
+      "mode": "B8",
+      "n": 64,
+      "observed_gpu_free_mib": 81793,
+      "observed_gpu_used_mib": 15458,
+      "observed_gpu_utilization_pct": 99,
+      "output_sha256": "a9130e5f59246c12b339c8c61ede13392cfa82ecc7f4d97f0c7bf71338b23241",
+      "pass_equivalence": true,
+      "seconds": 354.0118528357707,
+      "stage": "PILOT"
+    },
+    {
+      "candidates_per_worker_hour": 596.1944688460776,
+      "choice_disagreements_away_from_tie": 0,
+      "eligible_choice_count": 42,
+      "foreign_count": 6,
+      "gpu": 2,
+      "max_abs_dL000": 1.1370866559966275e-07,
+      "max_abs_dL111": 1.4250690579843683e-07,
+      "measured_peak_mib": 36128,
+      "mode": "B32",
+      "n": 64,
+      "observed_gpu_free_mib": 81793,
+      "observed_gpu_used_mib": 15458,
+      "observed_gpu_utilization_pct": 99,
+      "output_sha256": "e1ad525d1b5ee5aa4d9674d6c2fdb88c97973ce91c300ffbabe028bba88b29e9",
+      "pass_equivalence": true,
+      "seconds": 386.4510860792361,
+      "stage": "PILOT"
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 54053,
+        "1": 75015,
+        "2": 40619,
+        "3": 43194
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793730848.541691
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 67297,
+        "1": 88343,
+        "2": 54177,
+        "3": 56676
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793730879.5232427
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 76993,
+        "1": 95495,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793730910.5793009
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 66511,
+        "1": 85011,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793730941.5858276
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 67791,
+        "1": 85013,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793730972.596574
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 67791,
+        "1": 85013,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731003.6921322
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 69089,
+        "1": 85013,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731034.718579
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 69089,
+        "1": 74531,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731065.7641525
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 69109,
+        "1": 64051,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731096.7644613
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 69127,
+        "1": 64053,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731127.8778713
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70409,
+        "1": 64051,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731158.9306872
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70429,
+        "1": 65331,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731189.9521902
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70469,
+        "1": 65331,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731221.11651
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70471,
+        "1": 65351,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731252.1285117
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70491,
+        "1": 65349,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731283.1318343
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70491,
+        "1": 66627,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731314.1410117
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70511,
+        "1": 67927,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731345.1441495
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70513,
+        "1": 67949,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 232.01752535090765,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731376.1762898
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 67989,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731407.1861756
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 67989,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 465.1139187355962,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731438.1463299
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 68009,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 116.04977443936929,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731469.1675065
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 68031,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.77179195296195,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731500.2631593
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 68053,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731531.295001
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 68073,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 232.0471543218119,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731562.3231785
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 68073,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 231.962808879209,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731593.3626354
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 6,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 58507,
+        "2": 63559,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 463.9014125251854,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731624.4037113
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 64136,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731655.5030375
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 64120,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731686.563029
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 64440,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731717.6551383
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76100,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731748.8600123
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731779.9992318
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731811.1422095
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731842.3078465
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731873.4307399
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731904.4774861
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.8072872627345,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731935.5636132
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.83604991203839,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731966.6420243
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 231.71220690699948,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793731997.7150493
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 231.3577760306612,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732028.8356805
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.37833121209582,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732060.037381
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.26304822679533,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732091.2702854
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732122.3866065
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732153.5650892
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732185.0560422
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732216.220859
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732247.3550076
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732278.5429788
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 463.0458838295448,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732309.6414032
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 230.543763691429,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732340.871914
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.67393859487086,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732371.9938781
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 7,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 76198,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.58188411299872,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732403.1406267
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 77079,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732434.2929783
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88025,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732465.567876
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732496.7502372
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732527.9043298
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 7
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 66134
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 231.2301206476846,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732559.0421405
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 67015
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732590.3377395
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 78675
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 461.7343007233605,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732621.5245094
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.34038690112746,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732652.7364707
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 70533,
+        "1": 70533,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 115.441906253306,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732683.9209876
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71132,
+        "1": 70533,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732715.080459
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71414,
+        "1": 70533,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732746.318087
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83094,
+        "1": 71152,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732777.4389226
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83192,
+        "1": 71414,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732808.6400714
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83192,
+        "1": 83074,
+        "2": 88837,
+        "3": 78773
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732839.8955066
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83212,
+        "1": 83172,
+        "2": 88837,
+        "3": 79655
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732871.1282306
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83212,
+        "1": 83172,
+        "2": 88837,
+        "3": 91313
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732902.3769732
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83212,
+        "1": 83172,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732933.631479
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83212,
+        "1": 83172,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732964.8380005
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83192,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793732996.1070216
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83192,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733027.6319926
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83192,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 97,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 459.9934174107542,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733058.9367895
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83212,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 115.22931602413749,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733090.1788378
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83212,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 230.36484828301204,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733121.4336066
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83212,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 114.79495758922322,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733152.7938685
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733184.0429425
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733215.3155742
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 230.19576078217494,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733246.5933003
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733277.8557482
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 97,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 460.4372460697282,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733309.1303701
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733340.402348
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 230.10469319651912,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733371.6924527
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733402.9686067
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733434.2055202
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733465.5203264
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733496.7739062
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733528.0940993
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733559.3654535
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733590.6244996
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733621.9402406
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733653.2851524
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733684.625284
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733715.9163358
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733747.2206023
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733778.528315
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733809.820683
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 230.4737791544173,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733841.0606806
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 230.2414339171561,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733872.3322015
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 88837,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 459.82542619895776,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733903.6484334
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 114.89731586078446,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733934.9807596
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 9
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 91413
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 345.18845276091366,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733966.268016
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793733997.5470943
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 230.08262828074996,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734028.8402002
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734060.1169548
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 230.43775334444453,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734091.3618357
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734122.673788
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734154.0616827
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734185.3267517
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734216.6274416
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734247.8752913
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734279.148587
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734310.8250735
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734342.0868788
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734373.5281687
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734404.777551
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734436.3254144
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734467.594946
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734498.8771098
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734530.156263
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734561.3945582
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 230.12599975799893,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734592.6817653
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 114.7331094102732,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734624.058934
+    },
+    {
+      "completed_images_in_window": 5,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 574.7089083785579,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734655.3791378
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83232,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 115.09288993437721,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734686.658218
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 83232,
+        "2": 89009,
+        "3": 88837
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 458.19849695037976,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734718.0856452
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 76812
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 229.49194272139317,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734749.459296
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64787
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 114.90686386478642,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734780.789018
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64787
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734812.0470595
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64787
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734843.3400087
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64787
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734874.6202934
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64787
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734905.8882678
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 96,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734937.2283058
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734968.5907578
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793734999.877871
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735031.1295235
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735062.3442142
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735093.5671992
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 64959
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735124.8042421
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 65131
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735155.996777
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 65131
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735187.2502124
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 89181,
+        "3": 65131
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735218.4781322
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 77156,
+        "3": 65131
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.08253275594684,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735249.7600303
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 65131,
+        "3": 41080
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 347.3973682904345,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735280.8483481
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 41080,
+        "3": 41080
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 232.05838298013592,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735311.8750234
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71207,
+        "1": 71207,
+        "2": 41080,
+        "3": 41080
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735342.9402921
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 59181,
+        "1": 59181,
+        "2": 41080,
+        "3": 41080
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 231.40406938828994,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735374.0546985
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 47328,
+        "1": 47156,
+        "2": 41080,
+        "3": 41080
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 97,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 232.26942796029033,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_N",
+      "timestamp": 1793735405.0531816
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 37524,
+        "1": 37524,
+        "2": 54771,
+        "3": 43301
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 97,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735451.8978279
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 60894,
+        "1": 60826,
+        "2": 67197,
+        "3": 67197
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735483.0241652
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 89181,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 114.87061500656961,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735514.3637743
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 89181,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735545.940285
+    },
+    {
+      "completed_images_in_window": 9,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 77367,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 1033.6957012536088,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735577.2841313
+    },
+    {
+      "completed_images_in_window": 7,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 77367,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 807.0358338665804,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735608.5095112
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 77367,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 345.85761734245483,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735639.7362342
+    },
+    {
+      "completed_images_in_window": 6,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 77367,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 691.4019520486088,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735670.9771047
+    },
+    {
+      "completed_images_in_window": 7,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 77367,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 803.4686413922825,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735702.3411174
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 77367,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 345.4721272758711,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735733.6026852
+    },
+    {
+      "completed_images_in_window": 5,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78779,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 575.753788387129,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735764.866054
+    },
+    {
+      "completed_images_in_window": 7,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78781,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 805.8218303165725,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735796.1384702
+    },
+    {
+      "completed_images_in_window": 5,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78781,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 575.0969448160339,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735827.4375403
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78801,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 97,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 460.0812876561867,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735858.7363584
+    },
+    {
+      "completed_images_in_window": 7,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78801,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 806.1382602183334,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735889.9965045
+    },
+    {
+      "completed_images_in_window": 8,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78801,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 919.091038056888,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735921.3318121
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78821,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.03556563272483,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735952.6264813
+    },
+    {
+      "completed_images_in_window": 7,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78823,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 803.1848248347897,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793735984.0015757
+    },
+    {
+      "completed_images_in_window": 9,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71379,
+        "1": 71379,
+        "2": 66816,
+        "3": 77156
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 1035.396261000254,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793736015.2939415
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 71379,
+        "1": 71379,
+        "2": 54793,
+        "3": 77156
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793736046.4902194
+    },
+    {
+      "completed_images_in_window": 10,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 35303,
+        "1": 47328,
+        "2": 30742,
+        "3": 41080
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 1146.8725730408041,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "G5",
+      "timestamp": 1793736077.8799336
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 39018,
+        "1": 38981,
+        "2": 34663,
+        "3": 44966
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 97,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736114.4560802
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 48994,
+        "1": 48994,
+        "2": 44475,
+        "3": 54771
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736145.6212494
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78843,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736176.7656407
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78843,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736208.052503
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78843,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736239.3327308
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78843,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736270.6457534
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 78843,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736301.9391856
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 67031,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736333.2663715
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 83404,
+        "1": 83404,
+        "2": 67031,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736364.4936342
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 82008,
+        "1": 83404,
+        "2": 67031,
+        "3": 89181
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736395.7437854
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 92330,
+        "1": 83404,
+        "2": 67031,
+        "3": 77365
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736426.9722137
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 92330,
+        "1": 83404,
+        "2": 67031,
+        "3": 77367
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736458.226044
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 90934,
+        "1": 83404,
+        "2": 67031,
+        "3": 77367
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736489.487828
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 10,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 97224,
+        "1": 83404,
+        "2": 67029,
+        "3": 77367
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736520.7109566
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 89989,
+        "1": 83404,
+        "2": 68445,
+        "3": 77367
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736551.9156542
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 89989,
+        "1": 82008,
+        "2": 68445,
+        "3": 77367
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736583.1512156
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 90161,
+        "1": 92330,
+        "2": 68465,
+        "3": 77365
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736614.3304527
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 90161,
+        "1": 90934,
+        "2": 68465,
+        "3": 78781
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736645.5466533
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 10,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 90161,
+        "1": 97224,
+        "2": 68465,
+        "3": 78781
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736676.7710392
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 90161,
+        "1": 89989,
+        "2": 68485,
+        "3": 66987
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736708.001871
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 89013,
+        "1": 89989,
+        "2": 68487,
+        "3": 66989
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736739.2095063
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 88765,
+        "1": 89989,
+        "2": 68487,
+        "3": 66989
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 115.28962273936958,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736770.4352129
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 88765,
+        "1": 90161,
+        "2": 68507,
+        "3": 66989
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.23621122700247,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736801.6753945
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 9,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 97181,
+        "1": 89025,
+        "2": 68507,
+        "3": 67009
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 230.64443204381456,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736832.892274
+    },
+    {
+      "completed_images_in_window": 5,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 87819,
+        "1": 88765,
+        "2": 68507,
+        "3": 67011
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 577.3162794402889,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736864.0710247
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 9,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 87819,
+        "1": 97181,
+        "2": 68507,
+        "3": 67029
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 115.32048940069771,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736895.2883744
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 87815,
+        "2": 68507,
+        "3": 68445
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 461.7112950502056,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736926.4766934
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68445
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 231.60327996688147,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736957.5643373
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68465
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793736988.571844
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68465
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737019.5704384
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68465
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737050.6400893
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68485
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737081.6562312
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68487
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737112.6880147
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68487
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737143.7825518
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68507
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737174.8804595
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68507
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737205.9214993
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 75794,
+        "1": 75790,
+        "2": 68507,
+        "3": 68507
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737236.9586194
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 64535,
+        "1": 75790,
+        "2": 68507,
+        "3": 68507
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737268.1052437
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 76005,
+        "1": 63822,
+        "2": 68507,
+        "3": 68507
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737299.1691456
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "gpu_used_mib": {
+        "0": 76005,
+        "1": 76001,
+        "2": 68507,
+        "3": 68507
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737330.2867703
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 60553,
+        "1": 60549,
+        "2": 53056,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737361.3482897
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 60553,
+        "1": 60549,
+        "2": 53056,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737392.3375409
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 61967,
+        "1": 60549,
+        "2": 53056,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 232.99110449715369,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737423.2400074
+    },
+    {
+      "completed_images_in_window": 9,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 61987,
+        "1": 61963,
+        "2": 53056,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 1045.8580844045694,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737454.219355
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 61987,
+        "1": 61983,
+        "2": 53056,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 349.25545303918415,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737485.1422787
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62007,
+        "1": 61983,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737516.0786915
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62029,
+        "1": 62003,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737547.0132525
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62029,
+        "1": 62023,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737577.958466
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62029,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 97,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737608.913126
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62029,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737639.8573928
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62029,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737670.7691894
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62029,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.35190167654032,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737701.7098098
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 62913,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 97,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 116.28843444174944,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737732.6673162
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737763.6063306
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 232.56019182017153,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737794.566057
+    },
+    {
+      "completed_images_in_window": 8,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 2
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 53055
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 929.1925990909922,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737825.5607083
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 53959
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 465.12778319782115,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737856.5199413
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 64345
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737887.4751458
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 64345
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737918.528181
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 64345
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737949.5110548
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 64345
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793737980.4863055
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53076,
+        "3": 64365
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738011.4676113
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53096,
+        "3": 64365
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738042.4382164
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53096,
+        "3": 64365
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738073.3944497
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53096,
+        "3": 64365
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.17077322637986,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738104.3833098
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 2,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53096,
+        "3": 64365
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.23994760972654,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738135.3537302
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 3,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 53671,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 114.42390550115165,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738166.8156881
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 3,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 64311,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 464.9418678844106,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738197.7873013
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 3,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 64385,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 348.3977986668394,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738228.78635
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 2,
+        "2": 3,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62025,
+        "2": 64385,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 464.70821848253155,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738259.7735355
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 3,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 62907,
+        "2": 64385,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.10442169339814,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738290.7801068
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 73315,
+        "2": 65268,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 116.1850416147453,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738321.7651625
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 73315,
+        "2": 75602,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 99,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738352.7535808
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 73315,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738383.733453
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73319,
+        "1": 73315,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738414.758353
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73321,
+        "1": 73315,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738445.7518547
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73321,
+        "1": 73317,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738476.785075
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73321,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 115.95450901123947,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738507.8317327
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73321,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738538.8746095
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73321,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.0397888800116,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738569.8984509
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73341,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738600.9527366
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73341,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 231.6984201003769,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738632.0276136
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73341,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 464.0585173340713,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738663.0581827
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73341,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 347.9119918882582,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738694.1005166
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 73341,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 348.4690106285852,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738725.09323
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 62881,
+        "1": 73337,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 232.3012913725691,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738756.0874603
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 62883,
+        "1": 62879,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738787.0875905
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 62883,
+        "1": 62879,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738818.0883372
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 62883,
+        "1": 62879,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738849.1203096
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 62881,
+        "1": 62879,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738880.1477451
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64333,
+        "1": 64157,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738911.1467268
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64353,
+        "1": 64177,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.07576315778022,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738942.1609523
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64353,
+        "1": 64177,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793738973.1201832
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64373,
+        "1": 64197,
+        "2": 75676,
+        "3": 64385
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 99
+      },
+      "image_throughput_per_wall_hour": 116.03014857590959,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739004.1466024
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64397,
+        "1": 64197,
+        "2": 75676,
+        "3": 64557
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739035.1610842
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64397,
+        "1": 64219,
+        "2": 75676,
+        "3": 64557
+      },
+      "gpu_utilization": {
+        "0": 99,
+        "1": 98,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.15985776038588,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739066.152857
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64397,
+        "1": 64219,
+        "2": 75676,
+        "3": 64557
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 99,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 232.17558097964414,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739097.1638691
+    },
+    {
+      "completed_images_in_window": 3,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 64397,
+        "1": 64219,
+        "2": 63651,
+        "3": 52531
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 99,
+        "2": 98,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 348.1943787547707,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739128.1810281
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 52371,
+        "1": 64219,
+        "2": 63651,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 98,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 464.54428422045936,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739159.1791492
+    },
+    {
+      "completed_images_in_window": 4,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 28321,
+        "1": 64219,
+        "2": 27575,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 465.00765113932886,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739190.1463811
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 28321,
+        "1": 64219,
+        "2": 27575,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 99,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739221.058642
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 28321,
+        "1": 64219,
+        "2": 27575,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739251.9662964
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 28321,
+        "1": 64219,
+        "2": 27575,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 98,
+        "1": 98,
+        "2": 97,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739282.8828506
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 28321,
+        "1": 64219,
+        "2": 27575,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739313.8016305
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 16295,
+        "1": 64219,
+        "2": 27747,
+        "3": 28483
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 99,
+        "2": 97,
+        "3": 98
+      },
+      "image_throughput_per_wall_hour": 116.4814914212726,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739344.7078285
+    },
+    {
+      "completed_images_in_window": 2,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 16295,
+        "1": 52193,
+        "2": 27747,
+        "3": 16457
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 232.92941789189257,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739375.618479
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 16295,
+        "1": 52193,
+        "2": 27749,
+        "3": 16457
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739406.504525
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 16295,
+        "1": 52193,
+        "2": 27921,
+        "3": 16457
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739437.3781605
+    },
+    {
+      "completed_images_in_window": 0,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 16295,
+        "1": 52365,
+        "2": 27921,
+        "3": 16457
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 0.0,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739468.2599618
+    },
+    {
+      "completed_images_in_window": 1,
+      "foreign_processes_by_gpu": {
+        "0": 3,
+        "1": 3,
+        "2": 4,
+        "3": 3
+      },
+      "gpu_used_mib": {
+        "0": 16295,
+        "1": 40340,
+        "2": 27923,
+        "3": 16457
+      },
+      "gpu_utilization": {
+        "0": 97,
+        "1": 98,
+        "2": 97,
+        "3": 97
+      },
+      "image_throughput_per_wall_hour": 116.6178573715984,
+      "mode": "B8",
+      "requested_workers_per_gpu": 4,
+      "stage": "XP_D4",
+      "timestamp": 1793739499.130021
+    }
+  ],
+  "cross_gpu_replication": {},
+  "equivalent_batch_passed": true,
+  "error": "WORKER_NONZERO_1908714_A21_NATIVE_MODEL_READY XP_D4 B8 gpu 1 load_s 10.774 time_map {\"300\": {\"frozen_sigma\": 1.240161077894043, \"model_t\": 300}, \"400\": {\"frozen_sigma\": 2.0410869705564174, \"model_t\": 400}, \"500\": {\"frozen_sigma\": 3.4429670645688186, \"model_t\": 500}, \"600\": {\"frozen_sigma\": 6.173505132480712, \"model_t\": 600}}\nA21_IMAGE_ACCEPTED XP_D4 ILSVRC2012_val_00049029.JPEG worker_images 2 peak_reserved_mib 11336\nA21_IMAGE_ACCEPTED XP_D4 ILSVRC2012_val_00049060.JPEG worker_images 4 peak_reserved_mib 11336\nA21_IMAGE_ACCEPTED XP_D4 ILSVRC2012_val_00049085.JPEG worker_images 6 peak_reserved_mib 11336\nA21_WORKER_EXIT XP_D4 B8 gpu 1 completed 7 peak_reserved_mib 11336 wall_s 3341.37 yielded False\n",
+  "expected_head": "27ab90ee1f2b6d68750d8fa9b6d058a50672b6c1",
+  "fallback_to_R2": false,
+  "gpu_occupancy_h_by_gpu": {
+    "0": 2.361281988567983,
+    "1": 2.414753483778073,
+    "2": 2.5013714315363256,
+    "3": 2.3281362449329914
+  },
+  "measured_peak_mib": 11336,
+  "no_2forward_secondary": true,
+  "no_GT_in_scoring": true,
+  "no_matched_compute_claim": true,
+  "oom_events": [],
+  "original_R2_final_sha256": "78324ca8f12479d7abb4d552188bc9df06922f39dbff41ecf483da558b9cae66",
+  "pilot": {
+    "B32": {
+      "candidates_per_worker_hour": 596.1944688460776,
+      "choice_disagreements_away_from_tie": 0,
+      "eligible_choice_count": 42,
+      "foreign_count": 6,
+      "gpu": 2,
+      "max_abs_dL000": 1.1370866559966275e-07,
+      "max_abs_dL111": 1.4250690579843683e-07,
+      "measured_peak_mib": 36128,
+      "mode": "B32",
+      "n": 64,
+      "observed_gpu_free_mib": 81793,
+      "observed_gpu_used_mib": 15458,
+      "observed_gpu_utilization_pct": 99,
+      "output_sha256": "e1ad525d1b5ee5aa4d9674d6c2fdb88c97973ce91c300ffbabe028bba88b29e9",
+      "pass_equivalence": true,
+      "seconds": 386.4510860792361
+    },
+    "B8": {
+      "candidates_per_worker_hour": 650.8256663001752,
+      "choice_disagreements_away_from_tie": 0,
+      "eligible_choice_count": 42,
+      "foreign_count": 6,
+      "gpu": 2,
+      "max_abs_dL000": 4.77884895995484e-08,
+      "max_abs_dL111": 4.508183340003191e-08,
+      "measured_peak_mib": 11336,
+      "mode": "B8",
+      "n": 64,
+      "observed_gpu_free_mib": 81793,
+      "observed_gpu_used_mib": 15458,
+      "observed_gpu_utilization_pct": 99,
+      "output_sha256": "a9130e5f59246c12b339c8c61ede13392cfa82ecc7f4d97f0c7bf71338b23241",
+      "pass_equivalence": true,
+      "seconds": 354.0118528357707
+    }
+  },
+  "postprocess": [],
+  "prior_R2_gpu_h": 0.1466767578724668,
+  "production_mode": "B8",
+  "project_gpu_h": 241.83056486580588,
+  "raw_internal_ledger_sha256": "70593ec09d85948470b225746c43338559644ecc54e4bfad1658cfbd84a506b7",
+  "replication_pending": [],
+  "rescored_chunks": 0,
+  "skipped_panels": [],
+  "source_sha256": "298b88cdd8f4880fe35fd727c6d7c874dabcd9d09da55cd40a469788d5d19b27",
+  "status": "STOP_A21_XPC3_REQUIRES_RECONCILIATION",
+  "worker_hours_info_only": 36.225639793804795,
+  "worker_records": [
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1568894,
+      "pilot": true,
+      "rc": 0,
+      "wall_seconds": 374.0279569621198,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B32",
+      "panel": "XP_N",
+      "pid": 1582266,
+      "pilot": true,
+      "rc": 0,
+      "wall_seconds": 404.0314429891296,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620936,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 785.9615699513815,
+      "was_yielded": true
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620935,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3874.333616692107,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620780,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3916.07030755328,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1676128,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3130.0108616729267,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620938,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3921.422147436999,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620485,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4431.917171615642,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620536,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4432.005921497941,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620486,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4442.331428450998,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620537,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4437.191638394725,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620779,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4468.248361238278,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620937,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4468.276727123186,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620483,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4551.096837752033,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620484,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4551.094859773293,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620535,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4566.663042694796,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620534,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4571.82547890814,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620777,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4592.493101983797,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_N",
+      "pid": 1620778,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 4592.463878512848,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904391,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 563.0433659423143,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904392,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 568.268540232908,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904393,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 568.2650602622889,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904394,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 573.4736083447933,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904018,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 599.6142214103602,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904126,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 625.6348868650384,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904019,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 636.0586229721084,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904016,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 641.3936341730878,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904127,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 636.1806953600608,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904124,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 641.3806769843213,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904338,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 636.0853752796538,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904017,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 651.8306722580455,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904125,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 646.6089752223343,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904339,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 641.313101539854,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904336,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 646.4981463709846,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "G5",
+      "pid": 1904337,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 651.6780126560479,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908770,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 827.5528393629938,
+      "was_yielded": true
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908771,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 843.1067094113678,
+      "was_yielded": true
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908397,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3039.663045111578,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908559,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3039.6571481092833,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908716,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3044.8090614499524,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908394,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3060.357580666896,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908773,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3044.73723561503,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908556,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3075.83974029636,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908558,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3075.8328404631466,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908713,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3075.800812232308,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908715,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3080.9996484471485,
+      "was_yielded": false
+    },
+    {
+      "gpu": 2,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908772,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3080.9253783528693,
+      "was_yielded": false
+    },
+    {
+      "gpu": 0,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1914633,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 2081.7576020951383,
+      "was_yielded": false
+    },
+    {
+      "gpu": 3,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908398,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3287.1368373008445,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1914936,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 2076.2913015121594,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908396,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3400.3767493409105,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908557,
+      "pilot": false,
+      "rc": 0,
+      "wall_seconds": 3420.9292791197076,
+      "was_yielded": false
+    },
+    {
+      "gpu": 1,
+      "mode": "B8",
+      "panel": "XP_D4",
+      "pid": 1908714,
+      "pilot": false,
+      "rc": -10,
+      "wall_seconds": 3417.735501731746,
+      "was_yielded": true
+    }
+  ],
+  "yield_events": [
+    {
+      "gpu": 1,
+      "reason": "GPU_FREE_BELOW_4G"
+    },
+    {
+      "gpu": 0,
+      "reason": "GPU_FREE_BELOW_4G"
+    },
+    {
+      "gpu": 1,
+      "reason": "GPU_FREE_BELOW_4G"
+    },
+    {
+      "gpu": 1,
+      "reason": "PANEL_COMPLETE"
+    }
+  ]
+}
