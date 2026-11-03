@@ -1,0 +1,20 @@
+{
+  "A21_execution_head": "27ab90ee1f2b6d68750d8fa9b6d058a50672b6c1",
+  "A21_freeze_sha256": "7c53cf3248c53fb0e1a17d003da93f7c7af2fd657d297a29964fcf7345de13f7",
+  "complete_panels_only": true,
+  "independent_two_copies_sha256": [
+    "ab20baf1eb59ca9a4ffce2803faa04cdad65d6e864332b200ff0ad59a05aaf1e",
+    "ab20baf1eb59ca9a4ffce2803faa04cdad65d6e864332b200ff0ad59a05aaf1e"
+  ],
+  "local_offline_receipt_sha256": "9451f7349c43b282d654e06f9a8b7e542065c65c43f576055e1fe506e480ac50",
+  "n_candidates": 800,
+  "n_images": 100,
+  "no_GT_in_prior_scoring": true,
+  "no_matched_compute_claim": true,
+  "original_A20_manifest_sha256": "298b88cdd8f4880fe35fd727c6d7c874dabcd9d09da55cd40a469788d5d19b27",
+  "original_A20_score_freeze_sha256": "83b330eabcf9eee3a0502d1fc1e25379196618478098fb7266aaedb7d9122d6c",
+  "panel": "G5",
+  "published_while_remaining_panels_may_be_scoring": true,
+  "source_decision_csv_sha256": "ab20baf1eb59ca9a4ffce2803faa04cdad65d6e864332b200ff0ad59a05aaf1e",
+  "status": "A21_XPC3_COMPLETE_PANEL_PUBLISHED"
+}
