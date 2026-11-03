@@ -1,0 +1,64 @@
+{
+  "R2_64_smoke_sha256": "6ea72df7a1a57307da9cd2dc06230f8aa4efaa081881bf4632993987b0a81031",
+  "R2_final_receipt_sha256": "78324ca8f12479d7abb4d552188bc9df06922f39dbff41ecf483da558b9cae66",
+  "R2_implementation_head": "c80308aaa026114dff1ee5accc239acbb75f9777",
+  "allowed_gpus": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "batch_options": [
+    8,
+    32
+  ],
+  "batch_per_single_t_only": true,
+  "code_sha256": {
+    "scripts/track_r/xp_a29_a21_controller.py": "8a8dbfaade17c5a020937a04fcf94116ff70121f75cd3f1ad5286c17f708c54b",
+    "scripts/track_r/xp_a29_a21_final_publish.py": "e01c2b657d488e7e649f5ddbca92393c4fb6b1f5530892052e92b750fb05bd9a",
+    "scripts/track_r/xp_a29_a21_gpu_worker.py": "b55d70d58154ed0c94aff263da44500ae5d9e91fd070d6bd94144991dc022743",
+    "scripts/track_r/xp_a29_a21_publish_cpu.py": "18cc59fc8006e1b7b496daec96cfe5b3fe78863c42c0e18959ed4bc75d94e88e",
+    "scripts/track_r/xp_a29_a21_settings.py": "f46dc22dfcdbe9670431e6689486e77fa8f7e2de10c5617043c546fc219c6380",
+    "scripts/track_r/xp_a29_xpi2_cpu_publish.py": "3035235c79a7726fd19647490d4d08f5a525c18b1859f7954005492c0597eada",
+    "tests/test_track_r_xp_a29_a21.py": "d3c0ccc534e0956b60e826a5bcd847f43243ff89237a514cc73662241bd4502f"
+  },
+  "controller_sha256": "8a8dbfaade17c5a020937a04fcf94116ff70121f75cd3f1ad5286c17f708c54b",
+  "equivalence_failure_fallback_original_R2": true,
+  "gpu_hour_unit": "per-GPU union of XP-C3 process lifetimes; summed over physical GPUs",
+  "gpu_occupancy_cap_h": 56.0,
+  "hard_deadline_unix": 1794762000.0,
+  "headroom_multiplier": 1.25,
+  "main_text_deadline_unix": 1793984400.0,
+  "max_per_gpu": 8,
+  "model_sha256": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1",
+  "native_checkpoint_path": "/egr/research-pac/huang248/models/imagenet256.pt",
+  "no_precision_or_cuda_flag_or_compilation_change": true,
+  "one_time_image_chunks_atomic_claims": true,
+  "original_A20_scoring_freeze_sha256": "83b330eabcf9eee3a0502d1fc1e25379196618478098fb7266aaedb7d9122d6c",
+  "panel_order": [
+    "XP_N",
+    "G5",
+    "XP_D4"
+  ],
+  "panel_sizes": {
+    "G5": 800,
+    "XP_D4": 6400,
+    "XP_N": 6400
+  },
+  "pilot_max_L_diff": 1e-05,
+  "pilot_max_gpu_occupancy_h": 2.0,
+  "pilot_max_seconds": 1800,
+  "pilot_min_abs_margin_for_choice": 1e-05,
+  "planner_A21_head": "c5aacd7",
+  "prior_R2_charged_gpu_h": 0.1466767578724668,
+  "prior_science": "sole S_mid global2; 300,400,500,600 x j=0..3; paired original CPU noise; exact native t; margin L000-L111 choice 111 iff >1e-7",
+  "prior_sha256": "3382552620b8e87dbf016c0664122869e259b38c772ad13401e3341475ca1ac0",
+  "project_gpu_hard_cap": 400.0,
+  "required_extra_mib": 8192,
+  "settings_sha256": "f46dc22dfcdbe9670431e6689486e77fa8f7e2de10c5617043c546fc219c6380",
+  "skip_before_first_chunk_if_unaffordable": true,
+  "source_sha256": "298b88cdd8f4880fe35fd727c6d7c874dabcd9d09da55cd40a469788d5d19b27",
+  "status": "A21_XPC3_FROZEN_BEFORE_PILOT",
+  "worker_sha256": "b55d70d58154ed0c94aff263da44500ae5d9e91fd070d6bd94144991dc022743",
+  "yield_if_free_below_mib": 4096
+}
