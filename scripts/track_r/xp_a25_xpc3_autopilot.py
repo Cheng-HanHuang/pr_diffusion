@@ -22,6 +22,10 @@ SIZES={"XP_N":6400,"G5":800,"XP_D4":6400}
 CAP_H=8.
 PROJECT_H=400.
 RESERVE_H=.025
+ALLOWED_PHYSICAL_GPUS=(1,2,3)
+ORIGINAL_HEAD="25152a3d6ffcc4611f45d12bf24d891331976d91"
+RECOVERY_REL="docs/track_r/executors/xp/XP_C3_A20_RECOVERY_R1.json"
+PREVIOUS_FAILED_RUN=BASE/"xp_a25_xpc3_prod_20261103T002834Z"
 REQUEST_MIB=24576
 MARGIN_MIB=4096
 STOP=False
@@ -91,7 +95,42 @@ def preflight(a):
         baseline=float(rd(unique[0])["project_total_gpu_h"])
     gate(0<baseline and baseline+CAP_H<=PROJECT_H,
          "PROJECT_400_CAP")
-    return baseline
+    regpath=WT/RECOVERY_REL
+    gate(git("ls-files","--error-unmatch",RECOVERY_REL)==RECOVERY_REL
+         and regpath.is_file(),"R1_RECOVERY_REGISTRATION_COMMITTED")
+    reg=rd(regpath)
+    oldpath=PREVIOUS_FAILED_RUN/"XP_C3_A20_FINAL_STATUS.json"
+    gate(oldpath.is_file() and sha(oldpath)==reg["failed_final_sha256"],
+         "PRIOR_ATTEMPT_LEDGER_SHA")
+    old=rd(oldpath)
+    attempts=old["attempts"]
+    prior=float(old["charged_gpu_h"])
+    gate(reg["status"]=="A20_XPC3_ZERO_OUTPUT_R1_CODE_RECOVERY"
+         and reg["source_manifest_sha256"]==fr["source_manifest_sha256"]
+         and reg["original_freeze_sha256"]==sha(WT/FREEZE)
+         and reg["original_execution_head"]==ORIGINAL_HEAD
+         and reg["allowed_physical_gpus"]==list(ALLOWED_PHYSICAL_GPUS)
+         and reg["scientific_definition_unchanged"] is True
+         and old["status"]=="STOP_A20_XPC3_UNVERIFIED_OR_BUDGET"
+         and old["completed_panels"]==[]
+         and old["source_manifest_sha256"]==reg["source_manifest_sha256"]
+         and old["scorer_freeze_sha256"]==sha(WT/FREEZE)
+         and len(attempts)==1
+         and attempts[0]["gpu"]==0
+         and attempts[0]["panel"]=="XP_N"
+         and attempts[0]["limit"]==1
+         and attempts[0]["rc"]==8
+         and abs(prior-attempts[0]["wall_seconds"]/3600.)<1e-7
+         and abs(prior-reg["failed_charged_gpu_h"])<1e-10
+         and abs(old["project_gpu_h"]-baseline-prior)<1e-6
+         and abs(old["project_gpu_h"]-reg["failed_project_gpu_h"])<1e-8
+         and not list((PREVIOUS_FAILED_RUN/"XP_N").glob("*.json"))
+         and not list((PREVIOUS_FAILED_RUN/"G5").glob("*.json"))
+         and not list((PREVIOUS_FAILED_RUN/"XP_D4").glob("*.json"))
+         and 0<prior<.01,"R1_ONLY_ZERO_OUTPUT_FOUR_SECOND_FAILURE")
+    gate(prior+CAP_H-prior<=CAP_H and baseline+CAP_H<=PROJECT_H,
+         "RECOVERY_G7_AND_PROJECT_BUDGET")
+    return baseline,prior,reg
 
 def is_track_r(pid):
     try:
@@ -103,8 +142,9 @@ def is_track_r(pid):
 
 def gpu():
     cards=collect()
-    avail=[c for c in cards if c.visibility=="known" and
-       not any(is_track_r(p) for p in c.foreign_pids)]
+    avail=[c for c in cards if c.index in ALLOWED_PHYSICAL_GPUS
+           and c.visibility=="known" and
+           not any(is_track_r(p) for p in c.foreign_pids)]
     return choose_gpu(avail,REQUEST_MIB,safety_margin_mib=MARGIN_MIB,
                       fraction=.80,clean_only=False)[0]
 
@@ -117,6 +157,7 @@ def spawn(panel,limit,run,head,index,remaining_sec):
         g=gpu()
         if g is None:
             time.sleep(15)
+    gate(g in ALLOWED_PHYSICAL_GPUS,"NO_GPU_0")
     env=os.environ.copy()
     env.update(CUDA_VISIBLE_DEVICES=str(g),PYTHONPATH=str(WT),
        PYTHONNOUSERSITE="1",PYTHONDONTWRITEBYTECODE="1",
@@ -178,10 +219,12 @@ def main(a):
     with LOCK.open("a+") as f:
         print("A20_XPC3_WAIT_SHARED_PROJECT_LEDGER_LOCK",flush=True)
         fcntl.flock(f,fcntl.LOCK_EX)
-        base=preflight(a)
+        base,previous_charge,registration=preflight(a)
         if a.preflight_only:
             print("A20_XPC3_CONTROLLER_PREFLIGHT_PASS",
                "project_gpu_h",base,"capacity_gpu_h",CAP_H,
+               "previous_failed_gpu_h",previous_charge,
+               "allowed_gpus",ALLOWED_PHYSICAL_GPUS,
                "panels",SIZES,flush=True)
             return
         run.mkdir(mode=0o700)
@@ -190,7 +233,11 @@ def main(a):
         state=dict(status="A20_XPC3_RUNNING",start_project_gpu_h=base,
              source_manifest_sha256=sha(WT/SRC),
              scorer_freeze_sha256=sha(WT/FREEZE),
-             cap_gpu_h=CAP_H,charged_gpu_h=0.,
+             cap_gpu_h=CAP_H,charged_gpu_h=previous_charge,
+             failed_prior_gpu_h=previous_charge,
+             recovery_registry_sha256=sha(WT/RECOVERY_REL),
+             failed_original_ledger_sha256=registration["failed_final_sha256"],
+             admitted_physical_gpus=list(ALLOWED_PHYSICAL_GPUS),
              completed_panels=[],attempts=[],
              no_GT_scoring=True,no_secondary_prior=True)
         def save():
