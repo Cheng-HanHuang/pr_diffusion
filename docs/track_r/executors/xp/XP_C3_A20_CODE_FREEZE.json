@@ -1,0 +1,51 @@
+{
+  "alpha_schedule": "frozen_alpha_schedule()",
+  "budget_cap_gpu_h": 8.0,
+  "checkpoint_path": "/egr/research-pac/huang248/models/imagenet256.pt",
+  "checkpoint_sha256": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1",
+  "code_stage": "BEFORE_FIRST_XPC3_CANDIDATE_SCORE",
+  "decision_threshold_exclusive": 1e-07,
+  "draws": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "image_and_noise_pairing": true,
+  "n_candidates": 13600,
+  "no_2forward_secondary": true,
+  "orientations": [
+    "000",
+    "111"
+  ],
+  "original_prior_score_sha256": "3382552620b8e87dbf016c0664122869e259b38c772ad13401e3341475ca1ac0",
+  "panel_order": [
+    "XP_N",
+    "G5",
+    "XP_D4"
+  ],
+  "planner_commit": "a6ea8cc",
+  "prior_definition": "S_mid global2 only; A20.3",
+  "prior_margin": "L000-L111",
+  "project_cap_gpu_h": 400.0,
+  "science_fixed_before_scoring": true,
+  "scorer_script": "scripts/track_r/xp_a25_xpc3_mid_gpu.py",
+  "scorer_script_sha256": "a6d37d9c4bd319a91cbe4704d8e3f4ac468517f0a56070c83bd6c5c565c980ce",
+  "seed_rule": "prior_seed(uid,t,j)",
+  "sizes": {
+    "G5": 800,
+    "XP_D4": 6400,
+    "XP_N": 6400
+  },
+  "source_manifest_path": "docs/track_r/executors/xp/theory_inputs/XP_C3_A20_SOURCE_MANIFEST.json",
+  "source_manifest_sha256": "298b88cdd8f4880fe35fd727c6d7c874dabcd9d09da55cd40a469788d5d19b27",
+  "status": "A20_XPC3_OPTION_B_S_MID_GLOBAL2_ONLY",
+  "tie_choice": "000",
+  "timesteps": [
+    300,
+    400,
+    500,
+    600
+  ],
+  "uid_rule": "XPC3|<panel>|<image_id>|<run>"
+}
