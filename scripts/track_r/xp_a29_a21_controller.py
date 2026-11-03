@@ -302,7 +302,22 @@ def main(a):
                          charged()-before<S.PILOT_MAX_OCCUPANCY_GPU_H,
                          "PILOT_OVER_CAP")
                     time.sleep(2)
-                result=read(run/"pilot"/f"{mode}.json")
+                result_path=run/"pilot"/f"{mode}.json"
+                if not result_path.is_file():
+                    # CUDA OOM is a nonviable batch setting, not evidence
+                    # about the estimator. Do not pretend equivalence passed.
+                    gate(any(x["mode"]==mode and x["pilot"] and
+                             x["rc"]!=0 for x in history),
+                         "MISSING_SUCCESSFUL_PILOT_OUTPUT")
+                    state["pilot"][mode]=dict(
+                        mode=mode,pass_equivalence=False,
+                        error="PILOT_GPU_OOM_NO_NUMERICAL_EQUIVALENCE",
+                        candidate_count=0)
+                    state["configurations"].append(dict(
+                        stage="PILOT",**state["pilot"][mode]))
+                    print("A21_PILOT_MODE_NOT_VIABLE",mode,flush=True)
+                    save();continue
+                result=read(result_path)
                 gate(result["status"]=="A21_PILOT_BATCH_COMPLETE"
                      and result["source_sha256"]==S.SOURCE_SHA
                      and result["candidate_count"]==64,
