@@ -25,6 +25,9 @@ RESERVE_H=.025
 ALLOWED_PHYSICAL_GPUS=(1,2,3)
 ORIGINAL_HEAD="25152a3d6ffcc4611f45d12bf24d891331976d91"
 RECOVERY_REL="docs/track_r/executors/xp/XP_C3_A20_RECOVERY_R1.json"
+RECOVERY_R2_REL="docs/track_r/executors/xp/XP_C3_A20_RECOVERY_R2.json"
+R1_HEAD="eac8b4e044f04e513d136081d5c398da480bd550"
+R1_FAILED_RUN=BASE/"xp_a25_xpc3_prod_r1_20261103T163302Z"
 PREVIOUS_FAILED_RUN=BASE/"xp_a25_xpc3_prod_20261103T002834Z"
 REQUEST_MIB=24576
 MARGIN_MIB=4096
@@ -108,10 +111,14 @@ def preflight(a):
     gate(reg["status"]=="A20_XPC3_ZERO_OUTPUT_R1_CODE_RECOVERY"
          and reg["source_manifest_sha256"]==fr["source_manifest_sha256"]
          and reg["original_freeze_sha256"]==sha(WT/FREEZE)
-         and reg["corrected_scorer_sha256"]==sha(
-             WT/"scripts/track_r/xp_a25_xpc3_mid_gpu.py")
-         and reg["corrected_controller_sha256"]==sha(
-             WT/"scripts/track_r/xp_a25_xpc3_autopilot.py")
+         and reg["corrected_scorer_sha256"]==hashlib.sha256(
+              subprocess.check_output(["git","-C",str(WT),"show",
+                  R1_HEAD+":scripts/track_r/xp_a25_xpc3_mid_gpu.py"],
+                  timeout=60)).hexdigest()
+         and reg["corrected_controller_sha256"]==hashlib.sha256(
+              subprocess.check_output(["git","-C",str(WT),"show",
+                  R1_HEAD+":scripts/track_r/xp_a25_xpc3_autopilot.py"],
+                  timeout=60)).hexdigest()
          and reg["original_execution_head"]==ORIGINAL_HEAD
          and reg["allowed_physical_gpus"]==list(ALLOWED_PHYSICAL_GPUS)
          and reg["scientific_definition_unchanged"] is True
@@ -134,7 +141,53 @@ def preflight(a):
          and 0<prior<.01,"R1_ONLY_ZERO_OUTPUT_FOUR_SECOND_FAILURE")
     gate(prior+CAP_H-prior<=CAP_H and baseline+CAP_H<=PROJECT_H,
          "RECOVERY_G7_AND_PROJECT_BUDGET")
-    return baseline,prior,reg
+    gate(git("ls-files","--error-unmatch",RECOVERY_R2_REL)==RECOVERY_R2_REL,
+         "R2_REGISTRATION_MUST_BE_COMMITTED")
+    r2=rd(WT/RECOVERY_R2_REL)
+    r1_final=R1_FAILED_RUN/"XP_C3_A20_FINAL_STATUS.json"
+    r1_log=R1_FAILED_RUN/"logs"/"XP_N_1.log"
+    gate(r1_final.is_file() and r1_log.is_file() and
+         sha(r1_final)==r2["failed_r1_final_sha256"] and
+         sha(r1_log)==r2["failed_r1_worker_log_sha256"],
+         "R2_FAILED_R1_RECEIPTS")
+    r1=rd(r1_final)
+    r1attempts=r1["attempts"]
+    total_prior=float(r1["charged_gpu_h"])
+    gate(r2["status"]=="A20_XPC3_ZERO_OUTPUT_R2_IMPORT_RECOVERY"
+         and r2["source_manifest_sha256"]==fr["source_manifest_sha256"]
+         and r2["original_freeze_sha256"]==sha(WT/FREEZE)
+         and r2["r1_registration_sha256"]==sha(WT/RECOVERY_REL)
+         and r2["r1_scorer_sha256"]==reg["corrected_scorer_sha256"]
+         and r2["r1_controller_sha256"]==reg["corrected_controller_sha256"]
+         and r2["corrected_scorer_sha256"]==sha(
+            WT/"scripts/track_r/xp_a25_xpc3_mid_gpu.py")
+         and r2["corrected_controller_sha256"]==sha(
+            WT/"scripts/track_r/xp_a25_xpc3_autopilot.py")
+         and r2["allowed_physical_gpus"]==list(ALLOWED_PHYSICAL_GPUS)
+         and r2["scientific_definition_unchanged"] is True
+         and r2["original_execution_head"]==ORIGINAL_HEAD
+         and r2["r1_execution_head"]==R1_HEAD
+         and r1["status"]=="STOP_A20_XPC3_UNVERIFIED_OR_BUDGET"
+         and r1["completed_panels"]==[]
+         and r1["source_manifest_sha256"]==fr["source_manifest_sha256"]
+         and r1["scorer_freeze_sha256"]==sha(WT/FREEZE)
+         and r1["recovery_registry_sha256"]==sha(WT/RECOVERY_REL)
+         and len(r1attempts)==1
+         and r1attempts[0]["panel"]=="XP_N"
+         and r1attempts[0]["limit"]==1
+         and r1attempts[0]["gpu"] in ALLOWED_PHYSICAL_GPUS
+         and r1attempts[0]["rc"]==8
+         and abs(total_prior-prior-r1attempts[0]["wall_seconds"]/3600.)<1e-7
+         and abs(total_prior-r2["failed_total_gpu_h"])<1e-10
+         and abs(r1["project_gpu_h"]-baseline-total_prior)<1e-6
+         and abs(r1["project_gpu_h"]-r2["failed_project_gpu_h"])<1e-8
+         and not list((R1_FAILED_RUN/"XP_N").glob("*.json"))
+         and not list((R1_FAILED_RUN/"G5").glob("*.json"))
+         and not list((R1_FAILED_RUN/"XP_D4").glob("*.json"))
+         and 0<total_prior<.02,
+         "R2_ONLY_ZERO_OUTPUT_SECOND_FAILURE_AND_TOTAL_BUDGET")
+    gate(baseline+CAP_H<=PROJECT_H,"R2_G7_AND_GLOBAL_CAP")
+    return baseline,total_prior,r2
 
 def is_track_r(pid):
     try:
@@ -244,8 +297,9 @@ def main(a):
              scorer_freeze_sha256=sha(WT/FREEZE),
              cap_gpu_h=CAP_H,charged_gpu_h=previous_charge,
              failed_prior_gpu_h=previous_charge,
-             recovery_registry_sha256=sha(WT/RECOVERY_REL),
-             failed_original_ledger_sha256=registration["failed_final_sha256"],
+             recovery_registry_sha256=sha(WT/RECOVERY_R2_REL),
+             failed_original_ledger_sha256=registration["failed_r1_final_sha256"],
+             failed_original_original_ledger_sha256=rd(WT/RECOVERY_REL)["failed_final_sha256"],
              admitted_physical_gpus=list(ALLOWED_PHYSICAL_GPUS),
              completed_panels=[],attempts=[],
              no_GT_scoring=True,no_secondary_prior=True)
