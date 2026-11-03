@@ -63,6 +63,9 @@ def validate(a):
          "A21_PUSHED_CODE_AND_CONSTANTS")
     r2final=R2_RUN/"XP_C3_A20_FINAL_STATUS.json"
     gate(r2final.is_file(),"R2_FINAL_MISSING")
+    gate(reg["R2_final_receipt_sha256"]==digest(r2final)
+         and reg["R2_64_smoke_sha256"]==digest(R2_RUN/"XP_N"/"000.json"),
+         "FROZEN_R2_BASELINE_HASH")
     r2=read(r2final)
     gate(r2["status"]=="A20_XPC3_COMPLETE_PANELS_BUDGET_STOP"
          and r2["completed_panels"]==[]
