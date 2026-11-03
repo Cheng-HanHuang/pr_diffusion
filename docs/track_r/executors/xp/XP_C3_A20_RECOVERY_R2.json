@@ -1,0 +1,48 @@
+{
+  "allowed_physical_gpus": [
+    1,
+    2,
+    3
+  ],
+  "checkpoint_sha256": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1",
+  "corrected_controller_sha256": "d55affce1d445627f5598c71deeb51f3d5a4cb96fc2154e88a5ede89a1fc5d5b",
+  "corrected_scorer_sha256": "0762f706399634b5429f5da50da023758f5b3b12b6fa1efffd39e5b33cc7a086",
+  "disallowed_physical_gpus": [
+    0
+  ],
+  "draws": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "exact_only_S_mid_global2": true,
+  "failed_candidate_outputs": 0,
+  "failed_project_gpu_h": 232.08056854013137,
+  "failed_r0_final_sha256": "ad4e3d741671c10fcc68e7d552eb3ef9aa34af56c716cec22a62b4ff8c4f41c0",
+  "failed_r0_worker_log_sha256": "a7707fb17d193c20d6092d7c30e62550f2c61a39d27150d2f079d80b4f427351",
+  "failed_r1_final_sha256": "cbeb445628188b078db0e7cb5b48db8d86f847984049a70d390422570e8a8c72",
+  "failed_r1_worker_log_sha256": "fbabb83da52b03ce1715dcbbb7b19f9979914bf2def50ae1896683347202615d",
+  "failed_total_gpu_h": 0.0022235810133214625,
+  "no_2forward_secondary": true,
+  "original_execution_head": "25152a3d6ffcc4611f45d12bf24d891331976d91",
+  "original_freeze_sha256": "83b330eabcf9eee3a0502d1fc1e25379196618478098fb7266aaedb7d9122d6c",
+  "original_scorer_sha256": "a6d37d9c4bd319a91cbe4704d8e3f4ac468517f0a56070c83bd6c5c565c980ce",
+  "original_stage_cap_gpu_h": 8.0,
+  "project_cap_gpu_h": 400.0,
+  "r1_controller_sha256": "7868ed026d886147af38bfd709d91233075135661e683e88f95162cef1d28bf1",
+  "r1_execution_head": "eac8b4e044f04e513d136081d5c398da480bd550",
+  "r1_registration_sha256": "36d5bf1ab93c41260da6aa8cb5b8dba695c8ab081a2614d28e1867ea99cfbd00",
+  "r1_scorer_sha256": "50f073f81ad2fd02e74a86bfcdbc9ad7e64f6986b196426a216e8aafd367ab72",
+  "remaining_gpu_h": 7.997776418986678,
+  "scientific_definition_unchanged": true,
+  "scoring_not_performed_before_this_registration": true,
+  "source_manifest_sha256": "298b88cdd8f4880fe35fd727c6d7c874dabcd9d09da55cd40a469788d5d19b27",
+  "status": "A20_XPC3_ZERO_OUTPUT_R2_IMPORT_RECOVERY",
+  "timesteps": [
+    300,
+    400,
+    500,
+    600
+  ]
+}
