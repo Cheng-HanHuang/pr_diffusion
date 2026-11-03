@@ -326,11 +326,15 @@ def main(a):
                      and result["candidate_count"]==64,
                      "PILOT_64_SCHEMA")
                 diff=pilot_compare(ref,result)
+                obs=cards()[gpu]
                 diff.update(mode=mode,gpu=gpu,
                     seconds=result["seconds"],
                     candidates_per_worker_hour=64*3600/result["seconds"],
                     measured_peak_mib=result["peak_reserved_mib"],
-                    foreign_count=len(cards()[gpu].foreign_pids),
+                    foreign_count=len(obs.foreign_pids),
+                    observed_gpu_used_mib=obs.used_mib,
+                    observed_gpu_free_mib=obs.free_mib,
+                    observed_gpu_utilization_pct=obs.utilization_pct,
                     output_sha256=digest(run/"pilot"/f"{mode}.json"))
                 state["pilot"][mode]=diff
                 state["configurations"].append(dict(
