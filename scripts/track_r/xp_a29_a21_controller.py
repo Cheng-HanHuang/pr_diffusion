@@ -509,6 +509,24 @@ def main(a):
                 state["gpu_occupancy_hours"]=state["charged_gpu_h"]
                 state["worker_hours_info_only"]=state["worker_hours"]
                 write(run/"XP_C3_A21_FINAL_STATUS.json",state)
+                # Final audit is returned on an independent branch. A
+                # publication error never causes fresh GPU scoring.
+                try:
+                    log=run/"logs"/"A21_FINAL_PUBLICATION.log"
+                    with log.open("x") as output:
+                        subprocess.run([sys.executable,
+                            str(WT/"scripts/track_r/xp_a29_a21_final_publish.py"),
+                            "--expected-head",a.expected_head,
+                            "--run",str(run)],
+                            cwd=str(WT),
+                            env=dict(os.environ,CUDA_VISIBLE_DEVICES="",
+                                PYTHONPATH=str(WT),PYTHONDONTWRITEBYTECODE="1"),
+                            stdout=output,stderr=subprocess.STDOUT,
+                            check=True,timeout=180)
+                    print("A21_FINAL_PUBLICATION_PASS",log,flush=True)
+                except Exception as pub_exc:
+                    print("ACTION NEEDED: A21_FINAL_PUBLICATION",
+                          str(pub_exc),flush=True)
                 print("A21_XPC3_TERMINAL",state["status"],
                       "complete",state["completed_panels"],
                       "skipped",state["skipped_panels"],
