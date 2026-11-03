@@ -680,7 +680,54 @@
 >     - **Filling GPU memory to the limit.** Throughput here comes from the share of compute time, which grows with the number of busy workers and the work per call, not with memory: GPU 2 had about 75 GB free during the smoke. Memory held beyond what the workers use adds no speed, and it makes out-of-memory failures likely, for XP-C3 workers and for co-tenants alike.
 >     - **Scoring only G and O_g candidates.** This is exact for `prior_chosen_good`, because C, I and O_p candidates are not GOOD under either orientation. It is unnecessary at this ceiling, and complete panels keep the descriptive comparison with CLIP.
 
-**Status:** FROZEN v1.1 with amendments A1–A21 (planner, 2026-11-03).
+> **Amendment A22 (planner, 2026-11-03 17:07 ET): XP-C3 and XP-I2 accepted; outcomes recorded; the A21 controller stop recorded as an engineering incident.** Written after the XP-C3 publications (XP `91fe7a3` XP-N, `a6c6a64` G5, `591a28f` XP-D4), the A21 final audit (`424399f`), the XP-I2 scoring (`1eae9bf`) and the executor's Issue #46 reports. The planner reproduced every number below.
+> 1. **XP-C3 is accepted.**
+>    - **Compute:**
+>      - freeze `27ab90e` (13:10 ET, ten minutes before the run directory; the push time cannot be confirmed from GitHub's event feed);
+>      - B8 pilot passed (max |ΔL| 4.8e-8; no disagreement among the 42 candidates with R2 |margin| > 1e-5);
+>      - production B8, 4 workers on each of GPUs 0–3, 9.75 GPU-occupancy hours of the 56 ceiling (36.2 worker-hours);
+>      - 4 yields, no out-of-memory exit, no rescored chunk; project ledger 241.83 GPU-h.
+>    - **The controller stop is an engineering incident.** It ended with `STOP_A21_XPC3_REQUIRES_RECONCILIATION`: a late SIGUSR1 reached a worker that had already exited normally.
+>      - Cheng's read-only audit found all 300 image chunks valid.
+>      - The frozen CPU publisher published G5 and XP-D4 with no GPU work.
+>      - No score changed, and all three panels count as complete.
+>    - **Not run:** the A21.10 cross-GPU replicate. Nothing is claimed about it.
+>    - **Planner checks:**
+>      - all 13,600 rows read;
+>      - labels equal the frozen strings;
+>      - the threshold rule holds in every row;
+>      - wherever the prior and the CLIP test chose the same orientation, their ground-truth outcomes agree.
+> 2. **XP-C3 outcome (exploratory, as registered in A20.6).** E1-prior against E1-CLIP, exact subset estimator, % of images with a GOOD output; paired image bootstrap.
+>
+>    | Panel | K | E1-CLIP | E1-prior | Prior − CLIP [95%] |
+>    |---|---|---|---|---|
+>    | XP-N (new images, FAST) | 4 | 45.6 | 49.4 | +3.8 [+0.9, +7.0] |
+>    | | 16 | 54.2 | 59.5 | +5.3 [+1.1, +9.8] |
+>    | | 64 | 61.0 | 66.0 | +5.0 [−1.0, +11.0] |
+>    | XP-D4 (FAST) | 4 / 16 / 64 | 50.7 / 60.6 / 65.0 | 50.4 / 60.6 / 66.0 | −0.4 / +0.1 / +1.0, each interval containing 0 |
+>    | G5 (DAPS-4K) | 4 / 8 | 70.2 / 77.0 | 71.6 / 78.0 | +1.4 / +1.0, each interval containing 0 |
+>
+>    - **On the new images** the prior test is ahead at every K. It cuts the orientation loss at K = 64 from 7.0 to 2.0 points.
+>    - **On the first image set** the two tests are within 1.5 points at every K.
+>    - **Status:** reported in Sec. 6 and S4 as exploratory. It is not adopted: protocol v1 keeps the CLIP test, and A19.3 (no new selector or protocol before submission) stands.
+> 3. **XP-I2 is accepted** (A15.5 form; planner reproduction exact to 3.6e-15).
+>    - **PC-DAPS on the 100 ImageNet images, one bag of 4 particles:**
+>      - native mean over particles: 30.75% GOOD20, 17.40 dB;
+>      - E0: 37%;
+>      - E1: 53%, 21.50 dB;
+>      - O_orbit: 55%.
+>    - **E1 − native:** +22.25 points [+14.8, +30.0], +4.11 dB [+2.61, +5.64].
+>    - **DAPS-4K, compute-labeled, not matched:** one run with the test 55%; two runs 63%.
+>    - **Placement:** main text (Sec. 6 and the abstract) and S4.
+> 4. **Next, unchanged:**
+>    - Tab. 3 E1 columns (A7 ZIP, Nov 6);
+>    - XP-K;
+>    - the rest of G7;
+>    - CP4 (Nov 15).
+>
+>    The A21.10 replicate may run on an otherwise idle GPU (≤ 0.2 GPU-h), for information only.
+
+**Status:** FROZEN v1.1 with amendments A1–A22 (planner, 2026-11-03).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

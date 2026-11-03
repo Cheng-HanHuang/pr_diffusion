@@ -1,6 +1,18 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-11-03)
 
-> **Nineteenth update, 2026-11-03, 12:34 ET** (the newest; read it first).
+> **Twentieth update, 2026-11-03, 17:07 ET** (the newest; read it first).
+> - **XP-C3 done** (A22): all 13,600 candidates; 9.75 of 56 GPU-h; project ledger 241.8 of 400.
+>   - **New images:** the prior's own orientation test beats generic CLIP at every K, +5.3 points at K = 16 [+1.1, +9.8]. Orientation loss at K = 64 falls from 7 to 2 points.
+>   - **First image set:** the two tests are equal within 1.5 points.
+>   - **Status:** exploratory, reported, not adopted.
+> - **XP-I2 done:** PC-DAPS on ImageNet, selection over the same particles 30.75% → 53% GOOD ([+14.8, +30.0]). This is the strongest composition result and is now in the abstract.
+> - **Paper:** still 8 pages, after small trims (two low-value sentences; the enclosure numbers moved to the supplement). Supplement 21 pages.
+> - **Remaining before the Nov 8 go/no-go:**
+>   - Tab. 3 E1 columns (Nov 6);
+>   - theory's final S1–S3 (Nov 6);
+>   - XP-K and the rest of G7 (supplement).
+>
+> **Nineteenth update, 2026-11-03, 12:34 ET**.
 > - **XP-C3 stopped at its 8 GPU-h ceiling with no complete panel.** The smoke ran at about 8 s per candidate on a GPU shared with seven other jobs, so the projection for XP-N alone was 14 GPU-h.
 > - **A21 (Cheng's instruction):**
 >   - ceiling 56 GPU-h, GPUs 0–3, up to 8 workers per GPU;

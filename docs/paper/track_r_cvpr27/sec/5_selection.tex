@@ -49,7 +49,7 @@ On the new images of test 6 it is $75\%$ at $64$ runs against $88\%$ forecast, w
 6 & FAST-DIPS, ImageNet$'$ & $4\to64$ & 10/10 & 0/10 & 3/10 \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Registered forecasts against outcomes.} ImageNet$'$: $100$ new images. Points covered by the $95\%$ predictive interval for the selected run ($\Eo$, and $\Eone$ where registered) and for the oracles ($\Oraw$, $\Oorb$), over cohorts and $K$. Points within a test are correlated across $K$, so the tests, not the points, are the units of evidence. Test~1 is analyzed below\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}\claim{C-N3}.}
+\caption{\textbf{Registered forecasts against outcomes.} ImageNet$'$: $100$ new images. Points covered by the $95\%$ predictive interval for the selected run ($\Eo$, and $\Eone$ where registered) and for the oracles ($\Oraw$, $\Oorb$), over cohorts and $K$. Points within a test are correlated across $K$, so the tests, not the points, are the units of evidence.\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}\claim{C-N3}.}
 \label{tab:forecasts}
 \end{table}
 
@@ -63,14 +63,13 @@ Six of the seven never produced a measurement-consistent run\claim{C-F5}; on Ima
 
 \paragraph{Why a few runs cannot see unsolved images.}
 Four runs per image identify only the first four moments of the per-image mixture: two mixtures that agree on every four-run count can differ by $9.6$ points in $\Oraw$ at $K{=}64$\claim{C-T8}.
-In our data, the set of population values of $\Oraw(64)$ consistent with the four-run counts is $[0.870,1]$ for cohort~A and $[0.611,1]$ for cohort~B (an outer enclosure under a joint $95\%$ confidence region for the counts; exploratory)\claim{C-B1}.
+In our data, the four-run counts confine the population $\Oraw(64)$ of cohort~B only to $[0.611,1]$ (an outer enclosure; exploratory; supplement)\claim{C-B1}.
 Whether an image is hard or hopeless is decided by the mass near zero success, and that mass is exactly what a few runs cannot identify.
-Sixteen runs per image did not suffice either (test 5).
 Nor does the protocol's $\textsc{flag}_C$ isolate unsolved images (\cref{sec:protocol}); their share can only be reported by running enough runs per image to see it.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig/forecast_calibration.pdf}
-\caption{\textbf{Registered forecasts against outcomes, six prospective tests.} Each point is one cohort, $K$ and policy; filled points with bars are the race model's forecasts and $95\%$ predictive intervals, hollow points the exchangeable-ranks reference (S2). Left: the selected run. Right: the oracles, i.e.\ whether any run is good; most fall below the diagonal, where coverage was overestimated\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}. Best-of-$K$ curves per test are in the supplement.}
+\caption{\textbf{Registered forecasts against outcomes, six prospective tests.} Each point is one cohort, $K$ and policy: filled, the race model's forecast with its $95\%$ predictive interval; hollow, the exchangeable-ranks reference (S2). Left: the selected run. Right: the oracles (whether any run is good); most fall below the diagonal, where coverage was overestimated\claim{C-F1}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}.}
 \label{fig:calib}
 \end{figure}

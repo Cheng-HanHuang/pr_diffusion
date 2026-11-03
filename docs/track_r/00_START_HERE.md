@@ -14,6 +14,14 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-03, 17:07 (planner): XP-C3 and XP-I2 complete, reproduced and in the paper (A22).**
+  - **XP-C3:** 13,600 candidates in 9.75 GPU-occupancy hours.
+    - On the new images, the prior's own orientation test beats generic CLIP by 5 points (K = 16: +5.3 [+1.1, +9.8]).
+    - On the first image set the two tests are equal within 1.5 points.
+    - The controller stop was an engineering incident (late signal); all panels are complete.
+  - **XP-I2:** PC-DAPS on ImageNet, 30.75% → 53% GOOD by selecting among the same particles ([+14.8, +30.0]). Now in the abstract.
+  - **Paper:** still 8 pages after trims. Supplement 21 pages, with S3 from theory `2619eec` and two stale S2 sentences resolved.
+  - **Notes, round 18:** [`executors/xp/18_PLANNER_NOTES_20261103_PM.md`](executors/xp/18_PLANNER_NOTES_20261103_PM.md) and [`executors/theory/18_PLANNER_GUIDANCE_20261103_PM.md`](executors/theory/18_PLANNER_GUIDANCE_20261103_PM.md).
 - **2026-11-03, 12:34 (planner): XP-C3 compute approved (A21).**
   - Ceiling 56 GPU-h; GPUs 0–3; up to 8 workers per GPU; batching at fixed t, with an equivalence test fixed in advance; 8 GiB of free memory kept per GPU; GPU-occupancy-hour accounting; skip rule so G5 can run when XP-N cannot.
   - Main text if returned by Nov 6, 12:00 ET; hard stop Nov 15.

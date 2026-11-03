@@ -139,6 +139,37 @@ FAST-DIPS, ImageNet$'$ & 64 & 75.0 & 68.0 & 61.0 & 7.0 & 0.0 & 3.0 & 4.0 & 0.0 \
 \label{tab:s4-decomp}
 \end{table}
 
+\paragraph{The prior's own orientation test (exploratory).}
+By \cref{M-sec:setup}, the Bayes choice within an orbit orders its members like the prior.
+Before any score existed (amendment of 2026-11-02, 21:50 UTC), we fixed a test that ranks $\hat x$ and $R_{111}\hat x$ by the ImageNet denoiser's own loss: $L_s$ is the mean, over $t\in\{300,400,500,600\}$ and four noise draws per $t$, of the per-pixel squared error of the $\epsilon$-prediction for $\sqrt{\bar\alpha_t}R_s\hat x+\sqrt{1-\bar\alpha_t}R_s\epsilon$, with the same draws rotated with the image ($32$ forward passes per candidate), and the test outputs $R_{111}\hat x$ if $L_{000}-L_{111}>10^{-7}$.
+It was applied to every candidate of the three ImageNet panels, $13{,}600$ in all.
+\Cref{tab:s4-prior} compares $\Eone$ with this test against $\Eone$ with the generic test, both with the exact subset estimator.
+On the new images the prior test is ahead at every $K$, by $1.9$ to $5.3$ points.
+At the candidate level it flips $6.3\%$ of \good runs, against $11.2\%$, and fixes $82.8\%$ of global orbit errors, against $78.1\%$.
+On the first image set the two tests are within $1.5$ points at every $K$ for both solvers; there the prior test flips $10.4\%$ of FAST-DIPS's \good runs (CLIP $8.2\%$) and fixes $85.2\%$ of its global orbit errors (CLIP $86.8\%$).
+The intervals are image-bootstrap intervals at three values of $K$ on three panels, not a registered test.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+Solver, data & $K$ & $\Eo$ & $\Eone$, CLIP & $\Eone$, prior & Prior $-$ CLIP ($95\%$) & $\Oorb$ \\
+\midrule
+FAST-DIPS, ImageNet & 4 & 34.8 & 50.7 & 50.4 & $-0.4$ $[-3.3,+2.5]$ & 59.6 \\
+ & 16 & 43.6 & 60.6 & 60.6 & $+0.1$ $[-3.2,+3.4]$ & 71.9 \\
+ & 64 & 50.0 & 65.0 & 66.0 & $+1.0$ $[-3.0,+5.0]$ & 78.0 \\
+DAPS-4K, ImageNet & 4 & 50.2 & 70.2 & 71.6 & $+1.4$ $[-2.6,+5.4]$ & 75.4 \\
+ & 8 & 58.0 & 77.0 & 78.0 & $+1.0$ $[-4.0,+6.0]$ & 82.0 \\
+FAST-DIPS, ImageNet$'$ & 4 & 35.9 & 45.6 & 49.4 & $+3.8$ $[+0.9,+7.0]$ & 56.9 \\
+ & 16 & 46.3 & 54.2 & 59.5 & $+5.3$ $[+1.1,+9.8]$ & 66.9 \\
+ & 64 & 52.0 & 61.0 & 66.0 & $+5.0$ $[-1.0,+11.0]$ & 75.0 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Orientation by the prior against the generic CLIP test} (exploratory; \% of images with a \good output). Exact averages over all $K$-subsets of each image's runs; paired image bootstrap, $10{,}000$ replicates. ImageNet$'$: the $100$ new images.}
+\label{tab:s4-prior}
+\end{table}
+
 \paragraph{PC-DAPS on the same measurements.}
 One PC-DAPS bag (four interacting particles, its own FFHQ phase-retrieval configuration) was drawn for each of the $180$ FFHQ measurements.
 PC-DAPS reports the mean of its particles' metrics, the quality of a random particle; we compare it with residual selection ($\Eo$) and residual selection plus the face orientation test ($\Eone$) over the same particles (\cref{tab:s4-pcdaps}).
@@ -169,6 +200,34 @@ DAPS-4K, protocol ($N_{\max}=8$) & & & & 94.0 & 11{,}213 & 185$^*$ \\
 \end{tabular}}
 \caption{\textbf{PC-DAPS and DAPS-4K on the $180$ FFHQ measurements} (descriptive). Paired image-bootstrap intervals (20{,}000 replicates). Denoiser calls are nominal: DAPS-4K uses $400$ annealing steps with $10$ ODE steps each; a PC-DAPS bag uses $4\times(130+70\cdot5)$, and its logged count, which omits some pruning cost, averages $1{,}928$. Seconds: sampling only, batch 1, measured on one otherwise idle GPU on three images; $^*$linear extrapolation from the per-run time.}
 \label{tab:s4-pcdaps}
+\end{table}
+
+On the $100$ ImageNet measurements (one bag each, PC-DAPS with its ImageNet model; \good at $20$\,dB), bags often contain rotated particles: of the $400$ particles, $76$ are global and $3$ partial orbit errors, and PC-DAPS's own outcome rule calls $131$ ``upside down or color inverted''.
+Residual selection alone adds $6.25$ points to the random-particle share, and the generic orientation test adds $16$ more (\cref{tab:s4-pcdaps-in}); $\Eone$ keeps a \good particle in $9$ of the $10$ bags that mix orbit-\good and other particles, and in $44$ of the $45$ bags whose particles are all orbit-\good.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Policy & PSNR (dB) & SSIM & LPIPS (VGG) & \good (\%) & Denoiser calls \\
+\midrule
+PC-DAPS, mean over particles (as reported) & 17.40 & 0.402 & 0.467 & 30.8 & 1{,}920 \\
+PC-DAPS, $\Eo$ over particles & 18.05 & 0.413 & 0.454 & 37.0 & 1{,}920 \\
+PC-DAPS, $\Eone$ over particles & 21.50 & 0.512 & 0.376 & 53.0 & 1{,}920 \\
+$\Eone$ minus mean, $95\%$ interval & $[+2.61,+5.64]$ & $[+.067,+.155]$ & $[-.126,-.057]$ & $[+14.8,+30.0]$ & \\
+PC-DAPS, four-particle orbit oracle & & & & 55.0 & \\
+\midrule
+DAPS-4K, one run & 18.04 & & & 39.0 & 4{,}000 \\
+DAPS-4K, fixed $\Eone$, $K=1$ & 21.25 & & & 55.0 & 4{,}000 \\
+DAPS-4K, fixed $\Eone$, $K=2$ & 22.00 & & & 63.0 & 8{,}000 \\
+DAPS-4K, protocol ($N_{\max}=8$) & & & & 63.9 & 9{,}618 \\
+DAPS-4K, fixed $\Eone$, $K=8$ & 24.06 & & & 77.0 & 32{,}000 \\
+\bottomrule
+\end{tabular}}
+\caption{\textbf{PC-DAPS and DAPS-4K on the $100$ ImageNet measurements} (descriptive). As \cref{tab:s4-pcdaps}, with the generic CLIP test and \good at $20$\,dB. No wall-clock times were measured on ImageNet; the compute labels are not a matched-compute comparison.}
+\label{tab:s4-pcdaps-in}
 \end{table}
 
 \paragraph{Published operating points.}

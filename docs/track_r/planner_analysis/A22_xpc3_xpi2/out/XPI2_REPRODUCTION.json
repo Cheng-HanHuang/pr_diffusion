@@ -1,0 +1,106 @@
+{
+ "status": "PLANNER_XPI2_REPRODUCTION",
+ "checks": {
+  "upright_same": 236,
+  "g1_good_consistent": 400,
+  "policy_metric_compared": 20
+ },
+ "policy_max_abs_diff_vs_executor": 3.552713678800501e-15,
+ "aggregates": {
+  "FIRST_PARTICLE": {
+   "PSNR": 17.21414355225155,
+   "SSIM": 0.40092771995812654,
+   "VGG_LPIPS": 0.4675220462679863,
+   "GOOD20": 0.3
+  },
+  "PC_NATIVE_MEAN4": {
+   "PSNR": 17.396635650344432,
+   "SSIM": 0.4023354287166148,
+   "VGG_LPIPS": 0.46732551691588015,
+   "GOOD20": 0.3075
+  },
+  "E0": {
+   "PSNR": 18.04917808751468,
+   "SSIM": 0.41287697035819293,
+   "VGG_LPIPS": 0.4539166652597487,
+   "GOOD20": 0.37
+  },
+  "E1_G1": {
+   "PSNR": 21.50403882803873,
+   "SSIM": 0.512118742391467,
+   "VGG_LPIPS": 0.37619853211566806,
+   "GOOD20": 0.53
+  },
+  "O_RAW": {
+   "PSNR": 18.95230075108683,
+   "GOOD20": 0.4
+  },
+  "O_ORBIT": {
+   "PSNR": 22.5708188036525,
+   "GOOD20": 0.55
+  }
+ },
+ "bootstrap_E1_minus_native": {
+  "PSNR": {
+   "point": 4.107403177694292,
+   "lo95": 2.613892785519566,
+   "hi95": 5.63524117901082
+  },
+  "SSIM": {
+   "point": 0.10978331367485225,
+   "lo95": 0.06682614772440865,
+   "hi95": 0.1547509047405327
+  },
+  "VGG_LPIPS": {
+   "point": -0.09112698480021209,
+   "lo95": -0.12598240043502298,
+   "hi95": -0.05743041758297487
+  },
+  "GOOD20": {
+   "point": 0.2225,
+   "lo95": 0.1475,
+   "hi95": 0.3
+  }
+ },
+ "bag_anatomy": {
+  "all_good": 21,
+  "none_good": 60,
+  "mixed": 19,
+  "mixed_E1_good": 19,
+  "mixed_expected_random": 9.75
+ },
+ "R0_labels": {
+  "C": 59,
+  "G": 123,
+  "O_g": 76,
+  "I": 139,
+  "O_p": 3
+ },
+ "PC_labels": {
+  "FAILED": 69,
+  "FAITHFUL": 200,
+  "UPSIDE_DOWN_OR_COLOR_INVERTED": 131
+ },
+ "daps_comparators_GOOD20": {
+  "DAPS_RUN0": {
+   "planner": 0.39,
+   "executor": 0.39,
+   "per_image_identical": true
+  },
+  "DAPS_E1_K1": {
+   "planner": 0.55,
+   "executor": 0.55,
+   "per_image_identical": true
+  },
+  "DAPS_E1_K2": {
+   "planner": 0.63,
+   "executor": 0.63,
+   "per_image_identical": true
+  },
+  "DAPS_E1_K8": {
+   "planner": 0.77,
+   "executor": 0.77,
+   "per_image_identical": true
+  }
+ }
+}

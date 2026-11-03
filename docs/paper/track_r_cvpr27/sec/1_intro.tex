@@ -35,10 +35,10 @@ The symmetry is classical; its consequence for selection is that the within-orbi
 \paragraph{A ground-truth-free protocol.}
 These findings define a procedure (\cref{fig:teaser}a, \cref{sec:protocol}).
 It draws runs until $M$ of them reach the solver's own consistency level, keeps the run with the smallest residual, and corrects its orientation; it flags images on which no run becomes consistent and outputs whose orientation the test is unsure of.
-Each component is simple; we add evidence for each, an exact account of what stopping costs and buys, and where it helps: where failures are inconsistent rather than consistent-but-wrong.
+We give evidence for each component and an exact account of when stopping helps: where failures are inconsistent rather than consistent-but-wrong.
 We froze it, with four falsifiable hypotheses, before evaluating it on eleven held-out panels, two of them on new images\claim{C-G1}\claim{C-N1}.
 With $8$ to $16$ runs it gained $3.4$--$3.9$ points over fixed best-of-$K$ at equal mean runs for DAPS on FFHQ, as a theory note had predicted before scoring; where failed runs fit the measurement it was neutral within sampling error, though it missed its one-point no-loss test once, by half a point, on the new images; and with $32$--$64$ runs on ImageNet it fell behind on both image sets, because a few images that never produce a consistent run absorb the budget\claim{C-N2}.
-The same selection also improves the concurrent PC-DAPS~\cite{kocabas2026pcdaps}: choosing among its particles, instead of reporting their average quality, raises its share of good images from $79.0\%$ to $84.4\%$ at no extra cost\claim{C-X1}.
+The same selection also improves the concurrent PC-DAPS~\cite{kocabas2026pcdaps}: choosing among its particles, instead of reporting their average quality, raises its share of good images from $79.0\%$ to $84.4\%$ on FFHQ and from $31\%$ to $53\%$ on ImageNet, at no extra cost\claim{C-X1}\claim{C-X5}.
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]

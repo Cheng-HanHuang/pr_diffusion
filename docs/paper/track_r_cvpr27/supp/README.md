@@ -5,16 +5,16 @@
 pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 ```
 
-**Result.** 20 pages: S3 has the dated test-6 addendum; S4 includes the ImageNet four-run table and the image-disjoint panel; **new S6 shows all 15 images without a good run** (two float pages). No LaTeX errors, no undefined references, no overfull boxes.
+**Result.** 21 pages (2026-11-03, evening: S4 adds the prior orientation test, XP-C3, and PC-DAPS on ImageNet, XP-I2): S3 has the dated test-6 addendum; S4 includes the ImageNet four-run table and the image-disjoint panel; **new S6 shows all 15 images without a good run** (two float pages). No LaTeX errors, no undefined references, no overfull boxes.
 
 ## Sources
 
 | File | Source | Planner integration edits |
 |---|---|---|
 | `TH_SUPPL_S1_PROTOCOL_THEORY_DROPIN_20261029.tex` | Theory `7e5c4b8` (round 12: the earlier integration edits adopted upstream; "equal mean runs" wording; H-G1 denominators named; a post-hoc label-free τ paragraph; round 13: typo fixed; round 15: a dated note on N-H1a) | None: identical to the theory file. |
-| `TH_SUPPL_S2_RELOCATED_SOURCE_VERBATIM_20261030.tex` | Theory `061c618` | References to main-paper labels prefixed `M-` (`\externaldocument[M-]{../main}`). |
+| `TH_SUPPL_S2_RELOCATED_SOURCE_VERBATIM_20261030.tex` | Theory `061c618` | References to main-paper labels prefixed `M-` (`\externaldocument[M-]{../main}`). **2026-11-03:** two stale empirical sentences resolved with committed data: the ImageNet orbit-error share (XP-D4 `ef1cf10`, G5 `1981dea`, XP-N `2d791c5` strings) and ImageNet orientation (C-A11; the prior test, `tab:s4-prior`). |
 | `TH_SUPPL_S2_PROOFS_AUDIT_20261030.tex` | Theory `061c618` | <ul><li>"planner-confirmed" → "in the pinned source".</li><li>An internal code path replaced by "the lightweight SITCOM reimplementation in our code base" (overfull line, double-blind).</li><li>The internal paragraph "Remaining source/figure checks for paper integration" commented out.</li></ul> |
-| `TH_SUPPL_S3_COMPLETE_DRAFT_20261102.tex` | Theory `7e5c4b8`. Its prefix is byte-identical to the integrated 20261031 copy (whose `\n` and double-blind fixes the theory executor adopted); a dated test-6 addendum follows | None: identical to the theory file. |
+| `TH_SUPPL_S3_COMPLETE_DRAFT_20261102.tex` | Theory `2619eec` (round 17: one dated sentence on test 1's E1 points, checked against the planner's numbers); before that `7e5c4b8`. Its prefix is byte-identical to the integrated 20261031 copy (whose `\n` and double-blind fixes the theory executor adopted); a dated test-6 addendum follows | None: identical to the theory file. |
 | `S4_PROTOCOL_EMPIRICAL.tex` | **Planner** (new), generated from `docs/track_r/planner_analysis/A16_cp3_and_exploratory/out/` | — |
 | `SUPP_UNSOLVED_IMAGES.tex` (renders as S6) | **Planner** (new, 2026-11-03), from the 15 Nov 4 panels (XP `953e2f0`; SHA-256 checked against the receipt; tiles cropped losslessly by `../fig/unsolved/crop_tiles.py`) | — |
 | `supp.tex` (wrapper) | Planner | Restates the orbit lemma (`lem:orbit`), since the main text no longer contains it; inputs S4. |
@@ -31,7 +31,7 @@ pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 ## Open items (before Nov 23)
 
 1. **Done (theory `4f5fad0`):** the integration edits are adopted upstream; S1 uses "equal mean runs" and names its H-G1 denominators. S2 audit and S3 at `4f5fad0` match the integrated copies.
-2. **S2, stale empirical sentences** (from the old main-text Sec. 4). Resolve or delete:
+2. **S2, stale empirical sentences** (from the old main-text Sec. 4). Resolve or delete (two of the original items, the ImageNet orbit-error share and ImageNet orientation, were resolved on 2026-11-03):
    - "Fig. 1b reports the equivariance defect": the teaser no longer has that panel; XP-C2 is in G7.
    - The ImageNet orbit-error share: D1 has 279 O_g and 14 O_p among 1,600 runs (XP `5f6b213`).
    - Quote the frozen N2 face prompts.
