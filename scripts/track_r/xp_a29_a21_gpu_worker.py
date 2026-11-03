@@ -239,10 +239,13 @@ def main(a):
     gate(a.panel in PANELS and a.mode in ("B8","B32","R2"),"ARGS")
     groups,native,torch,schedule,seedfn,source_hash=preflight(a)
     alpha=schedule()
+    # A21 memory admission must include native model-loading peaks, not
+    # merely the inference peak after resetting the allocator.
+    torch.cuda.set_device(0)
+    torch.cuda.reset_peak_memory_stats()
     model,load_s,mapping=load_native(native,torch,alpha)
     print("A21_NATIVE_MODEL_READY",a.panel,a.mode,"gpu",a.gpu,
           "load_s",round(load_s,3),"time_map",json.dumps(mapping),flush=True)
-    torch.cuda.reset_peak_memory_stats()
     batch={"B8":8,"B32":32,"R2":2}[a.mode]
     t0=time.monotonic();ids=sorted(groups)
     if a.replicate_task:
