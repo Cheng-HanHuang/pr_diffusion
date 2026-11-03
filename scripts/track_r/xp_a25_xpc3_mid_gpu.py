@@ -23,6 +23,8 @@ J=range(4)
 COLUMNS=("image_id","run","label","prior_choice","prior_margin","prior_chosen_good")
 DAPS_PY=ROOT/"conda-envs/daps/bin/python"
 RECOVERY_REL="docs/track_r/executors/xp/XP_C3_A20_RECOVERY_R1.json"
+RECOVERY_R2_REL="docs/track_r/executors/xp/XP_C3_A20_RECOVERY_R2.json"
+R1_HEAD="eac8b4e044f04e513d136081d5c398da480bd550"
 ORIGINAL_HEAD="25152a3d6ffcc4611f45d12bf24d891331976d91"
 ALLOWED_PHYSICAL_GPUS=(1,2,3)
 
@@ -43,8 +45,8 @@ def git(*argv):return subprocess.check_output(
     ["git","-C",str(WT),*argv],text=True,timeout=60).strip()
 
 def source(a):
-    from scripts.track_r.xp_t_daps4k_prepare_cpu import (
-        NATIVE,IMAGENET_MODEL_SHA,verify_clean_sparse)
+    from scripts.track_r.xp_t_daps4k_prepare_cpu import IMAGENET_MODEL_SHA
+    from scripts.track_r.xp_t_daps4k_native_cpu import NATIVE,verify_clean_sparse
     from prdiffusion.track_r.prior_score import (
         frozen_alpha_schedule,prior_seed)
     gate(git("rev-parse","HEAD")==a.expected_head and
@@ -81,14 +83,29 @@ def source(a):
              ORIGINAL_HEAD+":"+spec["scorer_script"]],timeout=60)
     gate(hashlib.sha256(original).hexdigest()==spec["scorer_script_sha256"],
          "ORIGINAL_A20_REGISTERED_CODE_UNCHANGED")
+    r1_bytes=subprocess.check_output(["git","-C",str(WT),"show",
+               R1_HEAD+":"+spec["scorer_script"]],timeout=60)
+    r1sha=hashlib.sha256(r1_bytes).hexdigest()
     gate(recovery["status"]=="A20_XPC3_ZERO_OUTPUT_R1_CODE_RECOVERY"
          and recovery["source_manifest_sha256"]==spec["source_manifest_sha256"]
          and recovery["original_scorer_sha256"]==spec["scorer_script_sha256"]
-         and recovery["corrected_scorer_sha256"]==sha(WT/spec["scorer_script"])
+         and recovery["corrected_scorer_sha256"]==r1sha
          and recovery["original_freeze_sha256"]==sha(frozen)
          and recovery["allowed_physical_gpus"]==[1,2,3]
          and recovery["scientific_definition_unchanged"] is True,
          "R1_CODE_SHA_AND_SCIENCE_UNCHANGED")
+    gate(git("ls-files","--error-unmatch",RECOVERY_R2_REL)==RECOVERY_R2_REL,
+         "R2_CODE_REGISTRATION_MUST_BE_PUSHED")
+    r2=jread(WT/RECOVERY_R2_REL)
+    gate(r2["status"]=="A20_XPC3_ZERO_OUTPUT_R2_IMPORT_RECOVERY"
+         and r2["source_manifest_sha256"]==spec["source_manifest_sha256"]
+         and r2["original_freeze_sha256"]==sha(frozen)
+         and r2["r1_registration_sha256"]==sha(WT/RECOVERY_REL)
+         and r2["r1_scorer_sha256"]==r1sha
+         and r2["corrected_scorer_sha256"]==sha(WT/spec["scorer_script"])
+         and r2["allowed_physical_gpus"]==[1,2,3]
+         and r2["scientific_definition_unchanged"] is True,
+         "R2_CODE_SHA_AND_SCIENCE_UNCHANGED")
     gate(sha(WT/"prdiffusion/track_r/prior_score.py")==
          spec["original_prior_score_sha256"],
          "ORIGINAL_R0_PRIOR_SHA")
