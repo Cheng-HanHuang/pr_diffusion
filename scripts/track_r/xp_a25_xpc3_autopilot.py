@@ -108,6 +108,10 @@ def preflight(a):
     gate(reg["status"]=="A20_XPC3_ZERO_OUTPUT_R1_CODE_RECOVERY"
          and reg["source_manifest_sha256"]==fr["source_manifest_sha256"]
          and reg["original_freeze_sha256"]==sha(WT/FREEZE)
+         and reg["corrected_scorer_sha256"]==sha(
+             WT/"scripts/track_r/xp_a25_xpc3_mid_gpu.py")
+         and reg["corrected_controller_sha256"]==sha(
+             WT/"scripts/track_r/xp_a25_xpc3_autopilot.py")
          and reg["original_execution_head"]==ORIGINAL_HEAD
          and reg["allowed_physical_gpus"]==list(ALLOWED_PHYSICAL_GPUS)
          and reg["scientific_definition_unchanged"] is True
@@ -151,11 +155,16 @@ def gpu():
 def spawn(panel,limit,run,head,index,remaining_sec):
     gate(remaining_sec>120,"BUDGET_EXHAUSTED")
     g=None
+    wait_rounds=0
     while g is None:
         gate(not STOP and not (run/"STOP_XPC3").exists(),
              "OPERATOR_STOP")
         g=gpu()
         if g is None:
+            wait_rounds+=1
+            if wait_rounds%10==1:
+                print("A20_XPC3_WAIT_GPU1_2_3_ADMISSION",
+                      "excluded_GPU0",True,flush=True)
             time.sleep(15)
     gate(g in ALLOWED_PHYSICAL_GPUS,"NO_GPU_0")
     env=os.environ.copy()
