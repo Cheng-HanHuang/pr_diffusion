@@ -1,0 +1,78 @@
+{
+  "DAPS_G5_frozen_pooled_E1_K8_PSNR": 24.0573897008715,
+  "DAPS_G5_frozen_pooled_E1_K8_good20": 0.77,
+  "DAPS_G5_pooled_K8_n_images": 100,
+  "G1_clip_model": {
+    "checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "native_head": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619"
+  },
+  "PC_I2_policy_aggregates": {
+    "E0": {
+      "GOOD20": 0.37,
+      "PSNR": 18.049178087514683,
+      "n_images": 100
+    },
+    "E1_G1": {
+      "GOOD20": 0.53,
+      "PSNR": 21.504038828038723,
+      "n_images": 100
+    },
+    "FIRST_PARTICLE": {
+      "GOOD20": 0.3,
+      "PSNR": 17.214143552251553,
+      "n_images": 100
+    },
+    "O_ORBIT": {
+      "GOOD20": 0.55,
+      "PSNR": 22.5708188036525,
+      "n_images": 100
+    },
+    "O_RAW": {
+      "GOOD20": 0.4,
+      "PSNR": 18.95230075108683,
+      "n_images": 100
+    },
+    "PC_NATIVE_MEAN4": {
+      "GOOD20": 0.3075,
+      "PSNR": 17.396635650344432,
+      "n_images": 100
+    }
+  },
+  "PC_native_policy_aggregate": {
+    "PSNR": 17.396635650344432,
+    "SSIM": 0.4023354287166148,
+    "VGG_LPIPS": 0.46732551691588015
+  },
+  "R0_tau_good_q95": 0.05064833499491215,
+  "bag_size": 4,
+  "daps_G5_reference_8_runs": true,
+  "daps_nominal_NFE_per_independent_run": 4000,
+  "n_images": 100,
+  "n_particles": 400,
+  "native_nominal_NFE_per_bag": 1920,
+  "native_nominal_NFE_per_particle": 480,
+  "no_GT_in_selection": true,
+  "no_matched_compute_claim": true,
+  "no_new_gpu": true,
+  "paper_pr_outcomes_rule": "per-channel 000 vs 111, PSNR best \u00b11 circular pixels; orientation gap >1 dB; all raw=FAITHFUL, mixed assigned=UPSIDE_DOWN_OR_COLOR_INVERTED, otherwise FAILED",
+  "pretrained_metric": {
+    "device": "cpu",
+    "piq_version": "0.8.0",
+    "pretrained_lpips_weights_sha256": "389818252bd0a5d9e36789d4f3502d82a4d8363773cab976158c224f268eefc3",
+    "pretrained_vgg16_weights_sha256": "397923af8e79cdbb6a7127f12361acd7a2f83e06b05044ddf496e83de57a5bf0",
+    "torch_hub_checkpoints_dir": "/home/huang248/.cache/torch/hub/checkpoints",
+    "torch_version": "2.11.0+cu128",
+    "torchvision_version": "0.26.0+cu128"
+  },
+  "pruning_NFE_additional_not_in_nominal": true,
+  "results_sha256": {
+    "XP_I2_A15_5_DAPS_COMPUTE_COMPARISON.csv": "a1a94a3babad5e5200a09a7dba382a8e4534a8f5130ea9619964cd34392f451d",
+    "XP_I2_A15_5_G1_DECISIONS.csv": "e082a5deac7f1bda26dd1ac2787ea558f3524ce6cbeead714561dd2f8f01584e",
+    "XP_I2_A15_5_PER_PARTICLE.csv": "d05b390ac9158991d3879ab5a0411fd7cc88ee7e64dd77b8e83c2ba9b4cff306",
+    "XP_I2_A15_5_POLICIES.csv": "9c872f1d34f8f24fc5b4f27cfbd710eb8e2f2b1a739e07d61bcba4bb1d6f5df5",
+    "XP_I2_A15_5_STRINGS.csv": "32b9922c1a0d4c16bef258ba762593fc2ee23ddaa122cdbd184898cb89cbef90"
+  },
+  "source_xpi2_final_sha256": "1e4e07d205ae42695e11b5c51aa1c890a555b0c310d7f9847666a6724f26c75e",
+  "source_xpi2_manifest_sha256": "fd89323b0e7bcf3de2a0acfcf8c99857c500509bcae3d94c81268a8efb03f7ed",
+  "status": "A21_XPI2_A15_5_CPU_SCORED_COMPLETE"
+}
