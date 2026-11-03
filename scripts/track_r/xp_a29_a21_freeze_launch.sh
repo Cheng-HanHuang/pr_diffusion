@@ -169,9 +169,12 @@ LOG="$BASE/XP_C3_A21_SUPERVISOR_$STAMP.log"
 "$PY" -u scripts/track_r/xp_a29_a21_controller.py \
     --expected-head "$FROZEN_HEAD" --run "$RUN" --preflight-only
 
-echo "=== Start XP-I2 CPU A15.5 independently ==="
+echo "=== Preflight XP-I2 native bags and D1 source before launch ==="
 I2RUN="$BASE/xp_a29_xpi2_score_$STAMP"
 I2LOG="$BASE/XP_I2_A15_5_CPU_$STAMP.log"
+"$PY" -u scripts/track_r/xp_a29_xpi2_cpu_publish.py \
+    --expected-head "$FROZEN_HEAD" --run "$I2RUN" --preflight-only
+echo "=== Start XP-I2 CPU A15.5 independently ==="
 nohup env CUDA_VISIBLE_DEVICES="" PYTHONPATH="$WT" \
     PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 \
     "$PY" -u scripts/track_r/xp_a29_xpi2_cpu_publish.py \
