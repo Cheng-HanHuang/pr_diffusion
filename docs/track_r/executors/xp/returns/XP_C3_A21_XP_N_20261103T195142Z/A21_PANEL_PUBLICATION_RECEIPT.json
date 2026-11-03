@@ -1,0 +1,20 @@
+{
+  "A21_execution_head": "27ab90ee1f2b6d68750d8fa9b6d058a50672b6c1",
+  "A21_freeze_sha256": "7c53cf3248c53fb0e1a17d003da93f7c7af2fd657d297a29964fcf7345de13f7",
+  "complete_panels_only": true,
+  "independent_two_copies_sha256": [
+    "fc77b0739cf933bc78721678b1216404ce52502ec8960a57049d7cd2817f33d8",
+    "fc77b0739cf933bc78721678b1216404ce52502ec8960a57049d7cd2817f33d8"
+  ],
+  "local_offline_receipt_sha256": "9df7de201624b05fca86434155317d8fa39feaee060b8bce3c6ac1a143824552",
+  "n_candidates": 6400,
+  "n_images": 100,
+  "no_GT_in_prior_scoring": true,
+  "no_matched_compute_claim": true,
+  "original_A20_manifest_sha256": "298b88cdd8f4880fe35fd727c6d7c874dabcd9d09da55cd40a469788d5d19b27",
+  "original_A20_score_freeze_sha256": "83b330eabcf9eee3a0502d1fc1e25379196618478098fb7266aaedb7d9122d6c",
+  "panel": "XP_N",
+  "published_while_remaining_panels_may_be_scoring": true,
+  "source_decision_csv_sha256": "fc77b0739cf933bc78721678b1216404ce52502ec8960a57049d7cd2817f33d8",
+  "status": "A21_XPC3_COMPLETE_PANEL_PUBLISHED"
+}
