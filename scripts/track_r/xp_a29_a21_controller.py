@@ -381,6 +381,17 @@ def main(a):
                         if c.free_mib<S.YIELD_BELOW_FREE_MIB and on:
                             signal_yield(on[-1],"GPU_FREE_BELOW_4G")
                         if not ready(c,peak):continue
+                        # Do not treat GPU workers still loading their model
+                        # as zero-memory consumers: nvidia-smi may not show
+                        # them for several seconds after Popen. Reserve their
+                        # prospective peak+headroom until CUDA PID appears.
+                        pending=sum(
+                            math.ceil(S.MEMORY_HEADROOM_FACTOR*peak)+
+                                S.MEMORY_ADMISSION_EXTRA_MIB
+                            for pid in on if pid not in c.process_pids)
+                        need=math.ceil(S.MEMORY_HEADROOM_FACTOR*peak)+(
+                            S.MEMORY_ADMISSION_EXTRA_MIB)
+                        if c.free_mib-pending<need:continue
                         if len(on)>=min(target_workers,S.MAX_WORKERS_PER_GPU):
                             continue
                         if completed+len(active)>=100:continue
