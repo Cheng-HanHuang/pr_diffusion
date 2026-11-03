@@ -338,9 +338,14 @@ def main(a):
             good=[x for x in state["pilot"].values() if x["pass_equivalence"]]
             chosen=max(good,key=lambda x:x["candidates_per_worker_hour"]) if good else None
             mode=chosen["mode"] if chosen else "R2"
-            # Reuse measured B8 peak conservatively for R2's smaller batch.
+            # Fallback B2 uses an observed real peak; never guess
+            # when both pilot workloads have failed before measuring.
+            observed_peaks=[int(x["measured_peak_mib"])
+                for x in state["pilot"].values()
+                if "measured_peak_mib" in x]
+            gate(bool(observed_peaks),"NO_MEASURED_PEAK_FALLBACK")
             peak=int(chosen["measured_peak_mib"] if chosen else
-                 max(x["measured_peak_mib"] for x in state["pilot"].values()))
+                 max(observed_peaks))
             state["chosen_mode"]=mode
             state["measured_peak_mib"]=peak
             state["equivalence_pass"]=bool(chosen)
