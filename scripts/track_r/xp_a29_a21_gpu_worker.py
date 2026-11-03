@@ -208,6 +208,7 @@ def claim(folder,i):
                 # If malformed claim belongs to a live PID, STOP, don't steal.
                 gate(False,"MALFORMED_CLAIM")
             claimfile.unlink()
+            print("A21_CHUNK_RECLAIM",i,flush=True)
         with claimfile.open("x") as f:
             json.dump(dict(pid=os.getpid(),
                  start_tick=proc_tick(os.getpid()),index=i),f)
