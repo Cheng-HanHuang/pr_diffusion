@@ -381,7 +381,22 @@ def main(a):
         results_sha256={p.name:sha(p) for p in (per,pol,cmp,sts,dec)},
         PC_native_policy_aggregate={key:mean(float(r[key]) for r in policies
                     if r["policy"]=="PC_NATIVE_MEAN4")
-                    for key in ("PSNR","SSIM","VGG_LPIPS")})
+                    for key in ("PSNR","SSIM","VGG_LPIPS")},
+        DAPS_G5_frozen_pooled_E1_K8_good20=mean(
+            float(r["GOOD20"]) for r in comps
+            if r["policy"]=="DAPS_E1_K8"),
+        DAPS_G5_frozen_pooled_E1_K8_PSNR=mean(
+            float(r["PSNR"]) for r in comps
+            if r["policy"]=="DAPS_E1_K8"),
+        DAPS_G5_pooled_K8_n_images=100,
+        PC_I2_policy_aggregates={
+            name:dict(n_images=100,
+                 GOOD20=mean(float(x["GOOD20"]) for x in policies
+                             if x["policy"]==name),
+                 PSNR=mean(float(x["PSNR"]) for x in policies
+                           if x["policy"]==name))
+            for name in ("FIRST_PARTICLE","PC_NATIVE_MEAN4","E0",
+                         "E1_G1","O_RAW","O_ORBIT")})
     write(out/"XP_I2_A15_5_CPU_RECEIPT.json",summary)
     # Publish on separate branch; do not mutate A21 frozen XP-C3 HEAD.
     tag=time.strftime("%Y%m%dT%H%M%SZ",time.gmtime())
