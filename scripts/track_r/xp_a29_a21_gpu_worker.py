@@ -244,6 +244,34 @@ def main(a):
     torch.cuda.reset_peak_memory_stats()
     batch={"B8":8,"B32":32,"R2":2}[a.mode]
     t0=time.monotonic();ids=sorted(groups)
+    if a.replicate_task:
+        gate(not a.pilot and a.replicate_output,"REPLICATE_ARGS")
+        task=read(a.replicate_task)
+        gate(task["panel"]==a.panel and
+             task["destination_physical_gpu"]==a.gpu and
+             len(task["uids"])>=1,"REPLICATE_TASK_SCOPE")
+        allrows={r["uid"]:r for rs in groups.values() for r in rs}
+        gate(len(set(task["uids"]))==len(task["uids"]) and
+             all(uid in allrows for uid in task["uids"]),
+             "REPLICATE_UID_FROZEN")
+        chosen=[allrows[uid] for uid in task["uids"]]
+        for row in chosen:
+            gate(task["source_physical_gpu_by_uid"][row["uid"]]!=a.gpu,
+                 "REPLICATE_MUST_BE_DIFFERENT_GPU")
+        vals=evaluate_image(chosen,model,torch,alpha,seedfn,batch)
+        torch.cuda.synchronize()
+        out=Path(a.replicate_output)
+        gate(out.parent==Path(a.run)/"replicate" and
+             not out.exists(),"REPLICATE_UNIQUE_OUTPUT")
+        output_once(out,dict(status="A21_DIFFERENT_GPU_REPLICATION_PASS",
+             physical_gpu=a.gpu,panel=a.panel,rows=vals,
+             source_sha256=source_hash,source_task_sha256=sha(a.replicate_task),
+             peak_reserved_mib=math.ceil(
+                 torch.cuda.max_memory_reserved()/1048576),
+             wall_seconds=time.monotonic()-t0,no_GT_scoring=True))
+        print("A21_REPLICATION_PASS",a.panel,"rows",len(vals),
+              "gpu",a.gpu,flush=True)
+        return
     if a.pilot:
         gate(a.panel=="XP_N" and a.mode in ("B8","B32"),"PILOT_SCOPE")
         records=sorted(groups[ids[0]],key=lambda r:r["run"])
@@ -300,6 +328,8 @@ if __name__=="__main__":
         ap.add_argument("--"+k,required=True)
     ap.add_argument("--gpu",type=int,required=True)
     ap.add_argument("--pilot",action="store_true")
+    ap.add_argument("--replicate-task")
+    ap.add_argument("--replicate-output")
     try:main(ap.parse_args())
     except Exception as e:
         traceback.print_exc()
