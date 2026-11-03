@@ -622,7 +622,65 @@
 > 5. **Freeze before scoring.** Push the code, the uid and seed rule, the checkpoint SHA-256 and a source manifest before scoring any candidate.
 > 6. **Report.** E1-prior beside E1-CLIP on every scored panel, with the exact estimator, labeled exploratory. Due **Nov 5, 12:00 ET** for the main text, otherwise the supplement.
 
-**Status:** FROZEN v1.1 with amendments A1–A20 (planner, 2026-11-02).
+> **Amendment A21 (planner, 2026-11-03 12:34 ET): XP-C3 compute: ceiling 56 GPU-h, GPUs 0–3, several workers per GPU, batching, memory headroom.** Answers the executor's budget stop (XP `aa87f74`, Issue #46) and Cheng's instruction of Nov 3, 12:19 ET: several workers per GPU, longer limits, all four GPUs. Written before any XP-C3 outcome reached the planner. The R2 smoke scored 64 XP-N candidates; none of their choices, margins or labels has been published or relayed. Nothing below depends on an outcome.
+> 1. **The estimator is unchanged (A20.3).** S_mid global2 exactly as frozen at `25152a3` and run by R2 (`c80308a`):
+>    - source manifest `298b88cd…`, checkpoint `a37c32ff…`;
+>    - t ∈ {300, 400, 500, 600}, j ∈ {0, 1, 2, 3};
+>    - paired noise from `prior_seed(uid, t, j)`, drawn on the CPU as in R2, and R2's exact discrete-t map;
+>    - the uid rule, the margin, the 1e-7 threshold and the six output columns.
+>
+>    **What may change** is only how forward passes are grouped into calls and spread over processes. A call holds examples of a single t (R2's time-map gate stays), from any j, both orientations and several candidates.
+>
+>    **What may not:** reduced precision (fp16, bf16), any change to the TF32, cuDNN or cuBLAS settings R2 runs with, and compilation.
+> 2. **Ceiling: 8 → 56 GPU-h in total** for XP-C3, which is A20's 8 plus the 48 the executor proposed. 0.147 GPU-h is already charged. The 400 GPU-h project cap is unchanged (ledger 232.23). The ceiling is a stop, not a target.
+> 3. **Accounting unit: GPU-occupancy hours.** This makes v1.1's "wall-hours per occupied GPU" explicit for concurrent workers.
+>    - **Per GPU:** the length of the union of the lifetimes of all XP-C3 processes on that physical GPU, from launch to exit, model load included.
+>    - **Total:** the sum over GPUs. Workers sharing a GPU are charged once; workers on different GPUs are charged separately.
+>    - The pilot and failed or stopped workers are charged the same way.
+>    - The receipt also reports worker-hours (the sum of lifetimes), for information only.
+> 4. **GPUs and memory.**
+>    - **Physical GPUs 0–3** are eligible, co-tenanted or clean. A10.1's clean-GPU rule exists for timing. XP-C3 outputs are deterministic numbers and its run time is not reported, so that rule does not apply.
+>    - **Admission.** A worker starts on a GPU only if the GPU's free memory is at least the worker's measured peak × 1.25 + **8 GiB**. This replaces the fixed 24,576 MiB request and the 80%-of-total limit.
+>    - **Yield.** If a GPU's free memory falls below **4 GiB**:
+>      - no new worker starts on it;
+>      - one XP-C3 worker on it stops after its current chunk;
+>      - that worker restarts once admission holds again.
+>    - **Co-tenants.** Foreign processes are never signalled, reniced or otherwise touched. No process holds memory beyond what its own computation needs: no deliberate pre-allocation, no placeholder processes.
+> 5. **Workers and chunks.**
+>    - **Workers:** up to **8 per GPU** (32 in all), within admission.
+>    - **Chunks:** R2's image chunks, claimed atomically.
+>    - **Outputs:** each is written once and never overwritten. A chunk abandoned by a dead worker is rescored from scratch. Each uid appears once in the output of record.
+> 6. **Pilot. Its pass/fail rule is fixed now.**
+>    - **(a) Equivalence.** The new implementation rescores the 64 R2 smoke candidates.
+>      - **Pass** requires both conditions:
+>        - max |ΔL_000| ≤ 1e-5 and max |ΔL_111| ≤ 1e-5;
+>        - `prior_choice` agrees on every candidate whose R2 |margin| > 1e-5.
+>      - **On a pass,** the new implementation scores every candidate, these 64 included.
+>      - **On a fail,** production runs R2's per-candidate code unchanged, with the concurrency of item 5. The receipt reports the differences.
+>    - **(b) Configuration.**
+>      - **Range:** calls of B examples, with B ∈ {8, 32} (R2's B = 2 after a fail), and 1 to 8 workers per GPU.
+>      - **Choice:** the controller may choose by measured throughput, including by adding workers during production.
+>      - **Performance only:** no choice may use an XP-C3 output.
+>    - **Limit:** at most 30 min and 2 GPU-h before production starts.
+> 7. **Order and skip.**
+>    - **Priority** stays XP-N → G5 → XP-D4. A free worker takes the next unclaimed chunk of the highest-priority panel that has one.
+>    - **Skip rule.** Before a panel's first chunk, the controller projects the panel's cost at the measured rate. If the panel cannot finish within the remaining ceiling and before the hard stop, it is skipped and the next panel starts. So G5 can run when XP-N cannot.
+>    - **Only complete panels are reported** (A20.4).
+> 8. **Deadlines.**
+>    - **Main text:** panels returned by **Nov 6, 12:00 ET** (the main-paper data cut). Panels returned later go to the supplement.
+>    - **Hard stop:** XP-C3 GPU work ends at the ceiling or at **Nov 15, 12:00 ET** (G7's deadline), whichever comes first.
+> 9. **Freeze first (A20.5).** Before the pilot, push the new code, the constants of items 4–7 and the equivalence rule.
+> 10. **The receipt adds:**
+>     - the implementation commit and the equivalence statistics;
+>     - each configuration tried, with its throughput, the number of foreign processes, memory use and utilization;
+>     - GPU-occupancy hours per GPU, and worker-hours;
+>     - yields, out-of-memory exits and rescored chunks;
+>     - for information, a replicate on a different GPU of the 32 candidates per complete panel with the smallest SHA-256 of the uid, with max |Δmargin| and choice agreement.
+> 11. **Considered and not adopted.**
+>     - **Filling GPU memory to the limit.** Throughput here comes from the share of compute time, which grows with the number of busy workers and the work per call, not with memory: GPU 2 had about 75 GB free during the smoke. Memory held beyond what the workers use adds no speed, and it makes out-of-memory failures likely, for XP-C3 workers and for co-tenants alike.
+>     - **Scoring only G and O_g candidates.** This is exact for `prior_chosen_good`, because C, I and O_p candidates are not GOOD under either orientation. It is unnecessary at this ceiling, and complete panels keep the descriptive comparison with CLIP.
+
+**Status:** FROZEN v1.1 with amendments A1–A21 (planner, 2026-11-03).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

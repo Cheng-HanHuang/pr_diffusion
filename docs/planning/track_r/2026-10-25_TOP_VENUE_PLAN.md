@@ -1,6 +1,17 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-02)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-03)
 
-> **Eighteenth update, 2026-11-02, 16:50 ET** (the newest; read it first).
+> **Nineteenth update, 2026-11-03, 12:34 ET** (the newest; read it first).
+> - **XP-C3 stopped at its 8 GPU-h ceiling with no complete panel.** The smoke ran at about 8 s per candidate on a GPU shared with seven other jobs, so the projection for XP-N alone was 14 GPU-h.
+> - **A21 (Cheng's instruction):**
+>   - ceiling 56 GPU-h, GPUs 0–3, up to 8 workers per GPU;
+>   - batched forward passes, accepted only if they reproduce the smoke's scores (tolerance fixed in advance);
+>   - 8 GiB of free memory kept per GPU, so neither our workers nor co-tenants run out of memory;
+>   - G5 may run when XP-N cannot;
+>   - main text if returned by Nov 6, 12:00 ET.
+> - **XP-I2** (PC-DAPS on ImageNet) finished production; its scoring is requested for Nov 5.
+> - **Nov 4 items published** (`953e2f0`); the planner reproduces A9.2(d) and builds Fig. 3.
+>
+> **Eighteenth update, 2026-11-02, 16:50 ET**.
 > - **XP-C3 is defined** (A20): the prior's own orientation test (S_mid global2, from v1.1's XP-C row) on the 13,600 ImageNet candidates, XP-N included.
 >   - The executor rightly stopped on the planner's ambiguous wording. The decision used no data.
 >   - The ceiling rises to 8 GPU-h because the test costs 32 forward passes per candidate. Due Nov 5.
