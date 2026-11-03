@@ -216,6 +216,9 @@ def main(a):
                     wall_seconds=end-v["start"],rc=rc,log=v["log"],
                     was_yielded=v["signal_sent"])
                 history.append(h);state["worker_records"].append(h)
+                reclaimed=Path(v["log"]).read_text(
+                    errors="replace").count("A21_CHUNK_RECLAIM")
+                state["rescored_chunks"]+=reclaimed
                 if rc!=0:
                     log=Path(v["log"]).read_text(errors="replace")[-3000:]
                     if "out of memory" in log.lower():
@@ -259,7 +262,10 @@ def main(a):
             return {c.index:c for c in collect(own_roots=list(active))}
         def eligible_pilot():
             while True:
-                gate(not STOP and time.time()<S.HARD_STOP,"PILOT_WAIT_STOP")
+                gate(not STOP and time.time()<S.HARD_STOP
+                     and time.monotonic()-start_pilot<
+                         S.PILOT_MAX_WALL_SECONDS,
+                     "PILOT_WAIT_STOP")
                 pool=cards()
                 candidates=[c for c in pool.values() if c.index in S.GPU_IDS
                             and c.visibility=="known"
@@ -279,6 +285,18 @@ def main(a):
                 pid=spawn(gpu,"XP_N",mode,pilot=True)
                 while pid in active:
                     finish()
+                    if (time.monotonic()-start_pilot>=
+                            S.PILOT_MAX_WALL_SECONDS-3 or
+                        charged()-before>=S.PILOT_MAX_OCCUPANCY_GPU_H-.01):
+                        # Hard pilot gate, no delayed chunk completion.
+                        if pid in active:
+                            try:os.killpg(pid,signal.SIGTERM)
+                            except ProcessLookupError:pass
+                            time.sleep(2)
+                            if active[pid]["proc"].poll() is None:
+                                try:os.killpg(pid,signal.SIGKILL)
+                                except ProcessLookupError:pass
+                        raise RuntimeError("PILOT_30MIN_OR_2GPUH_CEILING")
                     gate(time.monotonic()-start_pilot<
                          S.PILOT_MAX_WALL_SECONDS and
                          charged()-before<S.PILOT_MAX_OCCUPANCY_GPU_H,
@@ -453,9 +471,15 @@ def main(a):
                          uids=[u for u,_,_ in selected]))
                     wait=time.monotonic()
                     while not ready(cards()[target],peak):
-                        gate(time.monotonic()-wait<900 and can_run(extra=.2),
-                             "REPLICATION_ADMISSION_WAIT")
+                        if (time.monotonic()-wait>=300 or
+                            not can_run(extra=.2)):
+                            state.setdefault("replication_pending",[]).append(
+                                dict(panel=panel,target_gpu=target,
+                                     reason="NO_MEMORY_OR_BUDGET"))
+                            break
                         time.sleep(10)
+                    if not ready(cards()[target],peak):
+                        break
                     pid=spawn(target,panel,mode,replicate_task=task,
                               replicate_output=output)
                     while pid in active:
