@@ -80,6 +80,18 @@ def main(a):
   status="RUNNING";started=time.monotonic();deadline=time.time()+3.5*3600
   try:
    write(status)
+   # Exercise the exact frozen native worker import and GT manifest first,
+   # before allocating GPU memory for the C2 production sample.
+   env=dict(os.environ,CUDA_VISIBLE_DEVICES="0",
+     PYTHONPATH=str(WT),PYTHONNOUSERSITE="1",PYTHONDONTWRITEBYTECODE="1",
+     PYTHONPYCACHEPREFIX=str(r/"pycache"/"C2_PREFLIGHT"))
+   p=subprocess.run([str(ROOT/"conda-envs/daps/bin/python"),
+     str(WT/"scripts/track_r/xp_a12_g7_c2_gpu.py"),
+     "--expected-head",a.expected_head,"--freeze",str(f),
+     "--run",str(r),"--index","0","--gpu","0","--preflight-only"],
+     env=env,cwd=str(WT),capture_output=True,text=True,timeout=120)
+   gate(p.returncode==0,"NATIVE_IMPORT_AND_SOURCE_PREFLIGHT_"+p.stderr[-220:])
+   print("A22_G7_NATIVE_IMPORT_PREFLIGHT_PASS",flush=True)
    while len(finished)<280:
     collect_done()
     hrs,_=accounting()
@@ -94,7 +106,8 @@ def main(a):
      if len(on)>=workers:continue
      # Existing A12 C2 12,288-MiB request plus 8-GiB extra.
      need=24576
-     if c.free_mib<need or c.used_mib+need>int(.8*c.total_mib):continue
+     reserved=sum(need for v in on if v["proc"].pid not in c.process_pids)
+     if c.free_mib-reserved<need or c.used_mib+reserved+need>int(.8*c.total_mib):continue
      ix=next_index()
      if ix is None:continue
      env=dict(os.environ,CUDA_VISIBLE_DEVICES=str(gpu),
