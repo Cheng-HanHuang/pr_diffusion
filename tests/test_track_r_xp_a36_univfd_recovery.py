@@ -85,7 +85,7 @@ class UnivFDDependencyRecovery(unittest.TestCase):
         if LAUNCH.exists():
             l=LAUNCH.read_text()
             self.assertIn("setuptools==80.9.0",l)
-            self.assertIn("A36_UNIVFD_RECOVERY",l)
+            self.assertIn("A36_UNIVFD_CPU_ONLY_RECOVERY_AUTOPILOT_DONE",l)
             self.assertIn("test_track_r_xp_a36_univfd_recovery.py",l)
             self.assertIn("CUDA_VISIBLE_DEVICES=",l)
             self.assertNotIn("nvidia-smi",l)
