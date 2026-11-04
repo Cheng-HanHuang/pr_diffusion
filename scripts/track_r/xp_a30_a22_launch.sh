@@ -44,6 +44,7 @@ names=[
  "xp_a30_a22_g7_prepare_cpu.py",
  "xp_a30_a22_g7_c2_autopilot.py",
  "xp_a30_a22_g7_c2_report_cpu.py",
+ "xp_a30_a22_g7_publish_cpu.py",
  "xp_a30_a22_autopilot.py"]
 for name in names:
  p=Path("scripts/track_r")/name
