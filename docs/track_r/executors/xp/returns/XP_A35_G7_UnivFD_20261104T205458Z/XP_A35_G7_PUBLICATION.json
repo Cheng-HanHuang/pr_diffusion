@@ -1,0 +1,17 @@
+{
+  "G7_total_gpu_h": 5.971352510419156,
+  "GT_only_diagnostic": true,
+  "method": "UnivFD",
+  "method_readout_receipt_sha256": "619c2461d3b456c5a6174c73be0115e808a96ba746502b1dd0cc073d2e8e98e5",
+  "n_images": 280,
+  "no_full_G7_claim": false,
+  "no_main_text_new_data": true,
+  "not_matched_compute": true,
+  "original_scoring_head": "e7fb7e88f442aae863747c38342c5ff5f652a767",
+  "per_image_sha256": "8e1aaba70b215ee4733c14b4652e66f98d42c8df51b4cee94904d07702239ff3",
+  "project_gpu_h": 247.80191737622505,
+  "source_gt_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "stage_terminal_sha256": "38591ca4b24e5130afb78daf623cf90a5b194a464be3c1778616b75e833ddf3b",
+  "status": "A35_G7_STAGE_280_PUBLISHED",
+  "table_sha256": "d5cc211b6fe98dea74bbea0815f912d2cf34973a29ebdb1a50d0d47e25175c0c"
+}
