@@ -1,0 +1,29 @@
+{
+  "status": "A22_FROZEN_N2_FACE_PROMPTS_VERBATIM",
+  "scope": "face-only FFHQ, N2 CLIP global orientation",
+  "source_commit": "b1637f7c27a3caaa03a8b204171fca0d3fccfcd5",
+  "source_code_path": "scripts/track_r/r0n_2_clip_orientation.py",
+  "source_config_path": "configs/track_r/r0n_letter_analysis_v1.json",
+  "source_symbol_names": [
+    "PROMPTS_UP",
+    "PROMPTS_INV"
+  ],
+  "prompts_upright": [
+    "a photo of a face.",
+    "a photo of a person's face.",
+    "a portrait photo of a person."
+  ],
+  "prompts_inverted": [
+    "an upside-down photo of a face.",
+    "an upside-down photo of a person's face.",
+    "an upside-down portrait photo of a person."
+  ],
+  "text_embedding": "L2-normalize each prompt embedding, average per class, re-normalize",
+  "orientation_rule": "choose 111 iff u(R_111 x) > u(x) strictly; else 000",
+  "score": "u(x) = <f(x), t_up> - <f(x), t_inv>",
+  "no_prompt_tuning": true,
+  "gt_access_in_scoring": false,
+  "model_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+  "verified_source_paths_match": true,
+  "note": "Copied verbatim from the recorded N2 code and configuration, not a new or retuned set of prompts."
+}
