@@ -170,7 +170,7 @@ def main(a):
    # Worker receives a signal only if still live. Native runs one image
    # per worker; incomplete pieces stay unaccepted on budget shutdown.
    # Stop near the stage cap even if an individual native call stalls.
-   sent=set()
+   sent={}
    while active:
     h,_=accounting()
     for pid,v in list(active.items()):
@@ -178,9 +178,14 @@ def main(a):
       if v["proc"].poll() is None:
        try:os.killpg(pid,signal.SIGTERM)
        except ProcessLookupError:pass
-      sent.add(pid)
+      sent[pid]=time.monotonic()
       print("A22_G7_STOP_LIVE_WORKER",pid,
         "budget_or_chunk_timeout",flush=True)
+    for pid,when in list(sent.items()):
+     v=active.get(pid)
+     if v and time.monotonic()-when>5 and v["proc"].poll() is None:
+      try:os.killpg(pid,signal.SIGKILL)
+      except ProcessLookupError:pass
     collect_done()
     time.sleep(.3)
    state=write(status)
