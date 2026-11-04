@@ -1,0 +1,57 @@
+{
+  "G7_total_gpu_h": 5.901227759508183,
+  "GT_diagnostic_only": true,
+  "aggregate_sha256": "0e9e41793ce10dab7d32f128eb8c64a056741e42fadcb3f76a47ef4aaec57378",
+  "aggregates": [
+    {
+      "GT_only": true,
+      "ci95_high": 1.0,
+      "ci95_low": 1.0,
+      "dataset": "ffhq",
+      "keep_fraction": 1.0,
+      "method": "S_mid_all8",
+      "n": 180,
+      "n_bootstrap": 10000,
+      "n_flipped": 0,
+      "upright_kept": 180
+    },
+    {
+      "GT_only": true,
+      "ci95_high": 0.99,
+      "ci95_low": 0.9,
+      "dataset": "imagenet",
+      "keep_fraction": 0.95,
+      "method": "S_mid_all8",
+      "n": 100,
+      "n_bootstrap": 10000,
+      "n_flipped": 5,
+      "upright_kept": 95
+    },
+    {
+      "GT_only": true,
+      "ci95_high": 0.9964285714285714,
+      "ci95_low": 0.9642857142857143,
+      "dataset": "pooled",
+      "keep_fraction": 0.9821428571428571,
+      "method": "S_mid_all8",
+      "n": 280,
+      "n_bootstrap": 10000,
+      "n_flipped": 5,
+      "upright_kept": 275
+    }
+  ],
+  "future_methods_unrun": [
+    "2_forward",
+    "UnivFD"
+  ],
+  "head": "e5852aedc272aa3c5546b39d3b2f8b7a224ba9af",
+  "method": "S_mid_all8",
+  "no_new_main_text": true,
+  "no_new_selector": true,
+  "not_full_G7": true,
+  "per_image_sha256": "cb47baa97c7e87718e1e93a4ddc0c66bc959f86744323b575e1754742fa1d304",
+  "project_gpu_h": 247.73179262531409,
+  "source_lock_sha256": "852d7f87089a42b94aeac24c0915708e7c0e06dbbf649409f1e49b1cdd4cf52f",
+  "source_manifest_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "status": "A35_G7_METHOD_READOUT_280_PASS"
+}
