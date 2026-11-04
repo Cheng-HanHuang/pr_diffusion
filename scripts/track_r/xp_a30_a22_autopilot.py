@@ -139,9 +139,16 @@ def main(a):
     st=gpurun/"XP_A22_G7_C2_FINAL_STATUS.json"
     if st.is_file() and read(st)["status"]=="A22_G7_C2_280_COMPLETE":
      stageout=BASE/("xp_a30_a22_g7_report_"+root.name.rsplit("_",1)[-1])
-     launch("G7_C2_READOUT","xp_a30_a22_g7_c2_report_cpu.py",
+     reported=launch("G7_C2_READOUT","xp_a30_a22_g7_c2_report_cpu.py",
        ["--run",str(gpurun),"--out",str(stageout)],
        root/"logs"/"G7_C2_READOUT.log")
+     if reported and state["stage_results"].get(
+        "G7_CLIP_GT_CPU",{}).get("status")=="PASS":
+      launch("G7_C2_CLIP_PUBLICATION",
+        "xp_a30_a22_g7_publish_cpu.py",
+        ["--run",str(gpurun),"--report",str(stageout),
+         "--clip",str(clipout)],
+        root/"logs"/"G7_PUBLICATION.log")
     else:
      record("G7_C2_READOUT","PENDING_COMPLETE_PANEL",
        root/"logs"/"G7_C2_GPU.log")
