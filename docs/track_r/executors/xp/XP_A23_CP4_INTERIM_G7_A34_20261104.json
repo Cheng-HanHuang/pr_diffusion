@@ -1,0 +1,77 @@
+{
+  "status": "A23_CP4_INTERIM_VERIFIED_G7_A34_NOT_FINAL_CP4",
+  "created_date": "2026-11-04",
+  "planner_head": "6f5ee7f9c7a952472ace86cb3d3c301c92937d08",
+  "planner_deadline": "2026-11-15T12:00:00-05:00",
+  "scope": "SUPPLEMENT_ONLY",
+  "not_main_paper_data": true,
+  "g7": {
+    "registered_order": [
+      "S_mid_global2",
+      "S_mid_all8",
+      "2_forward",
+      "UnivFD"
+    ],
+    "original_c2": {
+      "source_commit": "9090a50a4d4ffe922bdb43c5ee9e877c059a7dd1",
+      "status": "ACCEPTED_PRIOR_PARTIAL_G7"
+    },
+    "smid_global2": {
+      "status": "PAC_COMPLETED_AND_REMOTE_PUBLISHED_AWAITING_PLANNER_ACCEPTANCE",
+      "commit": "da130b50856fd6c495fe73049651b746ab67b56b",
+      "branch": "codex/prdiff-track-r-a23-g7-smid-global2-20261104T080759Z",
+      "publication_path": "docs/track_r/executors/xp/returns/XP_A23_G7_S_MID_GLOBAL2_20261104T080759Z/XP_A23_G7_S_MID_GLOBAL2_PUBLICATION.json",
+      "GT_source_manifest_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+      "n_ffhq": 180,
+      "ffhq_upright": 180,
+      "n_imagenet": 100,
+      "imagenet_upright": 95,
+      "n_pooled": 280,
+      "pooled_upright": 275,
+      "pooled_retention": 0.9821428571428571,
+      "GT_only": true,
+      "no_inverse_problem_solver_generation": true,
+      "bootstrap_n": 10000
+    },
+    "smid_all8": {
+      "status": "NOT_RUN_AT_INTERIM_SNAPSHOT",
+      "prospective_A35_head": "e5852aedc272aa3c5546b39d3b2f8b7a224ba9af"
+    },
+    "two_forward": {
+      "status": "NOT_RUN_AT_INTERIM_SNAPSHOT",
+      "prospective_A35_head": "e5852aedc272aa3c5546b39d3b2f8b7a224ba9af"
+    },
+    "univfd": {
+      "status": "NOT_RUN_AT_INTERIM_SNAPSHOT",
+      "prospective_A35_head": "e5852aedc272aa3c5546b39d3b2f8b7a224ba9af"
+    },
+    "full_G7_complete": false
+  },
+  "ledger": {
+    "status": "PAC_A34_TERMINAL_SNAPSHOT_NOT_LIVE",
+    "project_gpu_h": 246.9875918177077,
+    "project_cap_gpu_h": 400,
+    "G7_total_gpu_h": 5.1570269519018215,
+    "G7_cap_gpu_h": 10,
+    "G7_remaining_gpu_h": 4.8429730480981785,
+    "source": "A34 final status and published readout receipt"
+  },
+  "xp_k": {
+    "status": "NOT_RUN_NATIVE_SOURCE_BINDING_AND_IDENTITY_REPLAY_PENDING",
+    "family_order": [
+      "SITCOM",
+      "FAST_DIPS",
+      "DAPS_FFHQ"
+    ],
+    "parameter_diff_json_screen_not_sufficient": true,
+    "original_two_root_replay_not_passed": true,
+    "mechanism_v1_comparison": null,
+    "mechanism_v1_1_comparison": null
+  },
+  "excluded_optional_A21_10": true,
+  "no_new_selector": true,
+  "no_protocol_v2": true,
+  "no_matched_compute_claim": true,
+  "not_CP4_final": true,
+  "evidence_policy": "Do not replace final CP4 or treat prospective A35 source as PAC result; reconcile newer PAC ledgers before further GPU work."
+}
