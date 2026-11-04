@@ -231,6 +231,8 @@ def stage_controller(run,method,head,global_spent):
              "--method",method,"--dataset",dataset,
              "--tasks",str(task)]
         if gpu is not None:cmd+=["--gpu",str(gpu)]
+        if tag.startswith("canary_"):
+            cmd+=["--canary"]
         with log.open("x") as f:
             p=subprocess.Popen(cmd,cwd=str(WT),env=env,
                 stdout=f,stderr=subprocess.STDOUT,start_new_session=True)
@@ -267,6 +269,11 @@ def stage_controller(run,method,head,global_spent):
                 # setting when G7 remaining budget may be insufficient.
                 r0=read(stage/"results"/"000.json")
                 r1=read(stage/"results"/"180.json")
+                check(r0["A21_canary_equivalence"]["status"]==
+                      "A21_NATIVE_BATCH_EQUIVALENCE_PASS" and
+                      r1["A21_canary_equivalence"]["status"]==
+                      "A21_NATIVE_BATCH_EQUIVALENCE_PASS",
+                      "TWO_NATIVE_BATCH_EQUIVALENCE_GATES")
                 compute_s=179*r0["image_elapsed_s"]+99*r1["image_elapsed_s"]
                 # Model load per GPU dataset shard + 30% contingency.
                 estimated=1.30*(compute_s+4*(
