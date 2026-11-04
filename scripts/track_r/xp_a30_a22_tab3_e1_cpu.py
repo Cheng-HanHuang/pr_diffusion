@@ -227,8 +227,8 @@ def main(a):
         ("DAPS-4K","D2",4,daps),
         ("DAPS-4K","D2",8,daps),
         ("SITCOM","D3",4,sitcom)):
-        a,b=summarize(panel,family,K,groups)
-        rows.extend(a);agg.append(b)
+        image_rows,aggregate_row=summarize(panel,family,K,groups)
+        rows.extend(image_rows);agg.append(aggregate_row)
     gate(len(rows)==300 and len(agg)==3,"TABLE3_GRID")
     base.mkdir(mode=0o700)
     tab=base/"XP_A22_TAB3_IMAGENET_E1_G1.csv"
