@@ -1,0 +1,4 @@
+method,dataset,n,upright_kept,n_flipped,keep_fraction,ci95_low,ci95_high,n_bootstrap,GT_only
+2_forward,ffhq,180,180,0,1.0,1.0,1.0,10000,True
+2_forward,imagenet,100,93,7,0.93,0.88,0.98,10000,True
+2_forward,pooled,280,273,7,0.975,0.9571428571428572,0.9928571428571429,10000,True
