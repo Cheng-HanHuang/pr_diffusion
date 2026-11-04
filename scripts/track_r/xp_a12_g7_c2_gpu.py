@@ -13,7 +13,8 @@ from pathlib import Path
 from scripts.track_r.xp_a12_g1a_prepare_cpu import ROOT,BASE,gate
 from scripts.track_r.xp_a12_g367_readiness_cpu import sha
 from scripts.track_r.xp_t_daps4k_prepare_cpu import (
-    NATIVE,PY_DAPS,MODEL_SHA,IMAGENET_MODEL_SHA,verify_clean_sparse)
+    PY_DAPS,MODEL_SHA,IMAGENET_MODEL_SHA)
+from scripts.track_r.xp_t_daps4k_native_cpu import NATIVE,verify_clean_sparse
 from scripts.track_r.xp_t_daps4k_worker_gpu import model_config,load_model_native
 from scripts.track_r.r0_2_g0_cpu import gt_source
 from prdiffusion.track_r.physics import apply_orbit
