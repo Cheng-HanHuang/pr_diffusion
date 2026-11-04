@@ -291,6 +291,11 @@ def main(a):
             emit(status)
             while len(completed)<N and not STOP and not STOPPED:
                 poll()
+                now=time.monotonic()
+                if any(now-v["start"]>MAX_WORKER_S for v in active.values()):
+                    status="PARTIAL_NATIVE_ERROR_STOP"
+                    print("ACTION NEEDED: A34_G7_WORKER_EXCEEDED_1800S",flush=True)
+                    break
                 used=charged()
                 if used>=MAX_NEW_WORK_H-0.05 or C2_USED+pilot_h+used>=G7_CAP_H-.4:
                     status="PARTIAL_SAFE_BUDGET_STOP";break
@@ -369,6 +374,8 @@ if __name__=="__main__":
     p.add_argument("--run",required=True)
     p.add_argument("--preflight-only",action="store_true")
     p.add_argument("--resume",action="store_true")
+    signal.signal(signal.SIGTERM,stop)
+    signal.signal(signal.SIGINT,stop)
     try:main(p.parse_args())
     except Exception as e:
         traceback.print_exc()
