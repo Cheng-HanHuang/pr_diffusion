@@ -21,7 +21,7 @@ WT=Path(__file__).resolve().parents[2]
 PARENT="xp_a7_d2d3_20261028T053026Z"
 A7_AGG={
 "D2":("XP_A7_IMAGE_K4_D2_20261028.json",
-      "176d7458a8b5017d5b032ae2e3465a7938a783bd660a67c1daa3de139a05"),
+      "176d7458a8b5017d5b032ae2e3465a7938a783bd660a67c1daa3de139a7b6a05"),
 "D3":("XP_A7_IMAGE_K4_D3_20261028.json",
       "30f328d63b7d9b54e58c863ea33040d3ae2e8368c9c9cfea6f4712e7ecdec8d3")}
 E1_KEYS=("panel","family","K","image_id","selected_run",
