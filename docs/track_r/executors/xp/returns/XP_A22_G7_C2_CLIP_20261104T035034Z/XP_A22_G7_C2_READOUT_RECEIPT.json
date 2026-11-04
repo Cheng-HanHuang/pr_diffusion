@@ -1,0 +1,14 @@
+{
+  "GT_only_diagnostics": true,
+  "bootstrap_seed": 20261103,
+  "frozen_native_input_receipt_sha256": "4978c4eddc02f41c45eb2fd359073ad346feeff96d5648a6d011cd4446a392d3",
+  "n_bootstrap": 10000,
+  "n_input_images": 280,
+  "n_summary_rows": 36,
+  "n_task_rows": 10080,
+  "no_A21_10_replication": true,
+  "no_inverse_solver": true,
+  "source_code_head": "999d7eb9ee2a254a41c48354e3721155fa046e2a",
+  "status": "A22_G7_C2_IMAGE_BOOTSTRAP_CPU_COMPLETE",
+  "table_sha256": "841f2b77be35e45be94f23716c927065a5df7abab1e08f679c8ba2b460ffa7b9"
+}

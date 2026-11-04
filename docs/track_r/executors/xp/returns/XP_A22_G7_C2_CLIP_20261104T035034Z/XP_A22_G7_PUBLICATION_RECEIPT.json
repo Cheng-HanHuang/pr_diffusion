@@ -1,0 +1,24 @@
+{
+  "C2_aggregate_rows": 36,
+  "C2_n_evaluations": 10080,
+  "C2_n_images": 280,
+  "C2_table_sha256": "841f2b77be35e45be94f23716c927065a5df7abab1e08f679c8ba2b460ffa7b9",
+  "CLIP_decisions_sha256": "5507d1ce0e6f3822edbcc0430a6800e5bc4cf4791befde61fa375fd7b829b967",
+  "CLIP_n_images": 280,
+  "GPU_occupancy_h": 2.6265298946173345,
+  "c2_bootstrap_receipt_sha256": "1c48f94111f0d5deda771cd656731a9666bde9444f1556806fdabde265608fdc",
+  "c2_native_final_receipt_sha256": "4978c4eddc02f41c45eb2fd359073ad346feeff96d5648a6d011cd4446a392d3",
+  "clip_GT_only_receipt_sha256": "76edc9fdf998a1a15562c10f0238a2d3d5d8048d4c14900dfe246c7c56cad18b",
+  "no_A21_10_replication": true,
+  "no_inverse_solver": true,
+  "not_full_G7_completion": true,
+  "original_A22_execution_head": "999d7eb9ee2a254a41c48354e3721155fa046e2a",
+  "original_C2_frozen_manifest_sha256": "75e8fe296932044eb4ff1cd30300ef58a8f48ece02acd9b22ba3aa6f3bd7c7ac",
+  "remaining_G7_policies_not_claimed": [
+    "PRIOR_2_FORWARD",
+    "PRIOR_S_MID_GLOBAL2",
+    "PRIOR_S_MID_ALL8",
+    "UNIVFD"
+  ],
+  "status": "A22_G7_C2_AND_CPU_CLIP_DIAGNOSTICS_PUBLISHED"
+}

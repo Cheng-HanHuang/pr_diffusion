@@ -1,0 +1,57 @@
+{
+  "OTHER_G7_POLICIES_PENDING": [
+    "PRIOR_2_FORWARD",
+    "PRIOR_S_MID_GLOBAL2",
+    "PRIOR_S_MID_ALL8",
+    "UNIVFD",
+    "C2_DENOISER"
+  ],
+  "clip_checkpoint_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+  "clip_native_univfd_head": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619",
+  "csv_sha256": "5507d1ce0e6f3822edbcc0430a6800e5bc4cf4791befde61fa375fd7b829b967",
+  "face_prompts": [
+    [
+      "a photo of a face.",
+      "a photo of a person's face.",
+      "a portrait photo of a person."
+    ],
+    [
+      "an upside-down photo of a face.",
+      "an upside-down photo of a person's face.",
+      "an upside-down portrait photo of a person."
+    ]
+  ],
+  "g1_prompts": [
+    [
+      "a photo."
+    ],
+    [
+      "an upside-down photo."
+    ]
+  ],
+  "g2_prompts": [
+    [
+      "a photo.",
+      "a photo of a scene.",
+      "a photo of an object.",
+      "a good photo.",
+      "a natural photo.",
+      "a photo of something."
+    ],
+    [
+      "an upside-down photo.",
+      "an upside-down photo of a scene.",
+      "an upside-down photo of an object.",
+      "a photo that is upside down.",
+      "a photo rotated by 180 degrees.",
+      "an inverted photo."
+    ]
+  ],
+  "gt_only_diagnostics": true,
+  "input_manifest_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "n_ffhq": 180,
+  "n_imagenet": 100,
+  "n_images": 280,
+  "no_GPU": true,
+  "status": "XP_A12_G7_GT_CLIP_G1_G2_FACE_CPU_PASS"
+}
