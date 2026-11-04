@@ -1,6 +1,7 @@
 """A22 CPU-only exact fixed-K E1 selection and registration tests."""
 from __future__ import annotations
 import ast
+import json
 import unittest
 from pathlib import Path
 from scripts.track_r.xp_a30_a22_tab3_e1_cpu import g1_select,E1_KEYS,E1_AGG_KEYS
@@ -8,6 +9,19 @@ from scripts.track_r.xp_a30_a22_tab3_e1_cpu import g1_select,E1_KEYS,E1_AGG_KEYS
 ROOT=Path(__file__).resolve().parents[1]
 
 class A22Tab3(unittest.TestCase):
+ def test_historical_a7_checksums_match_published_receipts(self):
+  from scripts.track_r.xp_a30_a22_tab3_e1_cpu import A7_AGG
+  for stage in ("D2","D3"):
+   receipt=(ROOT/"docs/track_r/executors/xp/returns"/
+       f"XP_A7_IMAGE_K4_{stage}_20261028.json")
+   source=json.loads(receipt.read_text())
+   self.assertEqual(source["status"],
+       "XP_A7_K4_IMAGE_METRIC_AGGREGATE_PASS")
+   self.assertEqual(source["n_candidates"],400)
+   self.assertEqual(A7_AGG[stage][1],
+       source["local_per_run_detail_sha256"],
+       f"{stage}: A22 hardcoded source SHA must match historical receipt")
+
  def test_e0_min_signed_residual_before_orientation(self):
   runs=[dict(run=0,rho=.4,g1_choice="000",PSNR=20.),
         dict(run=1,rho=.1,g1_choice="111",PSNR=24.),
