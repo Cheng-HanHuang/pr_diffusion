@@ -17,7 +17,7 @@ DRAWS={"S_mid_all8":(0,1,2,3),"2_forward":(0,)}
 EVALS={"S_mid_all8":128,"2_forward":2}
 TIE=1e-7
 
-def native_scores(x,uid,model,method,alphas=None):
+def native_scores(x,uid,model,method,alphas=None,batch_size=None):
     if method not in METHODS:
         raise ValueError("method not in A23 prereg")
     if (x.dtype!=torch.float32 or x.ndim!=4 or tuple(x.shape)!=(1,3,256,256)
@@ -25,7 +25,10 @@ def native_scores(x,uid,model,method,alphas=None):
         raise ValueError("invalid native S_mid input")
     alpha=frozen_alpha_schedule() if alphas is None else alphas
     pts=PATTERNS[method]
-    sums={p:0.0 for p in pts}; count=0
+    if batch_size is None: batch_size=len(pts)
+    if batch_size not in (1,2,8) or batch_size>len(pts):
+        raise ValueError('invalid single-t prior batch size')
+    sums={p:0.0 for p in pts}; count=0; calls=0
     with torch.inference_mode():
         for t in TIMES[method]:
             at=float(alpha[t])
@@ -39,11 +42,18 @@ def native_scores(x,uid,model,method,alphas=None):
                 z=torch.cat([apply_orbit(x,p)+sigma*apply_orbit(noise,p)
                              for p in pts],dim=0)
                 targets=torch.cat([apply_orbit(noise,p) for p in pts])
-                estimate=model.tweedie(z,sigma)
-                if not isinstance(estimate,torch.Tensor) or estimate.shape!=z.shape:
-                    raise RuntimeError("native tweedie shape mismatch")
-                values=(((z-estimate)/sigma-targets).square()
-                        .flatten(1).mean(1).float().cpu().tolist())
+                values=[]
+                # A21 equivalence canary compares the same t, j and paired
+                # noise with small B1/B2 versus B8 native forward grouping.
+                for k in range(0,len(pts),batch_size):
+                    part=z[k:k+batch_size]
+                    target=targets[k:k+batch_size]
+                    estimate=model.tweedie(part,sigma)
+                    if not isinstance(estimate,torch.Tensor) or estimate.shape!=part.shape:
+                        raise RuntimeError("native tweedie shape mismatch")
+                    values.extend((((part-estimate)/sigma-target).square()
+                         .flatten(1).mean(1).float().cpu().tolist()))
+                    calls+=1
                 if len(values)!=len(pts) or not all(math.isfinite(v) for v in values):
                     raise RuntimeError("nonfinite native orbit score")
                 for p,v in zip(pts,values):sums[p]+=float(v)
@@ -55,5 +65,6 @@ def native_scores(x,uid,model,method,alphas=None):
     return dict(method=method,uid=uid,scores=scores,
         best_orbit=best,upright_kept=best=="000",
         S000=scores["000"],margin_to_best=scores["000"]-min(scores.values()),
-        denoiser_examples=EVALS[method],native_calls=count,
+        denoiser_examples=EVALS[method],native_calls=calls,
+        fixed_t_draw_grid_points=count,batch_size=batch_size,
         single_t_per_call=True,paired_R_noise=True,GT_only=True)
