@@ -122,13 +122,26 @@ def main(a):
       ramp_n=len(finished);ramp_gpu_h=hrs
       if accepted:workers=min(8,workers*2)
     cards={c.index:c for c in collect(own_roots=list(active))}
+    # Actual per-process memory is sampled read-only. Unknown or
+    # pre-first-pilot memory requires the conservative 24-GiB request.
+    memraw=subprocess.run(["nvidia-smi",
+      "--query-compute-apps=pid,used_gpu_memory",
+      "--format=csv,noheader,nounits"],
+      capture_output=True,text=True,timeout=12,check=True)
+    gpu_mem={}
+    for line in memraw.stdout.splitlines():
+     cols=[x.strip() for x in line.split(",")]
+     if len(cols)==2 and all(x.isdigit() for x in cols):
+      gpu_mem[int(cols[0])]=int(cols[1])
+    seen=[gpu_mem[pid] for pid in active if pid in gpu_mem]
+    if seen:peak=max(peak,*seen)
     for gpu in range(4):
      c=cards.get(gpu)
      if not c or c.visibility!="known":continue
      on=[v for v in active.values() if v["gpu"]==gpu]
      if len(on)>=workers:continue
      # Existing A12 C2 12,288-MiB request plus 8-GiB extra.
-     need=24576
+     need=max(24576,math.ceil(1.25*peak)+8192) if peak else 24576
      reserved=sum(need for v in on if v["proc"].pid not in c.process_pids)
      if c.free_mib-reserved<need or c.used_mib+reserved+need>int(.8*c.total_mib):continue
      ix=next_index()
