@@ -60,6 +60,8 @@ def validate(a):
          len(set(ids))==len(ids) and
          all(type(i) is int and 0<=i<280 for i in ids),
          "TASK_GRID")
+    gate(not a.canary or (a.method!="UnivFD" and len(ids)==1),
+         "CANARY_EXACTLY_ONE_PRIOR_IMAGE")
     frozen=read(GT)["images"]
     gate(len(frozen)==280 and all(frozen[i]["dataset"]==a.dataset for i in ids),
          "EXACT_FROZEN_DATASET")
@@ -179,6 +181,27 @@ def main(a):
             uid=f'XPCGT|{im["dataset"]}|{im["basename"]}'
             if cuda:
                 score=native_scores(x,uid,model,a.method,alpha)
+                torch.cuda.synchronize()
+                production_elapsed=time.monotonic()-t
+                equivalence=None
+                if a.canary:
+                    reference=native_scores(x,uid,model,a.method,alpha,
+                        batch_size=(2 if a.method=="S_mid_all8" else 1))
+                    torch.cuda.synchronize()
+                    delta=max(abs(score["scores"][p]-reference["scores"][p])
+                              for p in score["scores"])
+                    far_from_tie=(score["margin_to_best"]>1e-5 or
+                                  reference["margin_to_best"]>1e-5)
+                    agree=(score["best_orbit"]==reference["best_orbit"])
+                    gate(delta<=1e-5 and (agree or not far_from_tie),
+                         "A21_BATCH_EQUIVALENCE_FAIL")
+                    equivalence=dict(status="A21_NATIVE_BATCH_EQUIVALENCE_PASS",
+                         reference_batch_size=reference["batch_size"],
+                         production_batch_size=score["batch_size"],
+                         max_abs_loss_diff=delta,
+                         choice_equal=agree,
+                         choice_comparable_away_from_tie=far_from_tie,
+                         threshold=1e-5)
                 decision=score["best_orbit"]
                 if a.method=="2_forward":
                     gate(score["denoiser_examples"]==2,"TWO_FORWARD_EVALS")
@@ -201,6 +224,8 @@ def main(a):
                            classifier_images_forwarded=8,
                            canonical_orbit_batch=8,GT_only=True)
                 peak=0
+                production_elapsed=time.monotonic()-t
+                equivalence=None
             elapsed=time.monotonic()-t
             gate(0<elapsed<900,"IMAGE_RUNTIME")
             payload=dict(status=STATUS,method=a.method,index=i,
@@ -219,7 +244,9 @@ def main(a):
                   native_model_load_s=model_load_s,
                   native_model_trace=trace,
                   native_time_mapping=tmap,
-                  image_elapsed_s=elapsed,
+                  image_elapsed_s=production_elapsed,
+                  total_image_wall_s=elapsed,
+                  A21_canary_equivalence=equivalence,
                   diagnostic_GT_only=True,
                   GT_not_used_for_inverse_problem_generation=True,
                   no_new_selector=True,no_main_text_update=True)
@@ -240,6 +267,7 @@ if __name__=="__main__":
     p.add_argument("--tasks",required=True)
     p.add_argument("--gpu",type=int,default=-1)
     p.add_argument("--preflight-only",action="store_true")
+    p.add_argument("--canary",action="store_true")
     try:main(p.parse_args())
     except Exception as e:
         traceback.print_exc()
