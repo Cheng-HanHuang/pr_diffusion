@@ -125,8 +125,7 @@ def daps_g5(a7_d2,refs):
         gate(orient in ("000","111"),"G5_G1_CHOICE")
         flip=orient=="111"
         ps=float(z["psnr_flip"] if flip else z["psnr_raw"])
-        ss=float(mm["bad"]) if False else float(
-           mm[key]["SSIM_111"] if flip else mm[key]["SSIM_raw"])
+        ss=float(mm[key]["SSIM_111"] if flip else mm[key]["SSIM_raw"])
         lp=float(mm[key]["LPIPS_VGG_111"] if flip else
                  mm[key]["LPIPS_VGG_raw"])
         gate(all(math.isfinite(z) for z in (ps,ss,lp)),
