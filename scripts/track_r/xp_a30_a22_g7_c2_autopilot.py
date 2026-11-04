@@ -2,7 +2,7 @@
 """A22 G7 C2 budgeted multi-GPU controller; conservative no-signal scheduler.
 
 Runs existing native XP-C2 diagnostic worker. Exact 280-image frozen GT.
-Up to 4 processes/GPU after pilot. Never contacts another user's process.
+Adaptive 1/2/4/8 processes/GPU by measured completed images/GPU-hour. Never contacts another user's process.
 """
 import argparse,fcntl,hashlib,json,math,os,subprocess,sys,time,traceback
 from pathlib import Path
@@ -51,7 +51,7 @@ def main(a):
      active=[dict(pid=k,index=v["index"],gpu=v["gpu"]) for k,v in active.items()],
      gpu_occupancy_h=used,physical_gpu_h=per,worker_limit_per_gpu=workers,
      project_gpu_h=baseline+used,project_baseline_h=baseline,
-     stage_cap_h=4,model_peak_estimate_mib=peak,source_hash=proof["C2_manifest_sha256"],
+     stage_cap_h=4,model_peak_estimate_mib=peak,throughput_ramp=ramps,source_hash=proof["C2_manifest_sha256"],
      head=a.expected_head,gt_diagnostic_only=True,no_A21_10_replication=True)
    save(r/"XP_A22_G7_C2_STATE.json",state)
    return state
@@ -78,6 +78,7 @@ def main(a):
    return next((i for i in range(280) if str(i) not in finished and i not in busy),None)
   # Pilot one image on each GPU; ramp after successful completion.
   status="RUNNING";started=time.monotonic();deadline=time.time()+3.5*3600
+  ramp_n=0;ramp_gpu_h=0.;previous_rate=None;ramps=[]
   try:
    write(status)
    # Exercise the exact frozen native worker import and GT manifest first,
@@ -97,7 +98,25 @@ def main(a):
     hrs,_=accounting()
     if hrs>=3.5 or baseline+hrs>=399.5 or time.time()>deadline:
      status="PARTIAL_SAFE_BUDGET_STOP";break
-    if len(finished)>=4:workers=4
+    # A22 throughput-based ramp on *GPU occupancy hours*, not
+    # process count or memory usage. No reductions to frozen science.
+    if len(finished)>=4 and workers==1:
+     workers=2
+     ramp_n=len(finished);ramp_gpu_h=hrs
+     print("A22_G7_RAMP_GPU_WORKERS",2,flush=True)
+    elif workers>1 and workers<8 and len(finished)-ramp_n>=12:
+     dh=hrs-ramp_gpu_h
+     if dh>0:
+      rate=(len(finished)-ramp_n)/dh
+      accepted=previous_rate is None or rate>=.98*previous_rate
+      ramps.append(dict(workers=workers,images=len(finished)-ramp_n,
+         gpu_occupancy_h=dh,throughput_image_per_gpu_h=rate,
+         increase_allowed=accepted))
+      print("A22_G7_THROUGHPUT",workers,"image_per_GPUh",
+         round(rate,2),"more_workers",accepted,flush=True)
+      previous_rate=rate
+      ramp_n=len(finished);ramp_gpu_h=hrs
+      if accepted:workers=min(8,workers*2)
     cards={c.index:c for c in collect(own_roots=list(active))}
     for gpu in range(4):
      c=cards.get(gpu)
