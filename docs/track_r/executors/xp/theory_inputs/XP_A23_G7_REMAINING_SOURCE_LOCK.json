@@ -1,0 +1,116 @@
+{
+  "status": "A23_G7_REMAINING_FROZEN_BEFORE_PRODUCTION",
+  "planner_head": "6f5ee7f9c7a952472ace86cb3d3c301c92937d08",
+  "prereg": "XP_PREREG_v1_1.md XP-C and A23.5",
+  "suppl_only": true,
+  "original_GT_run": "xp_c_c2_a22_20261104T025355Z",
+  "GT_manifest_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "C2_tasks_sha256": "75e8fe296932044eb4ff1cd30300ef58a8f48ece02acd9b22ba3aa6f3bd7c7ac",
+  "image_universe": {
+    "ffhq": 180,
+    "imagenet": 100,
+    "total": 280,
+    "GT_diagnostic_only": true
+  },
+  "preceding_method": {
+    "name": "S_mid_global2",
+    "status": "A34_G7_S_MID_GLOBAL2_GT_280_ONLY_PUBLISHED",
+    "publication_branch": "codex/prdiff-track-r-a23-g7-smid-global2-20261104T080759Z",
+    "publication_commit": "da130b50856fd6c495fe73049651b746ab67b56b",
+    "published_G7_total_gpu_h": 5.1570269519018215,
+    "published_project_gpu_h": 246.9875918177077,
+    "uptight_counts": {
+      "ffhq": 180,
+      "imagenet": 95
+    }
+  },
+  "methods": [
+    "S_mid_all8",
+    "2_forward",
+    "UnivFD"
+  ],
+  "paired_prior": {
+    "model_checkpoints": {
+      "ffhq": {
+        "path": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+        "sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+        "num_channels": 128,
+        "num_res_blocks": 1,
+        "attention_resolutions": 16
+      },
+      "imagenet": {
+        "path": "/egr/research-pac/huang248/models/imagenet256.pt",
+        "sha256": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1",
+        "num_channels": 256,
+        "num_res_blocks": 2,
+        "attention_resolutions": "32,16,8"
+      }
+    },
+    "alpha": "DDPM 1000 double cumprod linear beta schedule to float32 as prdiffusion.track_r.prior_score.frozen_alpha_schedule",
+    "uid": "XPCGT|<dataset>|<basename>",
+    "seed": "R0PRIOR|uid|t|j (SHA256 digest first8 little endian & (2^63-1)), torch CPU float32.randn",
+    "score": "(z - native_tweedie(z,sigma))/sigma versus paired rotated noise, mean pixel squared error",
+    "orbit": [
+      "000",
+      "001",
+      "010",
+      "011",
+      "100",
+      "101",
+      "110",
+      "111"
+    ],
+    "tie": "S[000]-min_p(S[p])<=1e-7 selects 000 else min(S[p], lexicographic pattern)",
+    "smid_all8": {
+      "timesteps": [
+        300,
+        400,
+        500,
+        600
+      ],
+      "draws": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "batch_rule": "one DDPM t per forward call; 8 orbit examples per j; reference PriorScorer uses identical paired orbit noises",
+      "evals_per_image": 128
+    },
+    "two_forward": {
+      "timesteps": [
+        300
+      ],
+      "draws": [
+        0
+      ],
+      "batch_rule": "two global orbit examples, one t300 draw0",
+      "evals_per_image": 2
+    }
+  },
+  "univfd": {
+    "source_repo": "/egr/research-pac/huang248/external/UniversalFakeDetect",
+    "source_head": "030495aea3300a8b54c0ec37ec7fe1dd7e63c619",
+    "fc_path": "pretrained_weights/fc_weights.pth",
+    "fc_sha256": "477100745713bcc957beb2b40859536859b6483fd6301b3b9293151b194c7847",
+    "clip_path": "/egr/research-pac/huang248/models/clip/ViT-L-14.pt",
+    "clip_sha256": "b8cca3fd41ae0c99ba7e8951adf17d267cdb84cd88be6f7c2e0eca1737a03836",
+    "scoring": "Original R0 UnivFD wrapper p_fake on canonical 8 RGB8 orbit members, select lowest fake-probability; exact ties select lowest orbit index",
+    "GT_only": true,
+    "CPU_allowed": true
+  },
+  "budgets": {
+    "G7_total_cap_h": 10,
+    "G7_cumulative_used_A34_h": 5.1570269519018215,
+    "G7_remaining_h": 4.8429730480981785,
+    "project_cumulative_used_A34_h": 246.9875918177077,
+    "project_cap_h": 400,
+    "pilot_and_failures_charged": true
+  },
+  "no_solver_generation": true,
+  "no_new_selector": true,
+  "no_main_paper_data": true,
+  "no_matched_compute": true,
+  "no_A21_10_replicate": true,
+  "authorization_note": "Source freeze is not a native CUDA validation; new live GPU work requires A35 preflight, pilot, and budget admission."
+}
