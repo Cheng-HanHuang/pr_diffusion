@@ -107,6 +107,15 @@ def gpu_memory_admission(gpu):
         not_clean_gpu_timing=True)
 
 def main(a):
+    if a.preflight_only:
+        gate(os.environ.get("CUDA_VISIBLE_DEVICES") == "", "CPU_PREFLIGHT_NO_VISIBLE_GPU")
+        spec,entry,cfg,source_sha=source(a.index,a.expected_head)
+        from scripts.track_r.xp_t_daps4k_native_cpu import NATIVE,verify_clean_sparse
+        gate(verify_clean_sparse(NATIVE), "NATIVE_DAPS_SOURCE_PREFLIGHT")
+        print("A23_G7_S_MID_CPU_SOURCE_PREFLIGHT_PASS",a.index,
+              entry["dataset"],"SOURCE_SHA",source_sha,
+              "CODE_HEAD",a.expected_head,flush=True)
+        return
     from scripts.track_r.xp_t_daps4k_native_cpu import NATIVE,verify_clean_sparse
     from scripts.track_r.xp_t_daps4k_worker_gpu import (
         model_config,load_model_native,validate_weight_trace)
@@ -199,6 +208,7 @@ if __name__=="__main__":
     p.add_argument("--run",required=True)
     p.add_argument("--index",required=True,type=int)
     p.add_argument("--gpu",required=True,type=int)
+    p.add_argument("--preflight-only",action="store_true")
     try:main(p.parse_args())
     except Exception as e:
         traceback.print_exc()
