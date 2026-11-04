@@ -23,7 +23,7 @@ class A22Tab3(unittest.TestCase):
   a=[dict(run=j,rho=.1) for j in range(4)]
   with self.assertRaises(RuntimeError):g1_select(a,8)
  def test_exact_table3_schema(self):
-  self.assertEqual(len(E1_KEYS),9)
+  self.assertEqual(len(E1_KEYS),10)
   self.assertEqual(len(E1_AGG_KEYS),8)
   self.assertIn("VGG_LPIPS",E1_AGG_KEYS)
   self.assertIn("g1_choice",E1_KEYS)
