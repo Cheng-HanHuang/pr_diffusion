@@ -1,0 +1,71 @@
+{
+  "G7_total_gpu_h": 5.1570269519018215,
+  "GT_only_diagnostic": true,
+  "aggregate_rows": [
+    {
+      "GT_only_diagnostic": true,
+      "bootstrap_ci_hi": "1",
+      "bootstrap_ci_lo": "1",
+      "bootstrap_replicates": 10000,
+      "bootstrap_seed_rule": "SHA256('A23G7SMIDBOOT|'+dataset)[:8] BE",
+      "dataset": "ffhq",
+      "n": 180,
+      "n_inverted": 0,
+      "n_upright_kept": 180,
+      "policy": "S_mid_global2",
+      "upright_retention_fraction": "1"
+    },
+    {
+      "GT_only_diagnostic": true,
+      "bootstrap_ci_hi": "0.99",
+      "bootstrap_ci_lo": "0.9",
+      "bootstrap_replicates": 10000,
+      "bootstrap_seed_rule": "SHA256('A23G7SMIDBOOT|'+dataset)[:8] BE",
+      "dataset": "imagenet",
+      "n": 100,
+      "n_inverted": 5,
+      "n_upright_kept": 95,
+      "policy": "S_mid_global2",
+      "upright_retention_fraction": "0.95"
+    },
+    {
+      "GT_only_diagnostic": true,
+      "bootstrap_ci_hi": "0.996428571428571",
+      "bootstrap_ci_lo": "0.964285714285714",
+      "bootstrap_replicates": 10000,
+      "bootstrap_seed_rule": "SHA256('A23G7SMIDBOOT|'+dataset)[:8] BE",
+      "dataset": "pooled",
+      "n": 280,
+      "n_inverted": 5,
+      "n_upright_kept": 275,
+      "policy": "S_mid_global2",
+      "upright_retention_fraction": "0.982142857142857"
+    }
+  ],
+  "aggregate_sha256": "e7c1f1ca16d6cbfdef2a2266047925e0bc2f82a2178b5ee9461dbb659d29ca35",
+  "head": "581d6cae9e4306dfba1b79e9fdec57e7c2b6e8be",
+  "n_ffhq": 180,
+  "n_imagenet": 100,
+  "n_images": 280,
+  "n_pilot_images_reused": 2,
+  "n_upright_kept_by_dataset": {
+    "ffhq": 180,
+    "imagenet": 95,
+    "pooled": 275
+  },
+  "no_A21_10_replication": true,
+  "no_inverse_problem_solver_run": true,
+  "no_matched_compute_claim": true,
+  "no_new_main_paper_claim": true,
+  "original_C2_task_source_sha256": "75e8fe296932044eb4ff1cd30300ef58a8f48ece02acd9b22ba3aa6f3bd7c7ac",
+  "original_G7_C_source_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "per_image_sha256": "3f6b6ae264510dd21b4ae2608fe0808c25861f810c7d89b1a1838f539b41908f",
+  "project_total_gpu_h": 246.9875918177077,
+  "remaining_G7_methods_not_done": [
+    "S_mid_all8",
+    "2_forward",
+    "UnivFD"
+  ],
+  "source_native_controller_state_sha256": "db2efa7bcd932b60db22ad65946e7b27e7d04c3b8c40e920af0eaeef6fac584e",
+  "status": "A34_G7_S_MID_GLOBAL2_GT_ONLY_READOUT_PASS"
+}

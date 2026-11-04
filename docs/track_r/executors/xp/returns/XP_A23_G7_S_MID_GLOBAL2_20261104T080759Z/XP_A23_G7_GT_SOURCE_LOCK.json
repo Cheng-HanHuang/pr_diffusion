@@ -1,0 +1,87 @@
+{
+  "status": "A23_G7_GT_SOURCE_AND_S_MID_GLOBAL2_DEFINITION_FROZEN_BEFORE_NEW_RESULTS",
+  "governing_planner": "6f5ee7f9c7a952472ace86cb3d3c301c92937d08",
+  "governing_prereg": "A23.5, A20.3 and original XP-C row",
+  "source_run": "xp_c_c2_a22_20261104T025355Z",
+  "source_original_head": "999d7eb9ee2a254a41c48354e3721155fa046e2a",
+  "source_image_manifest_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "source_c2_task_manifest_sha256": "75e8fe296932044eb4ff1cd30300ef58a8f48ece02acd9b22ba3aa6f3bd7c7ac",
+  "n_images": 280,
+  "FFHQ": 180,
+  "ImageNet": 100,
+  "source_scope": "GT_DIAGNOSTIC_ONLY_DO_NOT_PASS_TO_INVERSE_PROBLEM_SOLVER",
+  "models": {
+    "ffhq": {
+      "checkpoint": "/egr/research-pac/huang248/models/ffhq_10m.pt",
+      "checkpoint_sha256": "81d535743156ec6be34d8668e6920da94f0614074d7793a16c8fa9e306237faa",
+      "num_channels": 128,
+      "num_res_blocks": 1,
+      "attention_resolutions": 16
+    },
+    "imagenet": {
+      "checkpoint": "/egr/research-pac/huang248/models/imagenet256.pt",
+      "checkpoint_sha256": "a37c32fffd316cd494cf3f35b339936debdc1576dad13fe57c42399a5dbc78b1",
+      "num_channels": 256,
+      "num_res_blocks": 2,
+      "attention_resolutions": "32,16,8"
+    }
+  },
+  "g7_order": [
+    "S_mid_global2",
+    "S_mid_all8",
+    "2_forward",
+    "UnivFD"
+  ],
+  "S_mid_global2": {
+    "status": "EXACT_A20_3_ESTIMATOR_EXPECTED_A21_BATCH_EQUIVALENCE",
+    "timesteps_DDPM1000": [
+      300,
+      400,
+      500,
+      600
+    ],
+    "draws_per_time": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "rotations": [
+      "000",
+      "111"
+    ],
+    "n_orbit_noise_examples_per_image": 32,
+    "seed_uid_rule": "XPCGT|<dataset>|<basename>",
+    "seed_function": "prdiffusion.track_r.prior_score.prior_seed(uid,t,j), SHA256('R0PRIOR|uid|t|j') first8 LE & 2^63-1",
+    "noise_rule": "CPU torch.randn([1,3,256,256], float32) seeded at (uid,t,j), paired orientation 000 noise and R111 noise",
+    "schedule": "frozen_alpha_schedule (torch double cumprod DDPM1000 linear beta 0.0001..0.02 then float32)",
+    "score_rule": "mean over 4 t x 4 j pixel MSE between epsilon_hat from native Tweedie inverse and paired input epsilon",
+    "comparison": "margin=L000-L111; choose 111 iff margin>1e-7 else 000",
+    "batch_rule": "single timestep per native forward, A21 B8 versus B2 frozen numerical equivalence",
+    "orientation_metric": "GT upright retention: choose 000; for 8-way compare 000 with all 7 alternatives",
+    "no_GT_inverse_solver_generation": true
+  },
+  "remaining_methods": [
+    {
+      "name": "S_mid_all8",
+      "status": "PENDING_NATIVE_ADAPTER"
+    },
+    {
+      "name": "2_forward",
+      "status": "PENDING_NATIVE_ADAPTER"
+    },
+    {
+      "name": "UnivFD",
+      "status": "PENDING_NATIVE_ADAPTER"
+    }
+  ],
+  "GPU_launch_authorized_by_this_freeze": false,
+  "GPU_budget": {
+    "total_G7_gpu_h": 10,
+    "prior_G7_C2_gpu_h": 2.6265298946173345,
+    "unspent_G7_h": 7.3734701053826655,
+    "project_last_accepted_gpu_h": 244.45709476042322,
+    "project_limit_gpu_h": 400
+  },
+  "science_scope": "supplement_only"
+}

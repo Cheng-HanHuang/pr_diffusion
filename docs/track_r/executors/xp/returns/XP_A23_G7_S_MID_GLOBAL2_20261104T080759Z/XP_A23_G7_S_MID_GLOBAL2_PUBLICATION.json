@@ -1,0 +1,30 @@
+{
+  "CPU_readout_receipt_sha256": "0a86f70813f99563aa9e10aeafc50bfefa01492ce3da676d05a0eed39ff8969a",
+  "G7_total_gpu_h": 5.1570269519018215,
+  "GT_only_diagnostics": true,
+  "XP_K_not_run": true,
+  "accepted_pilot_image_reuse": 2,
+  "aggregate_csv_sha256": "e7c1f1ca16d6cbfdef2a2266047925e0bc2f82a2178b5ee9461dbb659d29ca35",
+  "controller_final_status_sha256": "db2efa7bcd932b60db22ad65946e7b27e7d04c3b8c40e920af0eaeef6fac584e",
+  "n_ffhq": 180,
+  "n_imagenet": 100,
+  "n_images": 280,
+  "no_A21_10_replication": true,
+  "no_inverse_solver_generation": true,
+  "not_full_G7_completion": true,
+  "not_main_paper_data": true,
+  "not_matched_compute": true,
+  "original_scoring_head": "581d6cae9e4306dfba1b79e9fdec57e7c2b6e8be",
+  "per_image_csv_sha256": "3f6b6ae264510dd21b4ae2608fe0808c25861f810c7d89b1a1838f539b41908f",
+  "project_total_gpu_h": 246.9875918177077,
+  "remaining_G7_policies_not_claimed": [
+    "S_mid_all8",
+    "2_forward",
+    "UnivFD"
+  ],
+  "source_GT_manifest_sha256": "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde",
+  "source_accepted_C2_CLIP_publication": "9090a50a4d4ffe922bdb43c5ee9e877c059a7dd1",
+  "source_lock_sha256": "8b67211e094349d8ef07bea2e51583ae3f0c7630662c2b0c6a0c08814793fbac",
+  "stage_name": "S_mid_global2",
+  "status": "A23_G7_S_MID_GLOBAL2_GT_280_ONLY_PUBLISHED"
+}

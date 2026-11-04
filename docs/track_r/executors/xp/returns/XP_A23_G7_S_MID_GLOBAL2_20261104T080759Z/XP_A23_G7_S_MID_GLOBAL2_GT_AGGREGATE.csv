@@ -1,0 +1,4 @@
+policy,dataset,n,n_upright_kept,n_inverted,upright_retention_fraction,bootstrap_ci_lo,bootstrap_ci_hi,bootstrap_replicates,bootstrap_seed_rule,GT_only_diagnostic
+S_mid_global2,ffhq,180,180,0,1,1,1,10000,SHA256('A23G7SMIDBOOT|'+dataset)[:8] BE,True
+S_mid_global2,imagenet,100,95,5,0.95,0.9,0.99,10000,SHA256('A23G7SMIDBOOT|'+dataset)[:8] BE,True
+S_mid_global2,pooled,280,275,5,0.982142857142857,0.964285714285714,0.996428571428571,10000,SHA256('A23G7SMIDBOOT|'+dataset)[:8] BE,True
