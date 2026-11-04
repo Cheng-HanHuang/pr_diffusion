@@ -115,7 +115,10 @@ def made_tasks(stage,kind,groups):
     return dest
 
 def current_method_h(intervals,active):
-    return sum(total_union(intervals,active).values())
+    # CPU UnivFD workers have gpu=None and MUST NOT enter the
+    # physical-GPU-hour union (total_union casts GPU ids to int).
+    gpu_active={pid:v for pid,v in active.items() if v["gpu"] is not None}
+    return sum(total_union(intervals,gpu_active).values())
 
 def stage_controller(run,method,head,global_spent):
     stage=run/method
