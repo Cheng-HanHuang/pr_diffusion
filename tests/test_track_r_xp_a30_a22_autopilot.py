@@ -10,6 +10,7 @@ SCRIPTS=[
 "xp_a30_a22_g7_prepare_cpu.py",
 "xp_a30_a22_g7_c2_autopilot.py",
 "xp_a30_a22_g7_c2_report_cpu.py",
+ "xp_a30_a22_g7_publish_cpu.py",
 "xp_a30_a22_autopilot.py"]
 class A22ContractTests(unittest.TestCase):
  def test_all_script_syntax(self):
