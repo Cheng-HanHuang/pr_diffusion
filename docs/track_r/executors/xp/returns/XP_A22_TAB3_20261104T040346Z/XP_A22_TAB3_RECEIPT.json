@@ -1,0 +1,42 @@
+{
+  "A7": {
+    "D2": {
+      "detail_sha256": "176d7458a8b5017d5b032ae2e3465a7938a783bd660a67c1daa3de139a7b6a05",
+      "native_head": "8d9bfed0fa62735791987a24791cfb97123540d8",
+      "native_manifest_sha256": "9b08c8527c3388cfb44b56f934f62b3e48d254ea433867b1c4d87f5ce8335f44",
+      "published_receipt_sha256": "c36476c56102b239c930294223c91ec57a94a6b11cbde228e0ce7bb95459545e"
+    },
+    "D3": {
+      "detail_sha256": "30f328d63b7d9b54e58c863ea33040d3ae2e8368c9c9cfea6f4712e7ecdec8d3",
+      "native_head": "b7af2f7135beb6e8367d83f028e0fbaf163bc7bd",
+      "native_manifest_sha256": "19ab2f4ee78c65e5b8c7ab5964358802ce5bd9757ca47927bac6ab4bc0f071cd",
+      "published_receipt_sha256": "b78d3c1ded973caa1abd33dc1ac42cc9edcc129d01bb1f155115f14e438bed7e"
+    }
+  },
+  "DAPS_G5_metrics_independently_revalidated": true,
+  "G1": "frozen G1 original prior scoring; 111 chosen iff positive margin",
+  "GT_for_offline_metrics_only": true,
+  "PSNR": "frozen RGB8 at chosen orientation",
+  "SITCOM_G1_choice_copied_from_original_scoring": true,
+  "SITCOM_selection_and_PSNR_revalidated": true,
+  "SSIM": "piq 0.8.0, native float [0,1], chosen orientation",
+  "VGG_LPIPS": "piq 0.8.0 pretrained VGG, native float [0,1], chosen orientation",
+  "implementation_head": "a42e14ebdb6b820b29fc34a4b604e66981e74710",
+  "local_image_detail_sha256": "4dc40ee37b4474e14bc1d2c2986a0668c296746138b10cdf7268036597d9d255",
+  "n_images": 100,
+  "n_policy_rows": 300,
+  "n_tables": 3,
+  "no_GT_in_selection": true,
+  "no_repeat_CLIP_or_LPIPS": true,
+  "not_matched_compute": true,
+  "optional_a21_10_replication_not_run": true,
+  "original_scoring_head": "999d7eb9ee2a254a41c48354e3721155fa046e2a",
+  "receipt_only_repair": true,
+  "repair_reason": "original Table3 scoring shadowed argparse.Namespace a with a list at summarize assignment; CSVs completed before receipt creation",
+  "selector": "E0 min signed measurement rho among first K, stable run index; then G1 orientation",
+  "simulator_or_solver_gpu_calls": 0,
+  "source_DAPS_G5": "frozen CP3 read_stage('G5'), first four D2 historical roots verified bytewise",
+  "source_SITCOM": "frozen A7 D3 400 native roots",
+  "status": "A22_TABLE3_E1_IMAGE_NET_CPU_PASS",
+  "table_sha256": "124d67030bdf42c966f6b777c17ef9c1177596d436160fb104caa3cf0d0cc148"
+}

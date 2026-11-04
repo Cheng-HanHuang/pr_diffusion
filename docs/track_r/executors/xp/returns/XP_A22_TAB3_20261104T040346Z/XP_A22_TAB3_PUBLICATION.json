@@ -1,0 +1,27 @@
+{
+  "exact_frozen_G1": true,
+  "n_images": 100,
+  "no_matched_compute_claim": true,
+  "no_new_solver_GPU": true,
+  "originating_code_head": "a42e14ebdb6b820b29fc34a4b604e66981e74710",
+  "panels": [
+    [
+      "D2",
+      4
+    ],
+    [
+      "D2",
+      8
+    ],
+    [
+      "D3",
+      4
+    ]
+  ],
+  "six_orbit_data_unmodified": true,
+  "source_CPU_receipt_sha256": "87861406b51837d3df14f290a050556f7b6669c9c608a8ef0811b987b97aefd8",
+  "source_N2_frozen_prompts_sha256": "9168bd24b7a8808d6c4922926b7e7f1a91758cf6aec8c5608b1940f513e259a4",
+  "source_image_evaluation_sha256": "4dc40ee37b4474e14bc1d2c2986a0668c296746138b10cdf7268036597d9d255",
+  "source_table_sha256": "124d67030bdf42c966f6b777c17ef9c1177596d436160fb104caa3cf0d0cc148",
+  "status": "A22_TAB3_E1_G1_PUBLISHED"
+}
