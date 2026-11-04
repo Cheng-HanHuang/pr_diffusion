@@ -74,14 +74,32 @@ PKG_SHA_BEFORE=$(sha256sum "$VENDOR/pkg_resources/__init__.py" | awk '{print $1}
 # ftfy 6.3.1 imports wcwidth; pin both in the EXISTING isolated A36
 # provider so the frozen A36 subprocess (which sets its own PYTHONPATH)
 # resolves them without modifying any scientific source.
-if ! "$PY" - <<'PY'
-import importlib.util
-raise SystemExit(0 if importlib.util.find_spec("ftfy") is not None
-                 and importlib.util.find_spec("wcwidth") is not None else 1)
+if ! "$PY" - "$VENDOR" <<'PY'
+import importlib.util,pathlib,sys
+vendor=pathlib.Path(sys.argv[1]).resolve()
+for name in ("ftfy","wcwidth"):
+    x=importlib.util.find_spec(name)
+    if not x or not x.origin or not pathlib.Path(x.origin).resolve().is_relative_to(vendor):
+        raise SystemExit(1)
+raise SystemExit(0)
 PY
 then
+  # Official PyPI pure-Python wheel SHA256 pins (ftfy 6.3.1,
+  # wcwidth 0.2.13). Do not fetch a different version or sdist.
+  REQ="$BASE/A37_UNIVFD_REQUIREMENTS_WITH_HASHES.txt"
+  printf '%s\n' \
+    'ftfy==6.3.1 --hash=sha256:7c70eb532015cd2f9adb53f101fb6c7945988d023a085d127d1573dc49dd0083' \
+    'wcwidth==0.2.13 --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859' \
+    > "$REQ.tmp"
+  if [ -e "$REQ" ]; then
+    cmp "$REQ.tmp" "$REQ"
+    rm "$REQ.tmp"
+  else
+    mv "$REQ.tmp" "$REQ"
+  fi
   "$PY" -m pip install --no-input --disable-pip-version-check \
-     --no-deps --target "$VENDOR" "ftfy==6.3.1" "wcwidth==0.2.13"
+     --no-deps --require-hashes --only-binary=:all: \
+     --target "$VENDOR" --requirement "$REQ"
 fi
 # Original bundled CLIP also uses regex and tqdm. Install an isolated,
 # pinned copy only when the original daps interpreter lacks the module.
@@ -140,6 +158,40 @@ assert bool(((out>=0)&(out<=1)).all())
 assert fd.forward_images==8 and fd.forward_calls==1
 print("A37_UNIVFD_FULL_MODEL_CPU_8_ORBIT_SMOKE_PASS",
       "fake_prob_mean",float(out.mean()),flush=True)
+PY
+
+echo "=== Write isolated dependency recovery provenance ==="
+"$PY" - "$RUN" "$VENDOR" "$HEAD" <<'PY'
+import hashlib,importlib.metadata as md,json,pathlib,sys
+run=pathlib.Path(sys.argv[1]);vendor=pathlib.Path(sys.argv[2]);head=sys.argv[3]
+import ftfy,wcwidth,pkg_resources,regex,tqdm
+def sha(p):
+    return hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest()
+r=dict(status="A37_UNIVFD_ENVIRONMENT_AND_8_ORBIT_SMOKE_PASS",
+    A37_source_head=head,
+    A36_science_head="e7fb7e88f442aae863747c38342c5ff5f652a767",
+    original_A36_run=str(run),
+    original_failure="No module named 'ftfy'",
+    vendor_path=str(vendor),
+    packages={k:dict(version=md.version(k),
+                     import_path=str(m.__file__),
+                     module_sha256=sha(m.__file__))
+              for k,m in (("ftfy",ftfy),("wcwidth",wcwidth),
+                          ("setuptools",pkg_resources),
+                          ("regex",regex),("tqdm",tqdm))},
+    original_CLIP_source_and_weights_unchanged=True,
+    synthetic_eight_orbit_CPU_model_smoke_passed=True,
+    GT_image_records_before_resume=0,
+    cuda_visible_devices="",
+    new_gpu_occupancy_h=0)
+p=run/"A37_UNIVFD_ENVIRONMENT_RECEIPT.json"
+if p.exists():
+    assert json.loads(p.read_text())==r
+else:
+    with p.open("x") as f:
+        json.dump(r,f,sort_keys=True,indent=2)
+        f.write("\n")
+print("A37_DEPENDENCY_RECEIPT_SAVED",p,flush=True)
 PY
 
 echo "=== Resume existing A36 run: no new run or scientific commit ==="
