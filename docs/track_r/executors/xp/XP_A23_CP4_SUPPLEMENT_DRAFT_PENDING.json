@@ -1,0 +1,130 @@
+{
+  "status": "A23_CP4_SUPPLEMENT_DRAFT_PENDING_GPU_RESOURCE_HOLD",
+  "scientific_scope": "supplement_only_no_new_main_text_claims",
+  "planner_round": 19,
+  "planner_prereg": "A23",
+  "planner_commit": "6f5ee7f",
+  "deadline_ET": "2026-11-15T12:00:00-05:00",
+  "creation": "2026-11-04",
+  "no_results_claimed": true,
+  "native_GPU_work_authorized_now": false,
+  "gpu_resource_hold": true,
+  "accepted": {
+    "tab3": {
+      "status": "PLANNER_A23_ACCEPTED",
+      "commit": "df6e8cd5c62f506343f2ff8fe6d493c4d032ea68",
+      "csv_sha256": "124d67030bdf42c966f6b777c17ef9c1177596d436160fb104caa3cf0d0cc148"
+    },
+    "g7_c2_clip": {
+      "status": "PLANNER_A23_ACCEPTED_PARTIAL_G7",
+      "commit": "9090a50a4d4ffe922bdb43c5ee9e877c059a7dd1",
+      "n_images": 280,
+      "n_c2_pairs": 10080,
+      "n_c2_summary_rows": 36
+    },
+    "n2_prompts": {
+      "status": "PLANNER_A23_ACCEPTED",
+      "source_commit": "b1637f7c27a3caaa03a8b204171fca0d3fccfcd5",
+      "exact_prompt_count": 6
+    }
+  },
+  "g7": {
+    "status": "GPU_RESOURCE_HOLD_REMAINING",
+    "published_c2_gpu_occupancy_h": 2.6265298946173345,
+    "A23_total_gpu_h_cap": 10,
+    "remaining_gpu_h_before_new_charges": 7.3734701053826655,
+    "image_universe": "same 280 GT-only FFHQ180+ImageNet100 as published C2 and CLIP",
+    "unrun_arms": [
+      {
+        "arm": "S_mid_global2",
+        "status": "NOT_RUN_GPU_HOLD",
+        "estimator": "exact XP-C3 A20.3"
+      },
+      {
+        "arm": "S_mid_all8",
+        "status": "NOT_RUN_GPU_HOLD"
+      },
+      {
+        "arm": "2_forward",
+        "status": "NOT_RUN_GPU_HOLD"
+      },
+      {
+        "arm": "UnivFD",
+        "status": "NOT_RUN_GPU_HOLD"
+      }
+    ],
+    "GT_upright_retention_table": null,
+    "all_four_arms_passed": false
+  },
+  "xp_k": {
+    "status": "GPU_RESOURCE_HOLD_AND_SCIENCE_GATES_PENDING",
+    "family_order": [
+      "SITCOM",
+      "FAST_DIPS",
+      "DAPS_FFHQ"
+    ],
+    "image_universe": "B22 FFHQ100, 4 independent roots per family",
+    "gpu_h_stage_cap": 30,
+    "mechanism_v1_forecast_comparison": null,
+    "mechanism_v1_1_forecast_comparison": null,
+    "prereg_one_parameter_targets": {
+      "SITCOM_tau": 0.05,
+      "FAST_DIPS_epsilon": 33.26,
+      "DAPS_FFHQ_tau": 0.07071067811865475
+    },
+    "gates": {
+      "committed_native_one_parameter_diff": "PENDING_SOURCE_BINDING_PROOF",
+      "two_historical_B22_roots_per_family_original_parameter_identity_replay": "NOT_RUN_GPU_HOLD",
+      "DAPS_F8_historical_replay": "PENDING_PROOF",
+      "no_unregistered_parameter_changes": true
+    },
+    "result": null
+  },
+  "ledger": {
+    "status": "PUBLISHED_CHECKPOINT_ONLY_NOT_FRESH_PAC_RECONCILIATION",
+    "project_gpu_h_checkpoint": 244.45709476042322,
+    "project_gpu_h_cap": 400,
+    "project_headroom_before_new_charges": 155.54290523957678,
+    "native_G7_C2_gpu_h": 2.6265298946173345,
+    "final_gpu_h": null,
+    "new_GPU_charges_since_checkpoint": null
+  },
+  "not_run": [
+    {
+      "experiment": "A21.10 cross-GPU replication",
+      "status": "OPTIONAL_NOT_RUN_USER_EXCLUDED"
+    },
+    {
+      "experiment": "G7 S_mid global2",
+      "status": "NOT_RUN_GPU_RESOURCE_HOLD"
+    },
+    {
+      "experiment": "G7 S_mid all8",
+      "status": "NOT_RUN_GPU_RESOURCE_HOLD"
+    },
+    {
+      "experiment": "G7 2-forward",
+      "status": "NOT_RUN_GPU_RESOURCE_HOLD"
+    },
+    {
+      "experiment": "G7 UnivFD",
+      "status": "NOT_RUN_GPU_RESOURCE_HOLD"
+    },
+    {
+      "experiment": "XP-K SITCOM calibration",
+      "status": "NOT_RUN_GPU_HOLD_AND_IDENTITY_REPLAY_PENDING"
+    },
+    {
+      "experiment": "XP-K FAST-DIPS calibration",
+      "status": "NOT_RUN_GPU_HOLD_AND_IDENTITY_REPLAY_PENDING"
+    },
+    {
+      "experiment": "XP-K historical DAPS calibration",
+      "status": "NOT_RUN_GPU_HOLD_AND_F8_REPLAY_PENDING"
+    }
+  ],
+  "no_protocol_v2": true,
+  "no_new_selector": true,
+  "no_matched_compute_claim": true,
+  "not_a_CP4_completion_receipt": true
+}
