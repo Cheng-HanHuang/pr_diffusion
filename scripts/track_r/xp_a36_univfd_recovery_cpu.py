@@ -239,7 +239,7 @@ def main(a):
                 original_A35_failure_preserved=True,
                 pkg_resources_provider="official_setuptools_80.9.0_vendor",
                 pkg_resources_module_sha256=module_sha,
-                2_forward_published_commit=LAST_TWO["2_forward"][1],
+                two_forward_published_commit=LAST_TWO["2_forward"][1],
                 S_mid_all8_published_commit=LAST_TWO["S_mid_all8"][1],
                 previous_G7_cumulative_gpu_h=G7_TOTAL,
                 previous_project_cumulative_gpu_h=PROJECT_TOTAL,
