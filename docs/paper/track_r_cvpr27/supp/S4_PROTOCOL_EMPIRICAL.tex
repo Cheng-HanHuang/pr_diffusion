@@ -237,22 +237,24 @@ On our $180$ FFHQ images it gives $29.76$ ($30.26$)\,dB, $0.801$ ($0.811$) and $
 These are ground-truth oracles, not ground-truth-free outputs.
 
 \paragraph{ImageNet, four runs per image.}
-\Cref{tab:s4-imagenet} gives the layers of the published protocol on the $100$ ImageNet images of the main text: the first run, the residual pick, the per-metric oracle that the published numbers use, and the orbit oracle.
+\Cref{tab:s4-imagenet} gives the layers of the published protocol on the $100$ ImageNet images of the main text: the first run, the residual pick, the residual pick with the generic orientation test, the per-metric oracle that the published numbers use, and the orbit oracle.
+Without the ground truth, $\Eone$ beats the per-metric oracle for both solvers, because the oracle leaves rotated runs uncorrected; its VGG-LPIPS is $0.325$ for DAPS-4K, against $0.340$ for the oracle.
+With eight runs, DAPS-4K's $\Eone$ reaches $24.06$\,dB, SSIM $0.560$ and VGG-LPIPS $0.300$, against $24.07$, $0.565$ and $0.298$ for the per-metric oracle.
 
 \begin{table}[h]
 \centering\small
 \setlength{\tabcolsep}{2.2pt}
-\begin{tabular}{@{}lcccc@{}}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-Solver & First & $\Eo$ & Per-metric & $\Oorb$ \\
+Solver & First & $\Eo$ & $\Eone$ & Per-metric & $\Oorb$ \\
 \midrule
-DAPS-4K & 18.04 / .386 & 19.94 / .447 & 22.28 / .518 & 24.37 / .570 \\
-SITCOM & 14.85 / .228 & 16.31 / .270 & 18.24 / .317 & 20.02 / .359 \\
+DAPS-4K & 18.04 / .386 & 19.94 / .447 & 23.10 / .534 & 22.28 / .518 & 24.37 / .570 \\
+SITCOM & 14.85 / .228 & 16.31 / .270 & 18.42 / .322 & 18.24 / .317 & 20.02 / .359 \\
 \midrule
-\multicolumn{5}{@{}l}{\footnotesize DAPS paper~\cite{zhang2025daps}: 25.78 / .743; DAPS-4K rerun in~\cite{kocabas2026pcdaps}: 20.98 / .461.}\\
+\multicolumn{6}{@{}l}{\footnotesize DAPS paper~\cite{zhang2025daps}: 25.78 / .743; DAPS-4K rerun in~\cite{kocabas2026pcdaps}: 20.98 / .461.}\\
 \bottomrule
 \end{tabular}
-\caption{\textbf{ImageNet, $100$ images, four runs each: mean PSNR (dB) / SSIM.} ``Per-metric'' is the published protocol. $\Oorb$ also searches each run's orientation orbit.}
+\caption{\textbf{ImageNet, $100$ images, four runs each: mean PSNR (dB) / SSIM.} $\Eone$: residual pick and the generic CLIP test, no ground truth. ``Per-metric'' is the published protocol. $\Oorb$ also searches each run's orientation orbit.}
 \label{tab:s4-imagenet}
 \end{table}
 

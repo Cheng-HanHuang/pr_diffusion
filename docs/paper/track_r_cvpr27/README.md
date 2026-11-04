@@ -20,7 +20,6 @@ latexmk -pdf main.tex
 - **`\claim{ID}`** tags a statement with its entry in `CLAIMS_LEDGER.md`. Only VERIFIED claims, or claims proven or measured by Nov 14, may stay.
 - **`\TODO{...}`** marks writing tasks.
 - **Pending items tracked here** (no `\pending` marker is left in `sec/0`–`sec/7` since 2026-11-03; XP-I2 and XP-C3 are in the text since 2026-11-03, 18:00):
-  - Sec. 6, ImageNet paragraph: E1 columns for DAPS-4K and SITCOM in the supplement's ImageNet table (A7 ZIP, Nov 6); VGG LPIPS.
   - Supplement: σ ∈ {0.02, 0.10} detail, the 512 canvas, DPS.
 - **Double-blind:**
   - cite SITCOM and every other prior work in the third person;

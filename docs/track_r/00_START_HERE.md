@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-11-03 by the planner (Claude).
+**Updated:** 2026-11-04 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,12 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-04, 00:16 (planner): Tab. 3 E1 and G7 C2/CLIP accepted (A23). The main-paper data cut is met.**
+  - **Tab. 3:** without the ground truth, DAPS-4K's E1 with four runs beats the published per-metric ground-truth oracle on every metric on ImageNet (23.10 dB / 0.534 / 0.325 vs 22.28 / 0.518 / 0.340). This is in Sec. 6.
+  - **C2:** the ImageNet denoiser is nearly equivariant to the global flip (relative defect 0.015–0.052, against 0.10–0.31 on FFHQ). This is in S2, with the N2 prompts and ground-truth CLIP counts.
+  - **Theory:** S3 `ecea698` integrated; the main-text wording for the prior test is adopted.
+  - **Remaining, supplement only:** G7 prior/UnivFD on ground-truth images (ceiling 10 GPU-h), XP-K with three gates (30 GPU-h), CP4 by Nov 15.
+  - **Notes, round 19:** [`executors/xp/19_PLANNER_NOTES_20261104.md`](executors/xp/19_PLANNER_NOTES_20261104.md) and [`executors/theory/19_PLANNER_GUIDANCE_20261104.md`](executors/theory/19_PLANNER_GUIDANCE_20261104.md).
 - **2026-11-03, 17:07 (planner): XP-C3 and XP-I2 complete, reproduced and in the paper (A22).**
   - **XP-C3:** 13,600 candidates in 9.75 GPU-occupancy hours.
     - On the new images, the prior's own orientation test beats generic CLIP by 5 points (K = 16: +5.3 [+1.1, +9.8]).

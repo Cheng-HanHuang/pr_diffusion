@@ -30,6 +30,18 @@ The formulas use a fresh-$K$ iid model and assume $s>0$;
 for $s=0$, $E_0=E_1=0$ under the stated $I$-last rule.
 They are neither the physical law of native diffusion residuals nor
 the exact evaluation of an existing fixed panel.
+\emph{Dated XP-C3 interpretation (2026-11-03):} The paired-noise
+contrast $\widehat L_{000}-\widehat L_{111}$ of squared
+$\epsilon$-prediction losses at four middle timesteps
+(median absolute margins $3$--$9\times10^{-5}$ for
+$G/O_g$ and about $10^{-5}$ for $C/I$)
+cancels their common $\|\epsilon\|_2^2$ term and is an
+\emph{ELBO-motivated, restricted-time denoising-risk proxy}
+for the diffusion prior's orientation preference,
+not a calibrated smoothed-log-density difference
+or guaranteed ordering of $\pi$ without the complete
+timestep weights, endpoint terms, and control of
+orientation-dependent variational gaps.
 
 \paragraph{A class-conditional rank race and exact winner law.}
 For a residual-\emph{rank} surrogate, draw independent competing

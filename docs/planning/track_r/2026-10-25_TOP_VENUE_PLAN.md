@@ -1,6 +1,17 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-03)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-04)
 
-> **Twentieth update, 2026-11-03, 17:07 ET** (the newest; read it first).
+> **Twenty-first update, 2026-11-04, 00:16 ET** (the newest; read it first).
+> - **The main-paper data cut is met, two days early** (A23). Every main-text number is reproduced or verified.
+> - **Tab. 3 E1 (ImageNet).** Without the ground truth, DAPS-4K's residual pick plus the generic orientation test beats the published per-metric ground-truth oracle of the same four runs on PSNR, SSIM and VGG-LPIPS: 23.10 / 0.534 / 0.325 against 22.28 / 0.518 / 0.340. With eight runs they are within 0.01 dB. This is the audit's sharpest single number and is now in Sec. 6.
+> - **Supplement:**
+>   - the equivariance defect (the ImageNet denoiser is nearly flip-equivariant, consistent with its frequent orbit errors);
+>   - the N2 prompts;
+>   - CLIP flips 8% of ImageNet ground truths.
+> - **Paper:** still 8 pages after three small trims; supplement 21 pages.
+> - **Remaining, supplement only:** XP-K (gated), the G7 prior tests on ground-truth images, CP4 by Nov 15.
+> - **Nov 8 go/no-go:** the planner recommends GO; the decision is Cheng's.
+>
+> **Twentieth update, 2026-11-03, 17:07 ET**.
 > - **XP-C3 done** (A22): all 13,600 candidates; 9.75 of 56 GPU-h; project ledger 241.8 of 400.
 >   - **New images:** the prior's own orientation test beats generic CLIP at every K, +5.3 points at K = 16 [+1.1, +9.8]. Orientation loss at K = 64 falls from 7 to 2 points.
 >   - **First image set:** the two tests are equal within 1.5 points.

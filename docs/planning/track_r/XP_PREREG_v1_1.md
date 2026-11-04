@@ -727,7 +727,41 @@
 >
 >    The A21.10 replicate may run on an otherwise idle GPU (≤ 0.2 GPU-h), for information only.
 
-**Status:** FROZEN v1.1 with amendments A1–A22 (planner, 2026-11-03).
+> **Amendment A23 (planner, 2026-11-04 00:16 ET): Tab. 3 E1 and the G7 C2 and ground-truth CLIP diagnostics accepted; N2 prompts recorded; the main-paper cut is met; gates for XP-K, the rest of G7 and CP4.** Written after XP `df6e8cd` (Tab. 3), `9090a50` (G7), `a42e14e` (N2 prompts) and the executor's Issue #46 reports of Nov 3–4. No XP-K outcome and no remaining-G7 outcome exists.
+> 1. **Tab. 3 E1 is accepted.**
+>    - **Planner checks:**
+>      - DAPS-4K: the residual pick among the first K runs, the G1 choice and the GOOD outcome, recomputed from the frozen G5 strings and G1 decisions (CP3), agree for 100 of 100 images at K = 4 and at K = 8.
+>      - The K = 8 PSNR equals the XP-I2 comparator image by image.
+>      - SITCOM: internally consistent. Its per-run inputs are local to PAC, so it is accepted as reported.
+>    - **Engineering:** the receipt-only repair (`a42e14e`) is accepted; the scoring bytes are unchanged.
+>    - **Outcome:** DAPS-4K E1 with four runs (23.10 dB, SSIM 0.534, VGG-LPIPS 0.325) is ahead of the per-metric ground-truth oracle of the same runs (22.28, 0.518, 0.340). With eight runs the two are within 0.01 dB. It enters Sec. 6 and S4.
+> 2. **G7 C2 and the ground-truth CLIP diagnostics are accepted** (supplement S2).
+>    - **Relative equivariance defect, R_111:** 0.10–0.31 on FFHQ and 0.015–0.052 on ImageNet.
+>    - **Relative equivariance defect, R_100:** 0.26–0.61 and 0.15–0.43.
+>    - **CLIP on ground-truth images:** every test keeps all 180 FFHQ images upright; G1 and G2 flip 8 of 100 ImageNet images.
+>    - **Cost:** 2.63 GPU-h; ledger 244.46.
+> 3. **N2 face prompts.** Recorded verbatim (`XP_A22_FROZEN_N2_FACE_PROMPTS.json`), checked against the source commit `b1637f7c`, and quoted in S2.
+> 4. **The main-paper data cut is met.** No further result enters the main text before submission, except to correct an error. Everything below is for the supplement: data cut Nov 20, supplement due Nov 23.
+> 5. **Remaining work, its gates and ceilings.**
+>    - **(a) G7, the rest:** the prior tests (2-forward; S_mid global2; S_mid all8) and UnivFD, applied to the same 280 ground-truth images, in the same form as the CLIP diagnostics: for each test, how often it keeps the upright ground truth.
+>      - **Definitions:** v1.1's XP-C row; S_mid global2 is exactly the XP-C3 estimator (A20.3).
+>      - **Order:** S_mid global2 first, then S_mid all8, then 2-forward, then UnivFD.
+>      - **Ceiling:** the G7 ceiling rises from 4 to 10 GPU-h (2.63 used). The A21 accounting and memory rules apply.
+>    - **(b) XP-K,** exactly as designed in A5.4 and A12.2 (T1; ceiling 30 GPU-h). Before any XP-K run is generated:
+>      - **(i) Parameter diff:** a committed diff showing that exactly one parameter changes per family;
+>      - **(ii) Identity replay:** the adapter run with the original parameter reproduces two historical B22 roots per family, bitwise or within the A4 tolerance;
+>      - **(iii) DAPS ordering:** the DAPS arm runs only after the F8 replay gate (A5.2).
+>
+>      Score against the registered mech v1/v1.1 forecasts; report class rates and ρ/σ descriptively. If a gate fails, stop and ask; do not substitute another setting.
+>    - **(c) CP4 by Nov 15, 12:00 ET:**
+>      - XP-K against the mech forecasts;
+>      - the G7 ground-truth diagnostics;
+>      - the final GPU ledger;
+>      - the list of everything not run.
+>    - **The A21.10 replicate** remains optional and is for information only.
+> 6. **Unchanged:** no protocol v2, no new selector, no matched-compute claim.
+
+**Status:** FROZEN v1.1 with amendments A1–A23 (planner, 2026-11-04).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
