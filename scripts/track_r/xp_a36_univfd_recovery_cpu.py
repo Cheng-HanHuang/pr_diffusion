@@ -209,6 +209,61 @@ def run_group(run,images,dataset,indices,tag,head,vendor_sha):
         cpu_only=True,group_log=str(log))
 
 
+def existing_local_publication(readout):
+    """Reuse a previously created exact result commit after a push timeout.
+
+    Prevent a second publication commit for the same frozen CPU results.
+    """
+    roots=sorted(ROOT.glob("pr_diffusion_track_r_a35_pub_UnivFD_*"))
+    if not roots:return None
+    gate(len(roots)==1, "MULTIPLE_LOCAL_PUBLICATION_TREES")
+    tree=roots[0]
+    gate(tree.is_dir() and not tree.is_symlink()
+         and not git(tree,"status","--porcelain"),
+         "LOCAL_PUBLICATION_TREE_DIRTY")
+    branch=git(tree,"branch","--show-current")
+    gate(branch.startswith("codex/prdiff-track-r-a23-g7-univfd-"),
+         "LOCAL_PUBLICATION_BRANCH")
+    base=tree/"docs/track_r/executors/xp/returns"
+    pubs=list(base.glob("XP_A35_G7_UnivFD_*/XP_A35_G7_PUBLICATION.json"))
+    gate(len(pubs)==1,"LOCAL_PUBLICATION_RECEIPT")
+    published=load(pubs[0])
+    gate(published["status"]=="A35_G7_STAGE_280_PUBLISHED"
+         and published["method"]=="UnivFD"
+         and published["original_scoring_head"]==HEAD
+         and published["per_image_sha256"]==readout["per_image_sha256"]
+         and published["table_sha256"]==readout["aggregate_sha256"],
+         "EXISTING_LOCAL_PUBLICATION_CONTENT")
+    commit=git(tree,"rev-parse","HEAD")
+    for attempt in (1,2):
+        # Query remote authoritatively; never assume a timed-out push failed.
+        listing=subprocess.check_output(
+            ["git","-C",str(tree),"ls-remote","--heads","origin",
+             "refs/heads/"+branch],text=True,timeout=90).strip()
+        remote_sha=listing.split()[0] if listing else None
+        if remote_sha==commit:break
+        gate(remote_sha is None,"LOCAL_PUBLISH_REMOTE_DIFFERENT")
+        cmd=["git","-C",str(tree)]
+        if attempt==2:cmd+=["-c","http.version=HTTP/1.1"]
+        cmd+=["push","origin","HEAD:refs/heads/"+branch]
+        try:
+            result=subprocess.run(cmd,timeout=300,
+                capture_output=True,text=True,
+                env=dict(os.environ,GIT_TERMINAL_PROMPT="0",
+                         GCM_INTERACTIVE="never"))
+            print("A36_PUSH_EXISTING_COMMIT_ATTEMPT",attempt,result.returncode,
+                  result.stderr[-400:],flush=True)
+        except subprocess.TimeoutExpired:
+            print("A36_PUSH_EXISTING_COMMIT_TIMEOUT",attempt,flush=True)
+    listing=subprocess.check_output(
+        ["git","-C",str(tree),"ls-remote","--heads","origin",
+         "refs/heads/"+branch],text=True,timeout=90).strip()
+    gate(listing and listing.split()[0]==commit,
+         "LOCAL_PUBLICATION_PUSH_NOT_CONFIRMED")
+    print("A36_UNIVFD_LOCAL_PUBLICATION_REUSE",branch,commit,flush=True)
+    return dict(branch=branch,commit=commit)
+
+
 def main(a):
     global HEAD
     HEAD=a.expected_head
@@ -318,7 +373,9 @@ def main(a):
         if existing:
             print("A36_UNIVFD_PREVIOUS_PUBLICATION",existing,flush=True)
         else:
-            pub=publish(run,UNIVFD,HEAD,readout)
+            pub=existing_local_publication(readout)
+            if pub is None:
+                pub=publish(run,UNIVFD,HEAD,readout)
             initial["publication"]=pub
             initial["status"]="A36_UNIVFD_CPU_280_PUBLISHED"
             initial["counts_completed"]=280
