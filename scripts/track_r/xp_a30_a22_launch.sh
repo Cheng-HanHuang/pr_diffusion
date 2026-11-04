@@ -26,6 +26,13 @@ if pgrep -u "$(id -un)" -af '[x]p_a30_a22_autopilot.py'; then
   echo "STOP_DUPLICATE_A22_AUTOPILOT"
   exit 8
 fi
+for PREVIOUS in "$BASE"/xp_a30_a22_autopilot_*/A22_AUTOPILOT_STATE.json; do
+  if [ -f "$PREVIOUS" ]; then
+    echo "STOP_A22_PRIOR_ATTEMPT_EXISTS=$PREVIOUS"
+    echo "Reconcile that state before a new preregistered continuation."
+    exit 8
+  fi
+done
 
 echo "=== Syntax: all A22 scripts, no side effects ==="
 "$PY" - <<'PY'
