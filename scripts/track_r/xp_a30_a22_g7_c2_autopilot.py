@@ -4,7 +4,7 @@
 Runs existing native XP-C2 diagnostic worker. Exact 280-image frozen GT.
 Adaptive 1/2/4/8 processes/GPU by measured completed images/GPU-hour. Never contacts another user's process.
 """
-import argparse,fcntl,hashlib,json,math,os,subprocess,sys,time,traceback
+import argparse,fcntl,hashlib,json,math,os,signal,subprocess,sys,time,traceback
 from pathlib import Path
 from prdiffusion.track_r.xp_gpu_telemetry import collect
 from scripts.track_r.xp_a29_a21_controller import total_union
@@ -167,9 +167,22 @@ def main(a):
    status="STOP_A22_G7_RECONCILE"
    raise
   finally:
-   # No signals: drain only our existing chunks; never touch foreign jobs.
+   # Worker receives a signal only if still live. Native runs one image
+   # per worker; incomplete pieces stay unaccepted on budget shutdown.
+   # Stop near the stage cap even if an individual native call stalls.
+   sent=set()
    while active:
-    collect_done();time.sleep(2)
+    h,_=accounting()
+    for pid,v in list(active.items()):
+     if (h>=3.99 or time.monotonic()-v["start"]>2400) and pid not in sent:
+      if v["proc"].poll() is None:
+       try:os.killpg(pid,signal.SIGTERM)
+       except ProcessLookupError:pass
+      sent.add(pid)
+      print("A22_G7_STOP_LIVE_WORKER",pid,
+        "budget_or_chunk_timeout",flush=True)
+    collect_done()
+    time.sleep(.3)
    state=write(status)
    save(r/"XP_A22_G7_C2_FINAL_STATUS.json",state)
    print("A22_G7_C2_TERMINAL",status,"images",len(finished),
