@@ -41,7 +41,7 @@ def main(a):
   fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
   r.mkdir()
   for d in ("results","logs","pycache"):(r/d).mkdir()
-  active={};intervals=[];finished={};events=[];peak=0;workers=1
+  active={};intervals=[];finished={};events=[];peak=0;workers=1;failures=[]
   def accounting():
    hrs=total_union(intervals,active)
    return sum(hrs.values()),hrs
@@ -51,7 +51,7 @@ def main(a):
      active=[dict(pid=k,index=v["index"],gpu=v["gpu"]) for k,v in active.items()],
      gpu_occupancy_h=used,physical_gpu_h=per,worker_limit_per_gpu=workers,
      project_gpu_h=baseline+used,project_baseline_h=baseline,
-     stage_cap_h=4,model_peak_estimate_mib=peak,throughput_ramp=ramps,source_hash=proof["C2_manifest_sha256"],
+     stage_cap_h=4,model_peak_estimate_mib=peak,throughput_ramp=ramps,failed_images=failures,source_hash=proof["C2_manifest_sha256"],
      head=a.expected_head,gt_diagnostic_only=True,no_A21_10_replication=True)
    save(r/"XP_A22_G7_C2_STATE.json",state)
    return state
@@ -72,7 +72,9 @@ def main(a):
     events.append(dict(index=v["index"],gpu=v["gpu"],seconds=end-v["start"],
         rc=code,valid=valid))
     if valid:finished[str(v["index"])]=sha(path)
-    else:raise RuntimeError("NATIVE_WORKER_INCOMPLETE_"+str(v["index"]))
+    else:
+     failures.append(dict(index=v["index"],rc=code,gpu=v["gpu"]))
+     print("A22_G7_NATIVE_WORKER_INCOMPLETE",v["index"],code,flush=True)
   def next_index():
    busy={v["index"] for v in active.values()}
    return next((i for i in range(280) if str(i) not in finished and i not in busy),None)
@@ -96,6 +98,8 @@ def main(a):
    while len(finished)<280:
     collect_done()
     hrs,_=accounting()
+    if failures:
+     status="PARTIAL_NATIVE_FAILURE";break
     if hrs>=3.5 or baseline+hrs>=399.5 or time.time()>deadline:
      status="PARTIAL_SAFE_BUDGET_STOP";break
     # A22 throughput-based ramp on *GPU occupancy hours*, not
