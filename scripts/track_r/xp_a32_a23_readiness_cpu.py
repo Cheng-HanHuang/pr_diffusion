@@ -28,6 +28,9 @@ A22 = "20261104T025355Z"
 G7_RETURN = "docs/track_r/executors/xp/returns/XP_A22_G7_C2_CLIP_20261104T035034Z"
 BASE_HEAD = "999d7eb9ee2a254a41c48354e3721155fa046e2a"
 G7_PUB_COMMIT = "9090a50a4d4ffe922bdb43c5ee9e877c059a7dd1"
+TAB3_PUB_COMMIT = "df6e8cd5c62f506343f2ff8fe6d493c4d032ea68"
+G7_PUB_ROOT = ROOT / "pr_diffusion_track_r_a22_g7_pub_20261104T035034Z"
+TAB3_PUB_ROOT = ROOT / "pr_diffusion_track_r_a22_tab3_pub_20261104T040346Z"
 G7_C_MANIFEST_SHA = "d517a8ea337c5fed8925f925bf24bae21cea60a566eb29f6795bc31e350abfde"
 G7_C2_MANIFEST_SHA = "75e8fe296932044eb4ff1cd30300ef58a8f48ece02acd9b22ba3aa6f3bd7c7ac"
 TAB3_SHA = "124d67030bdf42c966f6b777c17ef9c1177596d436160fb104caa3cf0d0cc148"
@@ -71,6 +74,17 @@ def git(*args):
     return subprocess.check_output(
         ["git", "-C", str(WT), *args], text=True, timeout=60
     ).strip()
+
+
+def pinned_publication(root, exact_sha):
+    require(root.is_dir(), "MISSING_PUBLISH_TREE")
+    require(subprocess.check_output(
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        text=True, timeout=60).strip() == exact_sha,
+        "WRONG_PUBLISH_COMMIT")
+    require(not subprocess.check_output(
+        ["git", "-C", str(root), "status", "--porcelain"],
+        text=True, timeout=60).strip(), "DIRTY_PUBLISH_TREE")
 
 
 def validate_gt_images(manifest, verify_source_bytes=True):
@@ -188,7 +202,9 @@ def collect(a):
     )
     keys = validate_gt_images(load_json(freeze),
                               verify_source_bytes=(not a.fast_provenance))
-    original_g7 = WT / G7_RETURN
+    pinned_publication(G7_PUB_ROOT, G7_PUB_COMMIT)
+    pinned_publication(TAB3_PUB_ROOT, TAB3_PUB_COMMIT)
+    original_g7 = G7_PUB_ROOT / G7_RETURN
     gpu = load_json(original_g7 / "XP_A22_G7_C2_FINAL_STATUS.json")
     readout = load_json(original_g7 / "XP_A22_G7_C2_READOUT_RECEIPT.json")
     clipr = load_json(original_g7 / "XP_A12_G7_C_CLIP_RECEIPT.json")
@@ -229,14 +245,16 @@ def collect(a):
         "C2_36_UNIQUE_GROUPS",
     )
     stats = check_clip_table(read_csv(clipfile, 280), keys)
-    table3 = WT / "docs/track_r/executors/xp/theory_inputs/XP_A22_TAB3_IMAGENET_E1_G1.csv"
-    # The A23 branch derives from the A22 code branch, not from its independent
-    # Tab3 publisher: this file intentionally resides ONLY in the latter branch.
-    # Do not silently require or copy it from this engineering checkout.
+    table3 = TAB3_PUB_ROOT / "docs/track_r/executors/xp/theory_inputs/XP_A22_TAB3_IMAGENET_E1_G1.csv"
+    require(sha(table3) == TAB3_SHA, "ACCEPTED_TABLE3_SHA")
+    table3_rows = read_csv(table3, 3)
+    require({(r["panel"],r["K"]) for r in table3_rows} ==
+            {("D2","4"),("D2","8"),("D3","4")},
+            "ACCEPTED_TABLE3_THREE_POLICIES")
     main_cut = dict(status="A23_ACCEPTED_CHECKPOINT_ALREADY_PUBLISHED",
-        tab3_remote_commit="df6e8cd5c62f506343f2ff8fe6d493c4d032ea68",
+        tab3_remote_commit=TAB3_PUB_COMMIT,
         tab3_remote_csv_sha256=TAB3_SHA,
-        tab3_present_in_this_code_worktree=table3.is_file(),
+        tab3_published_locally_verified=True,
         n2_frozen_prompts_in_code_tree=True,
         g7_remote_commit=G7_PUB_COMMIT)
     prompts = WT / "docs/track_r/executors/xp/theory_inputs/XP_A22_FROZEN_N2_FACE_PROMPTS.json"
