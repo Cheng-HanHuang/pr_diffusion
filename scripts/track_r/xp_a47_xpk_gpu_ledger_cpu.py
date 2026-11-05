@@ -62,6 +62,16 @@ def charge(events,now,*,allowed_gpus=(0,1,2,3)):
             starts[eid]=ev
         else:ends[eid]=ev
     gate(set(ends)<=set(starts),"ORPHAN_END")
+    # An END may appear before its START in a malformed journal. Require
+    # append-only START then END order; otherwise fail closed.
+    active=set()
+    for ev in events:
+        if ev["kind"]=="START":
+            gate(ev["id"] not in active,"REUSED_WORKER_ID")
+            active.add(ev["id"])
+        else:
+            gate(ev["id"] in active,"END_BEFORE_START")
+            active.remove(ev["id"])
     per_gpu={i:[] for i in allowed_gpus}
     unfinished=[]
     for eid,ev in starts.items():
@@ -83,6 +93,7 @@ def charge(events,now,*,allowed_gpus=(0,1,2,3)):
 def remaining(events,now,prior_project_h,other_xpk_h=0.,*,reserve_h=0.):
     ledger=charge(events,now)
     prior=_number(prior_project_h);other=_number(other_xpk_h)
+    gate(prior>=other,"PROJECT_BASELINE_BELOW_OTHER_XPK")
     reserve=_number(reserve_h)
     xpk=other+ledger["physical_gpu_h"]
     project=prior+ledger["physical_gpu_h"]
