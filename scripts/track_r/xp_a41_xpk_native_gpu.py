@@ -66,8 +66,7 @@ def valid_input(a):
          and rec["code_head"]==a.expected_head,"MANIFEST_RECEIPT")
     m=load(mpath)
     gate(m["status"]=="XP_K_A24_FROZEN_GT_FREE_100x4"
-         and m["GT_access"] is False if False else
-         m["original_GT_access"] is False
+         and m["original_GT_access"] is False
          and m["reference_paths_in_GPU_manifest"] is False,
          "GT_FREE_MANIFEST")
     rows=m["historical_replay_rows"][a.family] if a.phase=="historical_replay" else m["calibrated_rows"][a.family]
