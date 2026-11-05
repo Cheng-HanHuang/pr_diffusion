@@ -21,6 +21,7 @@ class A49Contract(unittest.TestCase):
 
     def test_registered_order_and_hard_science_gates(self):
         s = CTRL.read_text()
+        main = s[s.index("def main(a):"):s.index('if __name__ == "__main__":')]
         order = [
             "ensure_preflight(run, a)",
             '"IDENTITY_REPLAY"',
@@ -33,7 +34,7 @@ class A49Contract(unittest.TestCase):
             "make_cp4_report(run, a)",
             "publish(run, a, report)",
         ]
-        positions = [s.index(x) for x in order]
+        positions = [main.index(x) for x in order]
         self.assertEqual(positions, sorted(positions))
         self.assertIn('0 <= r["abs_raw_psnr_delta_db"] <= 0.1', s)
         self.assertIn("STOP_ASK_A23_5B_GATE", s)
