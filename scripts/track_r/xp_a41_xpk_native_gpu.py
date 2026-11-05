@@ -69,6 +69,50 @@ def valid_input(a):
          and m["original_GT_access"] is False
          and m["reference_paths_in_GPU_manifest"] is False,
          "GT_FREE_MANIFEST")
+    # HARD A23.5b boundary: even a direct invocation of this GPU worker
+    # cannot start calibration before the CPU A4 identity replay is accepted.
+    # This is independent of (and must also be checked by) the supervisor.
+    if a.phase=="calibrated":
+        replay_path=run/"score"/f"{a.family}_REPLAY_A4_RECEIPT.json"
+        gate(replay_path.is_file() and not replay_path.is_symlink(),
+             "CALIBRATION_REPLAY_GATE_MISSING")
+        replay=load(replay_path)
+        gate(replay.get("status")==
+             "XP_K_A23_5B_ORIGINAL_TWO_ROOT_IDENTITY_REPLAY_PASS"
+             and replay.get("family")==a.family
+             and replay.get("source_head")==a.expected_head
+             and replay.get("passed") is True
+             and replay.get("n_root")==2
+             and replay.get("original_A4_PSNR_tolerance_db")==0.1
+             and replay.get("original_A4_label_must_match") is True
+             and replay.get("strict_thresholds_unchanged") is True
+             and isinstance(replay.get("rows"),list)
+             and len(replay["rows"])==2
+             and all(x.get("pass_A4") is True
+                     and x.get("computed_native_class")==x.get("frozen_historical_class")
+                     and isinstance(x.get("abs_raw_psnr_delta_db"),(int,float))
+                     and math.isfinite(x["abs_raw_psnr_delta_db"])
+                     and 0<=x["abs_raw_psnr_delta_db"]<=0.1
+                     for x in replay["rows"]),
+             "CALIBRATION_REPLAY_GATE_NOT_ACCEPTED")
+        frozen_orig=m["historical_replay_rows"][a.family]
+        gate({x["uid"] for x in replay["rows"]}==
+             {x["uid"] for x in frozen_orig},
+             "CALIBRATION_REPLAY_WRONG_TWO_ROOTS")
+        # DAPS has an additional historical F8 8/8 prerequisite, not
+        # interchangeable with its own two-root XP-K identity replay.
+        if a.family=="DAPS":
+            f8=run/"XPK_DAPS_F8_GATE_RECEIPT.json"
+            gate(f8.is_file() and not f8.is_symlink(),
+                 "DAPS_F8_INDEPENDENT_GATE_MISSING")
+            d=load(f8)
+            gate(d.get("status")=="XPK_DAPS_F8_8_OF_8_EXACT_VERIFIED"
+                 and d.get("n_exact")==8
+                 and d.get("prior_f8_manifest_sha256")==
+                 m["prior_f8_manifest_sha256"]
+                 and d.get("historical_native_source_head")==HEADS["DAPS"]
+                 and d.get("verified") is True,
+                 "DAPS_F8_INDEPENDENT_GATE_NOT_VERIFIED")
     rows=m["historical_replay_rows"][a.family] if a.phase=="historical_replay" else m["calibrated_rows"][a.family]
     selected=[r for r in rows if r["image_id"]==a.image_id]
     n=2 if a.phase=="historical_replay" else 4
