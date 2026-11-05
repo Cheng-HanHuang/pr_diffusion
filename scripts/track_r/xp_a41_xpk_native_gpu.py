@@ -360,7 +360,7 @@ def daps_run(rows,dest,a):
                     original_native_png_sha256=sha(src),
                     model_load_trace_sha256=sha(trace),
                     placeholder_only_for_shape=True))
-        
+
 def main(a):
     m,rows,dest=valid_input(a)
     if rows is None:return 0
