@@ -42,7 +42,7 @@ Please use these in human-readable summaries and receipt prose from now on. File
 Standing rules are unchanged:
 - Cheng runs every PAC block, from pushed, clean commits.
 - Co-tenancy per A10.1; timing only on clean GPUs.
-- No B24 confirmation access of any kind.
+- No access of any kind to the locked B24 holdout.
 - No bundled FFHQ sets.
 - No merges of `main` or the audit branch.
 
