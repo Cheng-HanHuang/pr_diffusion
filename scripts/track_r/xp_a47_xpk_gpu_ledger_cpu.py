@@ -99,13 +99,16 @@ def remaining(events,now,prior_project_h,other_xpk_h=0.,*,reserve_h=0.):
     project=prior+ledger["physical_gpu_h"]
     gate(xpk<=XPK_CAP_H+1e-9,"XPK_BUDGET_EXCEEDED")
     gate(project<=PROJECT_CAP_H+1e-9,"PROJECT_BUDGET_EXCEEDED")
+    fits=(xpk+reserve<=XPK_CAP_H and project+reserve<=PROJECT_CAP_H)
     ledger.update(xpk_total_h=xpk,project_total_h=project,
         xpk_remaining_h=max(0.,XPK_CAP_H-xpk),
         project_remaining_h=max(0.,PROJECT_CAP_H-project),
         reserve_h=reserve,
-        can_admit_full_reserved_stage=(not ledger["unfinished_workers"]
-           and xpk+reserve<=XPK_CAP_H
-           and project+reserve<=PROJECT_CAP_H))
+        # Capacity-only predicate: safe for a live scheduler that separately
+        # accounts for reservations of already-active workers.
+        can_fit_reserve_under_caps=fits,
+        # Strong quiescent-stage predicate retained for final/stage gates.
+        can_admit_full_reserved_stage=(not ledger["unfinished_workers"] and fits))
     return ledger
 def main(a):
     gate(os.environ.get("CUDA_VISIBLE_DEVICES")=="","CPU_ONLY")
