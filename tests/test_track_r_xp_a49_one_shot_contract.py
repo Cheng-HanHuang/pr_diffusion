@@ -78,6 +78,16 @@ class A49Contract(unittest.TestCase):
         self.assertIn("REMOTE_BRANCH_MOVED_DURING_CAMPAIGN", s)
         self.assertIn("XP_K_CP4_ALL_THREE_FAMILIES_PUBLISHED", s)
 
+
+    def test_recovery_launcher_carries_prior_a49_gpu_charges(self):
+        s = LAUNCH.read_text()
+        self.assertIn("AUTO_PRIOR_A49_H", s)
+        self.assertIn('glob("xp_a41_xpk_autopilot_*")', s)
+        self.assertIn('charge(rows,time.time())["physical_gpu_h"]', s)
+        self.assertIn('OTHER_XPK_H="$AUTO_PRIOR_A49_H"', s)
+        self.assertIn('float(sys.argv[1])+float(sys.argv[2])', s)
+        self.assertIn("STOP_SET_BOTH_PRIOR_PROJECT_H_AND_OTHER_XPK_H_OR_NEITHER", s)
+
     def test_launcher_is_one_background_command_contract(self):
         s = LAUNCH.read_text()
         self.assertIn("nohup", s)
