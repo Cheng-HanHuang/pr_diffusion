@@ -53,7 +53,10 @@ def mutate(path,kind,worker_id,gpu,*,family=None,phase=None,now=None):
     # Controller must separately hold the global Track R lock.
     lock=Path(str(path)+".lock")
     gate(lock.is_file() and not lock.is_symlink(),"MISSING_LOCK")
-    with lock.open("rb") as f:
+    # LOCK_EX must use a descriptor opened for writing. Some local filesystems
+    # tolerate a read-only descriptor, but PAC/shared filesystems may return
+    # EBADF. The sidecar lock contains no payload; r+b changes no journal bytes.
+    with lock.open("r+b") as f:
         fcntl.flock(f.fileno(),fcntl.LOCK_EX)
         old=read_events(path)
         starts={e["id"] for e in old if e["kind"]=="START"}
