@@ -8,7 +8,16 @@ PY="$ROOT/conda-envs/prdiff_track_r/bin/python"
 BRANCH=codex/prdiff-track-r-a40-xpk-gated-autopilot-20261105
 
 EXPECTED="${1:?usage: $0 EXPECTED_COMMIT_SHA}"
-PRIOR_PROJECT_H="${PRIOR_PROJECT_H:-247.80191737622505}"
+DEFAULT_PRIOR_PROJECT_H=247.80191737622505
+PRIOR_EXPLICIT=0
+OTHER_EXPLICIT=0
+if [ "${PRIOR_PROJECT_H+x}" = x ]; then PRIOR_EXPLICIT=1; fi
+if [ "${OTHER_XPK_H+x}" = x ]; then OTHER_EXPLICIT=1; fi
+if [ "$PRIOR_EXPLICIT" -ne "$OTHER_EXPLICIT" ]; then
+  echo "STOP_SET_BOTH_PRIOR_PROJECT_H_AND_OTHER_XPK_H_OR_NEITHER"
+  exit 8
+fi
+PRIOR_PROJECT_H="${PRIOR_PROJECT_H:-$DEFAULT_PRIOR_PROJECT_H}"
 OTHER_XPK_H="${OTHER_XPK_H:-0}"
 MAX_GPUS=2
 
@@ -59,6 +68,38 @@ if [ -z "$RUN" ]; then
 fi
 LOG="$BASE/xp_a49_xpk_controller_${STAMP}_${EXPECTED:0:12}.log"
 
+# Failed/recovered A49 attempts still consume physical GPU occupancy. When the
+# operator has not supplied a newer accepted ledger explicitly, carry all
+# previous A49 journal charges into BOTH the XP-K cap and project baseline.
+AUTO_PRIOR_A49_H="$(PYTHONPATH="$WT" "$PY" - "$BASE" "$RUN" <<'PY'
+import json,sys,time
+from pathlib import Path
+from scripts.track_r.xp_a47_xpk_gpu_ledger_cpu import charge
+base=Path(sys.argv[1]); current=Path(sys.argv[2]).resolve()
+total=0.0
+for d in sorted(base.glob("xp_a41_xpk_autopilot_*")):
+    try:
+        if d.resolve()==current:
+            continue
+    except Exception:
+        continue
+    p=d/"XPK_GPU_EVENTS.jsonl"
+    if not p.is_file() or p.is_symlink():
+        continue
+    rows=[json.loads(x) for x in p.read_text().splitlines() if x.strip()]
+    total += float(charge(rows,time.time())["physical_gpu_h"])
+print(f"{total:.12f}")
+PY
+)"
+if [ "$PRIOR_EXPLICIT" -eq 0 ]; then
+  OTHER_XPK_H="$AUTO_PRIOR_A49_H"
+  PRIOR_PROJECT_H="$("$PY" - "$DEFAULT_PRIOR_PROJECT_H" "$AUTO_PRIOR_A49_H" <<'PY'
+import sys
+print(f"{float(sys.argv[1])+float(sys.argv[2]):.12f}")
+PY
+)"
+fi
+
 printf '%s\n' "$RUN" > "$BASE/LAST_XPK_A49_RUN.txt"
 printf '%s\n' "$LOG" > "$BASE/LAST_XPK_A49_LOG.txt"
 
@@ -92,4 +133,6 @@ echo "RUN=$RUN"
 echo "LOG=$LOG"
 echo "PRIOR_PROJECT_H=$PRIOR_PROJECT_H"
 echo "OTHER_XPK_H=$OTHER_XPK_H"
+echo "AUTO_PRIOR_A49_H=$AUTO_PRIOR_A49_H"
+echo "LEDGER_INPUTS_EXPLICIT=$PRIOR_EXPLICIT"
 echo "MAX_GPUS=$MAX_GPUS"
