@@ -27,7 +27,7 @@ class A42Interlock(unittest.TestCase):
             args=SimpleNamespace(expected_head="head",family="FAST",
                 phase="calibrated",run=str(run),manifest_sha=digest,
                 image_id="60044",preflight_only=True,gpu=0)
-            with patch.object(N,"BASE",base),patch.object(N,"git",return_value="head"):
+            with patch.object(N,"BASE",base),patch.object(N,"git",side_effect=lambda wt,*args: "head" if "rev-parse" in args else ""):
                 with self.assertRaisesRegex(RuntimeError,
                       "CALIBRATION_REPLAY_GATE_MISSING"):
                     N.valid_input(args)
