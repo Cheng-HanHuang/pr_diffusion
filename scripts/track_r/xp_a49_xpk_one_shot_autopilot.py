@@ -728,6 +728,7 @@ def ensure_preflight(run, a):
         "tests.test_track_r_xp_a47_xpk_gpu_ledger",
         "tests.test_track_r_xp_a48_xpk_event_journal",
         "tests.test_track_r_xp_a49_one_shot_contract",
+        "tests.test_track_r_xp_a50_historical_cardinality",
     ]
     if not run.exists():
         rc = run_cpu([CPU_PY, "-m", "unittest", "-v", *tests],
