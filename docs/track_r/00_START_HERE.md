@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-11-04 by the planner (Claude).
+**Updated:** 2026-11-05 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,13 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-05 (planner): writing pass and defect sweep of the main text (Cheng's request).**
+  - **Main text:** short sentences; strengths first; unsolved images framed by the ill-posedness of phase retrieval; SITCOM's consistent-but-wrong runs outside the scope of selection. Still 8 pages (references on pages 8–9); abstract 250 words.
+  - **Defects fixed:** references completed (pages added where they exist); notation explicit (ground truth x⋆, noise η = σn, orbit index b, race ceiling with partial orbits tied to w_O, the tighter-prior variant); internal names removed (bag, first image set, new images, weaker-prior, clean GPU); "points" vs "forecasts" disambiguated.
+  - **New planner checks (ledger):** the DAPS-4K protocol panels used the label-free threshold (C-G9); PC-DAPS ImageNet gap 2.0 points, all orientation (C-E1).
+  - **Supplement:** 22 pages; new section on the selection protocols of recent work; planner-owned sections renamed; theory cleans S1–S3 by Nov 12.
+  - **Clean review build:** `pdflatex -jobname=main_clean "\def\cleancopy{}\input{main}"` (claim tags hidden).
+  - **Notes, round 21:** [`executors/xp/21_PLANNER_NOTES_20261105.md`](executors/xp/21_PLANNER_NOTES_20261105.md) and [`executors/theory/21_PLANNER_GUIDANCE_20261105.md`](executors/theory/21_PLANNER_GUIDANCE_20261105.md).
 - **2026-11-04, 22:12 (planner): G7 complete and accepted (A24).**
   - **Results:** every orientation test on the 280 ground-truth images. S_mid keeps 95/100 ImageNet upright, 2-forward 93, CLIP 92, UnivFD 89; all keep all 180 FFHQ except UnivFD (172). S2 has a new table.
   - **Theory's S2 wording** for the equivariance-defect sentences is adopted.

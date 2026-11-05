@@ -27,8 +27,12 @@
 \end{minipage}
 \captionsetup{hypcap=false}
 \captionof{figure}{\textbf{Overview.}
-(a) The protocol draws runs until $M$ of them fit the measurement as well as the solver's correct runs do, keeps the run with the smallest residual, corrects its orientation with a zero-shot test, and flags images with no consistent run or an uncertain orientation.
-(b) At every compute level we tested, it returns a \good reconstruction for more images than a fixed best-of-$K$ with the same mean number of runs, the residual pick $\Eo$ (development data, $180$ images with $64$ runs each; held-out tests in \cref{sec:protocol}). The dashed curve is the fixed-$K$ ground-truth orbit oracle.}
+(a) The protocol draws runs until $M$ of them fit the measurement as well as the solver's correct runs do.
+It keeps the run with the smallest residual and corrects its orientation with a zero-shot test.
+It flags images with no consistent run, and outputs with an uncertain orientation.
+(b) At every compute level we tested, the protocol returns a \good reconstruction for more images than fixed best-of-$K$ with the residual pick $\Eo$ at the same mean number of runs.
+Development data: $180$ FFHQ images with $64$ runs each; held-out tests are in \cref{sec:protocol}.
+Dashed: the ground-truth orbit oracle at fixed $K$.}
 \captionsetup{hypcap=true}
 \label{fig:\currfilebase}%
 \end{strip}

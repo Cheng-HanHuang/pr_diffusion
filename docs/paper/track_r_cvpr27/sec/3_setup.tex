@@ -2,46 +2,62 @@
 \label{sec:setup}
 
 \paragraph{Operator.}
-An RGB image $x\in[-1,1]^{3\times256\times256}$ is mapped to $z=(x+1)/2$ and each channel is zero-padded to a $384\times384$ canvas by $P$.
-The measurement is
+An RGB image $x\in[-1,1]^{3\times256\times256}$ is mapped to $z=(x+1)/2$, and each channel is zero-padded to a $384\times384$ canvas by $P$.
+The measurement of a ground-truth image $\xs$ is
 \begin{equation}
 y=\cA(\xs)+\sigma n,\qquad \cA(x)=\bigl|\cF\,P\,z\bigr|,\qquad n\sim\mathcal N(0,I),
 \label{eq:operator}
 \end{equation}
-with $\cF$ the centered, orthonormal 2-D DFT applied per channel and $\sigma=0.05$: the operator of DPS and DAPS~\cite{chung2023dps,zhang2025daps} (``oversampling 2.0'') and of the solvers we study\claim{C-S1}.
-We keep $y$ signed and write $m=3\cdot384^2$ and $\rho(x)=\|\cA(x)-y\|_2/\sqrt m$ for the residual of a reconstruction.
-The support occupies $2/3$ of the canvas per dimension, outside the classical uniqueness condition~\cite{barnett2020geometry}; we assume that $\xs$ is determined by $y$ up to the symmetries below and to images that fit the data within the noise\claim{C-S3}.
+with $\cF$ the centered, orthonormal 2-D DFT applied per channel and $\sigma=0.05$.
+This is the operator of DPS and DAPS~\cite{chung2023dps,zhang2025daps} (``oversampling 2.0'') and of the solvers we study\claim{C-S1}.
+We keep $y$ signed.
+With $m=3\cdot384^2$, the residual of a reconstruction is $\rho(x)=\|\cA(x)-y\|_2/\sqrt m$.
+The support occupies $2/3$ of the canvas per dimension, outside the classical uniqueness condition~\cite{barnett2020geometry}.
+We assume that $\xs$ is determined by $y$ up to the symmetries below and to images that fit the data within the noise\claim{C-S3}.
 
-\paragraph{The orbit and what selection cannot see.}
-Let $R_s$, $s\in\{0,1\}^3$, rotate color channel $c$ by $180^\circ$ inside the $256\times256$ frame whenever $s_c=1$.
-On the even canvas this is index negation followed by a one-pixel cyclic shift, so $\cA(R_sx)=\cA(x)$: the classical twin ambiguity~\cite{hayes1982reconstruction,fienup1986stagnation}, per channel, which Zhang~\etal display for DAPS~\cite[App.~F]{zhang2025daps}\claim{C-T1}.
+\paragraph{The orbit, and what selection cannot see.}
+For $b\in\{0,1\}^3$, let $R_b$ rotate color channel $c$ by $180^\circ$ inside the $256\times256$ frame whenever $b_c=1$.
+On the even canvas this is index negation followed by a one-pixel cyclic shift, so $\cA(R_bx)=\cA(x)$.
+This is the classical twin ambiguity~\cite{hayes1982reconstruction,fienup1986stagnation}, per channel; Zhang~\etal display it for DAPS~\cite[App.~F]{zhang2025daps}\claim{C-T1}.
+We call the eight images $R_bx$ the \emph{orbit} of $x$; $R_{111}$ rotates the whole image.
 Two consequences matter here.
-Any rule that selects among runs using only $\cA(\hat x_1),\dots,\cA(\hat x_K)$ and $y$, including the residual, returns the same index when a run is replaced by any of its eight orbit members; so do likelihood-only particle weights\claim{C-T2}.
-And since the eight members are pixel permutations with the same likelihood, $p(R_sx\mid y)/p(x\mid y)=\pi(R_sx)/\pi(x)$ for a prior density $\pi$: within an orbit the posterior ranks images by the prior alone, and any orientation test that orders orbit members like $\pi$ is the Bayes choice.
-Results on why samplers prefer upright images, including a total-variation bound by the equivariance defect of their transitions, are in the supplement\claim{C-T4}.
+First, any rule that selects among runs using only $\cA(\hat x_1),\dots,\cA(\hat x_K)$ and $y$, including the residual, returns the same index when a run is replaced by any member of its orbit; so do likelihood-only particle weights\claim{C-T2}.
+Second, the members of an orbit are pixel permutations with the same likelihood, so $p(R_bx\mid y)/p(x\mid y)=\pi(R_bx)/\pi(x)$ for a prior density $\pi$.
+Within an orbit, the posterior ranks images by the prior alone, and any orientation test that orders orbit members like $\pi$ is the Bayes choice.
+The supplement explains why samplers prefer upright images, with a total-variation bound by the equivariance defect of their transitions\claim{C-T4}.
 
 \paragraph{Run labels.}
-With PSNR on 8-bit RGB against $\xs$ and a threshold $\theta$ ($25$\,dB on FFHQ, $20$\,dB on ImageNet), a run is
+PSNR is computed on 8-bit RGB against $\xs$, with a threshold $\theta$ of $25$\,dB on FFHQ and $20$\,dB on ImageNet.
+A run $\hat x$ is
 \good if $\mathrm{PSNR}(\hat x)\ge\theta$;
-\orbit if not, but $\max_s\mathrm{PSNR}(R_s\hat x)\ge\theta$ (\emph{global} if the best member is $R_{111}$, \emph{partial} otherwise);
-\cons if it is neither but $\rho(\hat x)\le\tau$, i.e.\ it fits the measurement as well as the solver's \good runs do; and \incons otherwise.
-Here $\tau$ is the $95$th percentile of $\rho$ over \good runs of the same solver and cohort, fixed before the analyses reported here\claim{C-S4}.
+an \orbit error if it is not \good but $\max_b\mathrm{PSNR}(R_b\hat x)\ge\theta$ (\emph{global} if the best member is $R_{111}$, \emph{partial} otherwise);
+\cons if it is neither but $\rho(\hat x)\le\tau$, \ie it fits the measurement as well as the solver's \good runs do;
+and \incons otherwise.
+Here $\tau$ is the $95$th percentile of $\rho$ over the \good runs of the same solver and cohort, fixed before the analyses reported here\claim{C-S4}.
 Labels are used only to score policies.
 
 \paragraph{Policies.}
-Given $K$ runs of one image:
+Given $K$ runs of one image, we compare
 the \emph{first run};
-$\Eo=\argmin_k\rho(\hat x_k)$;
+the residual pick $\Eo=\argmin_k\rho(\hat x_k)$;
 $\Eone$, which applies an orientation test to the $\Eo$ pick and returns it or its rotation $R_{111}$;
 the ground-truth oracle $\Oraw=\argmax_k\mathrm{PSNR}(\hat x_k)$;
-the orbit oracle $\Oorb$, which also maximizes over the eight members;
+the orbit oracle $\Oorb$, which also maximizes over the eight members of each orbit;
 and the \emph{per-metric oracle}, which takes the best PSNR, SSIM and LPIPS independently, as the reference code does\claim{C-P1}.
 Only the first run, $\Eo$, $\Eone$ and the protocol of \cref{sec:protocol} are available at test time.
+For a policy and a set of images, \good denotes the share of images whose output is \good.
 
 \paragraph{Data and solvers.}
-FFHQ~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts with the $256\times256$ denoiser of DPS~\cite{chung2023dps}.
-Cohort~A has $100$ images drawn at random from the validation split; cohort~B has $80$ images from an earlier screen enriched for hard cases, $71$ of them from the training split, which the denoiser may have seen, so we report the cohorts separately\claim{C-S7}.
-ImageNet~\cite{deng2009imagenet}: the first $100$ images of the test archive distributed with DAPS, the default evaluation set of DAPS, FAST-DIPS and PC-DAPS, with the unconditional denoiser of~\cite{dhariwal2021diffusion}.
-Measurements are drawn once per image and shared by all solvers and runs; each run uses an independent seed.
-Solvers: DAPS~\cite{zhang2025daps} (on ImageNet DAPS-4K, the configuration of its published results; on FFHQ $400$ annealing steps with $5$ ODE steps each\claim{C-S8}); SITCOM~\cite{alkhouri2025sitcom} through its authors' phase-retrieval code with the published settings; and FAST-DIPS~\cite{kim2026fastdips} with its published command.
-DAPS and SITCOM weight the data term $50$ and $25$ times more than the Gaussian likelihood at $\sigma=0.05$, and SITCOM adds a gradient step on the residual after each ODE step; FAST-DIPS returns a denoised estimate after a hard measurement projection\claim{C-S5}.
+\emph{FFHQ}~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts, with the $256\times256$ denoiser of DPS~\cite{chung2023dps}.
+Cohort~A has $100$ images drawn at random from the validation split.
+Cohort~B has $80$ images from an earlier screen enriched for hard cases; $71$ of them come from the training split, which the denoiser may have seen, so we report the cohorts separately\claim{C-S7}.
+\emph{ImageNet}~\cite{deng2009imagenet}: the first $100$ images of the test archive distributed with DAPS, the default evaluation set of DAPS, FAST-DIPS and PC-DAPS, with the unconditional denoiser of Dhariwal and Nichol~\cite{dhariwal2021diffusion}.
+\emph{ImageNet$'$}: $100$ further ImageNet validation images that no earlier experiment touched (\cref{sec:protocol}).
+Each image has one measurement, shared by all solvers and runs, and each run uses an independent seed.
+\emph{Solvers}: DAPS~\cite{zhang2025daps} in two configurations, named by their denoiser calls per run: DAPS-4K, the configuration of its published phase-retrieval results ($400$ annealing steps with $10$ ODE steps each), and, on FFHQ, DAPS-2K ($400$ steps with $5$ ODE steps each)\claim{C-S8};
+SITCOM~\cite{alkhouri2025sitcom}, through its authors' phase-retrieval code with the published settings;
+FAST-DIPS~\cite{kim2026fastdips}, with its published command;
+and PC-DAPS~\cite{kocabas2026pcdaps}, with its published phase-retrieval configuration (\cref{sec:audit}).
+DAPS and SITCOM weight the data term $50$ and $25$ times more than the Gaussian likelihood at $\sigma=0.05$, and SITCOM adds a gradient step on the residual after each ODE step.
+FAST-DIPS returns a denoised estimate after a hard measurement projection\claim{C-S5}.
+A \emph{panel} is one solver on one image set, with a fixed number of runs or budget per image.

@@ -1,0 +1,25 @@
+{
+ "G4": {
+  "tau": 0.047592802655282984,
+  "threshold_rule": "self_mad3"
+ },
+ "G5": {
+  "tau": 0.04821366750597948,
+  "threshold_rule": "self_mad3"
+ },
+ "pcdaps_imagenet": {
+  "E1": 53,
+  "O_orbit": 55,
+  "gap": 2,
+  "images": 100,
+  "labels": {
+   "C": 59,
+   "G": 123,
+   "I": 139,
+   "O_g": 76,
+   "O_p": 3
+  },
+  "orientation": 2,
+  "selection": 0
+ }
+}

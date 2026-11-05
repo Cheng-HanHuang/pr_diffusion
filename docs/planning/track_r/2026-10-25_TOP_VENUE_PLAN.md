@@ -1,6 +1,13 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-04)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-05)
 
-> **Twenty-second update, 2026-11-04, 22:12 ET** (the newest; read it first).
+> **Twenty-third update, 2026-11-05** (the newest; read it first).
+> - **Writing pass done** (Cheng's request of 14:36). Short sentences; the abstract is 250 words. The main text still ends on page 8.
+> - **Framing:** strengths first. Ground-truth-free selection nearly matches the orbit oracle on FFHQ. With four DAPS runs on ImageNet, it beats the published per-metric oracle. It transfers to PC-DAPS. Unsolved images reflect the ill-posedness of phase retrieval; SITCOM's consistent-but-wrong runs are a solver limit, outside selection.
+> - **Defect sweep:** references completed; notation explicit; internal names removed from the paper; "forecasts" vs "points" disambiguated; Table 2 and Fig. 2 relabeled.
+> - **Supplement:** 22 pages; the selection-protocols section is written; theory cleans S1–S3 by Nov 12.
+> - **Next:** the Nov 8 go/no-go (planner recommends GO); registration on Nov 10; submission on Nov 16.
+>
+> **Twenty-second update, 2026-11-04, 22:12 ET**.
 > - **G7 is complete** (A24): every orientation test on the 280 ground-truth images. ImageNet upright: S_mid 95, 2-forward 93, CLIP 92, UnivFD 89. The errors overlap little. This is in the supplement only.
 > - **Theory's corrected wording is in S2.** The denoiser measurement is consistent with orientation preferences but does not test the theorem.
 > - **Ledger:** 247.8 of 400 GPU-h. What remains is XP-K (gated) and CP4 (Nov 15).

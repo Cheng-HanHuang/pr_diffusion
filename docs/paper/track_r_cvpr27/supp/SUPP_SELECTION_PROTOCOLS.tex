@@ -1,0 +1,23 @@
+\section{Selection protocols in recent work}
+\label{sec:suppl-protocols}
+\Cref{tab:protocols} lists how recent work selects the reported phase-retrieval results.
+In the reference code of DAPS, SITCOM and FAST-DIPS, the reported PSNR, SSIM and LPIPS are each the best of four runs against the ground truth, chosen separately for each metric.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Method & Runs & Selected by & Per metric \\
+\midrule
+DPS~\cite{chung2023dps} & 4 & not stated & not stated \\
+DAPS~\cite{zhang2025daps} & 4 & ground truth$^\dagger$ & yes$^\dagger$ \\
+SITCOM~\cite{alkhouri2025sitcom} & 4 & ground truth$^\dagger$ & yes$^\dagger$ \\
+FAST-DIPS~\cite{kim2026fastdips} & 4 & ground truth$^\dagger$ & yes$^\dagger$ \\
+PC-DAPS~\cite{kocabas2026pcdaps} & 4 particles & mean over particles; baselines: ground truth & not stated \\
+TGD~\cite{makris2026tgd} & 4 & residual & no \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Selection protocols for phase retrieval.} $^\dagger$What the reference code does.}
+\label{tab:protocols}
+\end{table}

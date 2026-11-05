@@ -14,6 +14,7 @@
 %% ---------- Draft markers ----------
 \newif\ifdraftmarks
 \draftmarkstrue   % set \draftmarksfalse for submission (and check: grep -n "\\pending" sec/*.tex must be empty)
+\ifdefined\cleancopy\draftmarksfalse\fi   % clean review build: pdflatex -jobname=main_clean "\def\cleancopy{}\input{main}"
 \ifdraftmarks
   \newcommand{\pending}[1]{{\color{red}[\textbf{PENDING}: #1]}}
   \newcommand{\claim}[1]{\textsuperscript{\color{cvprblue}\tiny[#1]}}

@@ -48,7 +48,7 @@ for var in ("race", "S2"):
 
 COL = {1: "#2a78d6", 2: "#eb6834", 3: "#1baf7a", 4: "#eda100", 5: "#e87ba4", 6: "#008300"}  # categorical slots 1-6, validated (dataviz), shapes as secondary encoding
 MK = {1: "o", 2: "s", 3: "^", 4: "D", 5: "v", 6: "P"}
-NAME = {1: "1 FAST-DIPS, FFHQ", 2: "2 FAST-DIPS, ImageNet", 3: "3 SITCOM, FFHQ", 4: "4 DAPS, FFHQ", 5: "5 FAST-DIPS, ImageNet (16 runs seen)", 6: "6 FAST-DIPS, ImageNet, new images"}
+NAME = {1: "1 FAST-DIPS, FFHQ", 2: "2 FAST-DIPS, ImageNet", 3: "3 SITCOM, FFHQ", 4: "4 DAPS-2K, FFHQ", 5: "5 FAST-DIPS, ImageNet (16 runs seen)", 6: "6 FAST-DIPS, ImageNet$'$"}
 INK, MUTED, GRID = "#0b0b0b", "#52514e", "#e4e3df"
 plt.rcParams.update({"font.family": "serif", "font.serif": ["STIXGeneral", "DejaVu Serif"], "mathtext.fontset": "stix",
                      "font.size": 7, "axes.labelsize": 7, "xtick.labelsize": 6.5, "ytick.labelsize": 6.5, "legend.fontsize": 6,

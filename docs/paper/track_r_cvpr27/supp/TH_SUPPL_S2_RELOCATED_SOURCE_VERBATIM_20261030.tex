@@ -27,7 +27,7 @@ It concerns the measurement, not the quality of the runs: a solver may produce r
 Consider a sampler with Gaussian transitions, $x_{i-1}=m_i(x_i)+s_i\xi_i$ with $\xi_i\sim\mathcal N(0,I)$ and state-independent $s_i>0$, started from a $\cG$-invariant law; $y$ is fixed and dropped from the notation.
 Deterministic steps, such as ODE denoising, are absorbed into the next mean map.
 DAPS and SITCOM-ODE have this form up to the Langevin iterate they return; FAST-DIPS returns a deterministic denoised estimate of its last state, so the results below cover that state, not its output\claim{C-T3}.
-Measurement gradients, projections in measurement space, isotropic noise and pixel-wise clipping commute with $\cG$; the denoiser need not \pending{per-solver source audit, supplement S1}.
+Measurement gradients, projections in measurement space, isotropic noise and pixel-wise clipping commute with $\cG$; the denoiser need not.
 
 \begin{theorem}[equivariant samplers]
 \label{thm:equivariant}
@@ -59,12 +59,12 @@ If the posterior law $\Pi$ itself prefers upright images, then $\TV(\Pi,g_\#\Pi)
 
 \paragraph{Measurements.}
 We measured the defect of the denoisers themselves on noised ground-truth images, $x_t=x+\sigma_t\epsilon$ at nine noise levels ($t=100,200,\dots,900$ of the $1{,}000$-step schedule; two draws; the $180$ FFHQ and $100$ ImageNet images).
-Relative to the denoising error, $\tilde\delta(t)=\overline{\|D(R_sx_t)-R_sD(x_t)\|^2}\,/\,\overline{\|D(x_t)-x\|^2}$ is $0.10$--$0.31$ on FFHQ but only $0.015$--$0.052$ on ImageNet for the global rotation $R_{111}$, against $0.26$--$0.61$ and $0.15$--$0.43$ for a single-channel rotation $R_{100}$ (\cref{tab:s2-c2}).
+Relative to the denoising error, $\tilde\delta(t)=\overline{\|D(R_bx_t)-R_bD(x_t)\|^2}\,/\,\overline{\|D(x_t)-x\|^2}$ is $0.10$--$0.31$ on FFHQ but only $0.015$--$0.052$ on ImageNet for the global rotation $R_{111}$, against $0.26$--$0.61$ and $0.15$--$0.43$ for a single-channel rotation $R_{100}$ (\cref{tab:s2-c2}).
 In this diagnostic, the normalized global-flip defect of the ImageNet denoiser is much smaller than that of the FFHQ denoiser.
 Single-channel rotations produce larger defects on both datasets.
 This is a proxy: \cref{thm:tv} involves the defect of the whole transition along the sampler's own trajectory.
-On FFHQ, $59$ of the $1{,}960$ runs of the three solvers are orbit errors ($58$ global, $1$ partial): $7.5\%$ of the failed runs, from $3.4\%$ for FAST-DIPS to $13.0\%$ for DAPS\claim{C-A1}.
-On ImageNet the share is far higher: $1{,}105$ of the $6{,}400$ FAST-DIPS runs on the first image set are orbit errors ($1{,}047$ global, $58$ partial), $22.6\%$ of the failed runs; it is $22.4\%$ on the new images and $31.0\%$ for DAPS-4K ($163$ of its $525$ failed runs).
+On FFHQ, $59$ of the $1{,}960$ runs of the three solvers are orbit errors ($58$ global, $1$ partial): $7.5\%$ of the failed runs, from $3.4\%$ for FAST-DIPS to $13.0\%$ for DAPS-2K\claim{C-A1}.
+On ImageNet the share is far higher: $1{,}105$ of the $6{,}400$ FAST-DIPS runs on ImageNet are orbit errors ($1{,}047$ global, $58$ partial), $22.6\%$ of the failed runs; it is $22.4\%$ on ImageNet$'$ and $31.0\%$ for DAPS-4K ($163$ of its $525$ failed runs).
 These observations are qualitatively consistent with denoiser-dependent orientation preferences.
 They do not test \cref{thm:tv} directly.
 Its bound concerns the sampler's transition defects along its own trajectories, not denoiser defects on noised ground-truth images.
@@ -97,7 +97,7 @@ We also applied every test to the ground-truth images themselves (\cref{tab:s2-g
 On FFHQ, all tests but one keep all $180$ images upright.
 On ImageNet, the generic prompts keep $92$ of $100$ upright, and the denoiser scores keep $93$ to $95$.
 The errors fall mostly on different images.
-No ImageNet image is turned by all of G1, the two global-pair denoiser scores and UnivFD, and $20$ are turned by at least one.
+No ImageNet image is turned by all of the generic CLIP test, the two global-pair denoiser scores and UnivFD, and $20$ are turned by at least one.
 
 \begin{table}[h]
 \centering\small
@@ -107,8 +107,8 @@ No ImageNet image is turned by all of G1, the two global-pair denoiser scores an
 Test & FFHQ ($180$) & ImageNet ($100$) \\
 \midrule
 CLIP, face prompts & 180 & --- \\
-CLIP, generic prompts (G1) & 180 & 92 \\
-CLIP, generic prompt ensemble (G2) & 180 & 92 \\
+CLIP, generic prompts & 180 & 92 \\
+CLIP, generic prompt ensemble & 180 & 92 \\
 Denoiser score $S_{\mathrm{mid}}$, global pair & 180 & 95 \\
 Denoiser score $S_{\mathrm{mid}}$, all eight members & 180 & 95 \\
 Denoiser score at one level ($t=300$), global pair & 180 & 93 \\
@@ -118,4 +118,4 @@ UnivFD, all eight members & 172 & 89 \\
 \caption{\textbf{Orientation tests on the ground-truth images:} how many each keeps upright. Over all eight members, $S_{\mathrm{mid}}$ makes the same choice as over the global pair on every image. One of UnivFD's errors is a channel-wise flip.}
 \label{tab:s2-gt}
 \end{table}
-The denoiser score restricted to the two global members matches that test on the first image set and leaves $5$ points less orientation loss on new images (\cref{tab:s4-prior}; exploratory).
+Restricted to $\hat x$ and $R_{111}\hat x$, the denoiser score matches the generic CLIP test on ImageNet and leaves $5$ points less orientation loss on ImageNet$'$ (\cref{tab:s4-prior}; exploratory).

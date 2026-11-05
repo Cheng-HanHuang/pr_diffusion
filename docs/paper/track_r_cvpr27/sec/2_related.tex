@@ -2,23 +2,35 @@
 \label{sec:related}
 
 \paragraph{Diffusion priors for phase retrieval.}
-DPS~\cite{chung2023dps} guides a pretrained diffusion model with the gradient of the measurement likelihood at the denoised estimate; DAPS~\cite{zhang2025daps} decouples consecutive steps by re-noising a measurement-corrected clean estimate; DiffFPR~\cite{li2024difffpr} targets oversampled Fourier phase retrieval.
-SITCOM~\cite{alkhouri2025sitcom} enforces measurement and diffusion consistency at every step; its authors' phase-retrieval code, which we run, follows each ODE denoising step with a measurement-gradient step and refines the estimate by Langevin dynamics\claim{C-S6}.
+DPS~\cite{chung2023dps} guides a pretrained diffusion model with the gradient of the measurement likelihood at the denoised estimate.
+DAPS~\cite{zhang2025daps} decouples consecutive steps by re-noising a measurement-corrected clean estimate.
+DiffFPR~\cite{li2024difffpr} targets oversampled Fourier phase retrieval.
+SITCOM~\cite{alkhouri2025sitcom} enforces measurement and diffusion consistency at every step; its phase-retrieval code follows each ODE denoising step with a measurement-gradient step and refines the estimate by Langevin dynamics\claim{C-S6}.
 FAST-DIPS~\cite{kim2026fastdips} uses analytic steps with a hard measurement constraint.
-PC-DAPS~\cite{kocabas2026pcdaps} replaces independent runs by interacting particles pruned by prior consistency, which reduces orientation failures; TGD~\cite{makris2026tgd} runs particles through tempered posteriors.
-DOLPH~\cite{shoushtari2022dolph} applies a diffusion prior to coded-diffraction measurements, whose random masks remove the twin ambiguity that the benchmark operator has; we keep the benchmark operator.
+PC-DAPS~\cite{kocabas2026pcdaps}, concurrent with this work, replaces independent runs by interacting particles pruned by prior consistency, which reduces orientation failures.
+TGD~\cite{makris2026tgd} runs particles through tempered posteriors.
+DOLPH~\cite{shoushtari2022dolph} applies a diffusion prior to coded-diffraction measurements, whose random masks remove the twin ambiguity; we keep the standard operator, which has it.
 
 \paragraph{Evaluation practice.}
-The ground-truth best-of-four protocol originates in DPS~\cite{chung2023dps}; DAPS adopts it ``due to the inherent instability of phase retrieval''~\cite[Sec.~4.1]{zhang2025daps}, and in the DAPS, SITCOM and FAST-DIPS reference code the best run is chosen separately for each metric\claim{C-P1}.
-Makris~\etal\cite[App.~F.4]{makris2026tgd} note that this oracle is unavailable at test time and select by measurement error instead; Kocabas~\etal\cite{kocabas2026pcdaps} show that it hides orientation failures.
+The ground-truth best-of-four protocol originates in DPS~\cite{chung2023dps}.
+DAPS adopts it ``due to the inherent instability of phase retrieval''~\cite[Sec.~4.1]{zhang2025daps}.
+In the DAPS, SITCOM and FAST-DIPS reference code, the best run is chosen separately for each metric\claim{C-P1}.
+Makris~\etal note that this oracle is unavailable at test time and select by measurement error instead~\cite[App.~F.4]{makris2026tgd}.
+Kocabas~\etal show that it hides orientation failures~\cite{kocabas2026pcdaps}.
 We measure each layer of the protocol, model how selection scales with the number of runs, and replace fixed best-of-$K$ by a stopping rule.
 
 \paragraph{Best-of-$n$, verifiers and adaptive sampling.}
 Unbiased estimators of best-of-$k$ success from $n$ samples are standard in code generation~\cite{chen2021codex}.
-A verifier with false positives caps the accuracy of resampling~\cite{stroebl2026limits}, and the large-$n$ behavior of best-of-$n$ is decided by the score tails of correct and incorrect samples~\cite{yano2026tail}; finite-particle guidance cannot choose between modes its reward does not distinguish~\cite{dandapanthula2026tilting}.
-Stopping once samples agree saves compute in self-consistency decoding~\cite{aggarwal2023adaptive,li2024escape}, and abstaining on low-confidence inputs is the subject of selective prediction~\cite{geifman2017selective}.
+A verifier with false positives caps the accuracy of resampling~\cite{stroebl2026limits}.
+The large-$n$ behavior of best-of-$n$ is decided by the score tails of correct and incorrect samples~\cite{yano2026tail}.
+Finite-particle guidance cannot choose between modes that its reward does not distinguish~\cite{dandapanthula2026tilting}.
+Stopping once samples agree saves compute in self-consistency decoding~\cite{aggarwal2023adaptive,li2024escape}.
+Abstaining on low-confidence inputs is the subject of selective prediction~\cite{geifman2017selective}.
 Coherent diffraction imaging has long run many random starts and kept or combined them by their Fourier-space error~\cite{chen2007ghio,chapman2006highres}.
-Our protocol is of this family; what is specific to phase retrieval with a learned prior is that the verifier is a residual whose level is set by the solver, that it is blind to an exact symmetry, and that its failures split into kinds with different remedies.
+Our protocol belongs to this family.
+What is specific to phase retrieval with a learned prior is threefold: the verifier is a residual whose level is set by the solver, it is blind to an exact symmetry, and its failures split into kinds with different remedies.
 
 \paragraph{Uniqueness and symmetry breaking.}
-Generic images are determined by their Fourier magnitudes up to translation and conjugate inversion~\cite{bruck1979ambiguity,hayes1982reconstruction} when the support occupies at most half the grid in each dimension~\cite{barnett2020geometry}, and iterative algorithms return an object or its twin with equal probability~\cite{fienup1986stagnation}; coded diffraction~\cite{candes2015cdp} and known references~\cite{barmherzig2019holographic} break the ambiguity by changing the measurement.
+Generic images are determined by their Fourier magnitudes up to translation and conjugate inversion~\cite{bruck1979ambiguity,hayes1982reconstruction}, when the support occupies at most half of the grid in each dimension~\cite{barnett2020geometry}.
+Iterative algorithms return an object or its twin with equal probability~\cite{fienup1986stagnation}.
+Coded diffraction~\cite{candes2015cdp} and known references~\cite{barmherzig2019holographic} break the ambiguity by changing the measurement.
