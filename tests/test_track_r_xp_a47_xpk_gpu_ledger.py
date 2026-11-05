@@ -21,6 +21,14 @@ class A47Ledger(unittest.TestCase):
         self.assertEqual(r["unfinished_workers"],["a"])
         self.assertEqual(r["physical_gpu_seconds"]["2"],60)
         self.assertFalse(remaining(rows,160,240,reserve_h=.01)["can_admit_full_reserved_stage"])
+
+    def test_live_worker_does_not_mean_budget_exhausted(self):
+        rows=[ev("a","START",0,100,family="SITCOM",phase="historical_replay")]
+        r=remaining(rows,160,247.8,0,reserve_h=4.0)
+        self.assertTrue(r["can_fit_reserve_under_caps"])
+        self.assertFalse(r["can_admit_full_reserved_stage"])
+        self.assertEqual(r["unfinished_workers"],["a"])
+
     def test_exact_boundary_reserve(self):
         self.assertTrue(remaining([],100,399.5,29.5,reserve_h=.5)["can_admit_full_reserved_stage"])
         self.assertFalse(remaining([],100,399.5,29.5,reserve_h=.5001)["can_admit_full_reserved_stage"])
