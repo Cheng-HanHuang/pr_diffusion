@@ -50,6 +50,15 @@ class A49Contract(unittest.TestCase):
         self.assertIn("projected <= 0.80 * c", s)
         self.assertIn(">= 4 * 1024", s)
 
+
+    def test_parallel_admission_reserves_active_and_candidate_groups(self):
+        s = CTRL.read_text()
+        self.assertIn("active_reserve_h = sum(", s)
+        self.assertIn("for v in active.values()", s)
+        self.assertIn("reserve_h=active_reserve_h + reserve_h", s)
+        self.assertIn('led["can_fit_reserve_under_caps"]', s)
+        self.assertNotIn('led["can_admit_full_reserved_stage"], "GPU_BUDGET_EXHAUSTED"', s)
+
     def test_preferred_replay_gpus_and_two_gpu_default(self):
         s = CTRL.read_text()
         self.assertIn("PREFERRED_REPLAY_GPUS = (1, 0, 2, 3)", s)
