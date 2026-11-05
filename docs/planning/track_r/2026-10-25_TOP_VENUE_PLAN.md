@@ -1,6 +1,16 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-11-04)
 
-> **Twenty-first update, 2026-11-04, 00:16 ET** (the newest; read it first).
+> **Twenty-second update, 2026-11-04, 22:12 ET** (the newest; read it first).
+> - **G7 is complete** (A24): every orientation test on the 280 ground-truth images. ImageNet upright: S_mid 95, 2-forward 93, CLIP 92, UnivFD 89. The errors overlap little. This is in the supplement only.
+> - **Theory's corrected wording is in S2.** The denoiser measurement is consistent with orientation preferences but does not test the theorem.
+> - **Ledger:** 247.8 of 400 GPU-h. What remains is XP-K (gated) and CP4 (Nov 15).
+> - **Next for the paper:**
+>   - a writing pass on Nov 5–7 with shorter sentences (Cheng's preference), abstract under 250 words;
+>   - the Nov 8 go/no-go;
+>   - registration on Nov 10;
+>   - submission on Nov 16.
+>
+> **Twenty-first update, 2026-11-04, 00:16 ET**.
 > - **The main-paper data cut is met, two days early** (A23). Every main-text number is reproduced or verified.
 > - **Tab. 3 E1 (ImageNet).** Without the ground truth, DAPS-4K's residual pick plus the generic orientation test beats the published per-metric ground-truth oracle of the same four runs on PSNR, SSIM and VGG-LPIPS: 23.10 / 0.534 / 0.325 against 22.28 / 0.518 / 0.340. With eight runs they are within 0.01 dB. This is the audit's sharpest single number and is now in Sec. 6.
 > - **Supplement:**

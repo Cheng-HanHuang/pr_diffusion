@@ -14,6 +14,11 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-04, 22:12 (planner): G7 complete and accepted (A24).**
+  - **Results:** every orientation test on the 280 ground-truth images. S_mid keeps 95/100 ImageNet upright, 2-forward 93, CLIP 92, UnivFD 89; all keep all 180 FFHQ except UnivFD (172). S2 has a new table.
+  - **Theory's S2 wording** for the equivariance-defect sentences is adopted.
+  - **Remaining:** XP-K (gated) and CP4 (Nov 15). The main-paper cut stays closed.
+  - **Notes, round 20:** [`executors/xp/20_PLANNER_NOTES_20261104_PM.md`](executors/xp/20_PLANNER_NOTES_20261104_PM.md) and [`executors/theory/20_PLANNER_GUIDANCE_20261104_PM.md`](executors/theory/20_PLANNER_GUIDANCE_20261104_PM.md).
 - **2026-11-04, 00:16 (planner): Tab. 3 E1 and G7 C2/CLIP accepted (A23). The main-paper data cut is met.**
   - **Tab. 3:** without the ground truth, DAPS-4K's E1 with four runs beats the published per-metric ground-truth oracle on every metric on ImageNet (23.10 dB / 0.534 / 0.325 vs 22.28 / 0.518 / 0.340). This is in Sec. 6.
   - **C2:** the ImageNet denoiser is nearly equivariant to the global flip (relative defect 0.015–0.052, against 0.10–0.31 on FFHQ). This is in S2, with the N2 prompts and ground-truth CLIP counts.

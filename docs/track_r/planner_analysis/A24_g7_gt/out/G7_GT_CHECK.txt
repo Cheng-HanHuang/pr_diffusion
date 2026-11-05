@@ -1,0 +1,18 @@
+upright kept (FFHQ / ImageNet), and the orbit elements chosen when not upright
+  CLIP face      180/180  0/0  non-upright choices: {}
+  CLIP G1        180/180  92/100  non-upright choices: {'111': 8}
+  CLIP G2        180/180  92/100  non-upright choices: {'111': 8}
+  S_mid global2  180/180  95/100  non-upright choices: {'111': 5}
+  S_mid all8     180/180  95/100  non-upright choices: {'111': 5}
+  2-forward      180/180  93/100  non-upright choices: {'111': 7}
+  UnivFD         172/180  89/100  non-upright choices: {'111': 18, '010': 1}
+S_mid all8 choices identical to S_mid global2 on all 280 images: True
+ImageNet non-upright overlaps:
+  CLIP G1 & S_mid global2: 2 (of 8 and 5)
+  CLIP G1 & 2-forward: 2 (of 8 and 7)
+  CLIP G1 & UnivFD: 2 (of 8 and 11)
+  S_mid global2 & 2-forward: 4 (of 5 and 7)
+  S_mid global2 & UnivFD: 2 (of 5 and 11)
+  2-forward & UnivFD: 3 (of 7 and 11)
+  flipped by all four: 0; by at least one: 20
+aggregate files agree with per-image counts: True

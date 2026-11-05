@@ -761,7 +761,29 @@
 >    - **The A21.10 replicate** remains optional and is for information only.
 > 6. **Unchanged:** no protocol v2, no new selector, no matched-compute claim.
 
-**Status:** FROZEN v1.1 with amendments A1–A23 (planner, 2026-11-04).
+> **Amendment A24 (planner, 2026-11-04 22:12 ET): G7 is complete and accepted; outcomes recorded.** Written after XP `da130b5` (S_mid global2), `967e73c` (S_mid all8), `6d2afbf` (2-forward), `9d379d2` (UnivFD) and the closeout `4d1bd60`. No XP-K outcome exists.
+> 1. **G7 is accepted** (A23.5a).
+>    - **Planner checks:** all four files hold the same 280 ground-truth images with the same source hashes. The threshold rule holds, and the aggregates equal the per-image counts.
+>    - **Outcome:** images kept upright, FFHQ (180) / ImageNet (100):
+>
+>      | Test | FFHQ | ImageNet |
+>      |---|---|---|
+>      | S_mid global2 | 180 | 95 |
+>      | S_mid all8 | 180 | 95 (same choices as global2 on every image) |
+>      | 2-forward | 180 | 93 |
+>      | UnivFD | 172 | 89 |
+>      | CLIP G1 (A23) | 180 | 92 |
+>
+>    - **The errors overlap little.** No ImageNet image is turned by all of G1, S_mid global2, 2-forward and UnivFD, and 20 are turned by at least one.
+>    - **Engineering:** the UnivFD dependency recovery and its publication-only retry are accepted. No score was recomputed.
+>    - **Ledger:** G7 used 5.97 of its 10 GPU-h. The project stands at 247.80 of 400.
+>    - **Placement:** supplement S2 (new table; theory's wording for the interpretive sentences).
+> 2. **Remaining:**
+>    - XP-K under the three A23.5b gates;
+>    - CP4 by Nov 15, 12:00 ET;
+>    - the main-paper cut stays closed.
+
+**Status:** FROZEN v1.1 with amendments A1–A24 (planner, 2026-11-04).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
