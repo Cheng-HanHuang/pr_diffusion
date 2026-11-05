@@ -24,8 +24,9 @@ class NativeEntryContract(unittest.TestCase):
                             and n.func.id=="main" for n in ast.walk(entry[0])))
     def test_each_family_has_real_two_mode_native_entry(self):
         s=GPU.read_text()
-        for family in ("SITCOM","FAST","DAPS"):
-            self.assertIn(f'if a.family=="{family}"',s)
+        self.assertIn('if a.family=="SITCOM":sit_run',s)
+        self.assertIn('elif a.family=="FAST":fast_run',s)
+        self.assertIn('else:daps_run',s)
         self.assertIn('choices=("historical_replay","calibrated")',s)
         self.assertIn('if a.phase=="calibrated"',s)
         self.assertIn("def complete_valid(",s)
