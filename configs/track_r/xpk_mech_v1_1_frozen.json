@@ -1,0 +1,87 @@
+{
+  "version": "v1.1",
+  "status": "PRE_REGISTERED_BEFORE_A5_5_RESULTS",
+  "scope": "TH2 D/C paired residual mechanism predictions",
+  "owner_branch": "theory/prdiff-track-r-th-20261026",
+  "source": "Only authorized N1c GOOD residual quantiles, A8 K<=4 class/ranks, and planner-confirmed native solver settings",
+  "seed": 20261027,
+  "theory_assumptions": [
+    "fixed measurement y=a+sigma Z",
+    "locally linear A and flat prior along rank-r identifiable subspace",
+    "exact posterior draw under an over-weighted Gaussian data term; not proved for deployed finite-step samplers"
+  ],
+  "definitions": {
+    "D": "||A(xhat)-A(xstar)||^2/sigma^2",
+    "C": "<y-A(xstar),A(xhat)-A(xstar)>/sigma^2",
+    "Delta": "D-2*C"
+  },
+  "identity": "Delta=chi2_r/kappa - independent_chi2_r; all three expectations follow from d/sigma=PZ+Pxi/sqrt(kappa)",
+  "parameters": {
+    "sigma": 0.05,
+    "m": 442368,
+    "DAPS": {
+      "kappa": 50,
+      "illustrative_r_over_m": 0.107
+    },
+    "SITCOM": {
+      "kappa": 25,
+      "illustrative_r_over_m": 0.2284
+    },
+    "FAST": {
+      "kappa": null,
+      "terminal_output": "clamp(x0hat)"
+    }
+  },
+  "model_conditional_predictions": [
+    {
+      "family": "DAPS",
+      "class": "GOOD",
+      "D_per_r": 1.02,
+      "C_per_r": 1,
+      "Delta_per_r": -0.98,
+      "Delta_sign": "negative",
+      "P_Delta_negative": "F_CDF(kappa, r, r); >0.5 for r>0",
+      "basis": "flat locally Gaussian sampler hypothesis, not direct native theorem"
+    },
+    {
+      "family": "SITCOM",
+      "class": "GOOD",
+      "D_per_r": 1.04,
+      "C_per_r": 1,
+      "Delta_per_r": -0.96,
+      "Delta_sign": "negative",
+      "P_Delta_negative": "F_CDF(kappa, r, r); >0.5 for r>0",
+      "caveat": "native additional Euler SSE-gradient step breaks simple kappa proxy"
+    },
+    {
+      "family": "FAST",
+      "class": "GOOD",
+      "D_per_r": null,
+      "C_per_r": null,
+      "Delta_per_r": null,
+      "Delta_sign": "nonnegative if measurement-noise coupling is negligible",
+      "caveat": "denoiser output depends on y; C=0 is an empirical mechanism hypothesis, not guaranteed"
+    }
+  ],
+  "diagnostic_tests": [
+    "A5.5 may reject the surrogate if DAPS/SITCOM have C near zero rather than positive, or observed Delta sign is predominantly positive",
+    "test conditional D/C differences for GOOD vs CONSISTENT and ORBIT, not just marginal median residual",
+    "G and a strictly rotated G have identical D,C; measured G/O ranking leak comes from differing generated off-orbit perturbations"
+  ],
+  "orientation_leak_pred": {
+    "DAPS": "G residual lower than O in majority of independent generated G/O comparisons, as in A8; difference sign determined by (D_O-D_G)-2(C_O-C_G)",
+    "SITCOM": "approximately balanced G/O residual race",
+    "FAST": "G lower than O in majority, hypothesis independent of deterministic exact orbit identity"
+  },
+  "uncertainty": [
+    "actual r not measured; r/m inferred from medians is illustrative only",
+    "posterior temperature approximation may not describe finite-step solvers",
+    "class-rank comparisons share images and are not independent"
+  ],
+  "abstentions": [
+    "no quantitative A5.5 D/C observed value assumed",
+    "no per-class CONSISTENT magnitude or rate forecast absent mechanistic evidence",
+    "no use of XP return, forbidden K>4, or A5.5 outcomes"
+  ],
+  "math_note": "docs/track_r/theory/TH2_A6_DC_DELTA_LAW_20261027.md"
+}
