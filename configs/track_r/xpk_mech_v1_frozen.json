@@ -1,0 +1,97 @@
+{
+  "version": "v1",
+  "status": "FROZEN_BEFORE_XP_K_AND_XP_G_RESULTS",
+  "program": "Track R TH2 mechanism forecasts",
+  "data_source": "Only allowed N1c K<=4 residual quantiles and permitted A8 K<=4 class ranks",
+  "source_guidance": "docs/track_r/executors/theory/01_PLANNER_GUIDANCE_20261027.md @ ac92b73",
+  "native_settings": {
+    "DAPS": {
+      "measurement_precision_multiple": 50,
+      "median_good_rho": 0.04730607755482197
+    },
+    "SITCOM": {
+      "measurement_precision_multiple": 25,
+      "median_good_rho": 0.04418
+    },
+    "FAST": {
+      "absolute_projection_epsilon": 0.05,
+      "last_return": "clamp(x0hat)"
+    }
+  },
+  "theory_condition": "Local linear-Gaussian exact posterior draws with a flat prior on r active directions give E[rho^2]/sigma^2 = 1 - (r/m)*(1-1/kappa). This is not an equality about finite-step native solver output medians.",
+  "measurement": {
+    "sigma": 0.05,
+    "m": 442368,
+    "image_dim": 196608
+  },
+  "xp_k": [
+    {
+      "family": "DAPS",
+      "intervention": "tau_y=sqrt(2)*sigma, effective kappa=1",
+      "baseline_model_kappa": 50,
+      "illustrative_active_fraction": 0.10699388831721197,
+      "baseline_good_median_rho_over_sigma": 0.9461215510964394,
+      "flat_model_new_rho_over_sigma": 1,
+      "conditional_direction": "GOOD rho/sigma increases toward 1",
+      "native_effect_size_prediction": null
+    },
+    {
+      "family": "SITCOM",
+      "intervention": "tau_y=sigma, inner Langevin effective kappa=1; Euler SSE step unchanged",
+      "baseline_model_kappa": 25,
+      "illustrative_active_fraction": 0.2283865,
+      "baseline_good_median_rho_over_sigma": 0.8836,
+      "flat_model_new_rho_over_sigma": 1,
+      "conditional_direction": "GOOD rho/sigma tends upward if inner precision drives overfitting",
+      "native_effect_size_prediction": null
+    },
+    {
+      "family": "FAST",
+      "intervention": "epsilon=sigma*sqrt(m)",
+      "baseline_epsilon": 0.05,
+      "target_epsilon": 33.25537550532245,
+      "conditional_direction": null,
+      "native_effect_size_prediction": null,
+      "reason_for_abstention": "last output is denoiser estimate, not projected inner iterate"
+    }
+  ],
+  "xp_g": [
+    {
+      "family": "FAST",
+      "sigma": 0.02,
+      "epsilon": 0.05,
+      "epsilon_over_sigma_sqrt_m": 0.0037587908150366264,
+      "good_rho_over_sigma_direction": null,
+      "consistent_share_direction": null
+    },
+    {
+      "family": "FAST",
+      "sigma": 0.1,
+      "epsilon": 0.05,
+      "epsilon_over_sigma_sqrt_m": 0.0007517581630073251,
+      "good_rho_over_sigma_direction": null,
+      "consistent_share_direction": null
+    }
+  ],
+  "baseline_class_order_predictions": [
+    {
+      "comparison": "GOOD vs CONSISTENT",
+      "observed_allowed_calibration": "G lower residual in 200/205 same-image pairs",
+      "prediction_for_new_baseline_replicates": "GOOD lower residual in more than 75 percent of within-image G/C pairs, if family and measurement configurations remain stable",
+      "nonindependence": "Calibration pairs share images and runs; confidence must be image-cluster based"
+    },
+    {
+      "comparison": "GOOD vs global ORBIT",
+      "observed_allowed_calibration": "DAPS 21/24, SITCOM 14/30, FAST 15/15",
+      "prediction_for_new_baseline_replicates": "DAPS and FAST favor GOOD more strongly than SITCOM, with no numerical probability bound due small ORBIT counts"
+    }
+  ],
+  "paired_identity": "For fixed common noisy observation y, the sign of residual_C^2-residual_G^2 equals the sign of (D_C-D_G)-2(C_C-C_G). For actual y-adapted candidates, do not apply fixed-candidate Gaussian discrimination without qualification.",
+  "explicit_abstentions": [
+    "No signed forecast for native PSNR quality, CONSISTENT share under XP-K, or FAST normalized residual under XP-G.",
+    "The flat-subspace sample theory does not identify a native effective rank or guarantee exact stationarity.",
+    "No inference from embargoed XP-K or XP-G outcomes."
+  ],
+  "seed": 20261027,
+  "novelty_scope": "Classical Gaussian inverse-problem identities applied as preregistered physical-mechanism diagnostics, not a new solver or new general theorem"
+}
