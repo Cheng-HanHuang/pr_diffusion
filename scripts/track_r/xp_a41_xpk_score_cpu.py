@@ -208,9 +208,19 @@ def calibration(a,run,m,refs,selected):
     table=[];per_image=[]
     groups=defaultdict(list)
     for row in cal:groups[row["image_id"]].append(row)
+    family_refs=refs["family_references"][family]
+    historical=[x for iid in sorted(family_refs) for x in family_refs[iid]]
+    expected_hist=200 if family=="DAPS" else 400
+    gate(len(historical)==expected_hist and len(family_refs)==100,
+         "HIST_BASELINE_CARDINALITY_"+family)
+    tau_values={float(x["historical_tau_signed_good_q95"]) for x in historical}
+    gate(len(tau_values)==1,"HIST_TAU_NOT_FAMILY_CONSTANT_"+family)
+    family_tau=next(iter(tau_values))
     for k,(iid,rows) in enumerate(sorted(groups.items())):
         gate(sorted(r["run"] for r in rows)==[0,1,2,3],"CAL_RUNS")
-        rr=refs["family_references"][family][iid]
+        rr=family_refs[iid]
+        gate(len(rr)==(2 if family=="DAPS" else 4),
+             "HIST_IMAGE_CARDINALITY_"+family+"_"+iid)
         gt,g8=canonical_gt(rr[0])
         astar=m64(gt)
         y=signed_y(rows[0]["measurement_path"],rows[0]["measurement_sha256"])
@@ -219,7 +229,7 @@ def calibration(a,run,m,refs,selected):
             x8,folder=verify_root(run,m,row,family,"calibrated")
             feat=features(x8,g8,y,gt,astar)
             from prdiffusion.track_r.r0_7_stats import label_candidate
-            native_tau=float(rr[row["run"]]["historical_tau_signed_good_q95"])
+            native_tau=family_tau
             label=label_candidate(feat,native_tau)
             subtype="G" if label=="GOOD" else ("O" if label=="ORBIT_ERROR"
                   and feat["s_gt"]=="111" else ("P" if label=="ORBIT_ERROR"
@@ -253,8 +263,7 @@ def calibration(a,run,m,refs,selected):
     gate(len(table)==400 and len(per_image)==100,"SCORING_400_FINAL")
     counts=Counter(x["label_short"] for x in table)
     good=[x["rho_over_sigma64"] for x in table if x["label_short"]=="G"]
-    historical=[x for i in sorted(groups) for x in refs["family_references"][family][i]]
-    gate(len(historical)==400,"HIST_BASELINE_400")
+    gate(len(historical)==expected_hist,"HIST_BASELINE_COUNT_"+family)
     hist_good=[x["historical_rho_signed"]/.05 for x in historical
                if x["historical_raw_label"]=="GOOD"]
     old_non=[x for x in historical if x["historical_raw_label"]!="GOOD"]
@@ -276,6 +285,8 @@ def calibration(a,run,m,refs,selected):
        family=family,source_head=a.expected_head,
        dataset="ffhq_cal",GT_scoring_only=True,
        n_images=100,n_candidates=400,
+       n_historical_candidates=len(historical),
+       historical_roots_per_image=(2 if family=="DAPS" else 4),
        registered_class_rates={per_label[k]:counts[k]/400 for k in per_label},
        registered_class_counts={per_label[k]:counts[k] for k in per_label},
        historical_class_counts=dict(baseline_counts),
