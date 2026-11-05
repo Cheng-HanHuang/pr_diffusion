@@ -1,7 +1,8 @@
 """A48 local CPU journal crash/restart tests, no GPU or PAC access."""
-import tempfile,unittest
+import os,tempfile,unittest
 from pathlib import Path
 from scripts.track_r.xp_a48_xpk_event_journal_cpu import initialize,mutate,read_events
+import scripts.track_r.xp_a48_xpk_event_journal_cpu as journal
 from scripts.track_r.xp_a47_xpk_gpu_ledger_cpu import charge
 class JournalTests(unittest.TestCase):
     def setUp(self):
@@ -14,6 +15,22 @@ class JournalTests(unittest.TestCase):
         mutate(self.path,"END","job1",0,now=130)
         self.assertEqual(charge(read_events(self.path),1000)["physical_gpu_seconds"]["0"],30)
         self.assertEqual(charge(read_events(self.path),2000)["physical_gpu_seconds"]["0"],30)
+
+    def test_exclusive_lock_descriptor_is_writable(self):
+        original=journal.fcntl.flock
+        seen=[]
+        def checked(fd,op):
+            flags=journal.fcntl.fcntl(fd,journal.fcntl.F_GETFL)
+            seen.append(flags & os.O_ACCMODE)
+            return original(fd,op)
+        journal.fcntl.flock=checked
+        try:
+            mutate(self.path,"START","jobw",0,family="FAST",phase="pilot",now=100)
+        finally:
+            journal.fcntl.flock=original
+        self.assertTrue(seen)
+        self.assertTrue(all(mode in (os.O_WRONLY,os.O_RDWR) for mode in seen))
+
     def test_no_reused_start_or_double_end(self):
         mutate(self.path,"START","job1",0,family="FAST",phase="pilot",now=100)
         with self.assertRaisesRegex(RuntimeError,"WORKER_ID_REUSE"):
