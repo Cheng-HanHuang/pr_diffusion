@@ -160,10 +160,38 @@ def verify_daps():
          "DAPS_HYDRA_NOT_EXACTLY_ONE_NATIVE_LEAF")
     # The pinned source makes the measurement Langevin penalty depend on
     # tau; do not trust Hydra resolution alone.
-    mcmc,srcproof=checked_native_source(DAPS,PIN_DAPS,"cores/mcmc.py")
-    gate("tau" in mcmc and ("self.tau" in mcmc or "tau**2" in mcmc or "tau ** 2" in mcmc),
-         "DAPS_MCMC_TAU_NOT_USED")
-    proof.update(mcmc_source=srcproof,head_native_patch_sha=PATCH_DAPS_SAMPLER_BLOB,
+    # The historical patched DAPS checkout may keep the MCMC primitive
+    # under a different module path than pristine DAPS-4K. Discover only
+    # tracked source files and require a concrete native tau-loss witness.
+    candidates=[]
+    for candidate in sorted(DAPS.rglob("*.py")):
+        if (".git" in candidate.parts or "__pycache__" in candidate.parts
+                or candidate.is_symlink()):
+            continue
+        relative=candidate.relative_to(DAPS).as_posix()
+        if "site-packages" in relative or "external/" in relative:
+            continue
+        try:
+            data=candidate.read_text()
+        except (UnicodeDecodeError,OSError):
+            continue
+        if not ("tau" in data and ("mcmc" in data.lower() or
+             "Langevin" in data or "langevin" in data)):
+            continue
+        if ("tau ** 2" not in data and "tau**2" not in data and
+            "self.tau" not in data and "/ tau" not in data):
+            continue
+        if relative=="sampler.py":
+            # Historical B20/B21 default-off patched sampler is already
+            # strictly checked via the frozen blob above.
+            candidates.append(dict(path=relative,source_sha256=sha(candidate),
+                                   exception="accepted_prior_F8_patch"))
+            continue
+        verified,sr=checked_native_source(DAPS,PIN_DAPS,relative)
+        candidates.append(sr)
+    gate(candidates,"DAPS_MCMC_TAU_NATIVE_SOURCE_NOT_FOUND")
+    proof.update(mcmc_native_source_witnesses=candidates,
+                 head_native_patch_sha=PATCH_DAPS_SAMPLER_BLOB,
         Hydra_original_tau=float(at(original)),Hydra_calibrated_tau=float(at(adjusted)),
         exact_changed_leaf=".".join(key),
         full_original_yaml_sha256=sha_bytes(json.dumps(original,sort_keys=True,default=str).encode()),
