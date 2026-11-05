@@ -24,6 +24,10 @@ BAD=("confirmation","confirm305","test-ffhq","demo-ffhq")
 METHOD_SOURCE={"SITCOM":"S1_b22","FAST":"S5_r0_fast","DAPS":"S1_b22"}
 N=100
 K=4
+# Historical B22 source cardinality is not the prospective XP-K cardinality.
+# SITCOM and FAST have four historical B22 trajectories/image; the accepted
+# Fresh2 DAPS lineage has two. XP-K still generates K=4 NEW roots/family/image.
+HIST_K={"SITCOM":4,"FAST":4,"DAPS":2}
 
 def gate(ok,reason):
     if not ok:raise RuntimeError("STOP_XPK_MANIFEST_"+reason)
@@ -81,6 +85,7 @@ def main(a):
     original={};calibration={};references={}
     all_images=set()
     for family in FAMILIES:
+        hist_k=HIST_K[family]
         panel=[r for r in rows if hist_family(r,family)]
         group=defaultdict(dict)
         for r in panel:
@@ -88,15 +93,17 @@ def main(a):
             gate(k[1] in range(4) and k[1] not in group[k[0]],
                  "HIST_RUN_UNIQUE_"+family)
             group[k[0]][k[1]]=r
-        gate(len(group)==100 and all(set(g)==set(range(4)) for g in group.values())
-             and len(panel)==400,"HIST_B22_100x4_"+family)
+        gate(len(group)==100 and
+             all(set(g)==set(range(hist_k)) for g in group.values()) and
+             len(panel)==100*hist_k,
+             f"HIST_B22_100x{hist_k}_"+family)
         ids=sorted(group)
         all_images.add(tuple(ids))
         original[family]=[]
         calibration[family]=[]
         references[family]={}
         for image_id in ids:
-            refs=[group[image_id][i] for i in range(4)]
+            refs=[group[image_id][i] for i in range(hist_k)]
             y_paths={r["measurement_path"] for r in refs}
             y_shas={r["measurement_sha256"] for r in refs}
             gate(len(y_paths)==len(y_shas)==1,
@@ -208,6 +215,7 @@ def main(a):
        sha_cpu_references=sha(out/"XPK_CPU_ONLY_HIST_REFERENCES.json"),
        SHA_R07_catalog=sha(CAT),SHA_R07_score=sha(SCORES),
        n_images=100,n_per_family=400,n_replay_per_family=2,
+       historical_roots_per_image=HIST_K,
        family_names=list(FAMILIES),GT_never_given_to_GPU=True,
        no_GPU_started=True)
     write(out/"XPK_SOURCE_FREEZE_RECEIPT.json",rec)
