@@ -543,8 +543,17 @@ def run_task_queue(run, a, tasks, stage, preferred=False):
                 if not choices:
                     break
                 reserve_h = group_reserve_h(run, family, phase)
-                led = ledger(run, a, reserve_h=reserve_h)
-                gate(led["can_admit_full_reserved_stage"], "GPU_BUDGET_EXHAUSTED")
+                # A47 charges active START intervals through "now". For live
+                # parallel admission, also conservatively reserve a full group
+                # allowance for every controller-owned active worker plus the
+                # candidate group. Do not use the quiescent-stage predicate:
+                # unfinished_workers is expected while a sibling GPU runs.
+                active_reserve_h = sum(
+                    group_reserve_h(run, v["family"], v["phase"])
+                    for v in active.values()
+                )
+                led = ledger(run, a, reserve_h=active_reserve_h + reserve_h)
+                gate(led["can_fit_reserve_under_caps"], "GPU_BUDGET_EXHAUSTED")
                 gpu = choices[0]["index"]
                 log = run / "logs" / f"{stage}_{family}_{phase}_{image_id}.log"
                 wid, proc, fh = launch_worker(run, a, family, phase, image_id, gpu, log)
