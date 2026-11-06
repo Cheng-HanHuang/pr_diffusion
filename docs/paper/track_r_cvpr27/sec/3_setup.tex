@@ -12,7 +12,7 @@ with $\cF$ the centered, orthonormal 2-D DFT applied per channel and $\sigma=0.0
 This is the operator of DPS and DAPS~\cite{chung2023dps,zhang2025daps} (``oversampling 2.0'') and of the solvers we study\claim{C-S1}.
 We keep $y$ signed.
 With $m=3\cdot384^2$, the residual of a reconstruction is $\rho(x)=\|\cA(x)-y\|_2/\sqrt m$.
-The support occupies $2/3$ of the canvas per dimension, outside the classical uniqueness condition~\cite{barnett2020geometry}.
+The support occupies $2/3$ of the canvas per dimension, outside the classical uniqueness condition for generic images~\cite{bruck1979ambiguity,barnett2020geometry}.
 We assume that $\xs$ is determined by $y$ up to the symmetries below and to images that fit the data within the noise\claim{C-S3}.
 
 \paragraph{The orbit, and what selection cannot see.}
@@ -24,7 +24,7 @@ Two consequences matter here.
 First, any rule that selects among runs using only $\cA(\hat x_1),\dots,\cA(\hat x_K)$ and $y$, including the residual, returns the same index when a run is replaced by any member of its orbit; so do likelihood-only particle weights\claim{C-T2}.
 Second, the members of an orbit are pixel permutations with the same likelihood, so $p(R_bx\mid y)/p(x\mid y)=\pi(R_bx)/\pi(x)$ for a prior density $\pi$.
 Within an orbit, the posterior ranks images by the prior alone, and any orientation test that orders orbit members like $\pi$ is the Bayes choice.
-The supplement explains why samplers prefer upright images, with a total-variation bound by the equivariance defect of their transitions\claim{C-T4}.
+The supplement bounds why samplers prefer upright images\claim{C-T4}.
 
 \paragraph{Run labels.}
 PSNR is computed on 8-bit RGB against $\xs$, with a threshold $\theta$ of $25$\,dB on FFHQ and $20$\,dB on ImageNet.

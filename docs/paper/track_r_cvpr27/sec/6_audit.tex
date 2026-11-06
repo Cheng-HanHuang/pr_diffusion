@@ -47,21 +47,20 @@ Ground truth & Best run, $15.3$\,dB & Ground truth & Best run, $18.4$\,dB\\
 \includegraphics[width=0.245\linewidth]{fig/unsolved/D4_never_orbit_01_ref.png} &
 \includegraphics[width=0.245\linewidth]{fig/unsolved/D4_never_orbit_01_orc.png}
 \end{tabular}
-\caption{\textbf{What no selection can fix.} The best of FAST-DIPS's $64$ runs in any orientation, for an FFHQ image (left) and an ImageNet image (right) without a \good run ($25$ and $20$\,dB). Each is the first of its list in the supplement. On FFHQ, $5$ of the $7$ unsolved images are near misses ($22.8$--$24.7$\,dB)\claim{C-F6}.}
+\caption{\textbf{What no selection can fix.} Best of FAST-DIPS's $64$ runs in any orientation, for FFHQ and ImageNet images without a \good run (first of each list in the supplement). On FFHQ, $5$ of the $7$ unsolved images are near misses ($22.8$--$24.7$\,dB)\claim{C-F6}.}
 \label{fig:unsolved}
 \end{figure}
 
-\paragraph{ImageNet: with four runs, the ground-truth-free pick beats the published oracle.}
+\paragraph{ImageNet: four DAPS runs without the ground truth.}
 DAPS-based samplers give the best reconstructions.
 With four runs, $\Eone$ is \good for $72\%$ of the images with DAPS-4K, against $55\%$ with FAST-DIPS and $43\%$ with SITCOM\claim{C-A16}.
 Under the published protocol (DAPS-4K, per-metric best of four against the ground truth), DAPS reaches $22.3$\,dB, SSIM $0.52$ and VGG-LPIPS $0.34$ on these images\claim{C-A9}.
-This is below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above an independent rerun ($20.98$\,dB~\cite{kocabas2026pcdaps})\claim{C-P2}, with ground truth and measurements identical to those of the DAPS code\claim{C-A12}.
+This is below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above an independent rerun ($20.98$\,dB~\cite{kocabas2026pcdaps})\claim{C-P2}, with ground truth and measurements identical to those of the DAPS code.
+On our FFHQ images, the same protocol gives $29.8$\,dB against $30.6$\,dB in the DAPS paper; we could not explain the ImageNet gap (supplement)\claim{C-A12}.
 The per-metric oracle adds $4.2$\,dB to the first run.
 The residual pick alone recovers $1.9$\,dB.
-With the generic orientation test, it gains $5.1$\,dB and reaches $23.1$\,dB, SSIM $0.53$ and VGG-LPIPS $0.32$, ahead of the oracle on all three metrics without using the ground truth.
+With the generic orientation test, it gains $5.1$\,dB and reaches $23.1$\,dB, SSIM $0.53$ and VGG-LPIPS $0.32$: $80\%$ of the way to the orbit oracle ($24.4$\,dB), and above the per-metric oracle on all three metrics, since it may rotate its pick\claim{C-A9}.
 With eight runs the two are within $0.01$\,dB\claim{C-A13}.
-For FAST-DIPS with $16$ runs, the share of \good outputs is $50\%$ for the residual pick, $65\%$ after the orientation test, $70\%$ for $\Oraw$ and $75\%$ for $\Oorb$\claim{C-R4}.
-The test closes $60\%$ of the gap to the orbit oracle; a quarter of the images are not solved in any orientation.
 
 \paragraph{Where the ground-truth-free pick still loses.}
 We split the gap between $\Eone$ and $\Oorb$ into two parts (exploratory)\claim{C-E1}.
@@ -80,8 +79,7 @@ A learned upright-versus-rotated classifier would be another such proxy and woul
 \paragraph{PC-DAPS on the same measurements.}
 PC-DAPS~\cite{kocabas2026pcdaps} draws four interacting particles per measurement and reports the mean of their metrics, \ie the quality of a random particle.
 On our $180$ FFHQ measurements, that is $28.07$\,dB and a \good image for $79.0\%$ of the images.
-Choosing among the same particles by residual and orientation test gives $29.10$\,dB and $84.4\%$, at no extra cost.
-The paired $95\%$ intervals of the differences are $[+0.54,+1.61]$\,dB and $[+2.8,+8.5]$ points\claim{C-X1}.
+Choosing among the same particles by residual and orientation test gives $29.10$\,dB and $84.4\%$ at no extra cost (paired $95\%$ intervals of the gains: $[+0.54,+1.61]$\,dB, $[+2.8,+8.5]$ points)\claim{C-X1}.
 The gain comes from the $18$ images whose four particles are partly \good.
 The selection keeps a \good particle in $17$ of them, against $7.25$ expected at random, and ends one image short of the orbit oracle over the four particles\claim{C-X3}.
 For scale, one PC-DAPS sample of four particles costs $1{,}920$ nominal denoiser calls and $30.6$\,s on a dedicated GPU; one DAPS-4K run costs $4{,}000$ calls and $66.0$\,s.

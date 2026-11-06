@@ -2,12 +2,12 @@
 \label{sec:discussion}
 
 \paragraph{Reporting.}
-For phase retrieval with diffusion priors, we recommend six practices.
+We recommend six practices for phase retrieval with diffusion priors.
 (i)~Report a ground-truth-free result as the headline, \eg the protocol of \cref{sec:protocol} with its $M$, a modest $N_{\max}$, a $\tau_S$ calibrated at the noise level used, and the mean number of runs per image.
 (ii)~Report the share of images with no consistent run, which ground-truth best-of-$K$ hides, as a marker of hard images.
-(iii)~Report oracles only as ceilings, and never mix runs across metrics.
-(iv)~Evaluate up to the orientation orbit when orientation is not the object of study, and report the share of orbit errors.
-(v)~State residual thresholds per solver and relative to the noise level, not as certificates.
+(iii)~Report oracles only as ceilings, never mixing runs across metrics.
+(iv)~Evaluate up to the orbit when orientation is not studied, and report the share of orbit errors.
+(v)~State residual thresholds per solver and noise level, not as certificates.
 (vi)~Report the share of images with no good run at a large $K$, as an upper bound on the unsolved share: for FAST-DIPS on FFHQ, it falls from $25$ images at $K{=}4$ to $7$ at $K{=}64$\claim{C-F2}.
 
 \paragraph{Limitations and scope.}
@@ -15,6 +15,8 @@ The protocol's claims rest on the frozen held-out test, whose panels draw fresh 
 It needs a threshold per solver and noise level, from labeled images or the label-free rule, and an orientation scorer; on ImageNet, the generic test is imperfect.
 One panel of $100$ to $180$ images resolves a gain only to $\pm1$ to $3$ points.
 Uniqueness up to the orbit is assumed, not proven, on the standard canvas, and most images of cohort~B come from FFHQ's training split.
-We study simulated measurements of one operator and two datasets, and other noise levels only for FAST-DIPS.
-The residual comparison needs only Gaussian noise on a fixed measurement; coded diffraction would make step~(3) unnecessary.
-With a large null space, as in inpainting, we expect wrong runs to fit exactly, so that stopping cannot help (\cref{prop:stop}).
+The positive stopping results come from fresh runs of known images; on new images, we tested only FAST-DIPS.
+Orientation is corrected only globally, with priors trained mostly on upright images.
+Equal mean runs is not latency, and picking one run serves applications that need one reconstruction, not posterior samples.
+We study simulated measurements of one operator and two datasets, with other noise levels only for FAST-DIPS.
+Coded diffraction would make step~(3) unnecessary; with a large null space, as in inpainting, we expect wrong runs to fit exactly, so that stopping should not help.

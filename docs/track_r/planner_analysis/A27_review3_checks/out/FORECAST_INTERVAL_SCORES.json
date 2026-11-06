@@ -1,0 +1,258 @@
+{
+ "1|S2|oracle": {
+  "n": 42,
+  "covered": 4,
+  "MAE_pts": 3.45,
+  "mean_width_pts": 5.37,
+  "mean_interval_score_pts": 26.54,
+  "mean_bias_pts": 3.45
+ },
+ "1|race|oracle": {
+  "n": 42,
+  "covered": 10,
+  "MAE_pts": 3.45,
+  "mean_width_pts": 5.46,
+  "mean_interval_score_pts": 28.33,
+  "mean_bias_pts": 3.45
+ },
+ "1|S2|selected": {
+  "n": 42,
+  "covered": 36,
+  "MAE_pts": 1.77,
+  "mean_width_pts": 8.44,
+  "mean_interval_score_pts": 11.44,
+  "mean_bias_pts": -0.49
+ },
+ "1|race|selected": {
+  "n": 42,
+  "covered": 9,
+  "MAE_pts": 4.37,
+  "mean_width_pts": 5.91,
+  "mean_interval_score_pts": 60.94,
+  "mean_bias_pts": 4.37
+ },
+ "2|S2|oracle": {
+  "n": 6,
+  "covered": 3,
+  "MAE_pts": 5.83,
+  "mean_width_pts": 15.73,
+  "mean_interval_score_pts": 70.17,
+  "mean_bias_pts": 3.92
+ },
+ "2|race|oracle": {
+  "n": 6,
+  "covered": 3,
+  "MAE_pts": 5.83,
+  "mean_width_pts": 15.05,
+  "mean_interval_score_pts": 77.59,
+  "mean_bias_pts": 3.92
+ },
+ "2|S2|selected": {
+  "n": 9,
+  "covered": 0,
+  "MAE_pts": 16.47,
+  "mean_width_pts": 13.74,
+  "mean_interval_score_pts": 397.71,
+  "mean_bias_pts": -16.47
+ },
+ "2|race|selected": {
+  "n": 9,
+  "covered": 9,
+  "MAE_pts": 4.24,
+  "mean_width_pts": 16.17,
+  "mean_interval_score_pts": 16.17,
+  "mean_bias_pts": -4.24
+ },
+ "3|S2|oracle": {
+  "n": 18,
+  "covered": 13,
+  "MAE_pts": 1.42,
+  "mean_width_pts": 8.58,
+  "mean_interval_score_pts": 15.26,
+  "mean_bias_pts": 1.04
+ },
+ "3|race|oracle": {
+  "n": 18,
+  "covered": 13,
+  "MAE_pts": 1.42,
+  "mean_width_pts": 8.1,
+  "mean_interval_score_pts": 15.55,
+  "mean_bias_pts": 1.04
+ },
+ "3|S2|selected": {
+  "n": 18,
+  "covered": 2,
+  "MAE_pts": 14.33,
+  "mean_width_pts": 12.58,
+  "mean_interval_score_pts": 338.57,
+  "mean_bias_pts": -14.33
+ },
+ "3|race|selected": {
+  "n": 18,
+  "covered": 18,
+  "MAE_pts": 1.73,
+  "mean_width_pts": 12.36,
+  "mean_interval_score_pts": 12.36,
+  "mean_bias_pts": 0.81
+ },
+ "4|S2|oracle": {
+  "n": 14,
+  "covered": 8,
+  "MAE_pts": 2.44,
+  "mean_width_pts": 5.58,
+  "mean_interval_score_pts": 15.57,
+  "mean_bias_pts": 1.93
+ },
+ "4|race|oracle": {
+  "n": 14,
+  "covered": 9,
+  "MAE_pts": 2.44,
+  "mean_width_pts": 5.73,
+  "mean_interval_score_pts": 16.26,
+  "mean_bias_pts": 1.93
+ },
+ "4|S2|selected": {
+  "n": 14,
+  "covered": 14,
+  "MAE_pts": 1.66,
+  "mean_width_pts": 7.77,
+  "mean_interval_score_pts": 7.77,
+  "mean_bias_pts": -1.18
+ },
+ "4|race|selected": {
+  "n": 14,
+  "covered": 12,
+  "MAE_pts": 2.11,
+  "mean_width_pts": 6.66,
+  "mean_interval_score_pts": 9.46,
+  "mean_bias_pts": 1.56
+ },
+ "5|S2|oracle": {
+  "n": 12,
+  "covered": 1,
+  "MAE_pts": 6.81,
+  "mean_width_pts": 8.02,
+  "mean_interval_score_pts": 123.18,
+  "mean_bias_pts": 6.81
+ },
+ "5|race|oracle": {
+  "n": 12,
+  "covered": 2,
+  "MAE_pts": 6.81,
+  "mean_width_pts": 7.67,
+  "mean_interval_score_pts": 130.68,
+  "mean_bias_pts": 6.81
+ },
+ "5|S2|selected": {
+  "n": 18,
+  "covered": 1,
+  "MAE_pts": 11.59,
+  "mean_width_pts": 11.01,
+  "mean_interval_score_pts": 263.76,
+  "mean_bias_pts": -11.59
+ },
+ "5|race|selected": {
+  "n": 18,
+  "covered": 18,
+  "MAE_pts": 1.64,
+  "mean_width_pts": 10.65,
+  "mean_interval_score_pts": 10.65,
+  "mean_bias_pts": 0.05
+ },
+ "6|S2|oracle": {
+  "n": 10,
+  "covered": 3,
+  "MAE_pts": 6.74,
+  "mean_width_pts": 10.61,
+  "mean_interval_score_pts": 106.05,
+  "mean_bias_pts": 2.87
+ },
+ "6|race|oracle": {
+  "n": 10,
+  "covered": 3,
+  "MAE_pts": 6.74,
+  "mean_width_pts": 10.37,
+  "mean_interval_score_pts": 113.89,
+  "mean_bias_pts": 2.87
+ },
+ "6|S2|selected": {
+  "n": 10,
+  "covered": 0,
+  "MAE_pts": 17.29,
+  "mean_width_pts": 9.31,
+  "mean_interval_score_pts": 516.38,
+  "mean_bias_pts": -17.29
+ },
+ "6|race|selected": {
+  "n": 10,
+  "covered": 10,
+  "MAE_pts": 3.52,
+  "mean_width_pts": 11.55,
+  "mean_interval_score_pts": 11.55,
+  "mean_bias_pts": -0.08
+ },
+ "all|S2|oracle": {
+  "n": 102,
+  "covered": 32,
+  "MAE_pts": 3.81,
+  "mean_width_pts": 7.4,
+  "mean_interval_score_pts": 44.78,
+  "mean_bias_pts": 3.19
+ },
+ "all|race|oracle": {
+  "n": 102,
+  "covered": 40,
+  "MAE_pts": 3.81,
+  "mean_width_pts": 7.27,
+  "mean_interval_score_pts": 47.75,
+  "mean_bias_pts": 3.19
+ },
+ "all|S2|selected": {
+  "n": 111,
+  "covered": 53,
+  "MAE_pts": 7.97,
+  "mean_width_pts": 9.95,
+  "mean_interval_score_pts": 181.75,
+  "mean_bias_pts": -7.43
+ },
+ "all|race|selected": {
+  "n": 111,
+  "covered": 76,
+  "MAE_pts": 3.13,
+  "mean_width_pts": 9.16,
+  "mean_interval_score_pts": 30.33,
+  "mean_bias_pts": 1.64
+ },
+ "not1|S2|oracle": {
+  "n": 60,
+  "covered": 28,
+  "MAE_pts": 4.06,
+  "mean_width_pts": 8.82,
+  "mean_interval_score_pts": 57.54,
+  "mean_bias_pts": 3.0
+ },
+ "not1|race|oracle": {
+  "n": 60,
+  "covered": 30,
+  "MAE_pts": 4.06,
+  "mean_width_pts": 8.53,
+  "mean_interval_score_pts": 61.34,
+  "mean_bias_pts": 3.0
+ },
+ "not1|S2|selected": {
+  "n": 69,
+  "covered": 17,
+  "MAE_pts": 11.75,
+  "mean_width_pts": 10.87,
+  "mean_interval_score_pts": 285.42,
+  "mean_bias_pts": -11.65
+ },
+ "not1|race|selected": {
+  "n": 69,
+  "covered": 67,
+  "MAE_pts": 2.37,
+  "mean_width_pts": 11.14,
+  "mean_interval_score_pts": 11.71,
+  "mean_bias_pts": -0.02
+ }
+}

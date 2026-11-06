@@ -1,6 +1,14 @@
 # Top-venue attempt — planner plan (2026-10-25; updated 2026-11-06)
 
-> **Twenty-fourth update, 2026-11-06** (the newest; read it first).
+> **Twenty-fifth update, 2026-11-06, morning** (the newest; read it first).
+> - **Third AI review (Astra, independent account): weak reject, 4/10.** It is mostly right. The text claimed more than the numbers in five places; all five are fixed, and the paper stays 8 pages.
+> - **New data:**
+>   - over all six forecast tests the race wins on interval score, 30 vs 182, and loses tests 1 and 4;
+>   - DAPS stopping needs τ_S within about 1%.
+> - **Proposed experiment, XP-NF (A26):** the frozen protocol on 100 new FFHQ validation images for DAPS-2K/4K, about 22–45 GPU-h. It is the one result that would lift the stopping claim beyond known images. **Cheng decides:** GO, the manifest (holdout-disjoint), and its order vs XP-K.
+> - **Go/no-go Nov 8:** still GO in the planner's view. The paper's firm core (selection, prediction, coverage) holds after review 3; the stopping claim is now scoped.
+>
+> **Twenty-fourth update, 2026-11-06**.
 > - **Two AI reviews** of the Nov 5 draft: R1 7.1 on the ICLR scale (accept), R2 positive. No item challenges a main claim.
 > - **Answered in writing** within 8 pages. Three new planner checks back the two shared asks, the threshold and run independence (C-V1 to C-V3). The supplement gains a "Sensitivity checks and scope" section (24 pages).
 > - **Prereg A25:** CPU-only supplement checks, queued after CP4. No GPU work is added.

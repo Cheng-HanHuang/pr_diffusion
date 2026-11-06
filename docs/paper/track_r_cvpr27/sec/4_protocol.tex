@@ -6,16 +6,16 @@ The protocol takes the measurement $y$, a solver $S$ with a consistency threshol
 (1)~Draw runs $\hat x_1,\hat x_2,\dots$ of $S$ with fresh seeds, and stop as soon as $M$ of them have $\rho\le\tau_S$, or after $N_{\max}$ runs.
 (2)~Keep $\hat x=\argmin_j\rho(\hat x_j)$.
 (3)~Output $R_{111}\hat x$ if $\delta=u(R_{111}\hat x)-u(\hat x)>0$, and $\hat x$ otherwise.
-(4)~Raise $\textsc{flag}_C$ if no drawn run had $\rho\le\tau_S$, and $\textsc{flag}_O$ if $|\delta|$ falls in the lowest $30\%$ of the margins of the evaluated outputs.
+(4)~Raise $\textsc{flag}_C$ if no drawn run had $\rho\le\tau_S$, and $\textsc{flag}_O$ if $|\delta|$ falls in the lowest $30\%$ of the margins of the evaluated outputs, a batch-level triage rule rather than a calibrated confidence.
 We use $M=2$ throughout.
 No step uses the ground truth.
 Its overhead, one FFT per run and $8.5$\,ms of orientation test per output, is negligible against $30.6$\,s for a PC-DAPS sample or $66.0$\,s for a DAPS-4K run\claim{C-A2}\claim{C-X2}; within a solver, equal mean runs thus means equal compute.
 
 \paragraph{The residual compares runs; it does not certify them.}
 Within an image, a \good run has a smaller residual than an \incons run in $570$ of $571$ pairs, and than a \cons run in $200$ of $205$\claim{C-A7}.
-The comparison is sharp because two runs of the same image are scored against the same noise $\eta=\sigma n$.
-With $e_j=\cA(\hat x_j)-\cA(\xs)$, we have $m(\rho_i^2-\rho_j^2)=\|e_i\|^2-\|e_j\|^2-2\langle\eta,e_i-e_j\rangle$.
-The noise energy $m\sigma^2$ cancels, and only a cross term with the difference of the two fits remains.
+Two runs of the same image are scored against the same noise $\eta=\sigma n$.
+With $e_j=\cA(\hat x_j)-\cA(\xs)$, we have $m(\rho_i^2-\rho_j^2)=\|e_i\|^2-\|e_j\|^2-2\langle\eta,e_i-e_j\rangle$: the noise energy $\|\eta\|^2$ cancels, and a cross term with the difference of the two fits remains.
+Since the runs depend on $\eta$, this motivates the comparison but does not guarantee it; the evidence is empirical, also per image (\cref{sec:selection}).
 A \cons run of SITCOM fits worse than a \good run of the same image by a median of only $0.7\%$ of $\sigma$, yet the order is systematic\claim{C-A8}.
 Absolute residual levels, in contrast, are set by the solver.
 With signed measurements, the ground truth has $\rho(\xs)=\sigma$ to within $0.3\%$.
@@ -27,23 +27,23 @@ $\textsc{flag}_C$ means that no run reached the solver's own consistency level, 
 \paragraph{Calibrating $\tau_S$ once per solver.}
 We set $\tau_S$ to the threshold $\tau$ of \cref{sec:setup} for solver $S$.
 It behaves as a constant of the solver and noise level.
-It is $0.0501$ for FAST-DIPS on FFHQ and $0.0502$ on ImageNet, and it differs by less than $0.3\%$ between our two FFHQ cohorts for DAPS-2K ($0.0475$, $0.0476$) and SITCOM ($0.0449$, $0.0450$)\claim{C-G3}.
+For FAST-DIPS it is $0.0501$ on FFHQ and $0.0502$ on ImageNet, and for DAPS-2K and SITCOM it varies by under $0.3\%$ across our FFHQ cohorts\claim{C-G3}.
 We therefore calibrate it once on images with ground truth and use it unchanged elsewhere; on ImageNet, the protocol uses the FFHQ value.
 Where no calibration set exists, a label-free threshold can replace it: the median plus three scaled median absolute deviations of the per-image minimum residual over a pilot of four runs.
 It lands within $2\%$ of $\tau$ for every solver and cohort\claim{C-G3}.
-As a median rule, it tolerates heavy tails and a minority of hard images; with pilots of two or three runs, it stays within $2.4\%$ at $\sigma=0.05$ (supplement)\claim{C-V2}.
-The two DAPS-4K panels of \cref{tab:protocol} use this label-free threshold, so no step on them uses a label\claim{C-G9}.
+With pilots of two or three runs, it stays within $2.4\%$ at $\sigma=0.05$ (supplement)\claim{C-V2}.
+The two DAPS-4K panels of \cref{tab:protocol} use this label-free threshold, so no step on them uses a label\claim{C-G9}; their pilot reuses the first four evaluated runs, a one-time cost not counted in the mean runs.
+Selection does not use $\tau_S$, but stopping needs it to within about $1\%$ for DAPS, whose residuals are tightly concentrated.
+Labeled, label-free and cross-cohort thresholds lie within $0.4\%$ of each other and give gains of $+2.6$ to $+5.0$ points on FFHQ; a threshold $2\%$ too low never stops and flags every image, and one $2\%$ too high keeps $+0.7$ to $+1.9$ points (supplement)\claim{C-V4}.
 
 \paragraph{Orientation.}
 By \cref{sec:setup}, the choice within an orbit must come from the prior.
 On FFHQ, a zero-shot CLIP~\cite{radford2021clip} test with fixed upright and upside-down face prompts fixes all $58$ global orbit errors among $1{,}960$ runs and flips none of the $1{,}171$ \good runs\claim{C-A2}.
 On ImageNet, the generic prompts ``a photo.''\ and ``an upside-down photo.''\ repair $57$ of $67$ global orbit errors of FAST-DIPS and flip $5$ of $100$ \good runs\claim{C-A11}.
-The margin of the test is informative.
-Among the development outputs, those outside the least confident $30\%$ are \good in $65.3\%$ of cases, against $50.7\%$ for all outputs without $\textsc{flag}_C$\claim{C-G4}.
+Its margin is informative: development outputs outside the least confident $30\%$ are \good in $65.3\%$ of cases, against $50.7\%$ for all\claim{C-G4}.
 
 \paragraph{What stopping buys, and when.}
-Fixed best-of-$K$ spends $K$ runs on every image.
-The stopping rule spends few runs on an image whose runs are usually consistent, and $N_{\max}$ on one whose runs never are, which it then flags.
+Fixed best-of-$K$ spends $K$ runs on every image; the stopping rule spends few on an image whose runs are usually consistent, and $N_{\max}$ on one whose runs never are.
 \begin{proposition}[stopping at two consistent runs]
 \label{prop:stop}
 Fix an image whose runs pass $\rho\le\tau_S$ independently with probability $s$, and let $r=1-s$.
@@ -59,15 +59,14 @@ With $M=2$ and budget $N_{\max}=N$, the number of runs $T$ satisfies
 The proof rests on one fact: the first two passing runs are independent draws from the passing law, whenever they arrive (supplement)\claim{C-T12}.
 The consistency rate $s$ thus decides how many runs are spent.
 How often a consistent run is correct, $H^+$, decides what they buy.
-Heterogeneity of $s$ across images does not by itself make stopping better than a fixed $K$ at equal mean runs; the supplement gives a counterexample.
-Stopping gains when consistency predicts correctness, \ie when an image's failed runs are \incons rather than \cons.
+The proposition is a decomposition, not a comparison with fixed best-of-$K$; heterogeneity of $s$ alone does not make stopping better (supplement, counterexample).
+Empirically, stopping gained when consistency predicted correctness, \ie when failed runs were \incons.
 On the same $80$ images of cohort~B with four runs each, it gains $4.9$ points over fixed best-of-$K$ at equal mean runs for DAPS-2K, whose failed runs there are $12\%$ \cons.
 For SITCOM, whose failed runs are $60\%$ \cons, it gains $-0.1$ points\claim{C-G2}.
 
 \paragraph{Development results.}
 Runs of an image are exchangeable in our data\claim{C-F4}, so random orders of an image's runs simulate sequential sampling.
-On a panel of $n$ runs of which $L\ge M$ pass, the stopping time averages $M(n+1)/(L+1)$ over orders, and the first $M$ passing runs form a uniform $M$-subset of the $L$.
-The protocol's value therefore has the same exact subset form as the baselines of \cref{sec:selection}\claim{C-T13}.
+The protocol's value then has an exact subset form, like the baselines of \cref{sec:selection}\claim{C-T13}.
 For FAST-DIPS on FFHQ with $64$ runs per image (\cref{fig:teaser}b), the protocol with $N_{\max}=64$ returns a \good image for $91.3\%$ of the $180$ images at $8.4$ runs per image.
 Fixed best-of-$K$ reaches $89.1\%$ at the same mean number of runs, and $91.2\%$ with $16$ runs\claim{C-G1}.
 The protocol beats fixed best-of-$K$ by $0.8$ to $4.7$ points at all $12$ operating points we tried ($M\le4$; $\tau_S$ scaled by $0.997$ to $1.003$).
@@ -78,7 +77,7 @@ These numbers are in-sample: we designed the protocol on these runs.
 We froze the protocol, its parameters and four hypotheses before any held-out per-image result existed\claim{C-G1}.
 Before generating the panels added later, we extended the hypotheses to them (\cref{tab:protocol}).
 The last panels use ImageNet$'$\claim{C-N1}.
-H1: at equal mean runs, the protocol loses at most one point against fixed best-of-$K$.
+H1: at equal mean runs, the protocol loses at most one point against fixed best-of-$K$ (point estimate, as for H2).
 H2: it gains at least two points on DAPS-2K, and more than on SITCOM and on FAST-DIPS on ImageNet, whose failed runs are mostly \cons.
 H3: at least half of the $\textsc{flag}_C$ images are unsolved.
 H4: on ImageNet, outputs without either flag are \good at least five points more often than all outputs without $\textsc{flag}_C$.
@@ -90,14 +89,14 @@ On FFHQ, it gains $3.4$ points for DAPS-2K and $3.9$ for DAPS-4K, with image-boo
 For DAPS-2K it comes within $0.8$ points of best-of-$8$ with $40\%$ of the runs.
 H2 holds.
 A theory prediction registered before the DAPS-2K panel was scored had forecast a gain of $2$ to $4$ points from the historical runs alone, while overestimating the success levels by $3$ to $6$ points\claim{C-T14}.
-Where failed runs fit the measurement (SITCOM, and FAST-DIPS and DAPS-4K on ImageNet), the gain lies between $-1.5$ and $+0.3$ points, within intervals of $\pm2$ to $\pm3$.
+Where failed runs fit the measurement (SITCOM, and FAST-DIPS and DAPS-4K on ImageNet), the gain lies between $-1.5$ and $+0.3$ points, within intervals of $\pm2$ to $\pm3$, so these panels are inconclusive.
 Stopping there moves along the fixed-$K$ curve, trading accuracy for compute.
 At this budget H1 fails once, on ImageNet$'$ ($-1.5$ points at $N_{\max}{=}16$), a loss that one panel cannot resolve either way\claim{C-E5}\claim{C-N2}.
 With $32$ and $64$ runs on ImageNet, H1 fails, as registered for ImageNet$'$: the protocol falls $1.8$ and $3.4$ points behind, and $3.1$ on ImageNet$'$.
 The few images whose runs almost never pass absorb $40$--$43\%$ of all runs, while the others stop after about three runs and would gain from more; this is the counterexample of the supplement, in data\claim{C-G8}\claim{C-N2}.
 Smaller budgets keep it within a point, and requiring a confident orientation before stopping does not help (exploratory, supplement)\claim{C-E2}\claim{C-E3}.
 H4 holds at all five ImageNet budgets ($+10.7$ to $+13.6$ points)\claim{C-N2}.
-H3 fails wherever it was tested, so $\textsc{flag}_C$ marks hard images rather than unsolved ones.
+H3 failed on the three panels where it was registered ($1$ of $3$, $5$ of $11$ and $1$ of $3$ flagged images unsolved), so $\textsc{flag}_C$ marks hard images rather than unsolved ones.
 At $\sigma=0.02$ and $0.10$, the label-free threshold fitted on the other cohort's pilots lands within $3.5\%$ of the calibrated one, and with it the protocol gains $4.1$ and $0.9$ points (exploratory)\claim{C-E4}.
 Scaling $\tau_S$ linearly with $\sigma$ fails instead (supplement)\claim{C-G10}.
 
@@ -122,6 +121,6 @@ FAST-DIPS, IN$'$ & 16 & 41.5 & 3.6 & $-1.5{\scriptstyle\pm2.0}$ & 50.0 & 66.0 & 
 FAST-DIPS, IN$'$ & 64 & 44.2 & 5.3 & $-3.1{\scriptstyle\pm2.9}$ & 61.0 & 75.0 & 1 (0) \\
 \bottomrule
 \end{tabular}
-\caption{\textbf{The protocol ($M=2$) against fixed best-of-$K$.} \good: \% of images with a \good output. Runs: mean runs per image. Gain: protocol minus fixed best-of-$K$ at the protocol's mean runs, in points, $\pm$ the half-width of an image-bootstrap $95\%$ interval\claim{C-E5}. Fixed best-of-$K$ uses $\Eone$, or $\Eo$ where marked $^\dagger$. $K{=}N_{\max}$: fixed best-of-$K$ and the orbit oracle $\Oorb$ on all runs available. $\textsc{flag}_C$: flagged images, with the unsolved ones among them in parentheses\claim{C-G9}. $^\dagger$Development data, without the orientation step\claim{C-G1}. FF: FFHQ. IN: ImageNet. IN$'$: ImageNet$'$, $100$ unseen images\claim{C-N2}. The noise-level panels of FAST-DIPS ($\sigma=0.02$, $0.10$) are in the text.}
+\caption{\textbf{The protocol ($M=2$) against fixed best-of-$K$.} \good: \% of images with a \good output. Runs: mean runs per image. Gain: protocol minus fixed best-of-$K$ at the protocol's mean runs, in points, $\pm$ the half-width of an image-bootstrap $95\%$ interval\claim{C-E5}. Fixed best-of-$K$ uses $\Eone$, or $\Eo$ where marked $^\dagger$. $K{=}N_{\max}$: fixed best-of-$K$ and the orbit oracle $\Oorb$ on all runs available. $\textsc{flag}_C$: flagged images, with the unsolved ones among them in parentheses\claim{C-G9}. $^\dagger$Development data, without the orientation step\claim{C-G1}. FF: FFHQ. IN: ImageNet. IN$'$: ImageNet$'$, $100$ unseen images\claim{C-N2}.}
 \label{tab:protocol}
 \end{table}

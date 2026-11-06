@@ -141,13 +141,107 @@ We state our expectations; we did not test them.
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
 \item \emph{Coded diffraction} removes the twin ambiguity. Orbit errors disappear, and step~(3) becomes unnecessary.
 \item \emph{Lower oversampling} admits more images that fit the data, so we expect more \cons failures and less benefit from stopping. Higher oversampling should act the other way.
-\item \emph{Inpainting and super-resolution} have large null spaces. A wrong run can then fit the data exactly. We expect most failed runs to be \cons, so stopping cannot help and selection must rely on the prior.
+\item \emph{Inpainting and super-resolution} have large null spaces. A wrong run can then fit the data exactly. We expect most failed runs to be \cons, so stopping should not help and selection must rely on the prior.
 \item \emph{Other solvers}, including flow-based ones, enter through their runs only. The protocol needs a residual and a threshold, both available for any solver.
 \item \emph{Real measurements} have no ground truth. The protocol needs none, but scoring it does; we therefore use simulated measurements.
 \end{itemize}
+
+\subsection{Forecast scores over all six tests}
+\label{sec:suppl-scores}
+Coverage counts reward wide intervals.
+\Cref{tab:suppl-scores} therefore also gives, for every registered forecast of the selected run, the absolute error of the point forecast, the interval width and the $95\%$ interval score~\cite{gneiting2007scoring}: the width plus $40$ times the distance by which the outcome misses the interval.
+These are end-to-end prospective forecasts: each was fitted to the runs observed before its freeze and scored on later runs\claim{C-R8}.
+The conditional analysis of \cref{M-sec:selection}, which uses each image's realized classes, is a retrospective diagnosis and is not scored here.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}cl cccc c cccc@{}}
+\toprule
+ & & \multicolumn{4}{c}{Race} & & \multicolumn{4}{c}{(S2)} \\
+\cmidrule(lr){3-6}\cmidrule(l){8-11}
+Test & Solver, data & Cov. & Error & Width & IS & & Cov. & Error & Width & IS \\
+\midrule
+1 & FAST-DIPS, FFHQ & 9/42 & 4.4 & 5.9 & 60.9 & & 36/42 & 1.8 & 8.4 & 11.4 \\
+2 & FAST-DIPS, ImageNet & 9/9 & 4.2 & 16.2 & 16.2 & & 0/9 & 16.5 & 13.7 & 397.7 \\
+3 & SITCOM, FFHQ & 18/18 & 1.7 & 12.4 & 12.4 & & 2/18 & 14.3 & 12.6 & 338.6 \\
+4 & DAPS-2K, FFHQ & 12/14 & 2.1 & 6.7 & 9.5 & & 14/14 & 1.7 & 7.8 & 7.8 \\
+5 & FAST-DIPS, ImageNet & 18/18 & 1.6 & 10.7 & 10.7 & & 1/18 & 11.6 & 11.0 & 263.8 \\
+6 & FAST-DIPS, ImageNet$'$ & 10/10 & 3.5 & 11.6 & 11.6 & & 0/10 & 17.3 & 9.3 & 516.4 \\
+\midrule
+All & & 76/111 & 3.1 & 9.2 & 30.3 & & 53/111 & 8.0 & 10.0 & 181.8 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Registered forecasts of the selected run ($\Eo$, $\Eone$): coverage, mean absolute error, mean width and mean interval score, in points.} Means are over forecasts, so tests with more $K$ values weigh more. For the oracles, the two models share point forecasts (mean error $3.8$ points, biased upward by $3.2$); their interval scores are $48$ (race) and $45$ (S2).}
+\label{tab:suppl-scores}
+\end{table}
+
+The race loses test~1 clearly and test~4 narrowly.
+On test~1 its selected-run forecasts are $4.4$ points too high on average, because the shared generation component expected too many images to produce a \good run (\cref{M-sec:selection}).
+A forecaster with a separate near-zero-success component may do better there; we did not register one.
+
+\subsection{Pass probability and class probability}
+\label{sec:suppl-kappa}
+\Cref{M-prop:stop} uses the probability $s$ that a run passes $\rho\le\tau_S$.
+The forecasts use $\kappa$, the probability that a run is not \incons.
+They differ in two ways\claim{C-V5}.
+First, by construction about $5\%$ of \good runs exceed the labeled threshold: $82$ of SITCOM's $1{,}688$ \good runs on FFHQ, and $11$ of its $94$ orbit errors.
+Second, a label-free $\tau_S$ that lies slightly above the labeled $\tau$ lets some \incons runs pass: $40$ of $350$ for DAPS-4K on FFHQ, and $139$ of $210$ on ImageNet, where the residuals of failed runs sit just above $\tau$.
+Labels are therefore tied to the labeled $\tau$, while stopping uses $\tau_S$.
+
+\subsection{How accurately must $\tau_S$ be set?}
+\label{sec:suppl-tauacc}
+Selection ($\Eo$, $\Eone$) does not use $\tau_S$; only stopping and $\textsc{flag}_C$ do.
+\Cref{tab:suppl-tauacc} reruns the frozen protocol on the held-out panels with other thresholds and other targets $M$\claim{C-V4}.
+For DAPS, residuals are concentrated so tightly that a threshold $2\%$ too low lets no run pass.
+The rule then never stops: it spends $N_{\max}$ runs and flags every image, which a user sees without labels.
+A threshold $2\%$ too high lets almost every run pass, so the rule stops after $M$ runs and keeps only part of the gain.
+The labeled threshold, the label-free threshold and that of the other cohort's pilot lie within $0.4\%$ of each other on these panels, and all keep the gain ($+2.6$ to $+5.0$ points on FFHQ).
+On the DAPS-4K panels, the label-free pilot reused the first four evaluated runs of the same images.
+A user would instead run it once per solver and noise level; its cost is then amortized and is not part of the mean runs per image.
+The cross-cohort column shows that a pilot on other images works as well.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}l cc cc ccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Calibrated $\tau_S$} & \multicolumn{2}{c}{Registered $\tau_S$ scaled} & \multicolumn{3}{c}{Target $M$} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(l){6-8}
+Solver, data, cohort & labeled & label-free & $\times0.98$ & $\times1.02$ & 1 & 3 & 4 \\
+\midrule
+DAPS-2K, FFHQ, A & $+3.0$ & $+3.3$ & $\phantom{+}0.0$ (8.0) & $+1.3$ (2.1) & $+8.4$ & $+1.4$ & $+0.8$ \\
+DAPS-2K, FFHQ, B & $+3.9$ & $+4.0$ & $\phantom{+}0.0$ (8.0) & $+0.7$ (2.5) & $+7.2$ & $+2.1$ & $+1.2$ \\
+DAPS-4K, FFHQ, A & $+2.6$ & $+3.1$ & $\phantom{+}0.0$ (8.0) & $+1.2$ (2.2) & $+11.2$ & $+1.1$ & $+0.5$ \\
+DAPS-4K, FFHQ, B & $+4.2$ & $+5.0$ & $\phantom{+}0.0$ (8.0) & $+1.9$ (2.5) & $+9.0$ & $+3.0$ & $+1.9$ \\
+DAPS-4K, ImageNet & $+1.3$ & $+0.1$ & $+2.2$ (6.4) & $+0.2$ (2.0) & $+1.0$ & $-0.1$ & $-0.1$ \\
+SITCOM, FFHQ, A & $-0.1$ & $+1.6$ & $-1.5$ (11.5) & $+1.5$ (2.2) & $-0.3$ & $+0.0$ & $+0.1$ \\
+SITCOM, FFHQ, B & $-0.9$ & $+1.0$ & $-3.8$ (9.2) & $+1.1$ (2.6) & $-2.4$ & $-0.2$ & $+0.1$ \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Gain of the frozen protocol over fixed best-of-$K$ at equal mean runs, in points, under other thresholds and targets} (exploratory). Registered: labeled $\tau_S$ for DAPS-2K and SITCOM, label-free for DAPS-4K; $M=2$ except in the last three columns, which use the registered $\tau_S$. In parentheses: mean runs per image. $N_{\max}=8$ (DAPS) and $16$ (SITCOM). With the other cohort's label-free threshold, DAPS-4K gains $+3.0$ (A) and $+4.5$ (B).}
+\label{tab:suppl-tauacc}
+\end{table}
 
 \subsection{The target $M$}
 \label{sec:suppl-M}
 \Cref{M-fig:teaser}b shows the protocol for $M=1$ to $4$ on the development panel.
 Each $M$ is a point on a frontier that lies above fixed best-of-$K$; a larger $M$ buys accuracy with runs.
+On the held-out DAPS panels (\cref{tab:suppl-tauacc}), the gain at equal mean runs is largest for $M=1$ ($+7.2$ to $+11.2$ points at $1.3$ to $2.2$ runs) and shrinks as $M$ grows, because the fixed-$K$ curve flattens.
+$M=2$ was fixed before these panels were scored; we report the others as exploratory.
 Requiring a confident orientation before stopping does not help on ImageNet (\cref{tab:s4-frontier}).
+
+\subsection{The orientation flag}
+\label{sec:suppl-flago}
+$\textsc{flag}_O$ marks the least confident $30\%$ of a batch.
+It is a triage rule: it flags a fixed share whatever the batch, and one output's flag can change when others are added.
+It is not a calibrated confidence.
+A deployment that needs a fixed rule can freeze an absolute margin, as the confidence-conditioned variant of \cref{tab:s4-frontier} does with the cut of the $16$-run ImageNet panel.
+
+\subsection{Reproducing the published DAPS protocol}
+\label{sec:suppl-dapsrepro}
+Our ImageNet ground truth and measurements equal those of the DAPS code for all $100$ images, and every DAPS-4K run has the published configuration ($400$ annealing steps with $10$ ODE steps; $4{,}000$ denoiser calls, from the run receipts).
+On our $180$ FFHQ images, the per-metric best of four gives $29.76$\,dB, SSIM $0.801$ and VGG-LPIPS $0.156$, against $30.63$\,dB, $0.851$ and $0.139$ in the DAPS paper on its own FFHQ images\claim{C-A12}.
+On ImageNet we obtain $22.28$\,dB, against $25.78$\,dB in the DAPS paper and $20.98$\,dB in an independent rerun~\cite{kocabas2026pcdaps}.
+We could not explain the ImageNet gap.
+Our comparisons between policies always use the same runs, so the gap does not affect them; it does affect any comparison with the published number.

@@ -1,6 +1,6 @@
 # Track R paper draft (CVPR 2027 attempt)
 
-**Status:** complete draft; writing pass and defect sweep on 2026-11-05; answers to two AI reviews on 2026-11-06 (planner; triage in `docs/track_r/reviews/AI_REVIEWS_20261105_TRIAGE.md`). Main text ends at the bottom of page 8 with about 2 lines of slack: **every new main-text line must be offset by a cut.** Claim tags are zero-width (set above the line), so the draft and the clean copy have the same layout.
+**Status:** complete draft; writing pass and defect sweep on 2026-11-05; answers to two AI reviews on 2026-11-06 (planner; triage in `docs/track_r/reviews/AI_REVIEWS_20261105_TRIAGE.md`); answers to a third, critical review on 2026-11-06 (`AI_REVIEW_3_TRIAGE_20261106.md`): claims narrowed, all six forecast tests with interval scores, threshold-accuracy limit, κ notation. Main text ends at the bottom of page 8 with about 2 lines of slack: **every new main-text line must be offset by a cut.** Claim tags are zero-width (set above the line), so the draft and the clean copy have the same layout.
 - Deadlines: enrollment Nov 10; paper Nov 16 (AoE); supplement Nov 23.
 - The planner's go/no-go is Nov 8 (`docs/planning/track_r/2026-10-25_TOP_VENUE_PLAN.md`).
 

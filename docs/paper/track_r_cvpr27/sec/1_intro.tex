@@ -24,43 +24,44 @@ We study DAPS, SITCOM, FAST-DIPS and PC-DAPS on shared measurements of FFHQ and 
 
 \emph{Without the ground truth, selection nearly matches the oracle.}
 Within an image, the residual ranks a correct run ahead of a wrong but measurement-consistent one in $200$ of $205$ pairs\claim{C-A7}.
-The noise energy, shared by two runs of the same measurement, cancels in this comparison.
 A zero-shot orientation test then fixes rotated picks.
 Together, they nearly match the \emph{orbit oracle}, which picks with the ground truth and also undoes rotations.
 On FFHQ, their share of images with a good output is within $1.1$ points of it for every solver\claim{C-A3}\claim{C-E1}.
-On ImageNet, with four DAPS runs, they beat the per-metric ground-truth oracle behind the published DAPS numbers on PSNR, SSIM and LPIPS, because that oracle leaves rotated runs uncorrected\claim{C-A13}.
+On ImageNet, with four DAPS runs, they recover $80\%$ of the orbit oracle's PSNR gain over the first run.
+They also score above the per-metric oracle of the same runs, which may not rotate its picks: legacy reporting misses this cheap step\claim{C-A9}\claim{C-A13}.
 Choosing among the particles of PC-DAPS~\cite{kocabas2026pcdaps}, instead of averaging them, raises its share of good images from $79.0\%$ to $84.4\%$ on FFHQ and from $30.8\%$ to $53\%$ on ImageNet, at no extra cost\claim{C-X1}\claim{C-X5}.
 
-\emph{The selected run is predictable.}
+\emph{Selection was forecast well; generation was not.}
 We fitted a residual-race model to the runs already observed and froze its forecasts before more runs were scored.
-In five of six such tests, its intervals covered the outcome in $67$ of $69$ forecasts for the selected run, including $10$ of $10$ on images no earlier experiment had touched.
-The exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits} covered $17$.
-In the sixth test it covered more, but only through offsetting errors (\cref{sec:selection})\claim{C-F1}\claim{C-F3}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}\claim{C-N3}.
+Over six such tests, its intervals covered $76$ of $111$ selected-run outcomes, against $53$ for the exchangeable-ranks model of best-of-$n$ with an imperfect verifier~\cite{stroebl2026limits}; its mean interval score was $30$ points, against $182$.
+It lost two tests; the clear loss came from overestimating how often any run is good (\cref{sec:selection})\claim{C-R8}\claim{C-F1}\claim{C-F3}\claim{C-R4}\claim{C-R5}\claim{C-R6}\claim{C-R7}\claim{C-N3}.
 
 \emph{Whether any run is good depends on the solver and the image.}
-On some images no run succeeds.
+On some images no run succeeded within our budget.
 FAST-DIPS never produced a good run for $7$ of $180$ FFHQ images in $64$ runs, and for $22$ and $25$ of $100$ ImageNet images on two image sets\claim{C-F2}\claim{C-R7}\claim{C-N3}.
-No selection can repair these images, and ground-truth best-of-$K$ reporting hides them.
+No selection among the runs can repair them, and ground-truth best-of-$K$ reporting hides them.
 A few runs cannot reveal them either (\cref{sec:selection})\claim{C-T8}.
 Solvers also fail in different ways.
 DAPS-based samplers give the best reconstructions up to rotation.
 For them, residual selection loses at most $1.1$ points against the orbit oracle on either dataset; on ImageNet, the rest of the gap is orientation\claim{C-A16}\claim{C-E1}\claim{C-X3}\claim{C-X5}.
 SITCOM more often returns runs that fit the measurement but are wrong: $57\%$ of its failed runs on FFHQ\claim{C-A5}.
-Without a correct run beside them, nothing in the measurement reveals the error, so stopping cannot help; this limit lies with the solver, not with selection.
+Without a correct run beside them, nothing in the measurement reveals the error, and stopping did not help there; this limit lies with the solver, not with selection.
 
 \paragraph{A ground-truth-free protocol.}
 These findings define a procedure (\cref{fig:teaser}a, \cref{sec:protocol}).
 It samples until $M$ runs fit the measurement, keeps the best fit, corrects its orientation, and flags doubtful outputs.
-We show exactly when stopping helps: when failed runs do not fit the measurement.
+\Cref{prop:stop} gives its cost and success exactly; empirically, stopping helped where failed runs did not fit the measurement.
 We froze the protocol and four hypotheses before evaluating it on eleven held-out panels, two of them on new images\claim{C-G1}\claim{C-N1}.
-With $8$ runs on FFHQ, it gained $3.4$ and $3.9$ points over fixed best-of-$K$ at equal mean runs for two DAPS configurations.
+With $8$ runs on FFHQ, it gained $3.4$ and $3.9$ points over fixed best-of-$K$ at equal mean runs for two DAPS configurations, on fresh runs of known images.
 The first gain fell inside a forecast registered before scoring\claim{C-T14}\claim{C-E5}.
 Where failed runs fit the measurement, it is neutral at moderate budgets and falls behind at large ones\claim{C-N2}.
 
 \paragraph{Contributions.}
+Residual selection, the measurement's blindness to orientation and adaptive stopping all have precedents (\cref{sec:related}).
+We contribute their measurement, together and prospectively:
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
 \item \textbf{Ground-truth-free selection, measured} for four solvers on FFHQ and ImageNet (\cref{sec:audit}).
 \item \textbf{A predictive model} of best-of-$K$ with orbit classes, exact estimators and six prospective tests (\cref{sec:selection}).
 \item \textbf{The coverage limit:} why unsolved images dominate what remains, and why a few runs cannot find them (\cref{sec:selection,sec:audit}).
-\item \textbf{A frozen ground-truth-free protocol,} with an exact account of when stopping helps (\cref{sec:protocol}).
+\item \textbf{A frozen ground-truth-free protocol,} with an exact account of its cost and success (\cref{sec:protocol}).
 \end{itemize}

@@ -4,13 +4,12 @@ A user has no ground truth.
 We measure how much of the quality survives without it.
 Our pick keeps the run with the smallest measurement residual and corrects its orientation with a zero-shot test.
 On FFHQ, its share of good images is within $1.1$ points of an orientation-aware ground-truth oracle, for four solvers.
-On ImageNet, with four DAPS runs, it beats the per-metric ground-truth oracle on PSNR, SSIM and LPIPS, because that oracle cannot undo rotations.
+On ImageNet, with four DAPS runs, it recovers $80\%$ of that oracle's PSNR gain over the first run and scores above the per-metric oracle of the same runs.
 On PC-DAPS's particles, it raises the share of good images from $79.0\%$ to $84.4\%$ on FFHQ and from $30.8\%$ to $53\%$ on ImageNet, at no extra cost.
-It is predictable: in five of six prospective tests, one on unseen images, a residual-race model's registered intervals held in $67$ of $69$ cases, and those of the exchangeable-ranks model of best-of-$n$ in $17$.
-Whether any run is good is another matter.
+In six prospective tests, a residual-race model forecast the selected run with a mean interval score of $30$ points, against $182$ for the exchangeable-ranks model of best-of-$n$; it lost two tests, one clearly.
 Phase retrieval is ill-posed: with FAST-DIPS, $22$--$25\%$ of ImageNet images had no good run in $64$.
-No selection can recover such images, and a few runs cannot reveal them.
+No selection among the runs can recover such images, and a few runs cannot reveal them.
 Our ground-truth-free protocol samples until two runs fit the measurement, keeps the best fit, corrects its orientation and flags uncertain outputs.
-Frozen before evaluation, it beat fixed best-of-$K$ at equal mean runs by $3.4$ and $3.9$ points for two DAPS configurations.
-Where failed runs also fit the measurement, stopping cannot help.
+Frozen before evaluation, it beat fixed best-of-$K$ at equal mean runs by $3.4$ and $3.9$ points for two DAPS configurations, on fresh runs of known images.
+Where failed runs also fit the measurement, it did not help.
 \end{abstract}

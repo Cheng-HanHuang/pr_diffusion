@@ -14,6 +14,16 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-06, morning (planner): third AI review (Astra, weak reject) answered; XP-NF proposed (prereg A26).**
+  - **Review:** found real overclaims. These are fixed in the main text, still 8 pages:
+    - all six forecast tests now carry interval scores (race 30 vs S2 182; loses tests 1 and 4);
+    - Prop. 1 is called a decomposition;
+    - stopping claims are scoped to fresh runs of known images;
+    - H3 is stated as registered on three panels only;
+    - κ notation; noise identity as motivation; "beats the oracle" replaced by 80% recovery of the orbit-oracle gap.
+  - **New planner checks (C-R8, C-V4, C-V5):** DAPS stopping needs τ_S within about 1% (at −2% it never stops; at +2% it keeps +0.7 to +1.9); labeled, label-free and cross-cohort thresholds all keep +2.6 to +5.0.
+  - **Decision for Cheng:** XP-NF, the frozen protocol for DAPS-2K/4K on 100 new FFHQ validation images (ceiling 50 GPU-h). Needs GO, a holdout-disjoint manifest that only Cheng can check, and the order vs XP-K.
+  - **Triage:** [`reviews/AI_REVIEW_3_TRIAGE_20261106.md`](reviews/AI_REVIEW_3_TRIAGE_20261106.md). **Notes, round 23:** [`executors/xp/23_PLANNER_NOTES_20261106_AM.md`](executors/xp/23_PLANNER_NOTES_20261106_AM.md), [`executors/theory/23_PLANNER_GUIDANCE_20261106_AM.md`](executors/theory/23_PLANNER_GUIDANCE_20261106_AM.md).
 - **2026-11-06 (planner): two AI reviews answered (prereg A25).**
   - **Reviews:** R1 (ICLR scale, 7.1, accept) and R2 (CVPR, positive). Texts and triage are in [`reviews/`](reviews/AI_REVIEWS_20261105_TRIAGE.md). Every item is classified as writing, (1) out of scope, or (2) more experiments.
   - **Main text (still 8 pages):** threshold robustness, run exchangeability, compute overhead, label-free τ robustness, the likelihood argument for consistent-but-wrong runs, orientation scorers, cohort B / ImageNet validation images, other operators, the tail-competition reading of the race, and related work (FlowSGS, DDRM-PR, I2I-PR, DPnP, adaptive test-time compute; "FlowFPR" could not be found).

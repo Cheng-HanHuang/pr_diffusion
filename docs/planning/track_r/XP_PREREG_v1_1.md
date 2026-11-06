@@ -796,8 +796,39 @@
 >    - **X3 (low priority):** band-wise and ℓ1 measurement residuals from stored reconstructions.
 > 4. **Data rule.** §7 keeps per-candidate metric values out of the repository. X1 and X3 tables (no paths, no images) are therefore delivered as a planner ZIP, unless Cheng approves committing them, as he did for the A8 strings (decision **D-A25**). Only aggregates are committed either way.
 > 5. **Planner follow-ups:** the θ sweep on every panel, including the protocol (P1, needs X1); M = 1–4 on held-out panels with the frozen code `c598176` (P2); the unsolved share against K (P3); a component-ladder figure (P4).
+>
+> **Amendment A26 (planner, 2026-11-06 ET): XP-NF, the frozen protocol on new FFHQ images (proposed; needs Cheng's GO and data decision).** Written after a third AI review (`docs/track_r/reviews/AI_REVIEW_3_ASTRA_20261106.md`; weak reject). Its most valuable request is to test the positive DAPS stopping gains on images that no development or calibration step touched. No XP-NF run exists. Everything below is frozen before any XP-NF image is chosen.
+> 1. **Data (decision D-A26a, Cheng only).**
+>    - 100 new FFHQ validation images (ids 60000–69999), drawn at random with a recorded seed.
+>    - They must be disjoint from the 180 R0 ids and from the locked B24 holdout. **Only Cheng may check holdout disjointness**; agents never read, list or check the holdout.
+>    - This amends the rule that FFHQ inputs come only from the R0 manifests. It needs Cheng's explicit approval.
+>    - Images load through the R0 FFHQ pipeline from the FFHQ data path. They never come from a bundled set.
+>    - The new manifest is committed with ids and SHA-256 of the source images only.
+> 2. **Measurements:** one per image; the same operator, σ = 0.05, signed y; R0 measurement code.
+> 3. **Runs:** 8 per image for each of DAPS-2K (400 × 5) and DAPS-4K (400 × 10), fresh seeds by each family's rule; 1,600 runs. **Gate:** a 2-root identity replay per family (F8 and E′ roots) before generation.
+> 4. **Frozen protocol:** v1 at `c598176`, M = 2, N_MAX = 8, the frozen face CLIP test. τ_S is frozen now, from existing data only, with no calibration on the new images:
+>    - DAPS-2K: 0.0475318, the mean of the cohort A/B labeled values;
+>    - DAPS-4K: 0.0475928, the registered CP3 value.
+>
+>    Exploratory only: the label-free rule on the new images' runs 0–3, and M = 1–4.
+> 5. **Hypotheses** (point estimates, each with its image-bootstrap 95% interval; "confirmed" needs the lower bound > 0):
+>    - **NF-H1:** gain at equal mean runs ≥ −1 point, for each configuration;
+>    - **NF-H2:** gain ≥ +2 points, for each configuration;
+>    - **NF-H3:** E1 within 2 points of O_orbit at K = 8, for each configuration.
+>
+>    **Planner forecast,** from cohort A, which also holds random validation images: DAPS-2K +3.0, DAPS-4K +2.6 to +3.1; predicted range +1 to +5 points. The theory executor may register its own forecast before generation (optional).
+> 6. **Budget:** 1,600 runs, about 22 GPU-h on clean GPUs and about 45 with co-tenancy (A10.1). Ceiling 50 GPU-h. Projection gate on a 2-root smoke. If the projection exceeds the ceiling, DAPS-4K (the published configuration) runs first. The project total stays under 400 (247.8 used before XP-K).
+> 7. **Order (decision D-A26b):** the planner recommends XP-NF before XP-K. XP-K is a supplement control and may be dropped. CP4 is unchanged.
+> 8. **Timeline:**
+>    - GO and manifest by Nov 7, 12:00 ET;
+>    - generation Nov 7–9;
+>    - scoring and planner reproduction by Nov 10;
+>    - in the paper by Nov 12.
+>
+>    If scoring is not done by Nov 13, 18:00 ET, the result goes to the supplement and the rebuttal, and the main text keeps its current scope ("fresh runs of known images").
+> 9. **Reporting:** whatever the outcome, in the main text if it is ready in time. A failed NF-H2 narrows the abstract claim to known images.
 
-**Status:** FROZEN v1.1 with amendments A1–A25 (planner, 2026-11-06).
+**Status:** FROZEN v1.1 with amendments A1–A26 (planner, 2026-11-06; A26 proposed, awaiting Cheng's GO).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.
