@@ -91,14 +91,14 @@ These pair comparisons share runs/images and are \emph{not}
 independent binomial trials. Composite Bradley--Terry fits penalize $\log(w_O)$ and
 $\log(w_C)$ under independent zero-mean Gaussian priors.
 The primary log-weight prior scale is $2.5$.
-The tighter-prior race sensitivity uses scale $1.0$;
+The tighter-prior race (\texttt{race\_tau1}) uses scale $1.0$;
 it shrinks both weights toward exchangeability ($w_j=1$).
 The transferred-tail race sensitivity sets the C-over-G
 rate to the pooled $5/205$ for every solver.
 Partial-orbit errors share the global-orbit weight $w_O$
-because only one partial-orbit candidate was observed. The approximate primary
-class rates $(w_O,w_C)$ are DAPS-2K $(.1704,.0201)$, SITCOM
-$(.9536,.0454)$, and FFHQ FAST $(.0366,.0236)$.
+because only one partial-orbit candidate was observed.
+The approximate primary class rates $(w_O,w_C)$ are DAPS-2K $(.1704,.0201)$, SITCOM
+$(.9536,.0454)$, and FAST-DIPS on FFHQ $(.0366,.0236)$.
 The $I$-last surrogate has a few observed exceptions.
 For these prefix runs, the fit uses a small finite clock rate.
 The fitted weights are not physical units of the Fourier residual.
@@ -242,9 +242,9 @@ fractions are descriptive across a frozen grid, \emph{not}
 independent Bernoulli trials or a calibrated frequentist
 significance test.
 \begin{itemize}
-\item \textbf{FFHQ FAST v1 (64-run panel).}
+\item \textbf{FAST-DIPS on FFHQ (test 1, 64-run panel), v1.}
 For E0, race predictive-interval coverage is 6/21, versus S2
-15/21. Raw/orbit oracles cover only 6/21 and 4/21 points, and
+15/21. Raw/orbit oracle forecasts cover only 6/21 and 4/21 checks, and
 seven images never generate GOOD across 64 runs, six being
 INCONSISTENT in every one. With \emph{realized} class composition
 held fixed in a strictly post-outcome diagnostic, the frozen primary
@@ -264,7 +264,7 @@ by 2.9--3.5 percentage points.
 Its E1 error therefore comes mainly from generation.
 \item \textbf{Sixteen-run SITCOM panel (test 3), v1 and v3.}
 Across its primary $n=16$ panels, v1 race covers all 18/18 E0/E1
-selection policy points versus 2/18 for S2; raw/orbit oracles
+selection forecasts versus 2/18 for S2; raw/orbit oracles
 cover 13/18. At pooled K16 the observed
 $(E0,E1,O_{\rm raw},O_{\rm orbit})=(.822,.911,.917,.922)$,
 versus race forecast $(.853,.908,.929,.942)$. The FAST-informed
@@ -334,7 +334,7 @@ rank variants, with \emph{no structural-zero spike}.
 The primary completed panel has $n_{\max}=32$,
 $K=16,24,32$; the secondary has $n_{\max}=64$,
 $K=32,48,64$. Race covers \textbf{18/18} E0/E1
-points against S2's \textbf{1/18}, but the raw oracle
+forecasts against S2's \textbf{1/18}, but the raw oracle
 covers only \textbf{2/6}, and the correct-orbit oracle
 covers \textbf{0/6}. At full-panel $K=32$,
 the observed orbit oracle is $.750$ versus $.840$
@@ -347,8 +347,8 @@ Errors in the orbit oracle and the unconditional
 selector--oracle loss may cancel in the well-covered E1.
 
 \paragraph{Test 4: DAPS-2K as a counterpoint.}
-On the eight-run DAPS-2K panel (100 cohort A and
-80 cohort B images), v1 race covers \textbf{21/28}
+On the eight-run DAPS-2K panel (cohort A: 100 images;
+cohort B: 80 images), v1 race covers \textbf{21/28}
 reported E0/E1/oracle forecasts (E0 7/7, E1 5/7,
 raw oracle 5/7, orbit oracle 4/7); S2 covers
 \textbf{22/28}, including all 14 E0/E1 forecasts;
@@ -409,7 +409,6 @@ The quadrature identity is classical.
 Failure in a finite panel does not prove that
 an individual image is intrinsically unsolvable.
 
-
 \subsection{Test 6: ImageNet$'$ prospective forecasts}
 \label{app:s3-test6-xpn-20261102}
 
@@ -429,7 +428,7 @@ race variant \textbf{7/10}, the transferred tail variant
 Their mean absolute standardized errors are
 $1.236$, $1.329$, $2.258$, and $7.441$, respectively.
 Race is the winner under the frozen rule.
-The five $K$-points share the \emph{same} images, candidate panels,
+The five $K$ values share the \emph{same} images and candidate panels,
 and nested subset evaluations; the ten coverage indicators are
 correlated, not ten independent Bernoulli trials.
 Combining the prospectively scored tests 2--6 gives
