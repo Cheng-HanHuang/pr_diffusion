@@ -1,9 +1,4 @@
-% Track R Supplement S3, revised theory-owned integration draft (2026-10-30).
-% Source: earlier TH_SUPPL_S3_SELECTION_BOUNDS_DROPIN_20261029.tex,
-% A8 calibration/theory, registered v1/v2/v2-E1/v3 files and released
-% FAST64, ImageNet D1-P2, SITCOM B16 and DAPS F8 comparison relays.
-% Do NOT re-fit a registered prediction or read xp/returns for this draft.
-% Copy into paper only after planner approves the integration and labels.
+% Supplement S3: residual selection and finite-panel inference.
 \section{Residual selection, exact finite-panel evaluation, and the identification limit}
 \label{sec:suppl-selection}
 
@@ -30,18 +25,17 @@ The formulas use a fresh-$K$ iid model and assume $s>0$;
 for $s=0$, $E_0=E_1=0$ under the stated $I$-last rule.
 They are neither the physical law of native diffusion residuals nor
 the exact evaluation of an existing fixed panel.
-\emph{Dated XP-C3 interpretation (2026-11-03):} The paired-noise
-contrast $\widehat L_{000}-\widehat L_{111}$ of squared
-$\epsilon$-prediction losses at four middle timesteps
-(median absolute margins $3$--$9\times10^{-5}$ for
-$G/O_g$ and about $10^{-5}$ for $C/I$)
-cancels their common $\|\epsilon\|_2^2$ term and is an
-\emph{ELBO-motivated, restricted-time denoising-risk proxy}
-for the diffusion prior's orientation preference,
-not a calibrated smoothed-log-density difference
-or guaranteed ordering of $\pi$ without the complete
-timestep weights, endpoint terms, and control of
-orientation-dependent variational gaps.
+The paired squared $\epsilon$-prediction losses for $R_{000}x$
+and $R_{111}x$ use the same noise at four middle timesteps.
+Their common $\|\epsilon\|_2^2$ term cancels.
+This restricted-time denoising loss is an
+\emph{ELBO-motivated proxy} for prior orientation preference.
+It is not a calibrated smoothed-log-density difference
+or a guaranteed ordering of $\pi$.
+A density interpretation would require complete timestep weights,
+endpoint terms and control of variational gaps.
+The median absolute score margin is $3$--$9\times10^{-5}$
+for $G/O_g$, versus about $10^{-5}$ for $C/I$.
 
 \paragraph{A class-conditional rank race and exact winner law.}
 For a residual-\emph{rank} surrogate, draw independent competing
@@ -87,24 +81,28 @@ An exact Fourier twin has the same measurement magnitude, but two
 non-orbit reconstruction errors and therefore different residuals.
 
 \paragraph{What is and is not learned from a few ranks.}
-The authorized A8 calibration comprises 540 eligible image--solver
-rows and 1,960 candidates across DAPS, SITCOM, and FAST-DIPS:
+The observed historical calibration comprises 540 eligible image--solver
+rows and 1,960 candidates across DAPS-2K, SITCOM, and FAST-DIPS:
 1,171 G, 58 global O, one partial O, 215 C and 515 I.
 Within-image G ranks ahead of C in 200/205 available pair comparisons;
 E0 chooses G in 92/100 image--solver rows with mixed passing classes,
 versus an expectation of 51.92 under the exchangeable S2 reference.
 These pair comparisons share runs/images and are \emph{not}
-independent binomial trials. Composite Bradley--Terry fits regularize
-$\log(w_O),\log(w_C)$ independently with a zero-mean Gaussian
-logweight penalty (primary scale 2.5); they tie P to O because only
-one partial-orbit candidate is observed. The approximate primary
-class rates $(w_O,w_C)$ are DAPS $(.1704,.0201)$, SITCOM
+independent binomial trials. Composite Bradley--Terry fits penalize $\log(w_O)$ and
+$\log(w_C)$ under independent zero-mean Gaussian priors.
+The primary log-weight prior scale is $2.5$.
+The tighter-prior race sensitivity uses scale $1.0$;
+it shrinks both weights toward exchangeability ($w_j=1$).
+The transferred-tail race sensitivity sets the C-over-G
+rate to the pooled $5/205$ for every solver.
+Partial-orbit errors share the global-orbit weight $w_O$
+because only one partial-orbit candidate was observed. The approximate primary
+class rates $(w_O,w_C)$ are DAPS-2K $(.1704,.0201)$, SITCOM
 $(.9536,.0454)$, and FFHQ FAST $(.0366,.0236)$.
-An $I$-last surrogate has observed exceptions, handled in the
-frozen scripts by a small finite clock rate only for the affected
-\emph{observed} prefix candidate. Do not claim those fitted weights
-are physically calibrated units of a Fourier residual or generally
-portable to other datasets.
+The $I$-last surrogate has a few observed exceptions.
+For these prefix runs, the fit uses a small finite clock rate.
+The fitted weights are not physical units of the Fourier residual.
+They need not transfer between datasets.
 
 The oracle--selector gap need \emph{not} be monotone in $K$ under
 class-dependent ranks, even when the GOOD rate is larger.
@@ -194,7 +192,7 @@ Consequently their four-run count law is identical
  O_{64}(\mu_B)\approx .888889,
 \]
 a difference of \textbf{9.57 percentage points}, and their limiting
-ceilings differ by exactly $1/9$. For DAPS/B22's still shallower
+ceilings differ by exactly $1/9$. For DAPS-2K on cohort A, with its shallower
 $n=2$ prefix, $\operatorname{Uniform}[0,1]$ and
 $\tfrac14\delta_0+\tfrac34\delta_{2/3}$ agree on moments of
 degree at most two yet have different large-$K$ ceilings.
@@ -203,9 +201,8 @@ failure in a finite number of runs prove that any particular
 image has $p=0$.
 
 \paragraph{Data-specific outer bounds, with the correct target.}
-An \emph{exploratory} numerical supplement calculation performed
-after FAST64 outcome release used only the original FAST four-run
-GOOD-count histograms. Under iid images from a cohort population,
+An \emph{exploratory} calculation uses the
+first four FAST-DIPS GOOD counts per FFHQ image. Under iid images from a cohort population,
 construct five marginal 99\% Clopper--Pearson binomial intervals
 $[L_j,U_j]$ for the five four-run count-category probabilities.
 By Bonferroni, all five bands hold simultaneously with probability
@@ -227,20 +224,19 @@ continuum measures up to numerical solver tolerance. The resulting
 \begin{equation}\label{eq:suppl-population-bounds}
  O_{64}^{\mathrm{population}}\in
  \begin{cases}
- [0.8696,1.0000],&\text{FFHQ B22 (100 images)},\\
- [0.6113,1.0000],&\text{FFHQ enriched DEV80 (80 images)}.
+ [0.8696,1.0000],&\text{cohort A (100 FFHQ images)},\\
+ [0.6113,1.0000],&\text{cohort B (80 enriched FFHQ images)}.
  \end{cases}
 \end{equation}
 The confidence interpretation requires iid sampling of images
-within each cohort; the deliberately selected/enriched DEV80
-cohort does not automatically meet this assumption. These are
+within each cohort; the enriched cohort B does not automatically meet this assumption. These are
 \emph{not} 95\% bounds for the registered conditional-prefix
 fixed-image realized-panel estimands. They also do not estimate
 the intrinsic proportion of unsolvable images precisely.
 
-\paragraph{Registered predictions versus observations: report both halves.}
-All reported comparisons below evaluate already committed and
-registered forecast artifacts \emph{without refitting}.
+\paragraph{Forecast coverage and observations.}
+All comparisons below use registered forecasts.
+No forecast was refitted using its test outcomes.
 Counts across $K$ and uncertainty arms are correlated; coverage
 fractions are descriptive across a frozen grid, \emph{not}
 independent Bernoulli trials or a calibrated frequentist
@@ -256,18 +252,17 @@ race predicts pooled K64 E0 .9526 versus .9389 observed;
 the stricter-prior race gives .9379, S2 .8773. S2's better
 unconditional coverage arises partly from cancellation of a
 pessimistic rank selector with optimistic generation.
-\emph{Dated E1 update (2026-11-03):} on the primary
-64-run panel the registered race covers 3/21 E1 intervals
-versus 21/21 for S2, yet a \emph{post hoc}
-selection-only check with frozen parameters, realized
-candidate classes, and realized face-test decisions
-overpredicts pooled E1 by only 0.6--0.8 percentage
-points for race (while S2 underpredicts by 2.5--4.7
-points), and the registered race exceeds its
-conditional prediction by 2.9--3.5 points,
-identifying the generation forecast as the main
-source of its unconditional E1 miss.
-\item \textbf{SITCOM B16 v1 and separately registered v3.}
+For E1 on the 64-run panel, race covers 3/21
+forecasts, against 21/21 for S2.
+A \emph{post hoc} selection-only check holds candidate classes
+and orientation decisions at their observed values.
+With its frozen weights, race overpredicts pooled E1 by
+only 0.6--0.8 percentage points.
+S2 underpredicts it by 2.5--4.7 percentage points.
+The full race forecast exceeds its conditional prediction
+by 2.9--3.5 percentage points.
+Its E1 error therefore comes mainly from generation.
+\item \textbf{Sixteen-run SITCOM panel (test 3), v1 and v3.}
 Across its primary $n=16$ panels, v1 race covers all 18/18 E0/E1
 selection policy points versus 2/18 for S2; raw/orbit oracles
 cover 13/18. At pooled K16 the observed
@@ -275,16 +270,15 @@ $(E0,E1,O_{\rm raw},O_{\rm orbit})=(.822,.911,.917,.922)$,
 versus race forecast $(.853,.908,.929,.942)$. The FAST-informed
 v3 has only 17/36 all-policy coverage, compared with 31/36
 for v1, as its generator becomes overly pessimistic on SITCOM.
-\item \textbf{DAPS F8 v1 and v3.}
+\item \textbf{Eight-run DAPS-2K panel (test 4), v1 and v3.}
 V1 race covers 21/28 overall (E0 7/7, E1 5/7, oracles 9/14),
-while S2 covers 22/28 including all 14/14 E0/E1 selection
-points. At pooled K8 the observed
+while S2 covers 22/28 including all 14/14 E0/E1 selection forecasts. At pooled K8 the observed
 $(E0,E1,O_{\rm raw},O_{\rm orbit})=(.928,.939,.939,.944)$
 versus race $(.943,.963,.962,.968)$. The original orbit
 oracle overforecasts ($.9685$ versus $.944$ observed) and v3
-covers only 17/28 overall; DAPS does \emph{not} establish a
+covers only 17/28 overall; DAPS-2K does \emph{not} establish a
 race-over-S2 coverage advantage.
-\item \textbf{ImageNet FAST D1 (16-run panel).}
+\item \textbf{FAST-DIPS ImageNet panel (test 2, sixteen runs).}
 In the separately registered v2 E1 addendum, race, strict-prior
 race and transferred-tail each cover 6/6 E1 interval checks,
 while S2 covers 0/6. Here 6/6 means \emph{three K values times
@@ -308,35 +302,33 @@ score surrogates, and CLIP orientation rates are statistical
 modeling choices. No new general Plackett--Luce theorem,
 Fourier-symmetry theorem, or quadrature inequality is claimed.
 
-% ===== DATED A15 ADDENDUM (earlier S3 text above unchanged) =====
-% Theory-owned S3 dated addendum, 2026-10-31. Do not refit forecasts.
-\subsection{Outcomes registered after October 29}
+\subsection{Prospective forecast checks across solvers}
 \label{app:s3-post-registration-20261031}
 
 \paragraph{Prospective tests 2--5: selection versus generation.}
 Under the unchanged model-specific 95\% predictive-interval rule,
-the class-sensitive race covers \textbf{57/59} E0/E1 selection
-points across tests 2--5, compared with \textbf{17/59}
-for exchangeable ranks S2. By test, these counts are ImageNet
-FAST with a four-run prefix (9/9 vs 0/9), SITCOM B16
-(18/18 vs 2/18), DAPS F8 (12/14 vs 14/14), and
-ImageNet FAST with a sixteen-run prefix (18/18 vs 1/18).
-Test 1, FFHQ FAST64, is excluded from this four-test tally,
-not from the overall reported results: that test's class
-generation miss spoiled unconditional race coverage.
-These points share images and nested K-subsets, so the coverage tally
-is descriptive rather than a binomial test with 59 independent trials.
-The DAPS exception (12/14 vs 14/14) precludes claiming
+the class-sensitive race covers \textbf{57/59} E0/E1 forecasts
+across tests 2--5, compared with \textbf{17/59}
+for exchangeable ranks S2. By test, these are FAST-DIPS ImageNet (test 2,
+9/9 vs 0/9), SITCOM (test 3, 18/18 vs 2/18),
+DAPS-2K (test 4, 12/14 vs 14/14), and
+FAST-DIPS ImageNet (test 5, 18/18 vs 1/18).
+Test 1 (64-run FAST-DIPS on FFHQ) is excluded
+from this four-test tally. Its generation model
+miscalibrated the unconditional race forecast.
+These forecast checks share images and nested $K$-subsets.
+They are not 59 independent binomial trials.
+The DAPS-2K exception (12/14 vs 14/14) precludes claiming
 that race wins in every family. We also report
 that generation-oracle forecasts were optimistic in
 \textbf{four of five} tests. These are distinct,
 precommitted observables: successful E0/E1 interval coverage
 does not prove that generation and ranking are each calibrated.
 
-\paragraph{Third prospective test: registered v4 and ImageNet XP-D4.}
-Before XP-D4 runs 16--63 were opened, v4 was registered
-(theory freeze 149331c) after refitting on only
-100 fixed ImageNet images' first sixteen runs.
+\paragraph{Test 5: FAST-DIPS on ImageNet, v4.}
+The v4 forecast was fitted to only the first
+sixteen runs of 100 ImageNet images.
+Runs 16--63 were scored afterward.
 It used the original five-class Dirichlet and four
 rank variants, with \emph{no structural-zero spike}.
 The primary completed panel has $n_{\max}=32$,
@@ -354,19 +346,19 @@ registered generator, not a reason to revise v4.
 Errors in the orbit oracle and the unconditional
 selector--oracle loss may cancel in the well-covered E1.
 
-\paragraph{DAPS F8: an important counterpoint.}
-On the held eight-run FFHQ DAPS panel (100 B22 plus
-80 DEV80 images), v1 race covers \textbf{21/28}
-reported E0/E1/oracle points (E0 7/7, E1 5/7,
+\paragraph{Test 4: DAPS-2K as a counterpoint.}
+On the eight-run DAPS-2K panel (100 cohort A and
+80 cohort B images), v1 race covers \textbf{21/28}
+reported E0/E1/oracle forecasts (E0 7/7, E1 5/7,
 raw oracle 5/7, orbit oracle 4/7); S2 covers
-\textbf{22/28}, including all 14 E0/E1 points;
+\textbf{22/28}, including all 14 E0/E1 forecasts;
 the separately frozen FAST-informed v3 covers
 \textbf{17/28}. At pooled $K=8$, the observed
 $(E0,E1,O_{\rm raw},O_{\rm orbit})$ is
 $(.928,.939,.939,.944)$ against v1 race
 $(.943,.963,.962,.968)$. The orbit forecast
 $.9685$ has a lower 95\% endpoint $.94475$,
-slightly above observed $.944$. DAPS has relatively
+slightly above observed $.944$. DAPS-2K has relatively
 few historically passing-but-wrong CONSISTENT candidates,
 so repaired E1 is less discriminating between
 S2 and race than on SITCOM; their E0 predictions
@@ -409,35 +401,28 @@ low-order moments but is generally \emph{not uniquely
 identified} by them. Sixteen observed runs thus
 cannot guarantee accurate sixty-four-run coverage.
 
-\paragraph{Registration and scope.}
-All outcomes above were released only after their
-respective forecast freezes. This dated addendum
-preserves the earlier S3 text and does not revise
-the Dirichlet model, rank rates, or historical
-Clopper--Pearson/LP bounds. The quadrature identity
-is classical; none of these observations proves that
-a specific real image is mathematically unsolvable.
+\paragraph{Forecast scope.}
+Each test was evaluated against its fixed original forecast.
+The Dirichlet model, rank rates and finite-moment bounds
+were not updated using test outcomes.
+The quadrature identity is classical.
+Failure in a finite panel does not prove that
+an individual image is intrinsically unsolvable.
 
-% ===== DATED A19 TEST-6 ADDENDUM (older S3 above unchanged) =====
-% DATED POST-REGISTRATION ADDENDUM: 2026-11-02.
-% Theory-owned; do not edit any frozen v5 forecast or its comparison rule.
-\subsection{Test 6: first prospective test on image-disjoint ImageNet images}
+
+\subsection{Test 6: ImageNet$'$ prospective forecasts}
 \label{app:s3-test6-xpn-20261102}
 
-\paragraph{Registration and scoring.}
-The v5 code was frozen before the new ImageNet images' outcomes
-were available (code commit \texttt{81003cc}), and the numerical
-v5 forecast was sealed and pushed on 2026-11-01 at 19:53:58 UTC
-(XP commit \texttt{55ba86b}), before any run with index
-$4$--$63$ was scored. The model was fitted only on runs
-$0$--$3$ of the 100 \emph{image-disjoint} test images.
-The registered primary comparison is race-model predictive-interval
-coverage for E0 and E1 (class-Beta decision model), across
-$K\in\{4,8,16,32,64\}$ from the \emph{complete}
-64-run panel. Neither its intervals nor its model-selection
-rule is revised in light of the results.
+\paragraph{Forecast and scoring.}
+The v5 forecast used only runs $0$--$3$ of
+100 ImageNet$'$ images. Runs $4$--$63$
+were evaluated after the forecast was fixed.
+The original scoring rule compares race E0 and E1
+predictive intervals, including the class-Beta
+decision model, over $K\in\{4,8,16,32,64\}$
+on each completed 64-run panel.
 
-On the ten predeclared selection points, race covers
+Across ten predeclared E0/E1 forecast checks, race covers
 \textbf{10/10}, followed by the stronger-regularization
 race variant \textbf{7/10}, the transferred tail variant
 \textbf{5/10}, and exchangeable ranks S2 \textbf{0/10}.
@@ -449,7 +434,7 @@ and nested subset evaluations; the ten coverage indicators are
 correlated, not ten independent Bernoulli trials.
 Combining the prospectively scored tests 2--6 gives
 race \textbf{67/69} versus S2 \textbf{17/69}
-selection-coverage points; this pooled descriptive tally
+selection forecast checks. This pooled descriptive tally
 is likewise correlated and does not establish exact calibration
 of a standalone generative mechanism.
 
@@ -492,8 +477,7 @@ $.164$, but its observed value is \emph{only}
 $.750-.730=.020$. Thus the model expected about
 $16.4$ of 100 images to be rescued \emph{only} by
 an orientation-orbit candidate, compared with
-two actually observed. Independent inspection
-of the authorized 64-run class strings gives
+two actually observed. The 64-run class counts give
 \textbf{67} images with both a GOOD and a non-GOOD
 correct-orbit run, \textbf{6} with GOOD only,
 \textbf{2} with orbit-only, and \textbf{25} with
@@ -550,11 +534,9 @@ counts, and applies more broadly to the
 \emph{joint} orbit-only event.
 However, it neither predicts the sign nor
 explains the magnitude of v5's $14.4$-point
-orbit-only excess. The concrete, independently
-released 64-run overlap table demonstrates
+orbit-only excess. The observed 64-run overlap demonstrates
 that the \emph{particular registered Dirichlet
-extrapolation} fails on the true new-image
-joint dependence. Non-identifiability is a
+extrapolation} fails on the observed ImageNet$'$ joint dependence. Non-identifiability is a
 limitation of available calibration information;
 misspecification describes this model's
 actual out-of-sample prediction error.
@@ -563,12 +545,12 @@ unsolvability for an individual image:
 $25/100$ images simply have no correct-orbit
 candidate in the observed 64-run panel.
 
-\paragraph{Separate stopping pre-score (not v5 fitting).}
-The independently frozen stopping prediction
+\paragraph{Stopping forecasts on ImageNet$'$.}
+The fixed stopping forecast
 called N-H1a a pass at $N_{\max}=16$
 (central gain $+0.2$ points, stated range
 $[-1.8,+2.2]$), but the observed
-equal-mean-runs gain was $-1.516$ points,
+gain at equal mean runs was $-1.516$ points,
 so the \emph{binary prospective call failed}
 despite the observation lying inside its
 informal range.
@@ -580,4 +562,4 @@ $[-3.60,+0.47]$ and $[-5.96,-0.10]$
 points, respectively, on the same 100 images.
 These stopping observations are distinct from
 the v5 E0/E1 predictive-interval scoring,
-and are not used to refit any forecast.
+and do not alter the registered forecasts.
