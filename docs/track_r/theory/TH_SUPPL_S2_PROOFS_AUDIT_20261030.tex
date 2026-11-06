@@ -1,7 +1,3 @@
-% Theory-owned addition to Supplement S2, 2026-10-30.
-% Place AFTER paper/X_symmetry_moved_to_suppl.tex, without editing that source.
-% The source includes open editorial \pending markers: these are not resolved here.
-% Existing theorem labels and source-specific macros are deliberately reused.
 \subsection{Proofs, precise hypotheses, and implementation scope}
 \label{sec:suppl-symmetry-proofs-audit}
 
@@ -119,25 +115,25 @@ These are general inequalities, not estimates of the deployed
 solvers' defects. Denoiser defects measured on noised clean images
 cannot replace the \emph{on-trajectory mean-map defects} here.
 
-\paragraph{Pinned native source audit and scope (C--T3).}
+\paragraph{Implementation scope.}
 \begin{enumerate}
-\item \textbf{DAPS, pinned $\texttt{e7a77d0}$.}
+\item \textbf{DAPS-2K and DAPS-4K.}
 Its data-gradient Langevin updates and isotropic innovations are
 structurally equivariant if the denoiser and gradient plumbing are;
 the MCMC path also contains deterministic reverse-diffusion segments
-and a NaN fallback. The final noise scale in the pinned source is zero,
+and a NaN fallback. The final scheduled noise scale is zero,
 so the returned image is the final Langevin iterate, not a
 new nonzero-noise perturbation. A path-KL proof must account for every
 nondegenerate Langevin microstep and intervening deterministic map.
-\item \textbf{SITCOM-ODE, pinned $\texttt{275ab67}$.}
+\item \textbf{SITCOM-ODE.}
 The audited phase-retrieval implementation uses ODE score steps,
 an SSE-gradient correction, inner optimization and Langevin noise;
-it is not interchangeable with the lightweight SITCOM
-reimplementation in our code base. Its terminal scheduled
+it is not interchangeable with a distinct lightweight SITCOM
+reimplementation. Its terminal scheduled
 noise scale is likewise zero and it returns the last inner
 Langevin iterate. Equivariance requires transformed optimizer states,
 initializations, tie rules, and denoiser-Jacobian interactions.
-\item \textbf{FAST-DIPS, pinned $\texttt{a9758b38}$.}
+\item \textbf{FAST-DIPS.}
 The measurement-side ADMM projection and JVP/VJP correction are
 structurally equivariant under the pixel-permutation action given
 an equivariant denoiser and compatible scalar tolerances. But the
@@ -147,8 +143,8 @@ denoising/clamping is deterministic; the Gaussian-chain TV theorem
 can bound a qualifying preterminal law, but \emph{not automatically}
 the actual returned reconstruction.
 \end{enumerate}
-The audit is source-specific, not a proof that any native solver
-samples its proposed posterior exactly. It also cannot attribute
+These implementation observations do not prove that a native
+solver samples its proposed posterior exactly. It also cannot attribute
 all non-equivariance uniquely to the denoiser: exceptional branches,
 initialization, and numerical tie handling can matter.
 
@@ -171,13 +167,3 @@ symmetry, because the mask/reference does not transform with $x$;
 these are different measurement operators with separate
 identifiability conditions.
 
-% \paragraph{Remaining source/figure checks for paper integration.}
-% The authoritative relocated symmetry source still contains pending
-% editorial markers for XP--C2 equivariance-defect profiles, an
-% ImageNet orbit-error count, a generic-detector result, and the
-% exact FFHQ prompt quotation. These are \emph{not inferred or filled}
-% from the mathematical arguments above. The planner should resolve
-% them from registered empirical outputs or delete the dependent
-% sentences before camera-ready integration. All proof statements above
-% are valid independently of those pending measurements.
-% 
