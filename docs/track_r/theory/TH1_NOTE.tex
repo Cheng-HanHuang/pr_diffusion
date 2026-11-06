@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
+\title{TH1: Orbit Symmetry and Selection Limits (proof note)}
+\date{6 November 2026}
+\begin{document}\maketitle
+\paragraph{Scope.} This note establishes mathematical statements under explicit assumptions, not empirical validation. No claim of a prospective XP test is made until the predictions registry establishes a pre-outcome freeze. The 256-in-384 support does not meet the usual non-aliasing hypothesis for generic Fourier uniqueness; orbit identifiability is not asserted.
+\paragraph{Exact symmetry.} Let $z=(x+1)/2$ and $A(x)=|\mathcal F(Pz)|$ channelwise. For each channel, central padding and 180-degree reversal of the $256\times256$ array give an inversion of the padded $384\times384$ array followed by a fixed circular translation. The Fourier transform of inversion is conjugation for real $z$, and translation multiplies each coefficient by a unit-modulus phase. Hence $A(gx)=A(x)$ for each of the eight independent channel reversals $g\in G=(\mathbb Z/2\mathbb Z)^3$. This is the classical twin-image or trivial-associate ambiguity, not a new ambiguity discovery.
+\begin{proposition}[Posterior orbit ratio]
+Let $G$ act by volume-preserving bijections and $A(gx)=A(x)$. For prior density $\pi$ and likelihood $L(y\mid x)=\ell(y,A(x))$, at points with positive denominator,
+\[
+\frac{\pi(gx\mid y)}{\pi(x\mid y)}=\frac{\pi(gx)}{\pi(x)}.
+\]
+For measurable $S$, $\Pr(X\in gS\mid y)=Z_y^{-1}\int_S\ell(y,A(u))\pi(gu)\,du$.
+\end{proposition}
+\begin{proof}Bayes' formula cancels the common likelihood and normalizer. The region formula follows by substitution $x=gu$ and unit Jacobian.\end{proof}
+\paragraph{Selection scope.} Any score $f(A(x),y)$ is constant along each orbit, so a likelihood-only comparison cannot distinguish members of the \emph{same} orbit. It does not follow that arbitrary residual ranking of independent runs has a uniform orientation distribution: the proposal distribution can be asymmetric, and score--orientation dependence across distinct orbits can matter. Likewise, invariant SMC weights and invariant residual pruning cannot themselves distinguish orbit members, but non-equivariant proposals can alter the output orientation.
+\begin{theorem}[Equivariance defect bound]
+Consider a Markov chain with $X_T$ having a $G$-invariant law and transitions
+$X_{i-1}=m_i(X_i)+s_i\xi_i$, where $s_i>0$, $\xi_i\sim N(0,I)$ independent, and $g$ acts orthogonally. Put $\Delta_{i,g}(x)=m_i(x)-g m_i(g^{-1}x)$. Then
+\[
+\operatorname{TV}(\mathcal L(X_0),g_\#\mathcal L(X_0))
+\leq \sqrt{\sum_i\mathbb E\|\Delta_{i,g}(X_i)\|^2/(4s_i^2)}.
+\]
+\end{theorem}
+\begin{proof}
+The conjugated chain has transition mean $\widetilde m_i(x)=g m_i(g^{-1}x)$ and output law $g_\#\mathcal L(X_0)$. Its initial law equals the original one. The relative entropy of the original path law against the conjugated path law is, by the chain rule and equal-covariance Gaussian KL,
+$\sum_i\mathbb E\|m_i(X_i)-\widetilde m_i(X_i)\|^2/(2s_i^2)$.
+Marginalization cannot increase KL. Pinsker's inequality, $\mathrm{TV}\leq\sqrt{\mathrm{KL}/2}$, proves the bound.
+\end{proof}
+\paragraph{Important qualification.} The bound applies only when each full transition has the displayed Gaussian kernel with strictly positive, state-independent isotropic variance. A deterministic inner optimization followed by additive Gaussian noise is admissible if its complete mean map is measurable. Deterministic final steps, state-dependent covariance, and optimizer tie-breaking need separate analysis. An orientation-frequency difference gives a lower bound on the \emph{sum of transition defects}, not directly on a denoiser defect without further stability estimates. Uniform orbit membership requires a free group action and a $G$-invariant output law; stabilizers change the orbit size.
+\begin{proposition}[Best-of-$K$ under exchangeable residual ranks]
+Let independent runs have probabilities $(p,o_g,o_p,c,u)$ for GOOD, global ORBIT, partial ORBIT, CONSISTENT, INCONSISTENT, and set $q=p+o_g+o_p$, $s=q+c$. Suppose inconsistent runs rank behind all others and residual ranks among the first four classes are exchangeable. Then
+\[
+O_{\rm raw}=1-(1-p)^K,\quad O_{\rm orbit}=1-(1-q)^K,\quad
+E_0=\frac p s[1-(1-s)^K].
+\]
+If a post-selector independently retains GOOD with probability $1-h$ and repairs the two orbit classes with probabilities $\tau_g,\tau_p$, then
+\[
+E_1=\frac{(1-h)p+\tau_g o_g+\tau_p o_p}{s}[1-(1-s)^K].
+\]
+At $s=0$, the formulas involving $s$ are defined as zero.
+\end{proposition}
+\begin{proof}The oracle formulas are complementary probabilities of no qualifying run. A qualifying residual-ranked run exists with probability $1-(1-s)^K$. Conditional on this event, exchangeability gives the selected class probabilities proportional to their class masses. Apply the repair probabilities.\end{proof}
+\paragraph{Prior work.} The accept-first imperfect-verifier model of Stroebl, Kapoor and Narayanan (arXiv:2411.17501, Appendix C) yields this same formula when acceptance means membership in the first four classes. This correspondence is not a new model. Independent-sample pass@k is standard (Chen et al., 2021). DAPS already documented multiple equal-measurement phase-retrieval outputs (Appendix F.2 of arXiv:2407.01521 v1). The likelihood-weighted particle perspective follows TDS (Wu et al., NeurIPS 2023) and TGD (Makris et al., arXiv:2605.03712). The mode-selection limitation is related to Dandapanthula and Boffi (arXiv:2606.02884).
+\begin{theorem}[Monotone gaps, corrected]
+Under the previous assumptions with $h=0,\tau_g=1,\tau_p=0$, both $O_{\rm orbit}(K)-E_1(K)$ and $O_{\rm raw}(K)-E_0(K)$ are nondecreasing for integers $K\geq1$.
+\end{theorem}
+\begin{proof}
+For the first gap the increment is
+$q(1-q)^K-(p+o_g)(1-s)^K\geq0$ since $q\geq p+o_g$ and $q\leq s$.
+For the second it is $p[(1-p)^K-(1-s)^K]\geq0$.
+Both inequalities remain true after averaging over heterogeneous images.
+\end{proof}
+\paragraph{Correction.} The first gap at $K=1$ is $o_p$; its limit, when $s>0$ and $q>0$, is $(o_p+c)/s$. For $h>0$ the increment becomes $q(1-q)^K-a(1-s)^K$ with $a=(1-h)p+\tau_go_g+\tau_po_p$; monotonicity holds whenever this expression is nonnegative, in particular whenever $a\leq q$ and $s\geq q$. Thus $h>0$ alone does \emph{not} break monotonicity under the stated repair model. A selector that can create successes from non-orbit classes, or whose repair rates depend on $K$, requires a different condition.
+\paragraph{Exact subset estimators.} For $n$ observed i.i.d. runs, averaging any symmetric $K$-subset policy over all $\binom nK$ subsets is unbiased for its $K$-run population expectation. For a minimum-score selector, rank runs from lowest to highest with deterministic ties; the probability that rank $r$ is selected is $\binom{n-r}{K-1}/\binom nK$. For maximum-score selection, rank from lowest to highest; rank $r$ is selected with probability $\binom{r-1}{K-1}/\binom nK$. Each identity counts subsets containing the selected run and no run that defeats it. For success-oracle counts $a$, the unbiased estimator is $1-\binom{n-a}K/\binom nK$. Cluster uncertainty must resample images, not individual runs across images.
+\paragraph{Per-metric oracle inflation.} If $(M_1,M_2)$ are jointly Gaussian with correlation $r$ and $\operatorname{sd}(M_2)=\sigma_2$, then
+$\mathbb E[\max_kM_{2k}]-\mathbb E[M_{2,\arg\max_k M_{1k}}]=(1-r)\sigma_2\,\mathbb E[\max_kZ_k]$.
+Proof: regress $M_2$ on $M_1$, and use the zero-mean independent regression residual. This is a Gaussian diagnostic, not a universal model of PSNR/LPIPS.
+\paragraph{Paper-ready short text.} Fourier magnitude measurements are unchanged by independent 180-degree reversals of the three image channels. Consequently, the likelihood assigns equal values to all eight orbit members, and posterior odds within an orbit equal prior odds. Residual-only selection cannot resolve this ambiguity. Under an exchangeable residual-ranking model, best-of-$K$ success has a closed form and a nonzero false-positive ceiling. We give exact finite-sample subset estimators to test the model rather than treating it as a property of every solver.
+\paragraph{Paper-ready extended text.} The phase-retrieval forward operator is invariant to a group of eight independent channel reversals. This is the classical twin-image ambiguity; the contribution here is its implication for posterior selection and its quantitative connection to sampler equivariance. For a likelihood depending only on the forward operator, the posterior ratio between two orbit members is precisely their prior-density ratio. Hence measurement residuals and likelihood-only particle weights are blind to orientation within a fixed orbit. For Gaussian-transition chains, a pathwise KL argument bounds the total-variation difference between the output law and its rotated version by a sum of squared transition equivariance defects divided by noise variances. This result does not require an exact score or a unique inverse. For independent runs classified as good, orbit-correctable, consistent-wrong, or inconsistent, separation and exchangeability assumptions give explicit best-of-$K$ curves and monotone oracle--selector gaps. These assumptions are testable using residual ranks and exact subset averages; they are not claimed to hold automatically for DAPS, FAST-DIPS, or SITCOM. Our 384-pixel canvas also lies outside the usual generic Fourier-uniqueness regime, so we do not assert that the eight-element orbit exhausts all ambiguities.
+\end{document}
