@@ -1,6 +1,12 @@
-# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-05)
+# Top-venue attempt — planner plan (2026-10-25; updated 2026-11-06)
 
-> **Twenty-third update, 2026-11-05** (the newest; read it first).
+> **Twenty-fourth update, 2026-11-06** (the newest; read it first).
+> - **Two AI reviews** of the Nov 5 draft: R1 7.1 on the ICLR scale (accept), R2 positive. No item challenges a main claim.
+> - **Answered in writing** within 8 pages. Three new planner checks back the two shared asks, the threshold and run independence (C-V1 to C-V3). The supplement gains a "Sensitivity checks and scope" section (24 pages).
+> - **Prereg A25:** CPU-only supplement checks, queued after CP4. No GPU work is added.
+> - **Next:** the Nov 8 go/no-go (planner recommends GO); registration on Nov 10; submission on Nov 16.
+>
+> **Twenty-third update, 2026-11-05**.
 > - **Writing pass done** (Cheng's request of 14:36). Short sentences; the abstract is 250 words. The main text still ends on page 8.
 > - **Framing:** strengths first. Ground-truth-free selection nearly matches the orbit oracle on FFHQ. With four DAPS runs on ImageNet, it beats the published per-metric oracle. It transfers to PC-DAPS. Unsolved images reflect the ill-posedness of phase retrieval; SITCOM's consistent-but-wrong runs are a solver limit, outside selection.
 > - **Defect sweep:** references completed; notation explicit; internal names removed from the paper; "forecasts" vs "points" disambiguated; Table 2 and Fig. 2 relabeled.

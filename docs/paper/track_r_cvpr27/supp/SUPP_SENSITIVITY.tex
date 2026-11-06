@@ -1,0 +1,153 @@
+% Planner section, 2026-11-06. Sensitivity checks and scope notes prompted by two AI reviews.
+% Numbers: docs/track_r/planner_analysis/A26_reviewer_checks/out/REVIEWER_CHECKS_20261106.json (ledger C-V1 to C-V3).
+\section{Sensitivity checks and scope}
+\label{sec:suppl-sensitivity}
+
+This section answers questions a reader may ask about our choices.
+The checks are exploratory and post hoc.
+They reuse stored runs; no new run was drawn.
+
+\subsection{The \good threshold}
+\label{sec:suppl-theta}
+The thresholds $\theta$ ($25$\,dB on FFHQ, $20$\,dB on ImageNet) sit below the PSNR of typical correct runs and above most failures.
+For SITCOM on FFHQ, the \good runs have a median PSNR of $27.3$\,dB, with $10$th and $90$th percentiles of $26.5$ and $28.0$\,dB; its \cons failures have a median of $15.4$\,dB.
+Only $3.5\%$ of its $2{,}880$ runs lie within $1$\,dB of $\theta$.
+\Cref{tab:suppl-theta-sitcom,tab:suppl-theta-pcdaps} rescore the policies at other thresholds, on the panels whose per-run PSNR is stored.
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}c cccc c ccc@{}}
+\toprule
+ & \multicolumn{4}{c}{$K=4$} & & \multicolumn{3}{c}{$K=16$} \\
+\cmidrule(lr){2-5}\cmidrule(l){7-9}
+$\theta$ (dB) & First & $\Eo$ & $\Eone$ & $\Oorb$ & & $\Eo$ & $\Eone$ & $\Oorb$ \\
+\midrule
+22 & 63.6 & 83.8 & 90.4--90.8 & 91.1 & & 86.7 & 96.1 & 96.7 \\
+23 & 62.6 & 82.7 & 89.2--89.6 & 89.9 & & 85.6 & 95.0 & 96.1 \\
+24 & 60.5 & 80.5 & 86.5--86.9 & 87.0 & & 83.9 & 92.8 & 93.9 \\
+\textbf{25} & 58.6 & 78.4 & 84.2--84.5 & 84.9 & & 82.2 & 91.1 & 92.2 \\
+26 & 56.9 & 75.6 & 80.7--81.0 & 82.0 & & 78.3 & 86.1 & 88.9 \\
+27 & 39.4 & 49.0 & 52.3--52.6 & 54.1 & & 50.0 & 55.0 & 57.8 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{SITCOM on FFHQ ($180$ images, $16$ runs each): \% of images with a \good output at other thresholds.} Exact averages over all $K$-subsets of each image's runs. $\Eone$ uses the face test. For $34$ of the $2{,}880$ runs, the test turns the run although its best orbit member is not $R_{111}$; the PSNR of that rotation is not stored, so $\Eone$ is bracketed by counting these runs as failures or successes. Bold: the registered threshold.}
+\label{tab:suppl-theta-sitcom}
+\end{table}
+
+\begin{table}[h]
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}c cccc c c cccc@{}}
+\toprule
+\multicolumn{5}{c}{FFHQ ($180$ images)} & & \multicolumn{5}{c}{ImageNet ($100$ images)} \\
+\cmidrule(r){1-5}\cmidrule(l){7-11}
+$\theta$ & Random & $\Eo$ & $\Eone$ & $\Oraw$ & & $\theta$ & Random & $\Eo$ & $\Eone$ & $\Oorb$ \\
+\midrule
+22 & 83.6 & 86.7 & 88.9 & 87.8 & & 17 & 40.2 & 43.0 & 63.0 & 69.0 \\
+23 & 81.4 & 85.6 & 87.8 & 86.1 & & 18 & 38.2 & 42.0 & 62.0 & 67.0 \\
+24 & 80.3 & 85.0 & 87.2 & 85.6 & & 19 & 33.2 & 39.0 & 58.0 & 63.0 \\
+\textbf{25} & 79.0 & 82.8 & 84.4 & 83.3 & & \textbf{20} & 30.8 & 37.0 & 53.0 & 55.0 \\
+26 & 77.8 & 81.7 & 83.3 & 82.2 & & 21 & 29.2 & 34.0 & 49.0 & 51.0 \\
+27 & 76.1 & 78.9 & 80.6 & 81.1 & & 22 & 25.8 & 30.0 & 46.0 & 48.0 \\
+28 & 74.9 & 78.9 & 80.6 & 79.4 & & 23 & 25.2 & 29.0 & 44.0 & 45.0 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{PC-DAPS, one sample of four particles per measurement: \% of images with a \good output at other thresholds.} Random: the mean over particles, which PC-DAPS reports. $\Eone$ uses the face test on FFHQ and the generic test on ImageNet. The orbit oracle is not stored for the FFHQ particles; $\Oraw$ is shown instead. Bold: the registered thresholds.}
+\label{tab:suppl-theta-pcdaps}
+\end{table}
+
+The comparisons of the main text hold across these thresholds\claim{C-V1}.
+For SITCOM, $\Eone$ stays within $1.8$ points of the orbit oracle at $K=4$ and within $2.8$ points at $K=16$, from $22$ to $27$\,dB.
+All policies drop at $27$\,dB, because SITCOM's correct runs cluster just above it.
+Choosing among PC-DAPS particles adds $4.5$ to $6.9$ points over a random particle on FFHQ, from $22$ to $28$\,dB, and $18.8$ to $24.8$ points on ImageNet, from $17$ to $23$\,dB.
+On ImageNet, $\Eone$ stays within $6$ points of the orbit oracle at every threshold.
+The mean PSNR, SSIM and LPIPS results of the main text do not use $\theta$ at all.
+
+\subsection{The label-free threshold and the pilot size}
+\label{sec:suppl-pilot}
+The label-free rule takes the per-image minimum residual over a pilot of runs and returns the median plus three scaled median absolute deviations.
+\Cref{tab:suppl-pilot} compares it with the labeled threshold for pilots of two, three and four runs (the first runs of each image).
+At $\sigma=0.05$, it lands within $2.4\%$ even with two runs\claim{C-V2}.
+The largest miss is on the enriched cohort~B at $\sigma=0.02$ ($+7.6\%$ with two runs, $+3.5\%$ with four), where a few hard images make the minima heavy-tailed.
+Medians resist such tails, and they need no labels, so the rule can also be updated as images arrive.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Solver, data, cohort & $\sigma$ & 2 runs & 3 runs & 4 runs \\
+\midrule
+SITCOM, FFHQ, A & $0.05$ & +1.7 & +1.7 & +1.8 \\
+SITCOM, FFHQ, B & $0.05$ & +2.4 & +2.2 & +1.9 \\
+DAPS-4K, FFHQ, A & $0.05$ & +0.3 & +0.2 & +0.2 \\
+DAPS-4K, FFHQ, B & $0.05$ & +0.6 & +0.4 & +0.3 \\
+DAPS-4K, ImageNet & $0.05$ & +1.4 & +1.2 & +1.0 \\
+FAST-DIPS, FFHQ, A & $0.02$ & +0.5 & +0.1 & +0.1 \\
+FAST-DIPS, FFHQ, B & $0.02$ & +7.6 & +4.9 & +3.5 \\
+FAST-DIPS, FFHQ, A & $0.10$ & +0.6 & +0.7 & +0.6 \\
+FAST-DIPS, FFHQ, B & $0.10$ & +1.1 & +1.0 & +1.2 \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Label-free threshold against the labeled one} ($95$th percentile of $\rho$ over \good runs), in \% of the labeled value, by pilot size.}
+\label{tab:suppl-pilot}
+\end{table}
+
+\subsection{Dependence between runs}
+\label{sec:suppl-dependence}
+Each run uses a fresh seed and shares only the measurement with the other runs; no run is warm-started or tuned on another.
+The runs of an image are therefore exchangeable.
+By de Finetti's theorem, exchangeable runs behave as independent draws given the image's class rates.
+This is what \cref{M-prop:stop} and the Dirichlet mixture of \cref{M-sec:selection} assume: the image's difficulty is the only link between its runs.
+Runs of an easy image often agree closely, because its posterior is concentrated; this reflects the image, not the seeds.
+Exchangeability would fail if outcomes depended on the run index.
+We found no drift across run blocks (\cref{M-sec:setup}).
+Adjacent runs also agree no more often than any two runs of the same image\claim{C-V3}.
+On five panels (SITCOM, FFHQ, $16$ runs; DAPS-4K, FFHQ and ImageNet, $8$ runs; FAST-DIPS, FFHQ, $\sigma=0.02$ and $0.10$, $8$ runs), the concordance of the \good indicator for adjacent runs minus that for all pairs lies between $-0.010$ and $+0.012$.
+The permutation $p$-values, with the run order shuffled within images, are $0.17$ to $0.69$.
+PC-DAPS particles interact, so a PC-DAPS sample is not four independent runs; we never apply the stopping rule within it.
+
+\subsection{Compute}
+\label{sec:suppl-compute}
+Within a solver, every run makes the same number of denoiser calls: $4{,}000$ for DAPS-4K and $2{,}000$ for DAPS-2K, for instance.
+The equal-mean-runs comparisons of \cref{M-sec:protocol} are therefore equal-compute comparisons.
+The protocol adds one evaluation of the operator per run, an FFT of the $384\times384$ canvas per channel, and one orientation test per output ($8.5$\,ms with CLIP).
+On one otherwise idle GPU, a DAPS-4K run takes $66.0$\,s and a PC-DAPS sample $30.6$\,s (\cref{tab:s4-pcdaps}).
+We compare solvers at equal compute only for PC-DAPS against DAPS-4K, where calls and seconds are reported.
+
+\subsection{Other verifiers}
+\label{sec:suppl-verifiers}
+Under Gaussian noise, the likelihood of a run depends on $y$ only through its residual $\rho$.
+A reweighted or robust residual is the likelihood of another noise model.
+It can help when the noise model is wrong, for instance with outliers.
+It cannot separate a \cons run from a \good one in principle, because both fit the measurement within the noise.
+Such runs differ in the image domain, where only the prior can rank them.
+
+\subsection{Orientation scorers}
+\label{sec:suppl-orientation}
+Within an orbit, the Bayes choice orders the members by the prior density (\cref{M-sec:setup}).
+CLIP prompts, the paired denoising-loss score and a learned upright-versus-rotated classifier are three proxies for this order.
+A learned classifier needs training images from the target domain; we did not train one, to keep the protocol zero-shot.
+Any proxy plugs into step~(3) of the protocol unchanged.
+The gap decomposition of \cref{M-sec:audit} bounds what a better proxy can gain: the orientation part of the gap to the orbit oracle, $4.0$ points for DAPS-4K at $K=8$ and $5.0$ points for FAST-DIPS at $K=64$ on ImageNet, and at most $0.6$ points on FFHQ.
+
+\subsection{Other operators, tasks and solvers}
+\label{sec:suppl-scope}
+The residual comparison of \cref{M-sec:protocol} needs only a fixed measurement with Gaussian noise.
+\cref{M-prop:stop} needs only exchangeable runs and a pass event.
+Neither depends on the operator or the solver.
+What depends on them is the mix of failures, and so which component helps.
+We state our expectations; we did not test them.
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
+\item \emph{Coded diffraction} removes the twin ambiguity. Orbit errors disappear, and step~(3) becomes unnecessary.
+\item \emph{Lower oversampling} admits more images that fit the data, so we expect more \cons failures and less benefit from stopping. Higher oversampling should act the other way.
+\item \emph{Inpainting and super-resolution} have large null spaces. A wrong run can then fit the data exactly. We expect most failed runs to be \cons, so stopping cannot help and selection must rely on the prior.
+\item \emph{Other solvers}, including flow-based ones, enter through their runs only. The protocol needs a residual and a threshold, both available for any solver.
+\item \emph{Real measurements} have no ground truth. The protocol needs none, but scoring it does; we therefore use simulated measurements.
+\end{itemize}
+
+\subsection{The target $M$}
+\label{sec:suppl-M}
+\Cref{M-fig:teaser}b shows the protocol for $M=1$ to $4$ on the development panel.
+Each $M$ is a point on a frontier that lies above fixed best-of-$K$; a larger $M$ buys accuracy with runs.
+Requiring a confident orientation before stopping does not help on ImageNet (\cref{tab:s4-frontier}).

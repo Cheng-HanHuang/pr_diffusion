@@ -1,11 +1,11 @@
-# Supplement: sixth integration build (planner, 2026-11-05)
+# Supplement: seventh integration build (planner, 2026-11-06)
 
 **Build.** Run from this folder, after building the main paper once (the cross-references read `../main.aux`):
 ```
 pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 ```
 
-**Result.** 22 pages (2026-11-05: new section `SUPP_SELECTION_PROTOCOLS.tex`, "Selection protocols in recent work", input after S4 so the theory section numbers stay unchanged; paper names applied in the planner-owned files, see below. 2026-11-04: S2 adds the equivariance-defect table; S4's ImageNet table gains the E1 column. 2026-11-03, evening: S4 adds the prior orientation test, XP-C3, and PC-DAPS on ImageNet, XP-I2): S3 has the dated test-6 addendum; S4 includes the ImageNet four-run table and the image-disjoint panel; **new S6 shows all 15 images without a good run** (two float pages). No LaTeX errors, no undefined references, no overfull boxes.
+**Result.** 24 pages (2026-11-06: new section `SUPP_SENSITIVITY.tex`, "Sensitivity checks and scope" (threshold θ, label-free τ vs pilot size, run dependence, compute, other verifiers, orientation scorers, other operators, M), answering two AI reviews; ledger C-V1 to C-V3. 2026-11-05: new section `SUPP_SELECTION_PROTOCOLS.tex`, "Selection protocols in recent work", input after S4 so the theory section numbers stay unchanged; paper names applied in the planner-owned files, see below. 2026-11-04: S2 adds the equivariance-defect table; S4's ImageNet table gains the E1 column. 2026-11-03, evening: S4 adds the prior orientation test, XP-C3, and PC-DAPS on ImageNet, XP-I2): S3 has the dated test-6 addendum; S4 includes the ImageNet four-run table and the image-disjoint panel; **new S6 shows all 15 images without a good run** (two float pages). No LaTeX errors, no undefined references, no overfull boxes.
 
 ## Sources
 
@@ -19,6 +19,7 @@ pdflatex supp && bibtex supp && pdflatex supp && pdflatex supp
 | `SUPP_UNSOLVED_IMAGES.tex` (renders as S6) | **Planner** (new, 2026-11-03), from the 15 Nov 4 panels (XP `953e2f0`; SHA-256 checked against the receipt; tiles cropped losslessly by `../fig/unsolved/crop_tiles.py`) | — |
 | `supp.tex` (wrapper) | Planner | Restates the orbit lemma (`lem:orbit`), since the main text no longer contains it; inputs S4, then the protocols section. **2026-11-05:** orbit index renamed s → b (R_b), as in the main text. |
 | `SUPP_SELECTION_PROTOCOLS.tex` | **Planner** (new, 2026-11-05): the selection protocols of DPS, DAPS, SITCOM, FAST-DIPS, PC-DAPS and TGD (C-P1) | — |
+| `SUPP_SENSITIVITY.tex` | **Planner** (new, 2026-11-06), from `docs/track_r/planner_analysis/A26_reviewer_checks/out/REVIEWER_CHECKS_20261106.json` | — |
 
 **S4 contents:**
 - every registered protocol hypothesis, with its outcome and the image-bootstrap interval of its gain;

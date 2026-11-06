@@ -1,0 +1,290 @@
+{
+ "A_threshold_sensitivity": {
+  "PCDAPS_FFHQ": {
+   "theta22": {
+    "E0": 86.67,
+    "E1": 88.89,
+    "O_raw": 87.78,
+    "random_particle": 83.61
+   },
+   "theta23": {
+    "E0": 85.56,
+    "E1": 87.78,
+    "O_raw": 86.11,
+    "random_particle": 81.39
+   },
+   "theta24": {
+    "E0": 85.0,
+    "E1": 87.22,
+    "O_raw": 85.56,
+    "random_particle": 80.28
+   },
+   "theta25": {
+    "E0": 82.78,
+    "E1": 84.44,
+    "O_raw": 83.33,
+    "random_particle": 79.03
+   },
+   "theta26": {
+    "E0": 81.67,
+    "E1": 83.33,
+    "O_raw": 82.22,
+    "random_particle": 77.78
+   },
+   "theta27": {
+    "E0": 78.89,
+    "E1": 80.56,
+    "O_raw": 81.11,
+    "random_particle": 76.11
+   },
+   "theta28": {
+    "E0": 78.89,
+    "E1": 80.56,
+    "O_raw": 79.44,
+    "random_particle": 74.86
+   }
+  },
+  "PCDAPS_ImageNet": {
+   "theta17": {
+    "E0": 43.0,
+    "E1": 63.0,
+    "O_orbit": 69.0,
+    "O_raw": 49.0,
+    "random_particle": 40.25
+   },
+   "theta18": {
+    "E0": 42.0,
+    "E1": 62.0,
+    "O_orbit": 67.0,
+    "O_raw": 46.0,
+    "random_particle": 38.25
+   },
+   "theta19": {
+    "E0": 39.0,
+    "E1": 58.0,
+    "O_orbit": 63.0,
+    "O_raw": 44.0,
+    "random_particle": 33.25
+   },
+   "theta20": {
+    "E0": 37.0,
+    "E1": 53.0,
+    "O_orbit": 55.0,
+    "O_raw": 40.0,
+    "random_particle": 30.75
+   },
+   "theta21": {
+    "E0": 34.0,
+    "E1": 49.0,
+    "O_orbit": 51.0,
+    "O_raw": 37.0,
+    "random_particle": 29.25
+   },
+   "theta22": {
+    "E0": 30.0,
+    "E1": 46.0,
+    "O_orbit": 48.0,
+    "O_raw": 34.0,
+    "random_particle": 25.75
+   },
+   "theta23": {
+    "E0": 29.0,
+    "E1": 44.0,
+    "O_orbit": 45.0,
+    "O_raw": 33.0,
+    "random_particle": 25.25
+   }
+  },
+  "SITCOM_FFHQ": {
+   "K16_theta22": {
+    "E0": 86.67,
+    "E1_hi": 96.11,
+    "E1_lo": 96.11,
+    "O_orbit": 96.67,
+    "O_raw": 96.11,
+    "first": 63.61
+   },
+   "K16_theta23": {
+    "E0": 85.56,
+    "E1_hi": 95.0,
+    "E1_lo": 95.0,
+    "O_orbit": 96.11,
+    "O_raw": 95.56,
+    "first": 62.6
+   },
+   "K16_theta24": {
+    "E0": 83.89,
+    "E1_hi": 92.78,
+    "E1_lo": 92.78,
+    "O_orbit": 93.89,
+    "O_raw": 93.33,
+    "first": 60.45
+   },
+   "K16_theta25": {
+    "E0": 82.22,
+    "E1_hi": 91.11,
+    "E1_lo": 91.11,
+    "O_orbit": 92.22,
+    "O_raw": 91.67,
+    "first": 58.61
+   },
+   "K16_theta26": {
+    "E0": 78.33,
+    "E1_hi": 86.11,
+    "E1_lo": 86.11,
+    "O_orbit": 88.89,
+    "O_raw": 88.33,
+    "first": 56.91
+   },
+   "K16_theta27": {
+    "E0": 50.0,
+    "E1_hi": 55.0,
+    "E1_lo": 55.0,
+    "O_orbit": 57.78,
+    "O_raw": 57.22,
+    "first": 39.38
+   },
+   "K4_theta22": {
+    "E0": 83.85,
+    "E1_hi": 90.76,
+    "E1_lo": 90.41,
+    "O_orbit": 91.06,
+    "O_raw": 88.89,
+    "first": 63.61
+   },
+   "K4_theta23": {
+    "E0": 82.73,
+    "E1_hi": 89.58,
+    "E1_lo": 89.23,
+    "O_orbit": 89.88,
+    "O_raw": 87.83,
+    "first": 62.6
+   },
+   "K4_theta24": {
+    "E0": 80.55,
+    "E1_hi": 86.89,
+    "E1_lo": 86.53,
+    "O_orbit": 87.03,
+    "O_raw": 85.19,
+    "first": 60.45
+   },
+   "K4_theta25": {
+    "E0": 78.39,
+    "E1_hi": 84.52,
+    "E1_lo": 84.17,
+    "O_orbit": 84.87,
+    "O_raw": 83.08,
+    "first": 58.61
+   },
+   "K4_theta26": {
+    "E0": 75.56,
+    "E1_hi": 81.0,
+    "E1_lo": 80.65,
+    "O_orbit": 81.95,
+    "O_raw": 80.49,
+    "first": 56.91
+   },
+   "K4_theta27": {
+    "E0": 49.0,
+    "E1_hi": 52.65,
+    "E1_lo": 52.3,
+    "O_orbit": 54.09,
+    "O_raw": 53.23,
+    "first": 39.38
+   },
+   "flipped_with_unknown_member": 34
+  }
+ },
+ "B_label_free_tau_vs_pilot": {
+  "DAPS4K_FFHQ_B22": {
+   "images": 100,
+   "pilot2_ratio": 1.0032,
+   "pilot3_ratio": 1.0023,
+   "pilot4_ratio": 1.0019,
+   "tau_labeled": 0.04747481849044562
+  },
+  "DAPS4K_FFHQ_DEV80": {
+   "images": 80,
+   "pilot2_ratio": 1.0059,
+   "pilot3_ratio": 1.0038,
+   "pilot4_ratio": 1.0033,
+   "tau_labeled": 0.04747481849044562
+  },
+  "DAPS4K_ImageNet_IN": {
+   "images": 100,
+   "pilot2_ratio": 1.0144,
+   "pilot3_ratio": 1.0124,
+   "pilot4_ratio": 1.0105,
+   "tau_labeled": 0.04771033283323049
+  },
+  "FAST_FFHQ_sigma0.02_B22": {
+   "images": 100,
+   "pilot2_ratio": 1.0054,
+   "pilot3_ratio": 1.0009,
+   "pilot4_ratio": 1.0009,
+   "tau_labeled": 0.02223162092268467
+  },
+  "FAST_FFHQ_sigma0.02_DEV80": {
+   "images": 80,
+   "pilot2_ratio": 1.0762,
+   "pilot3_ratio": 1.0492,
+   "pilot4_ratio": 1.035,
+   "tau_labeled": 0.02223162092268467
+  },
+  "FAST_FFHQ_sigma0.10_B22": {
+   "images": 100,
+   "pilot2_ratio": 1.0065,
+   "pilot3_ratio": 1.007,
+   "pilot4_ratio": 1.006,
+   "tau_labeled": 0.09808984324336052
+  },
+  "FAST_FFHQ_sigma0.10_DEV80": {
+   "images": 80,
+   "pilot2_ratio": 1.0106,
+   "pilot3_ratio": 1.0101,
+   "pilot4_ratio": 1.0116,
+   "tau_labeled": 0.09808984324336052
+  },
+  "SITCOM_FFHQ_B22": {
+   "images": 100,
+   "pilot2_ratio": 1.0172,
+   "pilot3_ratio": 1.0168,
+   "pilot4_ratio": 1.0175,
+   "tau_labeled": 0.0448503
+  },
+  "SITCOM_FFHQ_DEV80": {
+   "images": 80,
+   "pilot2_ratio": 1.0235,
+   "pilot3_ratio": 1.0217,
+   "pilot4_ratio": 1.0188,
+   "tau_labeled": 0.0449706
+  }
+ },
+ "C_run_order_dependence": {
+  "DAPS4K_FFHQ_8": {
+   "adjacent_minus_all_pairs": 0.0121,
+   "images": 180,
+   "perm_p_two_sided": 0.1724
+  },
+  "DAPS4K_ImageNet_8": {
+   "adjacent_minus_all_pairs": -0.0104,
+   "images": 100,
+   "perm_p_two_sided": 0.4093
+  },
+  "FAST_FFHQ_s0.02_8": {
+   "adjacent_minus_all_pairs": -0.0067,
+   "images": 180,
+   "perm_p_two_sided": 0.5147
+  },
+  "FAST_FFHQ_s0.10_8": {
+   "adjacent_minus_all_pairs": 0.0034,
+   "images": 180,
+   "perm_p_two_sided": 0.6877
+  },
+  "SITCOM_FFHQ_16": {
+   "adjacent_minus_all_pairs": 0.0031,
+   "images": 180,
+   "perm_p_two_sided": 0.6357
+  }
+ }
+}

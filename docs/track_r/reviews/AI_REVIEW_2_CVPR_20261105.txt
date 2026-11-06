@@ -1,0 +1,286 @@
+                   View Your Review
+
+    Best-of-K Without Ground Truth: Selection,
+    Stopping and Unsolved Images in Diffusion
+    Phase Retrieval
+        CVPR                Submitted: November 5, 2026
+
+
+
+
+             Summary
+       The paper investigates how to select and when to stop multiple diffusion-prior
+       phase-retrieval runs without access to ground truth, a pervasive gap between
+       current reporting practice and real-world use. It proposes a simple, ground-truth-
+       free protocol that (i) selects the run with the smallest Fourier-magnitude residual,
+       (ii) applies a zero-shot orientation test to fix 180° twin ambiguities, and (iii) stops
+       sampling per image once M runs meet a solver-specific residual threshold. Across
+       FFHQ and ImageNet with four solvers (DAPS, SITCOM, FAST-DIPS, PC-DAPS), the
+       protocol nearly matches an orientation-aware ground-truth oracle on FFHQ,
+       improves over per-metric oracles on ImageNet in some settings, offers principled
+       abstention flags, and includes a predictive model with preregistered forecasts
+       demonstrating that selection is predictable while generation coverage (whether
+       any run is good) is fundamentally limited.
+ Strengths
+Technical novelty and innovation
+
+• Positions selection and stopping as first-class components of diffusion
+    phase retrieval, formalizes when stopping helps, and proves a useful
+    result (Proposition 1) linking expected compute, consistency rate, and
+    success.
+
+• Introduces a practically effective, zero-shot orientation correction and
+    shows why orientation choice is a prior decision not visible to the
+    likelihood.
+
+• Moves beyond exchangeable best-of-n models by fitting a residual-race
+    (Plackett–Luce) model that better reflects empirical selection statistics and
+    enables preregistered forecasts.
+
+• Provides a solver-agnostic residual threshold calibration strategy
+    (including a label-free proxy), and a protocol with abstention flags that
+    adheres to test-time constraints.
+
+Experimental rigor and validation
+
+• Comprehensive cross-solver, cross-dataset evaluation (DAPS-2K/4K,
+    SITCOM, FAST-DIPS, PC-DAPS; FFHQ, ImageNet, and a held-out
+    ImageNet’).
+
+• Careful decomposition of performance into selection quality, orientation
+    correction, and coverage (existence of a good run), with prospective
+    registered tests that validate selection predictability.
+
+• Strong transfer to particle-based PC-DAPS without extra compute,
+    demonstrating generality beyond independent-run samplers.
+
+• Transparent analysis of failure regimes: quantifies unsolved images,
+    clarifies why consistent-yet-wrong runs defeat stopping, and shows limits
+    of inference scaling with few runs.
+
+Clarity of presentation
+
+• Clearly explains the twin ambiguity and why measurement-based
+    selection cannot resolve it, motivating the need for an external
+    orientation prior/test.
+
+• Distinguishes between selection and coverage; uses precise labels
+    (GOOD, ORBIT, CONSISTENT, INCONSISTENT) and defines thresholds and
+    policies unambiguously.
+
+• States recommendations and limitations explicitly, with careful caveats
+    around in-sample development panels versus frozen, held-out tests.
+
+Significance of contributions
+
+• Addresses a real gap in current practice: published “best-of-K with
+    ground truth” is unavailable to users; the proposed protocol is actionable
+    and measurable.
+
+• Offers a principled reporting alternative and provides evidence that a
+    large fraction of published gains remain available at test-time, improving
+    the field’s evaluation standards.
+
+• The predictability analysis and preregistration are exemplary for this
+    literature, likely to influence future work on best-of-n sampling and
+    verification.
+
+
+
+
+ Weaknesses
+Technical limitations or concerns
+
+• The method relies on a solver- and noise-level-specific residual threshold
+    τS that requires calibration (albeit with a label-free proxy); generalization
+    across operators/noise models remains limited.
+
+• Orientation correction via generic CLIP prompts is imperfect on
+    heterogeneous datasets (ImageNet), leaving a nontrivial gap to the orbit
+    oracle at higher K and in some panels.
+
+• Results and the stopping theory hinge on independence/exchangeability
+    assumptions across runs; solver dynamics could induce correlations not
+    fully explored.
+
+Experimental gaps or methodological issues
+
+• While the paper compares multiple solvers, it does not include recent
+    flow-based phase-retrieval pipelines (e.g., FlowSGS, FlowFPR) that also
+    emphasize residual control and could interact with the proposed
+    selection/stopping; this limits the breadth of empirical context.
+    Sensitivity analyses are mostly around τS and budgets; there is less
+• exploration of alternative verifiers (e.g., robust residuals, multi-view
+    consistency, learned likelihood proxies) or other orientation scorers
+    beyond CLIP and heuristic denoising-loss.
+
+• Some compute comparisons consider equal number of runs, although
+    solvers have different per-run costs; more systematic wall-clock or NFE-
+    normalized analyses would strengthen conclusions about resource trade-
+    offs.
+
+Clarity or presentation issues
+
+• The many cohorts/panels, thresholds, and flags can overwhelm readers; a
+    compact main-text ablation figure clarifying where each component helps
+    most would aid accessibility.
+
+• Some proofs and estimator details are referenced to the supplement;
+    brief sketch proofs or intuitions in the main text would help.
+
+Missing related work or comparisons
+
+• Limited discussion of closely related “residual-guided” or “verifier-
+    dependent” stopping/selection in current flow/diffusion PR systems (e.g.,
+    FlowFPR’s residual control, FlowSGS’s likelihood steps) and how the
+    proposed protocol could plug in.
+
+• The paper could more directly relate its exchangeable vs. race models to
+    recent theory on best-of-n tail competition and verifier-imperfection
+    limits, and discuss implications for designing better verifiers.
+
+
+
+
+ Detailed Comments
+Technical soundness evaluation
+
+• The argument that selection by residual is effective within an image is
+    well-supported: difference-of-residuals analysis cancels shared noise
+    energy, explaining strong within-image ranking power.
+
+• Proposition 1 is sound and provides actionable insights: expected runs,
+    flag rates, and success relate cleanly to the consistency rate s and the
+    class-conditional success probabilities Hj±. The observation that stopping
+    helps only when inconsistency predicts incorrectness is theoretically and
+    empirically compelling.
+
+• The posterior-orbit argument is correct: orientation selection must come
+    from the prior; the likelihood is invariant. Using zero-shot CLIP is a
+    pragmatic instantiation of that Bayes-optimality idea (under a prior
+    preference for upright images).
+
+• The residual-race model (Plackett–Luce) better matches data than
+    exchangeability and is a reasonable choice; preregistered forecasts
+    bolster validity. The paper is also candid about model misspecification in
+    generation coverage.
+
+Experimental evaluation assessment
+
+• Methodology is strong: shared measurements, multiple solvers, multiple
+    budgets K/Nmax, and held-out ImageNet’ increase robustness. The
+    arithmetic of subset-averaging for exact best-of-K estimators is
+    appropriate.
+
+• The registered prospective tests are a high bar; they convincingly show
+    selection predictability and identify the main miss as generation coverage
+    (unsolved images), not selection instability.
+
+• On FFHQ, E1 nearly saturates orbit-oracle performance; on ImageNet, the
+    protocol beats per-metric oracles at small K for DAPS due to orientation
+    correction—this is a key and credible finding given that per-metric
+    oracles are not orientation-aware.
+
+• The PC-DAPS results are particularly useful: the proposed selection yields
+    sizable gains “for free,” showing direct practical value and cross-method
+    applicability.
+
+• Limitations are transparently reported: the protocol can underperform
+    fixed best-of-K at large budgets when many images never pass
+    consistency, and FLAGC marks “hard” but not necessarily “unsolved.”
+
+Comparison with related work (using the summaries provided)
+
+• DPS and DAPS established diffusion-prior posterior sampling for inverse
+    problems;        this   paper   is   orthogonal,   focusing   on   test-time
+    selection/stopping and evaluation realism rather than a new sampler.
+
+• PC-DAPS is included and benefits from the proposed post-hoc selection,
+    suggesting complementarity: moving selection inside the sampler (PC-
+    DAPS) and outside (this work) can be synergistic.
+        FlowFPR and FlowSGS include residual/likelihood control inside their
+   • alternations; the current paper does not empirically compare with these
+        families. However, the selection/stopping protocol and reporting
+        recommendations seem largely orthogonal and could be adopted to
+        evaluate/operate such methods under realistic constraints.
+
+   • Broader literature on verifiers and best-of-n (resampling limits, tail
+        competition) is appropriately cited and conceptually integrated; the
+        residual-race model extends beyond the exchangeable baseline used in
+        prior analysis.
+
+   Discussion of broader impact and significance
+
+   • The protocol and reporting recommendations are immediately actionable
+        and can correct misleading practices that hide failure modes (e.g., per-
+        metric oracles, unreported unsolved fractions).
+
+   • The formalization of where stopping helps and the identification of
+        unsolved-image regimes provide a roadmap for future research: invest in
+        better generation (samplers/priors) and better orientation priors/tests
+        rather than expecting selection to “rescue” fundamentally ill-posed
+        instances.
+
+   • The preregistration practice is exemplary for the community; encouraging
+        more predictive, model-based evaluation could reduce overfitting to
+        specific panels and improve scientific rigor.
+
+
+
+
+    Questions for Authors
+1. How sensitive are the protocol’s gains to the exact definition of “GOOD” (PSNR
+   thresholds 25/20 dB)? Could you provide sensitivity curves or show that
+   relative conclusions (vs fixed best-of-K and oracles) persist across a range of
+   thresholds?
+
+2. Have you tried alternative residual-based verifiers (e.g., robust residuals, per-
+   frequency weighting, or multiscale residuals) and did they change the balance
+   between CONSISTENT wrong runs and GOOD runs, particularly for SITCOM
+   and FAST-DIPS on ImageNet?
+3. For orientation scoring, beyond CLIP prompts and the denoising-loss heuristic,
+   could a learned, prior-aligned binary classifier trained only once (no ground-
+   truth orientations per image) further reduce the gap on ImageNet while
+   preserving the ground-truth-free constraint?
+
+4. Can you report wall-clock or NFE-normalized comparisons at equal compute
+   budgets across solvers to complement “equal number of runs” plots, especially
+   for scenarios where stopping reallocates compute across images?
+
+5. How robust is the label-free τS estimation to pilot size (e.g., 2 vs 4 runs) and to
+   distribution shifts in noise or content? Would an online adaptive τS (e.g., per-
+   batch robust estimate) be viable without materially increasing false positives?
+
+6. Did you observe correlations across runs (e.g., seed-dependent mode
+   attraction) that might violate independence assumptions in Proposition 1 or
+   the race model? If so, how sensitive are the predictions/intervals to such
+   correlations?
+
+7. Could you comment on applying the protocol to other ambiguous operators
+   (e.g., coded diffraction without twin ambiguity, or inline holography) and to
+   other tasks (inpainting/super-resolution), where different symmetries and
+   verifier behavior may arise?
+
+
+
+
+    Overall Assessment
+This paper tackles an important, under-addressed practical problem in diffusion-
+based phase retrieval: how to select among multiple stochastic runs and when to
+stop without ground truth. The proposed protocol is simple, sound, and effective;
+the empirical evaluation is broad across solvers and datasets; and the modeling
+and preregistered forecasts are exemplary. The work is not about a new sampler
+but about making evaluation and deployment realistic and principled, and it
+convincingly shows that most of the reported best-of-K gains are attainable at
+test time with careful selection/orientation and judicious stopping. Limitations are
+candidly discussed, notably imperfect orientation on heterogeneous data and
+regimes where stopping can hurt at large budgets due to unsolved images. The
+missing comparisons to recent flow-based PR pipelines are a gap but do not
+undermine the central contributions, which are largely orthogonal and likely
+beneficial to that line of work as well. Overall, this is a valuable and timely
+contribution with clear impact on how the community reports and uses diffusion-
+prior solvers for phase retrieval.
+
+
+
+

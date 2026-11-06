@@ -783,7 +783,21 @@
 >    - CP4 by Nov 15, 12:00 ET;
 >    - the main-paper cut stays closed.
 
-**Status:** FROZEN v1.1 with amendments A1–A24 (planner, 2026-11-04).
+>
+> **Amendment A25 (planner, 2026-11-06 ET): supplement checks prompted by two AI reviews.** Written after Cheng shared two AI reviews of the Nov 5 draft (`docs/track_r/reviews/`). No frozen hypothesis, forecast or gate changes. No GPU work is added.
+> 1. **Status of all checks below:** exploratory and post hoc. CPU only, on stored runs; no new run is drawn. They go to the supplement only.
+> 2. **Done by the planner on committed data** (`planner_analysis/A26_reviewer_checks/`, ledger C-V1 to C-V3):
+>    - GOOD-threshold sensitivity for SITCOM FFHQ (16 runs) and PC-DAPS (FFHQ, ImageNet);
+>    - label-free τ against pilot size;
+>    - run-order dependence.
+> 3. **Queued for the executor, after CP4** (or earlier on idle CPU; never delaying XP-K or CP4):
+>    - **X1:** per-run PSNR for all eight orbit members, SSIM and VGG-LPIPS on every panel that lacks them: FAST-DIPS FFHQ 64, DAPS-2K FFHQ 8, DAPS-4K FFHQ/ImageNet 8, FAST-DIPS ImageNet 64, ImageNet′ 64, σ panels. Read from stored reconstructions on PAC.
+>    - **X2:** a per-solver compute table (nominal denoiser calls and seconds per run) from existing receipts.
+>    - **X3 (low priority):** band-wise and ℓ1 measurement residuals from stored reconstructions.
+> 4. **Data rule.** §7 keeps per-candidate metric values out of the repository. X1 and X3 tables (no paths, no images) are therefore delivered as a planner ZIP, unless Cheng approves committing them, as he did for the A8 strings (decision **D-A25**). Only aggregates are committed either way.
+> 5. **Planner follow-ups:** the θ sweep on every panel, including the protocol (P1, needs X1); M = 1–4 on held-out panels with the frozen code `c598176` (P2); the unsolved share against K (P3); a component-ladder figure (P4).
+
+**Status:** FROZEN v1.1 with amendments A1–A25 (planner, 2026-11-06).
 - **GO given.** Cheng, 2026-10-26 00:57: *"GO aggressively, the lab gpus are not actively been used and so even if some runs failed it's no hurts. Try to get as much as possible out."*
 - **Supersedes `XP_PREREG_v1.md`.** No XP data existed when v1.1 was frozen: there are no executor commits after `33a34bd`, and no XP or theory branch exists. v1 is kept for the record.
 - **This file is self-contained.** The executor does not need v1.

@@ -1,6 +1,6 @@
 # Track R — start here
 
-**Updated:** 2026-11-05 by the planner (Claude).
+**Updated:** 2026-11-06 by the planner (Claude).
 - After PC-DAPS (arXiv 2610.31592): see the positioning note (document 5).
 - After the N2 CLIP result: K2 triggered, so the paper is an audit (decision §10).
 - **2026-10-25:** a top-venue attempt (CVPR 2027) with theory plus extended experiments. EUSIPCO 2027 and SPL are the fallbacks (document 1).
@@ -14,6 +14,13 @@
   - **Hard rule:** never load any bundled FFHQ set (`test-ffhq`, `demo-ffhq`, DAPS FFHQ archives). Never merge `main` or the data-governance audit branch into Track R branches.
   - TGD has been read in full, and the research pass on phase-retrieval theory is digested. This produced prereg amendment A1, theory program v1.2 and handoffs B.1.
 
+- **2026-11-06 (planner): two AI reviews answered (prereg A25).**
+  - **Reviews:** R1 (ICLR scale, 7.1, accept) and R2 (CVPR, positive). Texts and triage are in [`reviews/`](reviews/AI_REVIEWS_20261105_TRIAGE.md). Every item is classified as writing, (1) out of scope, or (2) more experiments.
+  - **Main text (still 8 pages):** threshold robustness, run exchangeability, compute overhead, label-free τ robustness, the likelihood argument for consistent-but-wrong runs, orientation scorers, cohort B / ImageNet validation images, other operators, the tail-competition reading of the race, and related work (FlowSGS, DDRM-PR, I2I-PR, DPnP, adaptive test-time compute; "FlowFPR" could not be found).
+  - **New planner checks on committed data (C-V1 to C-V3):** θ sensitivity (SITCOM, PC-DAPS); label-free τ vs pilot size; no run-order dependence (p 0.17–0.69).
+  - **Supplement:** 24 pages, new section "Sensitivity checks and scope".
+  - **Queued after CP4 (A25):** X1 per-run metrics export, X2 compute table, X3 band residuals (executor); P1–P4 (planner).
+  - **Notes, round 22:** [`executors/xp/22_PLANNER_NOTES_20261106.md`](executors/xp/22_PLANNER_NOTES_20261106.md) and [`executors/theory/22_PLANNER_GUIDANCE_20261106.md`](executors/theory/22_PLANNER_GUIDANCE_20261106.md).
 - **2026-11-05 (planner): writing pass and defect sweep of the main text (Cheng's request).**
   - **Main text:** short sentences; strengths first; unsolved images framed by the ill-posedness of phase retrieval; SITCOM's consistent-but-wrong runs outside the scope of selection. Still 8 pages (references on pages 8–9); abstract 250 words.
   - **Defects fixed:** references completed (pages added where they exist); notation explicit (ground truth x⋆, noise η = σn, orbit index b, race ceiling with partial orbits tied to w_O, the tighter-prior variant); internal names removed (bag, first image set, new images, weaker-prior, clean GPU); "points" vs "forecasts" disambiguated.

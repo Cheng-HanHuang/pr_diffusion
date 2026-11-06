@@ -35,6 +35,7 @@ an \orbit error if it is not \good but $\max_b\mathrm{PSNR}(R_b\hat x)\ge\theta$
 and \incons otherwise.
 Here $\tau$ is the $95$th percentile of $\rho$ over the \good runs of the same solver and cohort, fixed before the analyses reported here\claim{C-S4}.
 Labels are used only to score policies.
+The comparisons do not hinge on $\theta$: from $3$\,dB below to $2$\,dB above it, $\Eone$ stays within $2.8$ points of the orbit oracle for SITCOM, and choosing among PC-DAPS particles keeps its gain (supplement)\claim{C-V1}.
 
 \paragraph{Policies.}
 Given $K$ runs of one image, we compare
@@ -50,10 +51,11 @@ For a policy and a set of images, \good denotes the share of images whose output
 \paragraph{Data and solvers.}
 \emph{FFHQ}~\cite{karras2019stylegan}: $180$ images in two disjoint cohorts, with the $256\times256$ denoiser of DPS~\cite{chung2023dps}.
 Cohort~A has $100$ images drawn at random from the validation split.
-Cohort~B has $80$ images from an earlier screen enriched for hard cases; $71$ of them come from the training split, which the denoiser may have seen, so we report the cohorts separately\claim{C-S7}.
-\emph{ImageNet}~\cite{deng2009imagenet}: the first $100$ images of the test archive distributed with DAPS, the default evaluation set of DAPS, FAST-DIPS and PC-DAPS, with the unconditional denoiser of Dhariwal and Nichol~\cite{dhariwal2021diffusion}.
+Cohort~B has $80$ images from an earlier screen enriched for hard cases; $71$ of them come from the training split, which the denoiser may have seen, so we report the cohorts separately; the conclusions hold on cohort~A alone\claim{C-S7}.
+\emph{ImageNet}~\cite{deng2009imagenet}: the first $100$ images of the test archive distributed with DAPS, the default evaluation set of DAPS, FAST-DIPS and PC-DAPS, with the unconditional denoiser of Dhariwal and Nichol~\cite{dhariwal2021diffusion}, trained on the training split; all our ImageNet images are validation images.
 \emph{ImageNet$'$}: $100$ further ImageNet validation images that no earlier experiment touched (\cref{sec:protocol}).
-Each image has one measurement, shared by all solvers and runs, and each run uses an independent seed.
+Each image has one measurement, shared by all solvers and runs.
+Each run uses a fresh seed, with no warm start and no tuning on other runs, so the runs of an image are exchangeable; we found no drift with the run index and no dependence between consecutive runs\claim{C-F4}\claim{C-V3}.
 \emph{Solvers}: DAPS~\cite{zhang2025daps} in two configurations, named by their denoiser calls per run: DAPS-4K, the configuration of its published phase-retrieval results ($400$ annealing steps with $10$ ODE steps each), and, on FFHQ, DAPS-2K ($400$ steps with $5$ ODE steps each)\claim{C-S8};
 SITCOM~\cite{alkhouri2025sitcom}, through its authors' phase-retrieval code with the published settings;
 FAST-DIPS~\cite{kim2026fastdips}, with its published command;

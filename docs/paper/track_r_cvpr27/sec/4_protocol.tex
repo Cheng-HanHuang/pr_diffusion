@@ -9,7 +9,7 @@ The protocol takes the measurement $y$, a solver $S$ with a consistency threshol
 (4)~Raise $\textsc{flag}_C$ if no drawn run had $\rho\le\tau_S$, and $\textsc{flag}_O$ if $|\delta|$ falls in the lowest $30\%$ of the margins of the evaluated outputs.
 We use $M=2$ throughout.
 No step uses the ground truth.
-The design follows from what the residual can and cannot tell.
+Its overhead, one FFT per run and $8.5$\,ms of orientation test per output, is negligible against $30.6$\,s for a PC-DAPS sample or $66.0$\,s for a DAPS-4K run\claim{C-A2}\claim{C-X2}; within a solver, equal mean runs thus means equal compute.
 
 \paragraph{The residual compares runs; it does not certify them.}
 Within an image, a \good run has a smaller residual than an \incons run in $570$ of $571$ pairs, and than a \cons run in $200$ of $205$\claim{C-A7}.
@@ -31,6 +31,7 @@ It is $0.0501$ for FAST-DIPS on FFHQ and $0.0502$ on ImageNet, and it differs by
 We therefore calibrate it once on images with ground truth and use it unchanged elsewhere; on ImageNet, the protocol uses the FFHQ value.
 Where no calibration set exists, a label-free threshold can replace it: the median plus three scaled median absolute deviations of the per-image minimum residual over a pilot of four runs.
 It lands within $2\%$ of $\tau$ for every solver and cohort\claim{C-G3}.
+As a median rule, it tolerates heavy tails and a minority of hard images; with pilots of two or three runs, it stays within $2.4\%$ at $\sigma=0.05$ (supplement)\claim{C-V2}.
 The two DAPS-4K panels of \cref{tab:protocol} use this label-free threshold, so no step on them uses a label\claim{C-G9}.
 
 \paragraph{Orientation.}
@@ -97,8 +98,8 @@ The few images whose runs almost never pass absorb $40$--$43\%$ of all runs, whi
 Smaller budgets keep it within a point, and requiring a confident orientation before stopping does not help (exploratory, supplement)\claim{C-E2}\claim{C-E3}.
 H4 holds at all five ImageNet budgets ($+10.7$ to $+13.6$ points)\claim{C-N2}.
 H3 fails wherever it was tested, so $\textsc{flag}_C$ marks hard images rather than unsolved ones.
-Across noise levels, the label-free threshold of another cohort's four-run pilots lands within $3.5\%$ of the calibrated one at $\sigma=0.02$ and $0.10$, and with it the protocol gains $4.1$ and $0.9$ points (exploratory)\claim{C-E4}.
-Scaling $\tau_S$ with $\sigma$ does not work: it misses the calibrated threshold by $10\%$ at $\sigma=0.02$, where the rule then never stops and flags every image, and by $2\%$ at $\sigma=0.10$\claim{C-G10}.
+At $\sigma=0.02$ and $0.10$, the label-free threshold fitted on the other cohort's pilots lands within $3.5\%$ of the calibrated one, and with it the protocol gains $4.1$ and $0.9$ points (exploratory)\claim{C-E4}.
+Scaling $\tau_S$ linearly with $\sigma$ fails instead (supplement)\claim{C-G10}.
 
 \begin{table}[t]
 \centering\footnotesize

@@ -41,15 +41,12 @@ In the sixth test it covered more, but only through offsetting errors (\cref{sec
 On some images no run succeeds.
 FAST-DIPS never produced a good run for $7$ of $180$ FFHQ images in $64$ runs, and for $22$ and $25$ of $100$ ImageNet images on two image sets\claim{C-F2}\claim{C-R7}\claim{C-N3}.
 No selection can repair these images, and ground-truth best-of-$K$ reporting hides them.
-A few runs cannot reveal them either.
-With $n$ runs per image, only the first $n$ moments of the per-image success rates are identified, and these do not fix the share of images whose rate is near zero\claim{C-T8}.
+A few runs cannot reveal them either (\cref{sec:selection})\claim{C-T8}.
 Solvers also fail in different ways.
 DAPS-based samplers give the best reconstructions up to rotation.
 For them, residual selection loses at most $1.1$ points against the orbit oracle on either dataset; on ImageNet, the rest of the gap is orientation\claim{C-A16}\claim{C-E1}\claim{C-X3}\claim{C-X5}.
 SITCOM more often returns runs that fit the measurement but are wrong: $57\%$ of its failed runs on FFHQ\claim{C-A5}.
-Such runs pass any consistency check.
-When no correct run lies beside them, nothing in the measurement reveals the error, so stopping cannot help.
-This limit lies with the solver, outside the scope of selection.
+Without a correct run beside them, nothing in the measurement reveals the error, so stopping cannot help; this limit lies with the solver, not with selection.
 
 \paragraph{A ground-truth-free protocol.}
 These findings define a procedure (\cref{fig:teaser}a, \cref{sec:protocol}).
@@ -62,8 +59,8 @@ Where failed runs fit the measurement, it is neutral at moderate budgets and fal
 
 \paragraph{Contributions.}
 \begin{itemize}[leftmargin=*,itemsep=1pt,topsep=2pt]
-\item \textbf{Ground-truth-free selection, measured.} Residual selection with a zero-shot orientation test nearly matches the orbit oracle on FFHQ, beats the published per-metric oracle on ImageNet for DAPS, and transfers to a particle sampler (\cref{sec:audit}).
-\item \textbf{Predictability.} A residual-race model of best-of-$K$ with orbit classes, exact estimators, and six prospective tests against registered forecasts, one on new images (\cref{sec:selection}).
-\item \textbf{The coverage limit.} Unsolved images dominate what remains; we show why a few runs cannot identify them (\cref{sec:selection,sec:audit}).
-\item \textbf{A ground-truth-free protocol} with residual selection, orientation correction, two abstention flags and sequential stopping, frozen and tested on held-out runs, with an exact account of when stopping helps (\cref{sec:protocol}).
+\item \textbf{Ground-truth-free selection, measured} for four solvers on FFHQ and ImageNet (\cref{sec:audit}).
+\item \textbf{A predictive model} of best-of-$K$ with orbit classes, exact estimators and six prospective tests (\cref{sec:selection}).
+\item \textbf{The coverage limit:} why unsolved images dominate what remains, and why a few runs cannot find them (\cref{sec:selection,sec:audit}).
+\item \textbf{A frozen ground-truth-free protocol,} with an exact account of when stopping helps (\cref{sec:protocol}).
 \end{itemize}

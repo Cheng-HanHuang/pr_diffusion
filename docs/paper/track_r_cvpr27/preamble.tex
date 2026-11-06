@@ -17,7 +17,7 @@
 \ifdefined\cleancopy\draftmarksfalse\fi   % clean review build: pdflatex -jobname=main_clean "\def\cleancopy{}\input{main}"
 \ifdraftmarks
   \newcommand{\pending}[1]{{\color{red}[\textbf{PENDING}: #1]}}
-  \newcommand{\claim}[1]{\textsuperscript{\color{cvprblue}\tiny[#1]}}
+  \newcommand{\claim}[1]{\makebox[0pt][l]{\smash{\raisebox{1.55ex}{\color{cvprblue}\tiny[#1]}}}}% zero width, set in the gap above the line: the draft keeps the submission layout
   \newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
 \else
   \newcommand{\pending}[1]{}

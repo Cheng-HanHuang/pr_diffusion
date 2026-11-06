@@ -9,7 +9,8 @@ SITCOM~\cite{alkhouri2025sitcom} enforces measurement and diffusion consistency 
 FAST-DIPS~\cite{kim2026fastdips} uses analytic steps with a hard measurement constraint.
 PC-DAPS~\cite{kocabas2026pcdaps}, concurrent with this work, replaces independent runs by interacting particles pruned by prior consistency, which reduces orientation failures.
 TGD~\cite{makris2026tgd} runs particles through tempered posteriors.
-DOLPH~\cite{shoushtari2022dolph} applies a diffusion prior to coded-diffraction measurements, whose random masks remove the twin ambiguity; we keep the standard operator, which has it.
+DOLPH~\cite{shoushtari2022dolph} and DPnP~\cite{xu2024dpnp} apply diffusion priors to coded-mask measurements, whose random masks remove the twin ambiguity; we keep the standard operator, which has it.
+DDRM-PR~\cite{kaya2025ddrmpr} and I2I-PR~\cite{kaya2026i2ipr} refine HIO reconstructions with diffusion models, and FlowSGS~\cite{li2026flowsgs} uses a flow prior.
 
 \paragraph{Evaluation practice.}
 The ground-truth best-of-four protocol originates in DPS~\cite{chung2023dps}.
@@ -17,6 +18,8 @@ DAPS adopts it ``due to the inherent instability of phase retrieval''~\cite[Sec.
 In the DAPS, SITCOM and FAST-DIPS reference code, the best run is chosen separately for each metric\claim{C-P1}.
 Makris~\etal note that this oracle is unavailable at test time and select by measurement error instead~\cite[App.~F.4]{makris2026tgd}.
 Kocabas~\etal show that it hides orientation failures~\cite{kocabas2026pcdaps}.
+FlowSGS reports the best of eight posterior samples~\cite[Sec.~4.3]{li2026flowsgs}.
+DDRM-PR and I2I-PR keep the HIO starts with the smallest residual and resolve the twin ambiguity against the ground truth~\cite{kaya2025ddrmpr,kaya2026i2ipr}.
 We measure each layer of the protocol, model how selection scales with the number of runs, and replace fixed best-of-$K$ by a stopping rule.
 
 \paragraph{Best-of-$n$, verifiers and adaptive sampling.}
@@ -25,9 +28,9 @@ A verifier with false positives caps the accuracy of resampling~\cite{stroebl202
 The large-$n$ behavior of best-of-$n$ is decided by the score tails of correct and incorrect samples~\cite{yano2026tail}.
 Finite-particle guidance cannot choose between modes that its reward does not distinguish~\cite{dandapanthula2026tilting}.
 Stopping once samples agree saves compute in self-consistency decoding~\cite{aggarwal2023adaptive,li2024escape}.
+Language models also allocate test-time compute by input difficulty~\cite{snell2025scaling,damani2025hard}; our rule allocates by observed consistency, with no learned difficulty predictor.
 Abstaining on low-confidence inputs is the subject of selective prediction~\cite{geifman2017selective}.
-Coherent diffraction imaging has long run many random starts and kept or combined them by their Fourier-space error~\cite{chen2007ghio,chapman2006highres}.
-Our protocol belongs to this family.
+Coherent diffraction imaging has long run many random starts and kept or combined them by their Fourier-space error~\cite{chen2007ghio,chapman2006highres}; our protocol belongs to this family.
 What is specific to phase retrieval with a learned prior is threefold: the verifier is a residual whose level is set by the solver, it is blind to an exact symmetry, and its failures split into kinds with different remedies.
 
 \paragraph{Uniqueness and symmetry breaking.}

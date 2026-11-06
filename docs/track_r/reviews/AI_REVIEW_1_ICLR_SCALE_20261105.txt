@@ -1,0 +1,284 @@
+                   View Your Review
+
+    Best-of-K Without Ground Truth: Selection,
+    Stopping and Unsolved Images in Diffusion
+    Phase Retrieval
+        ICLR            Submitted: November 5, 2026
+
+
+
+
+             Summary
+       This paper investigates how to select, stop, and report results in diffusion-prior
+       Fourier phase retrieval without access to ground truth. It proposes a simple,
+       ground-truth-free procedure that selects the run with the smallest measurement
+       residual and corrects its orientation via a zero-shot test, and introduces a
+       stopping rule that draws runs until M consistent ones are observed. Across DAPS,
+       SITCOM, FAST-DIPS, and PC-DAPS on FFHQ and ImageNet, the authors show that
+       this protocol nearly matches an orientation-aware oracle on FFHQ, can
+       outperform the commonly used per-metric ground-truth oracle on ImageNet (due
+       to orientation correction), improves particle selection for PC-DAPS, and offers
+       predictive models and registered forecasts to understand best-of-K behavior and
+       compute–accuracy tradeoffs.
+ Strengths
+Technical novelty and innovation
+
+• The paper reframes selection and stopping for diffusion-based phase
+    retrieval as a ground-truth-free problem, proposing a simple, universal
+    protocol (residual pick plus zero-shot orientation correction) and a
+    principled    stopping   rule    that   leverages   solver-calibrated   residual
+    thresholds.
+
+• Introduces a residual-race (Plackett–Luce) model that departs from
+    exchangeable-ranks assumptions to predict how best-of-K scales, with
+    exact closed-form estimators for averaging over subsets and six
+    prospective, registered tests.
+
+• Clear articulation of inherent limits: measurement residuals cannot certify
+    correctness and cannot detect orbit symmetries; stopping only helps
+    when failed runs are inconsistent with the measurement; a few runs
+    cannot expose “unsolved” images due to mixture identifiability limits.
+
+Experimental rigor and validation
+
+• Broad, careful evaluation spanning four solvers (DAPS, SITCOM, FAST-
+    DIPS, PC-DAPS), two datasets (FFHQ, ImageNet, plus a held-out
+    ImageNet’), and multiple budgets (K up to 64); reports bootstrap
+    intervals, prospective forecasts, and exact subset estimators; freezes the
+    protocol and hypotheses before held-out scoring.
+
+• Decomposes gaps into selection vs orientation contributions; analyzes
+    per-class residual ranking; quantifies calibration and robustness of solver-
+    specific residual thresholds, including label-free estimation.
+
+• Demonstrates transfer to PC-DAPS particle selection, improving PSNR
+    and fraction of GOOD images with no additional computation.
+
+Clarity of presentation
+
+• Clear problem setup (operator, symmetries, labeling), rigorous definitions
+    (GOOD/ORBIT/CONSISTENT), and precise policies and oracles; helpful
+    propositions and reasoning about stopping and identifiability.
+
+• Thorough accounting of when and why the protocol helps or hurts, and a
+    balanced, transparent treatment of failure cases and limits.
+
+Significance of contributions
+    Addresses a pervasive gap between published best-of-K-with-ground-
+• truth practice and what users can deploy online; provides a concrete,
+    effective, and reproducible alternative.
+
+• Offers actionable recommendations for reporting and benchmarking,
+    likely to improve rigor and comparability in the community.
+
+• The predictive modeling and registered forecasts offer a rare level of
+    methodological maturity in this space, applicable beyond phase retrieval.
+
+
+
+
+ Weaknesses
+Technical limitations or concerns
+
+• Orientation correction hinges on prompts (CLIP) or heuristics and can be
+    imperfect on generic scenes; results suggest nontrivial orientation
+    residual gaps on ImageNet and ImageNet’, indicating that a stronger,
+    learned orientation prior or scorer may be needed for robustness.
+
+• The stopping analysis assumes independent, identically distributed runs
+    and independence of pass events; interactions in practice (e.g., warm
+    starts, adaptive hyperparameters) or solver correlations could violate
+    these assumptions.
+
+• Residual thresholds τS require per-solver, per-noise-level calibration;
+    while a label-free proxy is provided, generalization to other noise models
+    and operators remains untested.
+
+Experimental gaps or methodological issues
+
+• The “GOOD” label relies on PSNR thresholds (25 dB FFHQ, 20 dB
+    ImageNet); although pragmatic, the choice is somewhat arbitrary and
+    may not fully capture perceptual fidelity or task requirements.
+
+• Limited exploration beyond the standard oversampled Fourier magnitude
+    operator and mainly at σ=0.05 (aside from FAST-DIPS ablations), leaving
+    generality   to   other   regimes    (e.g.,   coded   diffraction,   different
+    oversampling factors, real experimental data) mostly untested.
+
+• Some FFHQ images come from the training split for the denoiser (cohort
+    B), which could bias results; although cohorts are reported separately, the
+    consequence on absolute and comparative outcomes is not deeply
+    analyzed.
+
+Clarity or presentation issues
+
+• The paper is dense and occasionally assumes substantial familiarity with
+    recent solvers and selection protocols; clearer, consolidated baselines for
+    the “per-metric oracle” vs. “orbit oracle” vs. “E0/E1” policies would help
+    new readers align.
+
+• Minor formatting artifacts from PDF extraction can make parts of tables
+    and figure references harder to parse without the supplement.
+
+Missing related work or comparisons
+
+• Recent flow-based inverse samplers and phase retrieval methods (e.g.,
+    FlowSGS, FlowFPR, DDRM-PR) that also rely on multi-restart or ground-
+    truth-assisted selection are not discussed; they face similar evaluation
+    pitfalls and could further contextualize the significance of ground-truth-
+    free protocols.
+
+• Broader literature on adaptive sampling/selection and particle guidance
+    (e.g., interacting particle guidance, sequential allocation) could be more
+    fully connected to the stopping and predictability analyses.
+
+
+
+
+ Detailed Comments
+Technical soundness evaluation
+
+• The argument that residuals compare runs sharply within an image
+    (shared noise realization) is convincing and supported empirically (e.g.,
+    200/205 correct-vs-consistent orderings); the caution that residual
+    thresholds cannot certify correctness is correct and well-illustrated across
+    solvers.
+
+• Proposition 1 provides a clean, interpretable decomposition of expected
+    runs and success probability under a simple Bernoulli pass model; the
+    insight that stopping helps only when measurement consistency predicts
+    correctness (i.e., when failed runs tend to be inconsistent) is both intuitive
+    and practically important.
+    The residual-race model (Plackett–Luce weights) is a meaningful
+• departure from exchangeable ranks, matches observed selection behavior
+    better, and has good prospective calibration on the selected run. The
+    demonstrated over-optimism in generation coverage (whether any run is
+    good) is candid and informative; the identifiability argument (only first
+    few moments learned from small K) explains why.
+
+• The exact subset estimators for best-of-K are well-known but often
+    neglected in empirical work; their inclusion strengthens the claims and
+    reduces post hoc selection bias.
+
+Experimental evaluation assessment
+
+• The evaluation breadth is a major strength: multiple solvers, datasets,
+    budgets, and orientation tests; the held-out, frozen protocol and
+    registered forecasts add credibility.
+
+• The improvements over fixed best-of-K at equal mean runs are significant
+    where expected (DAPS configs on FFHQ), and neutral/negative where
+    failed runs are largely consistent—this is precisely the behavior implied
+    by the theory, lending coherence to the story.
+
+• The PC-DAPS particle-selection results are particularly compelling: they
+    deliver measurable quality gains at no extra cost and underscore the
+    generality of the selection idea.
+
+• Remaining concerns include the reliance on PSNR thresholds to define
+    GOOD, modest exploration of other operators/noise levels, and limited
+    insights into real-world data or non-synthetic noise mismatches.
+
+Comparison with related work (using the summaries provided)
+
+• DPS and DAPS initiated the current best-of-K-with-ground-truth practice
+    that this paper critically revisits; SITCOM and FAST-DIPS reference code
+    also use ground-truth selection, consistent with the authors’ claims.
+
+• PC-DAPS (concurrent) moves selection inside the sampler via prior-
+    consistency pruning, but still benefits from the proposed ground-truth-
+    free selection among its particles; this complements PC-DAPS by showing
+    an external, general selector can further improve outcomes.
+
+• DPnP (plug-and-play diffusion for nonlinear inverse problems), FlowSGS
+    (flow-matching with Split Gibbs Sampling), FlowFPR (Flow + RAAR), and
+    DDRM-PR (DDRM + HIO) all demonstrate strong inverse performance but
+    still report multi-restart/ground-truth-assisted selection; this paper’s
+        protocol and reporting recommendations would address their evaluation
+        gaps and make results more deployable.
+
+   • Interacting particle guidance and sequential allocation literatures (e.g.,
+        SMC/IPG, adaptive R&S) provide a theoretical backdrop for the stopping
+        and particle interactions; while the paper cites some verifier-scaling and
+        best-of-n works, tying the stopping rule more explicitly to those
+        frameworks could further strengthen the positioning.
+
+   Discussion of broader impact and significance
+
+   • The work directly addresses a reproducibility and deployment gap:
+        reported best-of-K-with-ground-truth performance is not available at test
+        time. The proposed protocol is simple, solver-agnostic, and empirically
+        effective, and the reporting recommendations, if adopted, would make
+        published results more honest and actionable.
+
+   • The analysis clarifies when best-of-K compute is better spent adaptively
+        vs uniformly, and when orientation priors (or tests) dominate the
+        residual-based verifier; these insights generalize to other ill-posed inverse
+        problems with symmetries.
+
+   • A key takeaway for the community is to report flags and unsolved
+        coverage, not just aggregated best-of-K numbers; this shifts focus to
+        genuine solver progress instead of improved selection only.
+
+
+
+
+    Questions for Authors
+1. How sensitive is the protocol to the choice of M (e.g., M=2 vs 3 or confidence-
+   conditioned stopping)? Could a simple adaptive scheme (e.g., stop when two
+   consistent runs agree on orientation with margin) improve ImageNet’
+   performance without hurting FFHQ?
+
+2. For orientation, did you try a learned, paired preference model (e.g.,
+   contrastive classifier trained on upright vs rotated orbit pairs) instead of CLIP
+   prompts or denoising-loss heuristics? How would such a scorer generalize
+   across datasets and classes?
+
+3. The label-free τS estimation uses min-residual pilots from four runs per image.
+   How robust is this to heavy-tailed residual distributions or heterogeneous
+   image difficulty, especially for solvers that overfit measurement noise?
+
+4. Can you provide per-solver wall-clock compute comparisons for the protocol
+   vs fixed best-of-K at the same mean runs, including any overhead from
+   orientation scoring, to contextualize the practical runtime benefits?
+
+5. The independence assumptions for pass events and residual ranks underpin
+   Proposition 1 and the race model. Did you check for run-to-run correlations
+   within images (e.g., seeds that cause near-duplicates)? If present, how would
+   this affect stopping gains and predictive coverage?
+
+6. Could you expand on the failure cases where wrong-but-consistent runs
+   dominate (e.g., SITCOM)? Are there measurable residual-based features (e.g.,
+   spectral artifacts) that might identify such failure modes beyond τS?
+
+7. The identifiability argument shows a few runs cannot reveal the mass near zero
+   success. Practically, do you recommend a minimum per-image budget to
+   characterize unsolved coverage (e.g., K≥32), and how would you report
+   uncertainty on the “unsolved fraction” with small K?
+
+
+
+
+    Overall Assessment
+
+ Estimated Score: 7.1/10 (Calibrated to ICLR scale)
+
+
+This paper tackles a timely and important problem: closing the gap between
+ground-truth-assisted best-of-K reporting and what users can actually do at test
+time in diffusion-based phase retrieval. The proposed residual-based selection
+with a zero-shot orientation test and a simple stopping rule is principled, practical,
+and well-supported by extensive experiments and prospective forecasts. The work
+is methodologically careful, transparent about limits, and offers strong, actionable
+reporting recommendations that could improve rigor across the field. While the
+core ideas are conceptually simple, the contribution lies in establishing their
+effectiveness, boundaries, and predictability across multiple modern solvers and
+datasets, and in articulating exactly when stopping helps and when it cannot.
+Some limitations remain—orientation scoring on generic scenes, reliance on PSNR
+thresholds for GOOD, modest exploration of other operators/noises, and per-
+solver calibration—but overall the paper is a valuable, community-facing
+contribution. I recommend acceptance.
+
+
+
+

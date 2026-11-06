@@ -15,6 +15,7 @@ What does not survive is therefore coverage, not selection.
 Coverage depends on the solver.
 $57\%$ of SITCOM's failed runs are \cons, against $10\%$ for DAPS-2K and $8\%$ for FAST-DIPS\claim{C-A5}.
 This is why stopping helps DAPS and not SITCOM (\cref{sec:protocol}).
+Under Gaussian noise, a run's likelihood depends on the measurement only through its residual, so telling a \cons run from a \good one needs the prior, not another residual.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -46,7 +47,7 @@ Ground truth & Best run, $15.3$\,dB & Ground truth & Best run, $18.4$\,dB\\
 \includegraphics[width=0.245\linewidth]{fig/unsolved/D4_never_orbit_01_ref.png} &
 \includegraphics[width=0.245\linewidth]{fig/unsolved/D4_never_orbit_01_orc.png}
 \end{tabular}
-\caption{\textbf{What no selection can fix.} The best of FAST-DIPS's $64$ runs in any orientation, for an FFHQ image (left) and an ImageNet image (right) without a \good run ($25$ and $20$\,dB). Each is the first of its list in the supplement. Best-of-$K$ cannot repair such images, and ground-truth-selected numbers hide them. On FFHQ, $5$ of the $7$ unsolved images are near misses ($22.8$--$24.7$\,dB)\claim{C-F6}.}
+\caption{\textbf{What no selection can fix.} The best of FAST-DIPS's $64$ runs in any orientation, for an FFHQ image (left) and an ImageNet image (right) without a \good run ($25$ and $20$\,dB). Each is the first of its list in the supplement. On FFHQ, $5$ of the $7$ unsolved images are near misses ($22.8$--$24.7$\,dB)\claim{C-F6}.}
 \label{fig:unsolved}
 \end{figure}
 
@@ -58,7 +59,6 @@ This is below the $25.78$\,dB of the DAPS paper~\cite{zhang2025daps} and above a
 The per-metric oracle adds $4.2$\,dB to the first run.
 The residual pick alone recovers $1.9$\,dB.
 With the generic orientation test, it gains $5.1$\,dB and reaches $23.1$\,dB, SSIM $0.53$ and VGG-LPIPS $0.32$, ahead of the oracle on all three metrics without using the ground truth.
-The oracle leaves rotated runs uncorrected (\cref{sec:setup}).
 With eight runs the two are within $0.01$\,dB\claim{C-A13}.
 For FAST-DIPS with $16$ runs, the share of \good outputs is $50\%$ for the residual pick, $65\%$ after the orientation test, $70\%$ for $\Oraw$ and $75\%$ for $\Oorb$\claim{C-R4}.
 The test closes $60\%$ of the gap to the orbit oracle; a quarter of the images are not solved in any orientation.
@@ -75,6 +75,7 @@ Partial orbit errors, the only ones a channel-wise correction could fix, cost at
 A test closer to the prior helps.
 Ordering $\hat x$ and $R_{111}\hat x$ by a paired denoising-loss score, a heuristic proxy for the prior's orientation preference (\cref{sec:setup}; specified before scoring; exploratory), cuts the orientation loss on ImageNet$'$ from $7.0$ to $2.0$ points at $K{=}64$.
 At $K{=}16$ it adds $5.3$ points over the generic test ($95\%$ interval $[+1.1,+9.8]$); on ImageNet the two tests are within $1.5$ points\claim{C-X4}.
+A learned upright-versus-rotated classifier would be another such proxy and would plug into step~(3) unchanged.
 
 \paragraph{PC-DAPS on the same measurements.}
 PC-DAPS~\cite{kocabas2026pcdaps} draws four interacting particles per measurement and reports the mean of their metrics, \ie the quality of a random particle.

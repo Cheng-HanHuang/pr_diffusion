@@ -3,20 +3,18 @@
 
 \paragraph{Reporting.}
 For phase retrieval with diffusion priors, we recommend six practices.
-(i)~Report a ground-truth-free result as the headline, \eg the protocol of \cref{sec:protocol} with its $M$, a modest $N_{\max}$, a $\tau_S$ calibrated at the noise level used (the label-free rule sufficed here) and the mean number of runs per image.
-(ii)~Report the share of images with no consistent run, which ground-truth best-of-$K$ hides, as a marker of hard images rather than a certificate of failure.
+(i)~Report a ground-truth-free result as the headline, \eg the protocol of \cref{sec:protocol} with its $M$, a modest $N_{\max}$, a $\tau_S$ calibrated at the noise level used, and the mean number of runs per image.
+(ii)~Report the share of images with no consistent run, which ground-truth best-of-$K$ hides, as a marker of hard images.
 (iii)~Report oracles only as ceilings, and never mix runs across metrics.
 (iv)~Evaluate up to the orientation orbit when orientation is not the object of study, and report the share of orbit errors.
 (v)~State residual thresholds per solver and relative to the noise level, not as certificates.
-(vi)~Measure best-of-$K$ at the $K$ reported: a few runs per image do not reveal which images almost never succeed.
+(vi)~Report the share of images with no good run at a large $K$, as an upper bound on the unsolved share: for FAST-DIPS on FFHQ, it falls from $25$ images at $K{=}4$ to $7$ at $K{=}64$\claim{C-F2}.
 
-\paragraph{Limitations.}
-The development results of the protocol are in-sample.
-Its claims rest on the frozen held-out test, whose panels draw fresh runs for the development images, except for one image-disjoint ImageNet set.
+\paragraph{Limitations and scope.}
+The protocol's claims rest on the frozen held-out test, whose panels draw fresh runs for the development images, except for one image-disjoint ImageNet set.
 It needs a threshold per solver and noise level, from labeled images or the label-free rule, and an orientation scorer; on ImageNet, the generic test is imperfect.
-Stopping gains nothing at equal mean runs where failed runs fit the measurement, and it can lose at large budgets.
 One panel of $100$ to $180$ images resolves a gain only to $\pm1$ to $3$ points.
-The no-consistent-run flag marks hard images, not unsolved ones.
-Whether any run is good is decided by the solver and the image, not by selection; this limit is inherent to an ill-posed problem.
-We study one operator and two datasets, and other noise levels only for FAST-DIPS.
 Uniqueness up to the orbit is assumed, not proven, on the standard canvas, and most images of cohort~B come from FFHQ's training split.
+We study simulated measurements of one operator and two datasets, and other noise levels only for FAST-DIPS.
+The residual comparison needs only Gaussian noise on a fixed measurement; coded diffraction would make step~(3) unnecessary.
+With a large null space, as in inpainting, we expect wrong runs to fit exactly, so that stopping cannot help (\cref{prop:stop}).

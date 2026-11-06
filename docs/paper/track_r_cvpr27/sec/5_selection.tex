@@ -21,9 +21,10 @@ Its oracle gap never shrinks with $K$\claim{C-T6}.
 Our data reject (S2).
 Among the $100$ image--solver pairs whose passing runs mix a \good run with another class, $\Eo$ picks the \good run in $92$, against $51.9$ expected under (S2)\claim{C-A7}.
 We therefore model the residual minimizer as the winner of a race with class weights $w$ (Plackett--Luce), fitted per solver to the within-image ranks of the first four runs.
+This is the tail competition of best-of-$n$~\cite{yano2026tail}: a \cons run is picked only if it beats every \good run, not merely if it passes.
 Relative to $w_G=1$, the weights $(w_O,w_C)$ of orbit errors, global or partial, and of \cons runs are $(0.17,0.020)$ for DAPS-2K, $(0.95,0.045)$ for SITCOM and $(0.037,0.024)$ for FAST-DIPS\claim{C-T11}.
 Under the race, the per-image ceiling of $\Eo$ is $p/(p+(o_g+o_p)w_O+cw_C)$ rather than $p/s$, and the oracle gap can peak and then shrink with $K$ (supplement)\claim{C-T10}.
-Heterogeneity across images enters through a Dirichlet mixture over the class probabilities.
+Heterogeneity across images enters through a Dirichlet mixture over the class probabilities; it is the only dependence between the runs of an image.
 
 \paragraph{Exact estimators.}
 Given $n$ runs of an image, averaging a policy over all $\binom nK$ subsets gives an unbiased estimate of its $K$-run value in closed form.
@@ -45,7 +46,6 @@ The forecasts fail on generation, \ie on whether any run is good.
 They overestimate this coverage in five of six tests, including test 5, which was fitted to sixteen runs per image.
 Between $16$ and $64$ runs, the share of ImageNet images with a \good run in some orientation rises only from $75\%$ to $78\%$, against $84$--$90\%$ forecast, and $22$ images never yield one\claim{C-R7}.
 On ImageNet$'$ (test 6) it is $75\%$ at $64$ runs, against $88\%$ forecast, with $25$ images never solved.
-The model expected many images to be rescued only by an orbit error; there, an image with an orbit error usually also has a \good run\claim{C-N3}.
 
 \begin{table}[t]
 \centering\footnotesize
@@ -86,9 +86,7 @@ On ImageNet, $25$ of $100$ images have no \good run in any orientation among $16
 Four runs per image identify only the first four moments of the per-image mixture.
 Two mixtures that agree on every four-run count can differ by $9.6$ points in $\Oraw$ at $K{=}64$\claim{C-T8}.
 In our data, the four-run counts confine the population value of $\Oraw(64)$ for cohort~B only to $[0.611,1]$ (an outer enclosure; exploratory; supplement)\claim{C-B1}.
-Whether an image is hard or hopeless is decided by the mass near zero success, and a few runs cannot identify that mass.
-Nor does $\textsc{flag}_C$ isolate unsolved images (\cref{sec:protocol}).
-Their share can only be reported by running enough runs per image to see it.
+A few runs cannot identify the mass near zero success, and $\textsc{flag}_C$ does not isolate it either (\cref{sec:protocol}).
 
 \begin{figure}[t]
 \centering
