@@ -174,9 +174,10 @@ Plackett--Luce race take $(w_G,w_C)=(1,.1)$; all other candidates are
 nonpassing and wrong. Exact evaluation gives
 $\mathbb ET=(15.8031,2.2222)$, so $\bar K=9.01267$, but mean protocol
 success is $0.35227$ versus fixed-interpolated success $0.44263$.
-The rule thus loses by $9.04$ percentage points despite strongly
-heterogeneous pass rates. The resulting sufficient condition is stopping helps \emph{when consistency is informative
-and marginal extra attempts on low-$s$ images remain useful}.
+The rule thus loses by $9.04$ percentage points despite
+strongly heterogeneous pass rates. Stopping can help when
+consistency is informative and extra attempts remain useful
+on images with low $s$. Heterogeneity alone does not suffice.
 
 \paragraph{Dependence on CONSISTENT failures.}
 In a reduced G/C/I model set
@@ -216,7 +217,7 @@ $0.511$ for the linearly interpolated fixed-$K$ comparator
 included only one actually unsolved image, emphasizing that the
 flag is not a failure certificate. In the sixteen-run SITCOM panel (test 3), stopping achieved
 $0.819$ at $3.29$ runs versus $0.823$ for fixed-$K$ at equal mean
-runs ($-0.4$ points), even though the independently registered
+runs ($-0.4$ percentage points), even though the independently registered
 rank-race forecast covered all $18/18$ E0/E1 forecast checks.
 A large share of CONSISTENT failures can make threshold passing
 less informative. The passing-group success $H_j^+$ can already
@@ -225,10 +226,11 @@ adaptive attempts have little benefit. This explanation is retrospective, not a 
 $H_j^+$ or a causal demonstration.
 
 \paragraph{H2: the gain and the component forecasts.}
-The eight-run DAPS-2K panel (test 4) has a protocol gain at equal mean runs of $+3.38$ percentage points,
-falls inside the \emph{prospectively committed} historical-prefix
-prediction of $+2$ to $+4$ points (central $+3$), but this is
-\emph{not} an accurate prediction of its component success levels:
+The eight-run DAPS-2K panel (test 4) has a protocol
+gain of $+3.38$ percentage points at equal mean runs.
+This falls inside the prospectively registered range
+of $+2$ to $+4$ percentage points (central $+3$).
+The component success forecasts were less accurate:
 the observed mean compute is $3.195$ rather than $2.835$ runs,
 and observed stop/fixed E1 success is $(.931,.897)$, compared
 with $(.957,.930)$ under exchangeable passing ranks or
@@ -244,10 +246,10 @@ $H_j^+$ and the fixed-$K$ at equal mean runs comparator can both
 be biased optimistically. Since the reported gain is the
 \emph{difference} between those two accuracies, their
 shared upward errors partly cancel even when each level
-misses by roughly $3$--$6$ points. This supports the
+misses by roughly $3$--$6$ percentage points. This supports the
 \emph{directional} H2 stopping advantage on DAPS-2K but
 does not establish calibration of the generative or residual
-ranking approximations; the frozen pre-score note is unchanged.
+ranking approximations.
 
 \paragraph{\textsc{flag}$_C$ precision under an image mixture.}
 Let $U$ indicate an intrinsically unsolvable image (latent prevalence
@@ -320,8 +322,8 @@ rejected-GOOD/nonpassing outputs. Equation
 comparison in those cases.
 
 On the FAST-DIPS ImageNet 64-run panels (test 5),
-the frozen protocol H1 fails by \emph{$-1.8$ points}
-at $N_{\max}=32$ and \emph{$-3.4$ points} at
+the frozen protocol H1 fails by \emph{$-1.8$ percentage points}
+at $N_{\max}=32$ and \emph{$-3.4$ percentage points} at
 $N_{\max}=64$. In a \emph{post-hoc}
 budget decomposition, only four to six images
 with fewer than five passing candidates consume
@@ -338,8 +340,8 @@ do not by themselves certify irrecoverability.
 
 On ImageNet$'$, the frozen
 N-H1a pass prediction at $N_{\max}=16$ failed
-(observed gain $-1.52$ points versus the
-$-1$-point acceptance margin), but the
+(observed gain $-1.52$ percentage points versus the
+$-1$-percentage-point acceptance margin), but the
 image-bootstrap interval $[-3.60,+0.47]$
 spans zero and the margin and has roughly
 two-point half-width, so a one-point
@@ -400,7 +402,6 @@ Treating independent PC-DAPS samples as marked candidates could
 support a sample-level stopping model. This would require a
 label-free sample-level residual and compute measured per sample.
 Stopping across PC-DAPS samples has not been evaluated.
-
 
 \paragraph{Label-free thresholds across noise levels.}
 A median of image-wise minimum measurement residuals among four
