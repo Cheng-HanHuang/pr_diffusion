@@ -1,4 +1,4 @@
-% Theory-owned Supplement S1 DRAFT; no merge into paper files before planner approval.
+% Supplement S1: stopping theory and its empirical checks.
 \section{Theory of the frozen GT-free stopping protocol}
 \label{sec:suppl-protocol-theory}
 
@@ -14,8 +14,8 @@ $v_j=\Pr(V=1\mid J=j)$,
 \]
 Crucially, $v_G\simeq0.95$ when $\tau_S$ is the empirical $95$th
 percentile of GOOD residuals on a matched calibration distribution.
-Transferred thresholds (ImageNet FAST) need not have the same class-pass
-rates. The relative class race weights fitted from unconditional
+A threshold transferred to FAST-DIPS on ImageNet need not preserve
+class-pass rates. The relative class race weights fitted from unconditional
 residual ranks do not themselves determine $v_j$.
 
 \paragraph{Exact waiting-time law.}
@@ -66,7 +66,7 @@ best-of-$k$, by contrast,
 The frozen protocol interpolates $F(k)$ \emph{linearly} between adjacent
 integers at $\bar K=\mathbb E_{\mathrm{images}}\mathbb E T_i$;
 replacing that interpolation by $F(\bar K)$ from an exponentiated
-formula would change the preregistered comparator.
+formula would change the specified fixed-$K$ comparator.
 
 For the class-based model with densities $f_j(t)$ of physical residual
 and conditional orientation success $a_j(t)$, the passing-race success
@@ -131,7 +131,7 @@ Then the exact random-order success, compute, and consistency flag are
  \Pr_{\mathrm{order}}(\textsc{flag}_C)
  &=\frac{\binom{n-L}{N}}{\binom nN}.
 \end{align}
-If $N=n$, as on the three preregistered primary panels, this
+If $N=n$, as on the three primary evaluation panels, this
 simplifies to
 \[
  \mathbb E_{\mathrm{order}}T
@@ -140,10 +140,8 @@ simplifies to
  \Pr(\textsc{flag}_C)=\mathbf1\{L=0\},
 \]
 with success $A_M^+$ for $L\ge M$ and the deterministic full-panel
-residual-minimum success indicator otherwise. These exact conditional
-means are an independent QA of the frozen $4{,}000$-permutation
-Monte Carlo, \emph{not a change} to the registered evaluator. They
-must not be confused with the iid generator-level formula
+residual-minimum success indicator otherwise. These exact conditional means also check the $4{,}000$-permutation
+Monte Carlo computation. They differ from the iid generator-level formula
 \eqref{eq:stop-success-general}.
 
 \paragraph{Equal-budget comparison: sufficient condition and limitation.}
@@ -177,8 +175,7 @@ nonpassing and wrong. Exact evaluation gives
 $\mathbb ET=(15.8031,2.2222)$, so $\bar K=9.01267$, but mean protocol
 success is $0.35227$ versus fixed-interpolated success $0.44263$.
 The rule thus loses by $9.04$ percentage points despite strongly
-heterogeneous pass rates. The claim in the main text must therefore
-be conditional: stopping helps \emph{when consistency is informative
+heterogeneous pass rates. The resulting sufficient condition is stopping helps \emph{when consistency is informative
 and marginal extra attempts on low-$s$ images remain useful}.
 
 \paragraph{Dependence on CONSISTENT failures.}
@@ -207,29 +204,28 @@ $\alpha\uparrow1$ \emph{alone} does not force $s\uparrow1$;
 the limit statement requires the simplified all-G-pass model or an
 explicit $s\to1$ hypothesis.
 
-\paragraph{Reading Proposition~1 against held-out protocol results (post-outcome).}
+\paragraph{Stopping results and their interpretation.}
 The identities of Proposition~1 determine compute and the
 zero-consistency flag from the pass probability $s$, but \emph{do
 not} imply that early stopping beats fixed-$K$ at equal mean runs:
 the accuracy comparison also depends on the passing-group winner
-qualities $H_j^+$. In the separately released ImageNet D1-P2 test,
+qualities $H_j^+$. In the sixteen-run FAST-DIPS ImageNet panel (test 2),
 stop-at-two achieved $0.514$ at $3.36$ mean runs, compared with
 $0.511$ for the linearly interpolated fixed-$K$ comparator
 (+$0.3$ percentage points); its three \textsc{flag}$_C$ images
 included only one actually unsolved image, emphasizing that the
-flag is not a failure certificate. In SITCOM B16, stopping achieved
+flag is not a failure certificate. In the sixteen-run SITCOM panel (test 3), stopping achieved
 $0.819$ at $3.29$ runs versus $0.823$ for fixed-$K$ at equal mean
 runs ($-0.4$ points), even though the independently registered
-rank-race forecast covered all $18/18$ E0/E1 selection points.
-These held-out results are consistent with a high CONSISTENT
-share making the pass event less discriminative of correctness
-and with $H_j^+$ already near the fixed-$K$ selection quality,
-so additional adaptive attempts convey little benefit. This
-is an \emph{interpretation after evaluation}, not a fit of
-$H_j^+$, a causal demonstration, or a new prospective prediction.
+rank-race forecast covered all $18/18$ E0/E1 forecast checks.
+A large share of CONSISTENT failures can make threshold passing
+less informative. The passing-group success $H_j^+$ can already
+be close to the fixed-$K$ selector's success. In this case
+adaptive attempts have little benefit. This explanation is retrospective, not a fitted estimate of
+$H_j^+$ or a causal demonstration.
 
-\paragraph{H2: a correctly predicted gain with miscalibrated levels (post-outcome).}
-The DAPS F8 protocol gain at equal mean runs, $+3.38$ percentage points,
+\paragraph{H2: the gain and the component forecasts.}
+The eight-run DAPS-2K panel (test 4) has a protocol gain at equal mean runs of $+3.38$ percentage points,
 falls inside the \emph{prospectively committed} historical-prefix
 prediction of $+2$ to $+4$ points (central $+3$), but this is
 \emph{not} an accurate prediction of its component success levels:
@@ -238,8 +234,8 @@ and observed stop/fixed E1 success is $(.931,.897)$, compared
 with $(.957,.930)$ under exchangeable passing ranks or
 $(.993,.953)$ under transferred race weights. Two sources of
 model discrepancy are visible even before the held panel:
-the original threshold rejected $9$ of $165$ B22 and $9$ of
-$170$ DEV80 historical GOOD candidates, so the approximation
+the fixed threshold rejected $9$ of $165$ cohort A and $9$ of
+$170$ cohort B GOOD candidates, so the approximation
 that GOOD always passes is false; and collapsing image-specific
 pass probabilities $s_i$ to a cohort average loses the nonlinear
 dependence of $\mathbb E T(s_i)$ and success on $s_i$.
@@ -249,7 +245,7 @@ be biased optimistically. Since the reported gain is the
 \emph{difference} between those two accuracies, their
 shared upward errors partly cancel even when each level
 misses by roughly $3$--$6$ points. This supports the
-\emph{directional} H2 stopping advantage on DAPS but
+\emph{directional} H2 stopping advantage on DAPS-2K but
 does not establish calibration of the generative or residual
 ranking approximations; the frozen pre-score note is unchanged.
 
@@ -266,16 +262,13 @@ passes the consistency threshold. Under conditional iid runs,
 This precision can fall below $1/2$ when many solvable but low-$S$
 images are flagged, while unsolvable images whose wrong reconstructions
 are CONSISTENT almost never trigger the flag.
-The post-hoc finite-panel analog was $5/11$ on DAPS F8 and $1/3$
-on ImageNet D1-P2; \emph{no GOOD within $N$ runs} is observable with
+The observed finite-panel analog was $5/11$ on the eight-run
+DAPS-2K panel (test 4) and $1/3$ on the sixteen-run
+FAST-DIPS ImageNet panel (test 2); \emph{no GOOD within $N$ runs} is observable with
 ground truth but does not prove the latent structural impossibility $U$.
 
-% Synthetic regression: scripts/track_r/theory/test_stop_at_m_theory.py
-% Not a forecast for D1-P2/B16/F8 and not a claim of a universal gain theorem.
-
-
-% === A15 dated post-outcome additions, 2026-10-31 ===
-\paragraph{When increasing the cap reverses the stopping advantage (post-outcome).}
+% The stopping formulas are exact under their stated assumptions.
+\paragraph{When a larger cap reverses the stopping advantage.}
 The exact waiting-time law makes this failure mechanism explicit.
 Consider a mixture with a fraction $\pi_0$ of very
 low-consistency-pass images (type $h$), with $s_h\ll 1/N$,
@@ -326,7 +319,7 @@ rejected-GOOD/nonpassing outputs. Equation
 \eqref{eq:stop-mixture-large-N} remains the proper
 comparison in those cases.
 
-On the released ImageNet XP-D4 completed panels,
+On the FAST-DIPS ImageNet 64-run panels (test 5),
 the frozen protocol H1 fails by \emph{$-1.8$ points}
 at $N_{\max}=32$ and \emph{$-3.4$ points} at
 $N_{\max}=64$. In a \emph{post-hoc}
@@ -339,12 +332,11 @@ $4.3$--$5.0$ on \emph{every} image.
 This is evidence for the mechanism of
 \eqref{eq:stop-mixture-large-N}, not a fit of
 $\pi_0$, a claim that the hard images have $s=0$,
-or a new preregistered forecast.
+or a calibrated new forecast.
 In particular, an image's repeated no-pass events
 do not by themselves certify irrecoverability.
 
-\noindent\emph{Post-outcome note (2026-11-02):}
-On the image-disjoint ImageNet panel, the frozen
+On ImageNet$'$, the frozen
 N-H1a pass prediction at $N_{\max}=16$ failed
 (observed gain $-1.52$ points versus the
 $-1$-point acceptance margin), but the
@@ -356,7 +348,7 @@ panel's precision and the result is compatible
 both with neutral stopping and a moderate-budget
 loss.
 
-\paragraph{Why a FAST-DIPS threshold need not scale with noise (post-outcome).}
+\paragraph{Why a FAST-DIPS threshold need not scale with noise.}
 Write $y_\sigma=a+\sigma Z$ and
 $d_\sigma=\mathcal A(\hat x_\sigma)-a$ for the
 reconstruction's signed-measurement displacement.
@@ -377,20 +369,19 @@ Its returned denoised, clamped output can have
 a noise-dependent fit or bias outside that
 projection, so neither linearity nor a signed
 direction of departure follows from the
-noise-floor identity. The registered H-G1
-linear extrapolations were $.02003316$ and
-$.1001658$, whereas the released XP-G thresholds
-are $.02223$ (about $+11.0\%$ relative to the linearly scaled prediction; about $+9.9\%$ relative to the labeled threshold) and
-$.09809$ (about $-2.1\%$ relative to the linearly scaled prediction; about $-2.1\%$ relative to the labeled threshold), respectively;
-both fail the prespecified $1\%$ criterion.
-This is a \emph{post-outcome} qualification
-of the earlier pre-score assessment, which had
-explicitly classified H-G1 as unresolved.
+noise-floor identity. For H-G1, the linear forecasts were
+$.02003316$ at $\sigma=.02$ and $.1001658$ at $\sigma=.10$.
+The measured thresholds were $.02223$ and $.09809$.
+Relative to the linear forecasts, the errors are
+$+11.0\%$ and $-2.1\%$. Relative to the labeled thresholds,
+they are $+9.9\%$ and $-2.1\%$, respectively.
+Both fail the specified $1\%$ tolerance.
+This comparison is retrospective. H-G1 had no earlier
+predicted outcome.
 
-\paragraph{Interacting PC-DAPS particles are not independent runs.}
-PC-DAPS returns a jointly generated
-\emph{bag of four interacting particles}, not
-four iid samples from the single-run class model.
+\paragraph{A PC-DAPS sample contains interacting particles.}
+Each PC-DAPS sample contains four jointly generated interacting
+particles, not four iid solver runs.
 Although the joint law may be permutation
 exchangeable under a symmetric implementation,
 particle interactions invalidate the
@@ -398,24 +389,20 @@ particle interactions invalidate the
 per-run stopping and Dirichlet extrapolations.
 Choosing the residual-minimum particle and applying
 the predeclared orientation test remain
-ground-truth-free within a bag, regardless of
-dependence. In the released \emph{descriptive}
+ground-truth-free within a PC-DAPS sample, regardless of dependence.
+In the \emph{descriptive}
 180-image FFHQ analysis, PC-DAPS's native
 particle-mean readout gives $79.0\%$ GOOD25;
 E0 within the same particles gives $82.8\%$
-and E1 gives $84.4\%$. These are
-selection/readout comparisons on one existing
-bag, not matched-NFE improvements; the
-matched-cost claim was withdrawn.
-A \emph{new} protocol treating each independently
-generated bag as one marked candidate could
-satisfy the iid \emph{bag-level} waiting-time
-assumptions, after defining a label-free
-per-bag residual and a cost in bags, but
-no such stopping-across-bags experiment exists.
+and E1 gives $84.4\%$. These compare readouts on the same particles.
+They are not matched-compute comparisons.
+Treating independent PC-DAPS samples as marked candidates could
+support a sample-level stopping model. This would require a
+label-free sample-level residual and compute measured per sample.
+Stopping across PC-DAPS samples has not been evaluated.
 
 
-\paragraph{Why a label-free threshold may track the labeled cut across noise levels (post-outcome).}
+\paragraph{Label-free thresholds across noise levels.}
 A median of image-wise minimum measurement residuals among four
 runs can approximate a GOOD-residual quantile when the pilot
 frequently contains a GOOD run and GOOD candidates tend to have
@@ -424,7 +411,7 @@ $\tau(\sigma_0)\sigma/\sigma_0$ extrapolation, this statistic
 recalibrates from measurement residuals at the \emph{target}
 noise level, so it need not assume the reconstruction
 displacement divided by $\sigma$ has a fixed law.
-In the released exploratory $\texttt{self\_mad3}$ study the
+In the exploratory median-plus-three-scaled-MAD comparison, the
 label-free threshold is within $3.5\%$ of the labeled threshold
 at $\sigma=.02$ and within $1.2\%$ at $\sigma=.10$;
 the cross-fitted protocol gains at equal mean runs were $+4.06$
@@ -432,5 +419,5 @@ and $+0.89$ percentage points, respectively.
 This alignment is conditional on the pilot's label
 composition and residual rank separation: it is \emph{not}
 a distribution-free or prospective estimate of GOOD25,
-and if most pilots contain only CONSISTENT decoys the
-median minimum can be misleading.
+If most pilot runs are CONSISTENT decoys, the
+median of the minima can be misleading.
